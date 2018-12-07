@@ -26,43 +26,50 @@ def vel_to_wave(vel, lambda_rest, c, z):
 def wave_to_vel(wave, lambda_rest, c, z):
 	return c * ((wave / lambda_rest) / (1.0 + z) - 1.0)
 
-def generate_trident_spectrum(ds, line_name, ray_start, ray_end, spec_name, lambda_rest, vpos, Nbins):
+def generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name, lambda_rest, vpos, Nbins):
     print("Generating trident spectrum...")
     # Generate ray through box
     ray = trident.make_simple_ray(ds,
                                   start_position=ray_start,
                                   end_position=ray_end,
                                   data_filename="ray.h5",
-                                  lines=[line_name],
+                                  lines=line_list,
                                   ftype='PartType0')
 
     #sg = trident.SpectrumGenerator(lambda_min=lambda_min.value, lambda_max=lambda_max, n_lambda=Nbins)
     sg = trident.SpectrumGenerator('COS-G130M')  # convolves with COS line spread fcn, gives COS resolution
-    sg.make_spectrum(ray, lines=[line_name])
-
-    # Get fields and convert wavelengths to velocities. Note that the velocities are negative compared to pygad!
-    wavelengths = np.array(sg.lambda_field)
-    taus = np.array(sg.tau_field)
-    sigma_noise = 1.0/snr
-    noise = np.random.normal(0.0, sigma_noise, len(wavelengths))
-    fluxes = np.array(sg.flux_field)
-    velocities = wave_to_vel(wavelengths, lambda_rest, c, ds.current_redshift)
-    print 'Trident generated spectrum v=',min(velocities),max(velocities),len(wavelengths),len(velocities)
-
-    plt.plot(velocities, fluxes)
-    plt.axvline(vpos, linewidth=1, c='k')
-    plt.xlabel('Velocity (km/s)')
-    plt.ylabel('Flux')
-    plt.savefig('./plots/'+spec_name+'.png')
-    plt.clf()
-
-    #Save spectrum to hdf5 format
+    
     with h5py.File('./spectra/{}.h5'.format(spec_name), 'w') as hf:
+	for line in line_list:
+	    name = line.replace(' ', '_')
+ 
+	    sg.make_spectrum(ray, lines=[line])
+	    
+            # Get fields and convert wavelengths to velocities. Note that the velocities are negative compared to pygad!
+            taus = np.array(sg.tau_field)
+            fluxes = np.array(sg.flux_field)
+            wavelengths = np.array(sg.lambda_field)
+            velocities = wave_to_vel(wavelengths, lambda_rest, c, ds.current_redshift)
+
+            plt.plot(velocities, fluxes)
+            plt.axvline(vpos, linewidth=1, c='k')
+            plt.xlabel('Velocity (km/s)')
+            plt.ylabel('Flux')
+            plt.savefig('./plots/'+spec_name+'_'+name+'.png')
+            plt.clf()
+            
+            #Save spectrum to hdf5 format
+            hf.create_dataset(name+'_flux', data=np.array(fluxes))
+            hf.create_dataset(name+'_tau', data=np.array(taus))
+       
+        sigma_noise = 1.0/snr
+        noise = np.random.normal(0.0, sigma_noise, len(wavelengths))
+
+        #Save spectrum to hdf5 format
         hf.create_dataset('velocity', data=np.array(velocities))
-        hf.create_dataset('flux', data=np.array(fluxes))
         hf.create_dataset('wavelength', data=np.array(wavelengths))
-        hf.create_dataset('tau', data=np.array(taus))
         hf.create_dataset('noise', data=np.array(noise))
+
     print('Trident spectrum done [t=%g s]'%(t_elapsed()))
     
     del ray; gc.collect()
@@ -100,7 +107,7 @@ hubble = co.hubble_parameter(ds.current_redshift).in_units('km/s/kpc')
 vbox = ds.domain_right_edge[2].in_units('kpc') * hubble / ds.hubble_constant / (1.+ds.current_redshift)
 c = yt.units.c.in_units('km/s')
 
-line_tri = 'H I 1216'
+line_list = ['H I 1216', 'Mg II 1240', 'Si II 1260', 'C II 1335', 'Si III 1206', 'Si IV 1402', 'C III 977', 'O VI 1038', 'O VI 1032']
 lambda_rest = 1215.6701
 
 gals = sim.central_galaxies
@@ -135,7 +142,7 @@ with h5py.File('./samples/cos_sample_'+str(igal)+'.h5', 'w') as hf:
 
 
 for j in range(len(mass_sample)):
-	spec_name = line_tri + 'cos_'+str(i)+'_gal_'+str(j)+'_'
+	spec_name = 'cos_'+str(i)+'_gal_'+str(j)+'_'
 
 	rolled = np.roll(range(3), -1)
 	for ax in range(3): 
@@ -147,8 +154,8 @@ for j in range(len(mass_sample)):
 
 		ray_start = pos_sample[j].copy(); ray_start[ax] = ds.domain_left_edge[ax]; ray_start[rolled[ax]] += cos_rho[igal]
 		ray_end = pos_sample[j].copy(); ray_end[ax] = ds.domain_right_edge[ax]; ray_end[rolled[ax]] += cos_rho[igal]
-		generate_trident_spectrum(ds, line_tri, ray_start, ray_end, spec_name+str(ax)+'_plus', lambda_rest, vgal_position[j][ax], Nbins)
+		generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+str(ax)+'_plus', lambda_rest, vgal_position[j][ax], Nbins)
 
 		ray_start = pos_sample[j].copy(); ray_start[ax] = ds.domain_left_edge[ax]; ray_start[rolled[ax]] -= cos_rho[igal]
 		ray_end = pos_sample[j].copy(); ray_end[ax] = ds.domain_right_edge[ax]; ray_end[rolled[ax]] -= cos_rho[igal]
-                generate_trident_spectrum(ds, line_tri, ray_start, ray_end, spec_name+str(ax)+'_minus', lambda_rest, vgal_position[j][ax], Nbins)
+                generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+str(ax)+'_minus', lambda_rest, vgal_position[j][ax], Nbins)
