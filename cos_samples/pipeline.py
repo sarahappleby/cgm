@@ -14,7 +14,6 @@ import pyigm
 from pyigm.cgm import cos_halos as pch
 
 import gc
-
 import time
 
 def t_elapsed(): return np.round(time.time()-TINIT,2)
@@ -121,7 +120,6 @@ ssfr = sfr / stellar_masses
 positions = YTArray([gals[i].pos.in_units('kpc/h') for i in range(len(gals))], 'kpc/h')
 vels = YTArray([gals[i].vel.in_units('km/s') for i in range(len(gals))], 'km/s')
 stellar_masses = np.log10(stellar_masses)
-
 recession = positions.in_units('kpc')*hubble
 vgal_position = vels + recession - vbox
 
@@ -169,19 +167,19 @@ for i in range(len(cos_M)):
 		hf.create_dataset('ssfr', data=np.array(ssfr_sample))
         	hf.create_dataset('position', data=np.array(pos_sample))
         	hf.create_dataset('vgal_position', data=np.array(vgal_position_sample))
-
+	
 	for j in indices[choose]:
-		
+
 		print 'Generating spectra for sample galaxy ' + str(j)
 		spec_name = 'cos_galaxy_'+str(i)+'_sample_galaxy_' + str(j)
 
 		ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[0] += cos_rho[i]
-                ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[0] += cos_rho[i]
-                generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'x_plus', lambda_rest, vgal_position[j][2])
+        	ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[0] += cos_rho[i]
+        	generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'x_plus', lambda_rest, vgal_position[j][2])
 
-                ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[0] -= cos_rho[i]
-                ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[0] -= cos_rho[i]
-                generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'x_minus', lambda_rest, vgal_position[j][2])
+        	ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[0] -= cos_rho[i]
+        	ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[0] -= cos_rho[i]
+        	generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'x_minus', lambda_rest, vgal_position[j][2])
 
 		ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[1] += cos_rho[i]
                 ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[1] += cos_rho[i]
@@ -190,3 +188,4 @@ for i in range(len(cos_M)):
                 ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[1] -= cos_rho[i]
                 ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[1] -= cos_rho[i]
                 generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'y_minus', lambda_rest, vgal_position[j][2])
+
