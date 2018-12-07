@@ -94,10 +94,12 @@ cos_M = np.array(cos_data['log10(M_*)(Msun)'])
 
 cos_halos = pch.COSHalos()
 cos_M = []
+cos_ssfr = []
 cos_rho = []
 for sys in cos_halos:
 	sys = sys.to_dict()
 	cos_M.append(sys['galaxy']['stellar_mass'])
+	cos_ssfr.append(sys['galaxy']['ssfr'])
 	cos_rho.append(sys['rho'])
 cos_rho = YTArray(cos_rho, 'kpc')
 
@@ -109,14 +111,19 @@ hubble = co.hubble_parameter(ds.current_redshift).in_units('km/s/kpc')
 vbox = ds.domain_right_edge[2].in_units('kpc') * hubble / ds.hubble_constant / (1.+ds.current_redshift)
 c = yt.units.c.in_units('km/s')
 
-line_list = ['H I 1216', 'Mg II 1240', 'Si II 1260', 'C II 1335', 'Si III 1206', 'Si IV 1402', 'C III 977', 'O VI 1038', 'O VI 1032']
+line_list = ['H I 1216', 'Mg II 1240', 'Si II 1260', 'C II 1335', 'Si III 1206', 'Si IV 1402', 'C III 977', 'O VI 1032']
 lambda_rest = 1215.6701
 
 gals = sim.central_galaxies
 stellar_masses = YTArray([gals[i].masses['stellar'].in_units('Msun') for i in range(len(gals))], 'Msun')
-stellar_masses = np.log10(stellar_masses)
+sfr = np.array([gals[i].sfr.in_units('Msun/yr') for i in range(len(gals))])
+ssfr = sfr / stellar_masses
 positions = YTArray([gals[i].pos.in_units('kpc/h') for i in range(len(gals))], 'kpc/h')
 vels = YTArray([gals[i].vel.in_units('km/s') for i in range(len(gals))], 'km/s')
+stellar_masses = np.log10(stellar_masses)
+
+recession = positions.in_units('kpc')*hubble
+vgal_position = vels + recession - vbox
 
 print 'Loaded caesar galaxy data from model ' + model + ' snapshot ' + snap
 
@@ -129,54 +136,57 @@ vel_range = YTQuantity(600., 'km/s')
 mass_range = 0.125
 snr = 12.
 
-print 'Finding the caesar galaxies in the mass range of each COS Halos galaxy '
+print 'Finding the caesar galaxies in the mass and ssfr range of each COS Halos galaxy'
 
 # find the galaxies in the mass range of each COS Halos galaxy
 for i in range(len(cos_M)):
-	mask = (stellar_masses > (cos_M[i] - mass_range)) & (stellar_masses < (cos_M[i] + mass_range))
-	mass_sample = stellar_masses[mask]
-	pos_sample = positions[mask]
-	vels_sample = vels[mask]
-	recession = pos_sample.in_units('kpc')*hubble
-	vgal_position = vels_sample + recession - vbox
+	mass_mask = (stellar_masses > (cos_M[i] - mass_range)) & (stellar_masses < (cos_M[i] + mass_range))
+	stop = False
+	init = 0.1
+	while not stop:
+	        ssfr_mask = (ssfr > (1. - init)*cos_ssfr[i]) & (ssfr < (1. + init)*cos_ssfr[i])
+		mask = mass_mask * ssfr_mask
+		indices = np.where(mask == True)[0]
+		if len(indices) < 5.: 
+			init += 0.1
+			continue
+		else:
+			stop = True
+			continue
+        choose = np.random.randint(0., len(indices), 5)
+
+	mass_sample = stellar_masses[indices[choose]]
+	ssfr_sample = ssfr[indices[choose]]
+	pos_sample = positions[indices[choose]]
+	vels_sample = vels[indices[choose]]
+	recession_sample = pos_sample.in_units('kpc')*hubble
+	vgal_position_sample = vels_sample + recession_sample - vbox
 	
 	with h5py.File('./samples/cos_galaxy_'+str(i)+'_sample_data.h5', 'w') as hf:
 		hf.create_dataset('mask', data=np.array(mask))
+		hf.create_dataset('gal_ids', data=np.array(indices[choose]))
 	        hf.create_dataset('mass', data=np.array(mass_sample))
+		hf.create_dataset('ssfr', data=np.array(ssfr_sample))
         	hf.create_dataset('position', data=np.array(pos_sample))
-        	hf.create_dataset('vgal_position', data=np.array(vgal_position))
+        	hf.create_dataset('vgal_position', data=np.array(vgal_position_sample))
 
-print 'Finding all caesar galaxies in overall mass range of COS Halos'
-
-# make a spectrum for each galaxy 
-mask = (stellar_masses > (np.min(cos_M) - mass_range)) & (stellar_masses < (np.max(cos_M) + mass_range)) 
-
-recession = positions.in_units('kpc')*hubble
-vgal_position = vels + recession - vbox
-
-for j in range(len(mask)):
-	if mask[j] == False:
-		print 'Skipping galaxy '+ str(j) 
-		continue
-	else:
+	for j in indices[choose]:
+		
 		print 'Generating spectra for sample galaxy ' + str(j)
+		spec_name = 'cos_galaxy_'+str(i)+'_sample_galaxy_' + str(j)
 
-		for i in range(len(cos_rho)):
-			
-			print 'Impact parameter for COS Halos galaxy ' + str(i)
-			spec_name = 'cos_galaxy_'+str(i)+'_sample_galaxy_' + str(j)
-			rolled = np.roll(range(3), -1)
-			for ax in range(3): 
-				"""
-				v_min = vpos - vel_range; v_max = vpos + vel_range
-				lambda_min = vel_to_wave(v_min, lambda_rest, c, ds.current_redshift)
-				lambda_max = vel_to_wave(v_max, lambda_rest, c, ds.current_redshift)
-				"""
+		ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[0] += cos_rho[i]
+                ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[0] += cos_rho[i]
+                generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'x_plus', lambda_rest, vgal_position[j][2])
 
-				ray_start = positions[j].copy(); ray_start[ax] = ds.domain_left_edge[ax]; ray_start[rolled[ax]] += cos_rho[i]
-				ray_end = positions[j].copy(); ray_end[ax] = ds.domain_right_edge[ax]; ray_end[rolled[ax]] += cos_rho[i]
-				generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+str(ax)+'_plus', lambda_rest, vgal_position[j][ax])
+                ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[0] -= cos_rho[i]
+                ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[0] -= cos_rho[i]
+                generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'x_minus', lambda_rest, vgal_position[j][2])
 
-				ray_start = positions[j].copy(); ray_start[ax] = ds.domain_left_edge[ax]; ray_start[rolled[ax]] -= cos_rho[i]
-				ray_end = positions[j].copy(); ray_end[ax] = ds.domain_right_edge[ax]; ray_end[rolled[ax]] -= cos_rho[i]
-                		generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+str(ax)+'_minus', lambda_rest, vgal_position[j][ax])
+		ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[1] += cos_rho[i]
+                ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[1] += cos_rho[i]
+                generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'y_plus', lambda_rest, vgal_position[j][2])
+
+                ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[1] -= cos_rho[i]
+                ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[1] -= cos_rho[i]
+                generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'y_minus', lambda_rest, vgal_position[j][2])
