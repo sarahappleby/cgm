@@ -2,7 +2,6 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-import h5py
 import sys
 import numpy as np
 
@@ -17,7 +16,7 @@ from pyigm.cgm import cos_halos as pch
 import gc
 
 import time
-TINIT = time.time()
+
 def t_elapsed(): return np.round(time.time()-TINIT,2)
 
 def vel_to_wave(vel, lambda_rest, c, z):
@@ -27,14 +26,18 @@ def wave_to_vel(wave, lambda_rest, c, z):
 	return c * ((wave / lambda_rest) / (1.0 + z) - 1.0)
 
 def generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name, lambda_rest, vpos):
+    
     print("Generating trident spectrum...")
     # Generate ray through box
+
+    TINIT = time.time()
     ray = trident.make_simple_ray(ds,
                                   start_position=ray_start,
                                   end_position=ray_end,
                                   data_filename="ray.h5",
                                   lines=line_list,
-                                  ftype='PartType0')
+                                  ftype='PartType0')    
+    print('Trident spectrum done [t=%g s]'%(np.round(time.time()-TINIT,2)))    
 
     #sg = trident.SpectrumGenerator(lambda_min=lambda_min.value, lambda_max=lambda_max, n_lambda=Nbins)
     sg = trident.SpectrumGenerator('COS-G130M')  # convolves with COS line spread fcn, gives COS resolution
@@ -71,9 +74,7 @@ def generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name, lamb
         hf.create_dataset('velocity', data=np.array(velocities))
         hf.create_dataset('wavelength', data=np.array(wavelengths))
         hf.create_dataset('noise', data=np.array(noise))
-
-    print('Trident spectrum done [t=%g s]'%(t_elapsed()))
-    
+  
     del ray; gc.collect()
     return
 
