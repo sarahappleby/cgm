@@ -42,8 +42,10 @@ def generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name, lamb
     sg = trident.SpectrumGenerator('COS-G130M')  # convolves with COS line spread fcn, gives COS resolution
     
     with h5py.File('./spectra/{}.h5'.format(spec_name), 'w') as hf:
-	for line in line_list:
+	for i in range(len(line_list)):
 
+            line = line_list[i]
+            l_rest = lambda_rest[i]
             print 'Saving data for line ' + line
 	    name = line.replace(' ', '_')
  
@@ -53,7 +55,7 @@ def generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name, lamb
             taus = np.array(sg.tau_field)
             fluxes = np.array(sg.flux_field)
             wavelengths = np.array(sg.lambda_field)
-            velocities = wave_to_vel(wavelengths, lambda_rest, c, ds.current_redshift)
+            velocities = wave_to_vel(wavelengths, l_rest, c, ds.current_redshift)
 
             plt.plot(velocities, fluxes)
             plt.axvline(vpos, linewidth=1, c='k')
@@ -81,6 +83,7 @@ def generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name, lamb
 model = sys.argv[1]
 snap = sys.argv[2]
 wind = sys.argv[3]
+cos_id = int(sys.argv[4])
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
 infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
 
@@ -110,8 +113,8 @@ hubble = co.hubble_parameter(ds.current_redshift).in_units('km/s/kpc')
 vbox = ds.domain_right_edge[2].in_units('kpc') * hubble / ds.hubble_constant / (1.+ds.current_redshift)
 c = yt.units.c.in_units('km/s')
 
-line_list = ['H I 1216', 'Mg II 1240', 'Si II 1260', 'C II 1335', 'Si III 1206', 'Si IV 1402', 'C III 977', 'O VI 1032']
-lambda_rest = 1215.6701
+line_list = ['H I 1216', 'Si II 1260', 'C II 1335', 'Si III 1206', 'Si IV 1402', 'C III 977', 'O VI 1032']
+lambda_rest = [1216., 1260., 1335., 1206., 1402., 977., 1032.]
 
 gals = sim.central_galaxies
 stellar_masses = YTArray([gals[i].masses['stellar'].in_units('Msun') for i in range(len(gals))], 'Msun')
@@ -137,7 +140,8 @@ snr = 12.
 print 'Finding the caesar galaxies in the mass and ssfr range of each COS Halos galaxy'
 
 # find the galaxies in the mass range of each COS Halos galaxy
-for i in range(len(cos_M)):
+
+for i in [cos_id]:
 	mass_mask = (stellar_masses > (cos_M[i] - mass_range)) & (stellar_masses < (cos_M[i] + mass_range))
 	stop = False
 	init = 0.1
