@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 import sys
 import numpy as np
+import h5py
 
 import yt
 import trident
@@ -78,6 +79,9 @@ def generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name, lamb
   
     del ray; gc.collect()
     return
+
+def generate_pygad_spectrum():
+	pass
 
 
 model = sys.argv[1]
@@ -155,7 +159,7 @@ for i in [cos_id]:
 		else:
 			stop = True
 			continue
-        choose = np.random.randint(0., len(indices), 5)
+        choose = np.random.choice(range(len(indices)), 5, replace=False)
 
 	mass_sample = stellar_masses[indices[choose]]
 	ssfr_sample = ssfr[indices[choose]]
@@ -175,7 +179,7 @@ for i in [cos_id]:
 	for j in indices[choose]:
 
 		print 'Generating spectra for sample galaxy ' + str(j)
-		spec_name = 'cos_galaxy_'+str(i)+'_sample_galaxy_' + str(j)
+		spec_name = 'cos_galaxy_'+str(i)+'_sample_galaxy_' + str(j) + '_'
 
 		ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[0] += cos_rho[i]
         	ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[0] += cos_rho[i]
