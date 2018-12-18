@@ -87,6 +87,7 @@ def generate_pygad_spectrum(s, los, line_list, lambda_rest, v_limits, Nbins, vpo
 
       	check = h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'r')
 	if line_list[i] + '_col_densities' in check.keys(): continue
+	del check; gc.collect()
 
 	print 'Generating pygad spectrum for ' + line_list[i] 
 	taus, col_densities, temps, v_edges, restr_column = pg.analysis.absorption_spectra.mock_absorption_spectrum_of(s, los, line_list[i], v_limits, Nbins=Nbins)
@@ -137,11 +138,11 @@ cos_halos = pch.COSHalos()
 cos_M = []
 cos_ssfr = []
 cos_rho = []
-for sys in cos_halos:
-	sys = sys.to_dict()
-	cos_M.append(sys['galaxy']['stellar_mass'])
-	cos_ssfr.append(sys['galaxy']['ssfr'])
-	cos_rho.append(sys['rho'])
+for cos in cos_halos:
+	cos = cos.to_dict()
+	cos_M.append(cos['galaxy']['stellar_mass'])
+	cos_ssfr.append(cos['galaxy']['ssfr'])
+	cos_rho.append(cos['rho'])
 cos_rho = YTArray(cos_rho, 'kpc')
 
 sim = caesar.load(infile)
@@ -171,6 +172,8 @@ stellar_masses = np.log10(stellar_masses)
 recession = positions.in_units('kpc')*hubble
 vgal_position = vels + recession - vbox
 
+del gals; gc.collect()
+
 print 'Loaded caesar galaxy data from model ' + model + ' snapshot ' + snap
 
 # example used in Ford et al 2016
@@ -183,92 +186,90 @@ mass_range = 0.125
 snr = 12.
 
 # find the galaxies in the mass range of each COS Halos galaxy
+print '\nFinding the caesar galaxies in the mass and ssfr range of COS Halos galaxy ' + str(cos_id)
 
-for i in [cos_id]:
-	print '\nFinding the caesar galaxies in the mass and ssfr range of COS Halos galaxy ' + str(i)
-	mass_mask = (stellar_masses > (cos_M[i] - mass_range)) & (stellar_masses < (cos_M[i] + mass_range))
-	stop = False
-	init = 0.1
-	while not stop:
-	        ssfr_mask = (ssfr > (1. - init)*cos_ssfr[i]) & (ssfr < (1. + init)*cos_ssfr[i])
-		mask = mass_mask * ssfr_mask
-		indices = np.where(mask == True)[0]
-		if len(indices) < 5.: 
-			init += 0.1
-			continue
-		else:
-			stop = True
-			continue
-        choose = np.sort(np.random.choice(range(len(indices)), 5, replace=False))
+mass_mask = (stellar_masses > (cos_M[cos_id] - mass_range)) & (stellar_masses < (cos_M[cos_id] + mass_range))
+stop = False
+init = 0.1
+while not stop:
+        ssfr_mask = (ssfr > (1. - init)*cos_ssfr[cos_id]) & (ssfr < (1. + init)*cos_ssfr[cos_id])
+	mask = mass_mask * ssfr_mask
+	indices = np.where(mask == True)[0]
+	if len(indices) < 5.: 
+		init += 0.1
+		continue
+	else:
+		stop = True
+		continue
 
-	print 'Chosen galaxies ' + str(indices[choose])
+choose = np.sort(np.random.choice(range(len(indices)), 5, replace=False))
+print 'Chosen galaxies ' + str(indices[choose])
 
-	mass_sample = stellar_masses[indices[choose]]
-	ssfr_sample = ssfr[indices[choose]]
+mass_sample = stellar_masses[indices[choose]]
+ssfr_sample = ssfr[indices[choose]]
 
-	pos_sample = positions[indices[choose]]
-	vels_sample = vels[indices[choose]]
-	recession_sample = pos_sample.in_units('kpc')*hubble
-	vgal_position_sample = vels_sample + recession_sample - vbox
+pos_sample = positions[indices[choose]]
+vels_sample = vels[indices[choose]]
+recession_sample = pos_sample.in_units('kpc')*hubble
+vgal_position_sample = vels_sample + recession_sample - vbox
 
-	with h5py.File(save_dir+'/samples/cos_galaxy_'+str(i)+'_sample_data.h5', 'w') as hf:
-		hf.create_dataset('mask', data=np.array(mask))
-		hf.create_dataset('gal_ids', data=np.array(indices[choose]))
-	        hf.create_dataset('mass', data=np.array(mass_sample))
-		hf.create_dataset('ssfr', data=np.array(ssfr_sample))
-        	hf.create_dataset('position', data=np.array(pos_sample))
-        	hf.create_dataset('vgal_position', data=np.array(vgal_position_sample))
+with h5py.File(save_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.h5', 'w') as hf:
+	hf.create_dataset('mask', data=np.array(mask))
+	hf.create_dataset('gal_ids', data=np.array(indices[choose]))
+        hf.create_dataset('mass', data=np.array(mass_sample))
+	hf.create_dataset('ssfr', data=np.array(ssfr_sample))
+       	hf.create_dataset('position', data=np.array(pos_sample))
+       	hf.create_dataset('vgal_position', data=np.array(vgal_position_sample))
+
+for j in indices[choose]:
+	print 'Generating spectra for sample galaxy ' + str(j)
+	gal_name = 'cos_galaxy_'+str(cos_id)+'_sample_galaxy_' + str(j) + '_'
+
+	# for pygad:
+
+	# pygad assumes same units as s['pos'], so need to convert from kpc/h to ckpc/h_0	
+	print 'Converting galaxy positions from kpc/h to ckpc/h_0 for pygad'
+
+	spec_name = gal_name + 'x_plus'
+	los = positions[j][:2].copy(); los[0] += cos_rho[cos_id]
+	print 'In kpc/h: ' + str(los)
+	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
+	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')	
+	print 'In ckpc/h_0: ' + str(los)
+	generate_pygad_spectrum(s, los.value, line_list, lambda_rest, v_limits, Nbins, vgal_position[j][2], c, spec_name, save_dir)
 	
-	for j in indices[choose]:
+	spec_name = gal_name + 'x_minus'
+	los = positions[j][:2].copy(); los[0] -= cos_rho[cos_id]
+	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
+	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
+	generate_pygad_spectrum(s, los.value, line_list, lambda_rest, v_limits, Nbins, vgal_position[j][2], c, spec_name, save_dir)
 
-		print 'Generating spectra for sample galaxy ' + str(j)
-		gal_name = 'cos_galaxy_'+str(i)+'_sample_galaxy_' + str(j) + '_'
-
-		# for pygad:
+	spec_name = gal_name + 'y_plus'
+	los = positions[j][:2].copy(); los[1] += cos_rho[cos_id]
+	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
+	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
+	generate_pygad_spectrum(s, los.value, line_list, lambda_rest, v_limits, Nbins, vgal_position[j][2], c, spec_name, save_dir)
 		
-		# pygad assumes same units as s['pos'], so need to convert from kpc/h to ckpc/h_0	
-		print 'Converting galaxy positions from kpc/h to ckpc/h_0 for pygad'
+	los = positions[j][:2].copy(); los[1] -= cos_rho[cos_id]
+	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
+	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
+	generate_pygad_spectrum(s, los.value, line_list, lambda_rest, v_limits, Nbins, vgal_position[j][2], c, spec_name, save_dir)
 
-		spec_name = gal_name + 'x_plus'
-		los = positions[j][:2].copy(); los[0] += cos_rho[i]
-		print 'In kpc/h: ' + str(los)
-		los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
-		los *= co.hubble_parameter(0.0).in_units('km/s/kpc')	
-		print 'In ckpc/h_0: ' + str(los)
-		generate_pygad_spectrum(s, los.value, line_list, lambda_rest, v_limits, Nbins, vgal_position[j][2], c, spec_name, save_dir)
+	# for trident:		
+
+	#ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[0] += cos_rho[i]
+        #ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[0] += cos_rho[i]
+        #generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'x_plus', lambda_rest, vgal_position[j][2])
 		
-		spec_name = gal_name + 'x_minus'
-		los = positions[j][:2].copy(); los[0] -= cos_rho[i]
-		los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
-                los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-       		generate_pygad_spectrum(s, los.value, line_list, lambda_rest, v_limits, Nbins, vgal_position[j][2], c, spec_name, save_dir)
-		
-		spec_name = gal_name + 'y_plus'
-		los = positions[j][:2].copy(); los[1] += cos_rho[i]
-		los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
-               	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-		generate_pygad_spectrum(s, los.value, line_list, lambda_rest, v_limits, Nbins, vgal_position[j][2], c, spec_name, save_dir)
-		
-		los = positions[j][:2].copy(); los[1] -= cos_rho[i]
-		los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
-               	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-		generate_pygad_spectrum(s, los.value, line_list, lambda_rest, v_limits, Nbins, vgal_position[j][2], c, spec_name, save_dir)
+	#ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[0] -= cos_rho[i]
+       	#ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[0] -= cos_rho[i]
+        #generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'x_minus', lambda_rest, vgal_position[j][2])
 
-		# for trident:		
+	#ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[1] += cos_rho[i]
+        #ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[1] += cos_rho[i]
+        #generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'y_plus', lambda_rest, vgal_position[j][2])
 
-		#ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[0] += cos_rho[i]
-                #ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[0] += cos_rho[i]
-                #generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'x_plus', lambda_rest, vgal_position[j][2])
-		
-		#ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[0] -= cos_rho[i]
-                #ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[0] -= cos_rho[i]
-                #generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'x_minus', lambda_rest, vgal_position[j][2])
-
-		#ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[1] += cos_rho[i]
-                #ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[1] += cos_rho[i]
-                #generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'y_plus', lambda_rest, vgal_position[j][2])
-
-		#ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[1] -= cos_rho[i]
-                #ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[1] -= cos_rho[i]
-                #generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'y_minus', lambda_rest, vgal_position[j][2])
+	#ray_start = positions[j].copy(); ray_start[2] = ds.domain_left_edge[2]; ray_start[1] -= cos_rho[i]
+        #ray_end = positions[j].copy(); ray_end[2] = ds.domain_right_edge[2]; ray_end[1] -= cos_rho[i]
+        #generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name+'y_minus', lambda_rest, vgal_position[j][2])
 
