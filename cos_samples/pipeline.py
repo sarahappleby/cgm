@@ -87,7 +87,7 @@ def generate_pygad_spectrum(s, los, line_list, lambda_rest, v_limits, Nbins, vpo
 
       	check = h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'r')
 	if line_list[i] + '_col_densities' in check.keys(): continue
-	del check; gc.collect()
+	del check
 
 	print 'Generating pygad spectrum for ' + line_list[i] 
 	taus, col_densities, temps, v_edges, restr_column = pg.analysis.absorption_spectra.mock_absorption_spectrum_of(s, los, line_list[i], v_limits, Nbins=Nbins)
@@ -172,8 +172,6 @@ stellar_masses = np.log10(stellar_masses)
 recession = positions.in_units('kpc')*hubble
 vgal_position = vels + recession - vbox
 
-del gals; gc.collect()
-
 print 'Loaded caesar galaxy data from model ' + model + ' snapshot ' + snap
 
 # example used in Ford et al 2016
@@ -212,6 +210,9 @@ pos_sample = positions[indices[choose]]
 vels_sample = vels[indices[choose]]
 recession_sample = pos_sample.in_units('kpc')*hubble
 vgal_position_sample = vels_sample + recession_sample - vbox
+
+# save some memory:
+del gals, stellar_masses, ssfr, mass_mask, ssfr_mask
 
 with h5py.File(save_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.h5', 'w') as hf:
 	hf.create_dataset('mask', data=np.array(mask))
