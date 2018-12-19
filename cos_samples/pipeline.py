@@ -162,7 +162,7 @@ if not os.path.isfile(save_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.
 	vels = YTArray([gals[i].vel.in_units('km/s') for i in range(len(gals))], 'km/s')
 	stellar_masses = np.log10(stellar_masses)
 	recession = positions.in_units('kpc')*hubble
-	vgal_position = vels + recession - vbox
+	vgal_position = vels + recession
 
 	print 'Loaded caesar galaxy data from model ' + model + ' snapshot ' + snap
 
@@ -234,22 +234,22 @@ for i in range(len(gal_ids)):
 	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
 	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')	
 	print 'In ckpc/h_0: ' + str(los)
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i][2], c, spec_name, save_dir)
+	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
 	
 	spec_name = gal_name + 'x_minus'
 	los = pos_sample[i][:2].copy(); los[0] -= cos_rho[cos_id].value
 	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
 	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i][2], c, spec_name, save_dir)
+	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
 
 	spec_name = gal_name + 'y_plus'
 	los = pos_sample[i][:2].copy(); los[1] += cos_rho[cos_id].value
 	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
 	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i][2], c, spec_name, save_dir)
+	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
 	
 	spec_name = gal_name + 'y_minus'	
 	los = pos_sample[i][:2].copy(); los[1] -= cos_rho[cos_id].value
 	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
 	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i][2], c, spec_name, save_dir)
+	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
