@@ -82,11 +82,15 @@ def generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name, lamb
     del ray; gc.collect()
     return
 
-def generate_pygad_spectrum(s, los, line, lambda_rest, v_limits, Nbins, vpos, c, spec_name, save_dir):
+def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, vpos, c, spec_name, save_dir):
 	if os.path.isfile(save_dir+'/spectra/{}.h5'.format(spec_name)):
       		check = h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'r')
 		if line + '_col_densities' in check.keys(): return
-		
+		check.close()
+	
+	if periodic_vel: v_limits = [-600., vbox.value+600.]
+	else: v_limits = [0., vbox]
+
 	print 'Generating pygad spectrum for ' + line 
 	taus, col_densities, temps, v_edges, restr_column = pg.analysis.absorption_spectra.mock_absorption_spectrum_of(s, los, line, v_limits, Nbins=Nbins)
         fluxes = np.exp(-1.*taus)
@@ -94,7 +98,14 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, v_limits, Nbins, vpos, c,
 	wavelengths = lambda_rest * (s.redshift + 1) * (1 + velocities / c)
 	sigma_noise = 1.0/snr
 	noise = np.random.normal(0.0, sigma_noise, len(wavelengths))
-	
+		
+	if periodic_vel:
+		npix_periodic = int( vbox / (max(velocities)-min(velocities)) * len(wavelengths) )
+		print 'periodically wrapping optical depths with %d pixels'%npix_periodic
+		for i in range(0,len(wavelengths)):
+			if velocities[i] < 0.: taus[i+npix_periodic] += taus[i]
+			if velocities[i] > vbox: taus[i-npix_periodic] += taus[i]
+
 	plt.plot(velocities, fluxes)
         plt.axvline(vpos, linewidth=1, c='k')
         plt.xlabel('Velocity (km/s)')
@@ -107,6 +118,8 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, v_limits, Nbins, vpos, c,
             hf.create_dataset(line+'_tau', data=np.array(taus))
 	    hf.create_dataset(line+'_temp', data=np.array(temps))
 	    hf.create_dataset(line+'_col_densities', data=np.array(col_densities))
+	hf.close()
+
 	print 'Completed for ' + line
 	
 	with h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'r') as hf:
@@ -115,8 +128,9 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, v_limits, Nbins, vpos, c,
     		with h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'a') as hf:
     			hf.create_dataset('velocity', data=np.array(velocities))
         		hf.create_dataset('wavelength', data=np.array(wavelengths))
-        		hf.create_dataset('noise', data=np.array(noise))
-    	return
+ 	       		hf.create_dataset('noise', data=np.array(noise))
+    		hf.close()
+	return
 
 model = sys.argv[1]
 snap = sys.argv[2]
@@ -126,7 +140,7 @@ line = sys.argv[5]
 lambda_rest = float(filter(str.isdigit, line))
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
 infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
-save_dir = '/home/sapple/cgm/cos_samples/pygad/'
+save_dir = '/home/sapple/cgm/cos_samples/pygad/periodic/'
 
 cos_halos = pch.COSHalos()
 cos_M = []
@@ -147,10 +161,11 @@ hubble = co.hubble_parameter(ds.current_redshift).in_units('km/s/kpc')
 vbox = ds.domain_right_edge[2].in_units('kpc') * hubble / ds.hubble_constant / (1.+ds.current_redshift)
 c = pg.physics.c.in_units_of('km/s')
 snr = 12.
-v_limits = [0., vbox]
+periodic_vel = True
+
 # get number of bins from COS-Halos FWHM of 15 km/s (Werk et al. 2014.)
 sigma_vel = 15. / (2.*np.sqrt(2.*np.log(2.)))
-Nbins = int(np.rint(v_limits[1] / sigma_vel))
+Nbins = int(np.rint(vbox / sigma_vel))
 
 if not os.path.isfile(save_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.h5'):
 	sim = caesar.load(infile)
@@ -211,13 +226,14 @@ if not os.path.isfile(save_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.
 		hf.create_dataset('ssfr', data=np.array(ssfr_sample))
        		hf.create_dataset('position', data=np.array(pos_sample))
        		hf.create_dataset('vgal_position', data=np.array(vgal_position_sample))
+	hf.close()
 
 else:
 	cos_sample = h5py.File(save_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.h5', 'r')
 	gal_ids = cos_sample['gal_ids'].value
 	pos_sample = cos_sample['position'].value
 	vgal_position_sample = cos_sample['vgal_position'].value
-		
+	cos_sample.close()	
 	
 for i in range(len(gal_ids)):
 	print 'Generating spectra for sample galaxy ' + str(gal_ids[i])
@@ -234,22 +250,22 @@ for i in range(len(gal_ids)):
 	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
 	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')	
 	print 'In ckpc/h_0: ' + str(los)
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
+	generate_pygad_spectrum(s, los.value, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
 	
 	spec_name = gal_name + 'x_minus'
 	los = pos_sample[i][:2].copy(); los[0] -= cos_rho[cos_id].value
 	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
 	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
+	generate_pygad_spectrum(s, los.value, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
 
 	spec_name = gal_name + 'y_plus'
 	los = pos_sample[i][:2].copy(); los[1] += cos_rho[cos_id].value
 	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
 	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
+	generate_pygad_spectrum(s, los.value, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
 	
 	spec_name = gal_name + 'y_minus'	
 	los = pos_sample[i][:2].copy(); los[1] -= cos_rho[cos_id].value
 	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
 	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, v_limits, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
+	generate_pygad_spectrum(s, los.value, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
