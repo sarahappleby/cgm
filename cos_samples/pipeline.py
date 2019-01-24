@@ -115,7 +115,7 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins
 
 	with h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'a') as hf:
 	    hf.create_dataset(line+'_flux', data=np.array(fluxes))
-            hf.create_dataset(line+'_tau', data=np.array(taus))
+            hf.create_dataset(line+'_tau_periodic', data=np.array(taus))
 	    hf.create_dataset(line+'_temp', data=np.array(temps))
 	    hf.create_dataset(line+'_col_densities', data=np.array(col_densities))
 	hf.close()
@@ -140,7 +140,7 @@ line = sys.argv[5]
 lambda_rest = float(filter(str.isdigit, line))
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
 infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
-save_dir = '/home/sapple/cgm/cos_samples/pygad/periodic/'
+save_dir = '/home/sapple/cgm/cos_samples/pygad/periodic/kpch/'
 
 cos_halos = pch.COSHalos()
 cos_M = []
@@ -163,8 +163,7 @@ c = pg.physics.c.in_units_of('km/s')
 snr = 12.
 periodic_vel = True
 
-# get number of bins from COS-Halos FWHM of 15 km/s (Werk et al. 2014.)
-sigma_vel = 15. / (2.*np.sqrt(2.*np.log(2.)))
+sigma_vel = 6. # km/s
 Nbins = int(np.rint(vbox / sigma_vel))
 
 if not os.path.isfile(save_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.h5'):
@@ -247,25 +246,25 @@ for i in range(len(gal_ids)):
 	spec_name = gal_name + 'x_plus'
 	los = pos_sample[i][:2].copy(); los[0] += cos_rho[cos_id].value
 	print 'In kpc/h: ' + str(los)
-	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
-	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')	
-	print 'In ckpc/h_0: ' + str(los)
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
+	#los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
+	#los *= co.hubble_parameter(0.0).in_units('km/s/kpc')	
+	#print 'In ckpc/h_0: ' + str(los)
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
 	
 	spec_name = gal_name + 'x_minus'
 	los = pos_sample[i][:2].copy(); los[0] -= cos_rho[cos_id].value
-	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
-	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
+	#los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
+	#los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
 
 	spec_name = gal_name + 'y_plus'
 	los = pos_sample[i][:2].copy(); los[1] += cos_rho[cos_id].value
-	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
-	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
+	#los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
+	#los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
 	
 	spec_name = gal_name + 'y_minus'	
 	los = pos_sample[i][:2].copy(); los[1] -= cos_rho[cos_id].value
-	los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
-	los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
-	generate_pygad_spectrum(s, los.value, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
+	#los /= ((1. + s.redshift)*co.hubble_parameter(s.redshift).in_units('km/s/kpc'))
+	#los *= co.hubble_parameter(0.0).in_units('km/s/kpc')
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, vgal_position_sample[i], c, spec_name, save_dir)
