@@ -163,77 +163,17 @@ c = pg.physics.c.in_units_of('km/s')
 snr = 12.
 periodic_vel = True
 
-sigma_vel = 6. # km/s
+# get number of bins from COS-Halos FWHM of 15 km/s (Werk et al. 2014.)
+sigma_vel = 15. / (2.*np.sqrt(2.*np.log(2.)))
 Nbins = int(np.rint(vbox / sigma_vel))
 
-if not os.path.isfile(save_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.h5'):
-	sim = caesar.load(infile)
-	gals = sim.central_galaxies
-	stellar_masses = YTArray([gals[i].masses['stellar'].in_units('Msun') for i in range(len(gals))], 'Msun')
-	sfr = np.array([gals[i].sfr.in_units('Msun/yr') for i in range(len(gals))])
-	ssfr = sfr / stellar_masses
-	positions = YTArray([gals[i].pos.in_units('kpc/h') for i in range(len(gals))], 'kpc/h')
-	vels = YTArray([gals[i].vel.in_units('km/s') for i in range(len(gals))], 'km/s')
-	stellar_masses = np.log10(stellar_masses)
-	recession = positions.in_units('kpc')*hubble
-	vgal_position = vels + recession
 
-	print 'Loaded caesar galaxy data from model ' + model + ' snapshot ' + snap
+cos_sample = h5py.File(sample_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.h5', 'r')
+gal_ids = cos_sample['gal_ids'].value
+pos_sample = cos_sample['position'].value
+vgal_position_sample = cos_sample['vgal_position'].value
+cos_sample.close()	
 
-	# example used in Ford et al 2016
-	# COS-halos galaxy with M=10**10.2 Msun and b = 18.26 kpc = 26.85 kpc/h
-	#cos_mass = 10.2
-	#cos_b = 26.85
-
-	mass_range = 0.125
-
-	# find the galaxies in the mass range of each COS Halos galaxy
-	print '\nFinding the caesar galaxies in the mass and ssfr range of COS Halos galaxy ' + str(cos_id)
-
-	mass_mask = (stellar_masses > (cos_M[cos_id] - mass_range)) & (stellar_masses < (cos_M[cos_id] + mass_range))
-	stop = False
-	init = 0.1
-	while not stop:
-        	ssfr_mask = (ssfr > (1. - init)*cos_ssfr[cos_id]) & (ssfr < (1. + init)*cos_ssfr[cos_id])
-		mask = mass_mask * ssfr_mask
-		indices = np.where(mask == True)[0]
-		if len(indices) < 5.: 
-			init += 0.1
-			continue
-		else:
-			stop = True
-			continue
-
-	choose = np.sort(np.random.choice(range(len(indices)), 5, replace=False))
-	print 'Chosen galaxies ' + str(indices[choose])
-	gal_ids = indices[choose]
-	
-	mass_sample = stellar_masses[indices[choose]]
-	ssfr_sample = ssfr[indices[choose]]
-
-	pos_sample = positions[indices[choose]]
-	vels_sample = vels[indices[choose]]
-	vgal_position_sample = vgal_position[indices[choose]]
-
-	# save some memory:
-	del gals, stellar_masses, ssfr, mass_mask, ssfr_mask
-
-	with h5py.File(save_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.h5', 'w') as hf:
-		hf.create_dataset('mask', data=np.array(mask))
-		hf.create_dataset('gal_ids', data=np.array(indices[choose]))
-        	hf.create_dataset('mass', data=np.array(mass_sample))
-		hf.create_dataset('ssfr', data=np.array(ssfr_sample))
-       		hf.create_dataset('position', data=np.array(pos_sample))
-       		hf.create_dataset('vgal_position', data=np.array(vgal_position_sample))
-	hf.close()
-
-else:
-	cos_sample = h5py.File(save_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.h5', 'r')
-	gal_ids = cos_sample['gal_ids'].value
-	pos_sample = cos_sample['position'].value
-	vgal_position_sample = cos_sample['vgal_position'].value
-	cos_sample.close()	
-	
 for i in range(len(gal_ids)):
 	print 'Generating spectra for sample galaxy ' + str(gal_ids[i])
 	gal_name = 'cos_galaxy_'+str(cos_id)+'_sample_galaxy_' + str(gal_ids[i]) + '_'
