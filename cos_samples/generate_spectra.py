@@ -1,9 +1,9 @@
-import matplotli
+import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 import numpy as np 
-import pygad
+import pygad as pg
 import gc
 import os
 import h5py
@@ -71,7 +71,7 @@ def generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name, lamb
     del ray; gc.collect()
     return
 
-def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, vpos, c, spec_name, save_dir):
+def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, snr, vpos, c, spec_name, save_dir):
 	if os.path.isfile(save_dir+'/spectra/{}.h5'.format(spec_name)):
       		check = h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'r')
 		if line + '_col_densities' in check.keys(): return
@@ -96,11 +96,11 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins
 			if velocities[i] > vbox: taus[i-npix_periodic] += taus[i]
 
 	plt.plot(velocities, fluxes)
-    plt.axvline(vpos, linewidth=1, c='k')
-    plt.xlabel('Velocity (km/s)')
-    plt.ylabel('Flux')
-    plt.savefig(save_dir+'/plots/'+spec_name+'_'+line+'.png')
-    plt.clf()
+        plt.axvline(vpos, linewidth=1, c='k')
+        plt.xlabel('Velocity (km/s)')
+        plt.ylabel('Flux')
+        plt.savefig(save_dir+'/plots/'+spec_name+'_'+line+'.png')
+        plt.clf()
 
 	with h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'a') as hf:
 	    hf.create_dataset(line+'_flux', data=np.array(fluxes))
