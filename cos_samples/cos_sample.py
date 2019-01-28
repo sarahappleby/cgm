@@ -3,7 +3,7 @@ import os
 import numpy as np
 import caesar
 from pyigm.cgm import cos_halos as pch
-from yt import YTArray
+import yt
 
 model = sys.argv[1]
 snap = sys.argv[2]
@@ -30,13 +30,15 @@ print 'Loaded COS-Halos survey data'
 
 sim = caesar.load(infile)
 gals = sim.central_galaxies
-hubble = sim.simulation.h()
 
-stellar_masses = YTArray([gals[i].masses['stellar'].in_units('Msun') for i in range(len(gals))], 'Msun')
+co = yt.utilities.cosmology.Cosmology()
+hubble = co.hubble_parameter(ds.current_redshift).in_units('km/s/kpc')
+
+stellar_masses = yt.YTArray([gals[i].masses['stellar'].in_units('Msun') for i in range(len(gals))], 'Msun')
 sfr = np.array([gals[i].sfr.in_units('Msun/yr') for i in range(len(gals))])
 ssfr = sfr / stellar_masses
-positions = YTArray([gals[i].pos.in_units('kpc/h') for i in range(len(gals))], 'kpc/h')
-vels = YTArray([gals[i].vel.in_units('km/s') for i in range(len(gals))], 'km/s')
+positions = yt.YTArray([gals[i].pos.in_units('kpc/h') for i in range(len(gals))], 'kpc/h')
+vels = yt.YTArray([gals[i].vel.in_units('km/s') for i in range(len(gals))], 'km/s')
 stellar_masses = np.log10(stellar_masses)
 recession = positions.in_units('kpc')*hubble
 vgal_position = vels + recession
