@@ -8,6 +8,8 @@ import gc
 import os
 import h5py
 
+c = 
+
 def t_elapsed(): return np.round(time.time()-TINIT,2)
 
 def vel_to_wave(vel, lambda_rest, c, z):
@@ -71,52 +73,64 @@ def generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name, lamb
     del ray; gc.collect()
     return
 
-def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, snr, vpos, c, spec_name, save_dir):
+def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, snr, vpos, vel_range, spec_name, save_dir):
 	if os.path.isfile(save_dir+'/spectra/{}.h5'.format(spec_name)):
       		check = h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'r')
 		if line + '_col_densities' in check.keys(): return
 		check.close()
 	
-	if periodic_vel: v_limits = [-600., vbox.value+600.]
-	else: v_limits = [0., vbox]
+	if periodic_vel: 
+        v_limits = [-600., vbox.value+600.]
+	else: 
+        v_limits = [0., vbox]
 
 	print 'Generating pygad spectrum for ' + line 
 	taus, col_densities, temps, v_edges, restr_column = pg.analysis.absorption_spectra.mock_absorption_spectrum_of(s, los, line, v_limits, Nbins=Nbins)
-        fluxes = np.exp(-1.*taus)
+    fluxes = np.exp(-1.*taus)
 	velocities = 0.5 * (v_edges[1:] + v_edges[:-1])
-	wavelengths = lambda_rest * (s.redshift + 1) * (1 + velocities / c)
-	sigma_noise = 1.0/snr
-	noise = np.random.normal(0.0, sigma_noise, len(wavelengths))
-		
+	wavelengths = vel_to_wave(velocities, lambda_rest, pg.cosmology.c.in_units_of('km/s').value, s.redshift)
+    sigma_noise = 1.0/snr
+    noise = np.random.normal(0.0, sigma_noise, len(wavelengths))
+
 	if periodic_vel:
+        taus_orig = taus.copy()
+        fluxes_orig = fluxes.copy()
 		npix_periodic = int( vbox / (max(velocities)-min(velocities)) * len(wavelengths) )
 		print 'periodically wrapping optical depths with %d pixels'%npix_periodic
 		for i in range(0,len(wavelengths)):
 			if velocities[i] < 0.: taus[i+npix_periodic] += taus[i]
 			if velocities[i] > vbox: taus[i-npix_periodic] += taus[i]
 
-	plt.plot(velocities, fluxes)
-        plt.axvline(vpos, linewidth=1, c='k')
-        plt.xlabel('Velocity (km/s)')
-        plt.ylabel('Flux')
-        plt.savefig(save_dir+'/plots/'+spec_name+'_'+line+'.png')
-        plt.clf()
+        fluxes = np.exp(-1.*taus)
+	
+    plt.plot(velocities, fluxes)
+    plt.axvline(vpos, lw=1, c='k')
+    plt.axvline(vpos + vel_range , lw=1, c='k', ls='-')
+    plt.axvline(vpos - vel_range , lw=1, c='k', ls='-')
+    plt.xlabel('Velocity (km/s)')
+    plt.ylabel('Flux')
+    plt.savefig(save_dir+'/plots/'+spec_name+'_'+line+'.png')
+    plt.clf()
+
 
 	with h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'a') as hf:
-	    hf.create_dataset(line+'_flux', data=np.array(fluxes))
-            hf.create_dataset(line+'_tau_periodic', data=np.array(taus))
+        
+        if periodic_vel:
+            hf.create_dataset(line+'_flux_nonperiodic', data=np.array(fluxes_orig))
+            hf.create_dataset(line+'_tau_nonperiodic', data=np.array(taus_orig))
+	    
+        hf.create_dataset(line+'_flux', data=np.array(fluxes))
+        hf.create_dataset(line+'_tau', data=np.array(taus))
 	    hf.create_dataset(line+'_temp', data=np.array(temps))
 	    hf.create_dataset(line+'_col_densities', data=np.array(col_densities))
-	hf.close()
+	    
+        if 'wavelength' not in hf.keys():
+            hf.create_dataset('velocity', data=np.array(velocities))
+            hf.create_dataset('wavelength', data=np.array(wavelengths))
+            hf.create_dataset('noise', data=np.array(noise))
+    
+    hf.close()
 
 	print 'Completed for ' + line
 	
-	with h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'r') as hf:
-		check = hf.keys()
-	if 'wavelength' not in check:
-    		with h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'a') as hf:
-    			hf.create_dataset('velocity', data=np.array(velocities))
-        		hf.create_dataset('wavelength', data=np.array(wavelengths))
- 	       		hf.create_dataset('noise', data=np.array(noise))
-    		hf.close()
-	return
+    return

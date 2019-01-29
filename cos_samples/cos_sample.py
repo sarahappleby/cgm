@@ -66,13 +66,13 @@ for cos_id in range(44):
 				stop = True
 				continue
 
+		# choose 5 of the galaxies that satisfy the COS-Halos galaxy's conditions
 		choose = np.sort(np.random.choice(range(len(indices)), 5, replace=False))
 		print 'Chosen galaxies ' + str(indices[choose])
 		gal_ids = indices[choose]
 
 		mass_sample = stellar_masses[indices[choose]]
 		ssfr_sample = ssfr[indices[choose]]
-
 		pos_sample = positions[indices[choose]]
 		vels_sample = vels[indices[choose]]
 		vgal_position_sample = vgal_position[indices[choose]]
@@ -86,4 +86,8 @@ for cos_id in range(44):
 			hf.create_dataset('ssfr', data=np.array(ssfr_sample))
 			hf.create_dataset('position', data=np.array(pos_sample))
 			hf.create_dataset('vgal_position', data=np.array(vgal_position_sample))
+			hf.attrs['pos_units'] = 'kpc/h'
+			hf.attrs['mass_units'] = 'Msun'
+			hf.attrs['ssfr_units'] = 'Msun/yr'
+			hf.attrs['vel_units'] = 'km/s'
 		hf.close()
