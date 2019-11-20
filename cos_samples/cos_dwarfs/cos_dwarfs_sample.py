@@ -15,7 +15,8 @@ model = 'm50n512'
 snap = '151'
 wind = 's50j7k'
 sample_dir = '/home/sapple/cgm/cos_samples/cos_dwarfs/samples/'
-mass_range = 0.1
+mass_range = 0.1 # dex
+pos_range = 1000. # kpc/h
 
 if not os.path.exists(sample_dir):
 	os.makedirs(sample_dir)
@@ -79,6 +80,21 @@ for cos_id in range(43):
             ssfr_mask = (gal_ssfr > (1. - init)*cos_ssfr[cos_id]) & (gal_ssfr < (1. + init)*cos_ssfr[cos_id])
             mask = mass_mask * ssfr_mask * gal_cent * choose_mask
             indices = np.where(mask == True)[0]
+            
+            delete_gals = []
+            # check isolation criteria (no other galaxies within 1 Mpc)
+            for i, gal in enumerate(indices):
+                # compute distance of other galaxies to this one:
+                r = np.sqrt(np.sum((gal_pos - gal_pos[gal])**2, axis=1))
+                pos_mask = (r.value < pos_range)
+                # check for central galaxies in this range
+                # one of the galaxies will be the original galaxy, so at least 1 match is expected
+                if len(gal_sm[pos_mask]) > 1:
+                    delete_gals.append(i)
+            if len(delete_gals) > 0.:
+                print('Excluding galaxies within 1 Mpc')
+                indices = np.delete(indices, delete_gals)
+
             if len(indices) < 5.: 
                 
                 if (len(indices) < 2.) & (init > 1.5) & (mass_range_init > 5.*mass_range):
@@ -88,7 +104,9 @@ for cos_id in range(43):
 
                 if np.log10(cos_ssfr[cos_id]) > -11.5:
                     mass_range_init += 0.05
+                    print('Expanding mass search by 0.05 dex')
                 init += 0.1
+                print('Expanding sSFR search by 0.1 dex')
                 continue
             else:
                 stop = True
