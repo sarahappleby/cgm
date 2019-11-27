@@ -6,7 +6,7 @@ import h5py
 import yt
 from yt.units.yt_array import YTArray, YTQuantity
 import pygad as pg
-from pyigm.cgm import cos_halos as pch
+from astropy.io import ascii
 
 from generate_spectra import generate_pygad_spectrum
 
@@ -22,14 +22,15 @@ ids = range(cos_id*5, (cos_id+1)*5)
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
 infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
 
-save_dir = '/home/sapple/cgm/cos_samples/samples/'
+sample_dir = '/home/sapple/cgm/cos_samples/cos_dwarfs/samples/'
+save_dir = '/home/sapple/cgm/cos_samples/cos_dwarfs/'
 
-# need to get the impact parameters from the COS-Halos survey data:
-cos_halos = pch.COSHalos()
-cos_rho = []
-for cos in cos_halos:
-        cos = cos.to_dict()
-        cos_rho.append(cos['rho'])
+# need to get the impact parameters from the COS-Dwarfs survey data:
+table_file = '/home/sapple/cgm/cos_samples/cos_dwarfs/obs_data/line_table_simple.tex'
+table = ascii.read(table_file, format='latex')
+cos_rho = table['Rho']
+cos_M = table['logM_stellar']
+cos_ssfr = table['logsSFR']
 
 # Get some info from yt:
 ds = yt.load(snapfile)
@@ -46,7 +47,7 @@ sigma_vel = 6. # km/s
 Nbins = int(np.rint(vbox / sigma_vel))
 
 # Load in data for the sample galaxies corresponding to this COS-Halos galaxy
-with h5py.File(save_dir+'/'+model+'_'+wind+'_cos_galaxy_sample.h5', 'r') as cos_sample:
+with h5py.File(sample_dir+model+'_'+wind+'_cos_dwarfs_sample.h5', 'r') as cos_sample:
 
 	gal_ids = (cos_sample['gal_ids'].value)[ids]
 
@@ -54,7 +55,7 @@ with h5py.File(save_dir+'/'+model+'_'+wind+'_cos_galaxy_sample.h5', 'r') as cos_
 	# so instead we convert to default units of s['pos']
 	# hence kpc/h and the factor of (1+z) is necessary
 	pos_sample = (cos_sample['position'].value*(1.+ds.current_redshift))[ids]
-        vgal_position_sample = (cos_sample['vgal_position'].value)[ids][:, 2]
+	vgal_position_sample = (cos_sample['vgal_position'].value)[ids][:, 2]
 
 # Load in snapshot for pygad spectra generation:
 s = pg.Snap(snapfile)
@@ -77,6 +78,6 @@ for i in range(len(gal_ids)):
 	los = pos_sample[i][:2].copy(); los[1] += cos_rho[cos_id]
 	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 	
-	spec_name = gal_name + 'y_minus'	
+	spec_name = gal_name + 'y_minus'    
 	los = pos_sample[i][:2].copy(); los[1] -= cos_rho[cos_id]
 	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
