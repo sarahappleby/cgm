@@ -2,7 +2,7 @@ import sys
 import os
 import numpy as np
 import h5py
-
+import re
 import yt
 from yt.units.yt_array import YTArray, YTQuantity
 import pygad as pg
@@ -13,28 +13,29 @@ from generate_spectra import generate_pygad_spectrum
 model = sys.argv[1]
 snap = sys.argv[2]
 wind = sys.argv[3]
-cos_id = int(sys.argv[4])
-line = sys.argv[5]
-lambda_rest = float(filter(str.isdigit, line))
+survey = sys.argv[4]
+num = int(sys.argv[5])
+line = sys.argv[6]
+lambda_rest = float(re.findall(r'\d+', line)[0])
 
-ids = range(cos_id*5, (cos_id+1)*5)
+ids = range(num*5, (num+1)*5)
 
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
 infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
 
-sample_dir = '/home/sapple/cgm/cos_samples/cos_dwarfs/samples/'
-save_dir = '/home/sapple/cgm/cos_samples/cos_dwarfs/'
+sample_dir = '/home/sapple/cgm/cos_samples/cos_'+survey+'/samples/'
+save_dir = '/home/sapple/cgm/cos_samples/cos_'+survey+'/'
 
-# need to get the impact parameters from the COS-Dwarfs survey data:
-table_file = '/home/sapple/cgm/cos_samples/cos_dwarfs/obs_data/line_table_simple.tex'
-table = ascii.read(table_file, format='latex')
-cos_rho = table['Rho']
-cos_M = table['logM_stellar']
-cos_ssfr = table['logsSFR']
+if survey == 'dwarfs':
+    from get_cos_info import get_cos_dwarfs
+    cos_rho, cos_M, cos_ssfr = get_cos_dwarfs()
+
+elif survey == 'halos':
+    from get_cos_info import get_cos_halos
+    cos_rho, cos_M, cos_ssfr = get_cos_halos()
 
 # Get some info from yt:
 ds = yt.load(snapfile)
-
 co = yt.utilities.cosmology.Cosmology()
 hubble = co.hubble_parameter(ds.current_redshift).in_units('km/s/kpc')
 vbox = ds.domain_right_edge[2].in_units('kpc') * hubble / ds.hubble_constant / (1.+ds.current_redshift)
@@ -47,18 +48,20 @@ sigma_vel = 6. # km/s
 Nbins = int(np.rint(vbox / sigma_vel))
 
 # Load in data for the sample galaxies corresponding to this COS-Halos galaxy
-with h5py.File(sample_dir+model+'_'+wind+'_cos_dwarfs_sample.h5', 'r') as cos_sample:
+with h5py.File(sample_dir+model+'_'+wind+'_cos_'+survey+'_sample.h5', 'r') as cos_sample:
+    
+    gal_ids = (cos_sample['gal_ids'][:])[ids]
+    cos_ids = cos_sample['cos_ids'][:]
+    # we can't have the line of sight as a pygad UnitArr because it can't convert between kpc/h and ckpc/h_0
+    # so instead we convert to default units of s['pos']
+    # hence kpc/h and the factor of (1+z) is necessary
+    pos_sample = (cos_sample['position'][:]  *  (1.+ds.current_redshift))[ids]
+    vgal_position_sample = (cos_sample['vgal_position'][:])[ids][:, 2]
 
-	gal_ids = (cos_sample['gal_ids'].value)[ids]
-
-	# we can't have the line of sight as a pygad UnitArr because it can't convert between kpc/h and ckpc/h_0
-	# so instead we convert to default units of s['pos']
-	# hence kpc/h and the factor of (1+z) is necessary
-	pos_sample = (cos_sample['position'].value*(1.+ds.current_redshift))[ids]
-	vgal_position_sample = (cos_sample['vgal_position'].value)[ids][:, 2]
+cos_id = cos_ids[num]
 
 # Load in snapshot for pygad spectra generation:
-s = pg.Snap(snapfile)
+s = pg.Snapshot(snapfile)
 
 # Generate spectra for each line of sight:
 for i in range(len(gal_ids)):

@@ -80,10 +80,11 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins
 		v_limits = [0., vbox]
 
 	print('Generating pygad spectrum for ' + line)
-	taus, col_densities, dens, temps, vel, v_edges, restr_column = pg.analysis.absorption_spectra.mock_absorption_spectrum_of(s, los, line, v_limits, Nbins=Nbins)
+	taus, col_densities, dens, temps, metal_frac, vel, v_edges, restr_column = \
+                pg.analysis.absorption_spectra.mock_absorption_spectrum_of(s, los, line, v_limits, Nbins=Nbins, return_los_phys=True)
 	fluxes = np.exp(-1.*taus)
 	velocities = 0.5 * (v_edges[1:] + v_edges[:-1])
-	wavelengths = vel_to_wave(velocities, lambda_rest, np.array(pg.cosmology.c.in_units_of('km/s')), s.redshift)
+	wavelengths = vel_to_wave(velocities, lambda_rest, np.array(pg.physics.cosmology.c.in_units_of('km/s')), s.redshift)
 	sigma_noise = 1.0/snr
 	noise = np.random.normal(0.0, sigma_noise, len(wavelengths))
 
