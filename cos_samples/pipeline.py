@@ -21,7 +21,7 @@ lambda_rest = float(re.findall(r'\d+', line)[0])
 ids = range(num*5, (num+1)*5)
 
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
-infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
+snapfile = '/home/sapple/cgm/cos_samples/cos_'+survey+'/samples/'+model+'_'+wind+'_'+snap+'.hdf5'
 
 sample_dir = '/home/sapple/cgm/cos_samples/cos_'+survey+'/samples/'
 save_dir = '/home/sapple/cgm/cos_samples/cos_'+survey+'/'
@@ -59,12 +59,14 @@ with h5py.File(sample_dir+model+'_'+wind+'_cos_'+survey+'_sample.h5', 'r') as co
     vgal_position_sample = (cos_sample['vgal_position'][:])[ids][:, 2]
 
 cos_id = cos_ids[num]
+cos_rho = cos_rho * ds.hubble_constant / ds.current_redshift # originally in kpc, need in kpc/h to match pygad
+
 
 # Load in snapshot for pygad spectra generation:
 s = pg.Snapshot(snapfile)
 
 # Generate spectra for each line of sight:
-for i in range(len(gal_ids)):
+for i in list(range(len(gal_ids))):
 	print('Generating spectra for sample galaxy ' + str(gal_ids[i]))
 	gal_name = 'sample_galaxy_' + str(gal_ids[i]) + '_'
 
