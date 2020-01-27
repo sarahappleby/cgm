@@ -10,6 +10,8 @@ from astropy.io import ascii
 
 from generate_spectra import generate_pygad_spectrum
 
+mlim = np.log10(5.8e8)
+
 model = sys.argv[1]
 snap = sys.argv[2]
 wind = sys.argv[3]
@@ -18,7 +20,7 @@ num = int(sys.argv[5])
 line = sys.argv[6]
 lambda_rest = float(re.findall(r'\d+', line)[0])
 
-ids = range(num*5, (num+1)*5)
+ids = list(range(num*5, (num+1)*5))
 
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
 snapfile = '/home/sapple/cgm/cos_samples/cos_'+survey+'/samples/'+model+'_'+wind+'_'+snap+'.hdf5'
@@ -42,10 +44,17 @@ vbox = ds.domain_right_edge[2].in_units('kpc') * hubble / ds.hubble_constant / (
 
 # Set some spectrum parameters:
 snr = 12.
-periodic_vel = True
 vel_range = 600. # km/s
-sigma_vel = 6. # km/s
-Nbins = int(np.rint(vbox / sigma_vel))
+pixel_size = 6 # km/s
+periodic_vel = True
+if periodic_vel:
+    v_limits = [-600., vbox.value+600.]
+else:
+    v_limits = [0., vbox]
+total_v = np.sum(np.abs(v_limits))
+Nbins = int(np.rint(total_v / pixel_size))
+
+
 
 # Load in data for the sample galaxies corresponding to this COS-Halos galaxy
 with h5py.File(sample_dir+model+'_'+wind+'_cos_'+survey+'_sample.h5', 'r') as cos_sample:
@@ -59,7 +68,7 @@ with h5py.File(sample_dir+model+'_'+wind+'_cos_'+survey+'_sample.h5', 'r') as co
     vgal_position_sample = (cos_sample['vgal_position'][:])[ids][:, 2]
 
 cos_id = cos_ids[num]
-cos_rho = cos_rho * ds.hubble_constant / ds.current_redshift # originally in kpc, need in kpc/h to match pygad
+cos_rho = cos_rho * (ds.hubble_constant / (1 + ds.current_redshift)) # originally in kpc, need in kpc/h to match pygad
 
 
 # Load in snapshot for pygad spectra generation:
@@ -73,16 +82,16 @@ for i in list(range(len(gal_ids))):
 	spec_name = gal_name + 'x_plus'
 	los = pos_sample[i][:2].copy(); los[0] += cos_rho[cos_id]
 	print('In kpc/h: ' + str(los))
-	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 	
 	spec_name = gal_name + 'x_minus'
 	los = pos_sample[i][:2].copy(); los[0] -= cos_rho[cos_id]
-	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 
 	spec_name = gal_name + 'y_plus'
 	los = pos_sample[i][:2].copy(); los[1] += cos_rho[cos_id]
-	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 	
 	spec_name = gal_name + 'y_minus'    
 	los = pos_sample[i][:2].copy(); los[1] -= cos_rho[cos_id]
-	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)

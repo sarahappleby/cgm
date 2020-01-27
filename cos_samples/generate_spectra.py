@@ -68,17 +68,12 @@ def generate_trident_spectrum(ds, line_list, ray_start, ray_end, spec_name, lamb
 	del ray; gc.collect()
 	return
 
-def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, Nbins, snr, vpos, vel_range, spec_name, save_dir):
+def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vpos, vel_range, spec_name, save_dir):
 	if os.path.isfile(save_dir+'/spectra/{}.h5'.format(spec_name)):
 		check = h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'r')
 		if line + '_col_densities' in check.keys(): return
 		check.close()
 	
-	if periodic_vel: 
-		v_limits = [-600., vbox.value+600.]
-	else: 
-		v_limits = [0., vbox]
-
 	print('Generating pygad spectrum for ' + line)
 	taus, col_densities, dens, temps, metal_frac, vel, v_edges, restr_column = \
                 pg.analysis.absorption_spectra.mock_absorption_spectrum_of(s, los, line, v_limits, Nbins=Nbins, return_los_phys=True)
