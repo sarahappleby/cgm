@@ -91,6 +91,6 @@ if __name__ == '__main__':
     numpart = np.zeros(6, dtype='int')
     numpart[0] = len(plist)
 
-    prepare_out_file(data_dir+'', output_file, numpart)
+    prepare_out_file(snapfile, output_file, numpart)
 
     make_new_dataset(snapfile, output_file, plist, verbose)

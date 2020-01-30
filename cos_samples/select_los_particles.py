@@ -38,17 +38,17 @@ redshift = sim.simulation.redshift
 
 snapfile = data_dir + 'snap_'+model+'_'+snap +'.hdf5' 
 # need PartType0 - SmoothingLength
-hsml = readsnap(snapfile, 'SmoothingLength', 'gas', suppress=1, units=1)  # in kpc/h
-gas_pos = readsnap(snapfile, 'pos', 'gas', suppress=1, units=1) # in kpc/h
+hsml = readsnap(snapfile, 'SmoothingLength', 'gas', suppress=1, units=1)  # in kpc/h, comoving
+gas_pos = readsnap(snapfile, 'pos', 'gas', suppress=1, units=1) # in kpc/h, comoving
 
 sample_dir = '/home/sapple/cgm/cos_samples/cos_'+survey+'/samples/'
 sample_file = sample_dir+model+'_'+wind+'_cos_'+survey+'_sample.h5'
 with h5py.File(sample_file, 'r') as f:
     gal_id = f['gal_ids'][:].astype('int')[sample_gal]
-    pos = f['position'][:][sample_gal] / (1.+redshift) # already in kpc/h, factor of 1+z for comoving
+    pos = f['position'][:][sample_gal] * (1.+redshift) # already in kpc/h, factor of 1+z for comoving
 
 cos_rho = cos_rho[cos_M > mlim]
-cos_rho = (np.repeat(cos_rho, 5) * h ) / (1+redshift)
+cos_rho = (np.repeat(cos_rho, 5) * h ) * (1+redshift)
 
 los = np.array([pos[:2].copy(), ]*4)
 los[0][0] += cos_rho[sample_gal]

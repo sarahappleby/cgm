@@ -20,11 +20,12 @@ model = 'm50n512'
 wind = 's50j7k'
 survey = sys.argv[1]
 
-sample_dir = '/home/sapple/cgm/cos_samples/cos_'+survey+'/samples/'
+sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
 mass_range = 0.1 # dex
 ssfr_range = 0.1 # dex
 pos_range = 1000. # kpc/h
 mlim = np.log10(5.8e8) # lower limit of M*
+do_isolation = False
 
 if not os.path.exists(sample_dir):
 	os.makedirs(sample_dir)
@@ -100,19 +101,20 @@ for cos_id in np.argsort(cos_M):
             mask = mass_mask * ssfr_mask * gal_cent * choose_mask
             indices = np.where(mask == True)[0]
             
-            delete_gals = []
-            # check isolation criteria (no other galaxies within 1 Mpc)
-            for i, gal in enumerate(indices):
-                # compute distance of other galaxies to this one:
-                r = np.sqrt(np.sum((gal_pos - gal_pos[gal])**2, axis=1))
-                pos_mask = (r.value < pos_range) * gal_cent
-                # check for central galaxies in this range
-                # one of the galaxies will be the original galaxy, so at least 1 match is expected
-                if len(gal_sm[pos_mask]) > 1:
-                    delete_gals.append(i)
-            if len(delete_gals) > 0.:
-                print('Excluding galaxies within 1 Mpc')
-                indices = np.delete(indices, delete_gals)
+            if do_isolation:
+                delete_gals = []
+                # check isolation criteria (no other galaxies within 1 Mpc)
+                for i, gal in enumerate(indices):
+                    # compute distance of other galaxies to this one:
+                    r = np.sqrt(np.sum((gal_pos - gal_pos[gal])**2, axis=1))
+                    pos_mask = (r.value < pos_range) * gal_cent
+                    # check for central galaxies in this range
+                    # one of the galaxies will be the original galaxy, so at least 1 match is expected
+                    if len(gal_sm[pos_mask]) > 1:
+                        delete_gals.append(i)
+                if len(delete_gals) > 0.:
+                    print('Excluding galaxies within 1 Mpc')
+                    indices = np.delete(indices, delete_gals)
 
             if len(indices) < 5.: 
                 
