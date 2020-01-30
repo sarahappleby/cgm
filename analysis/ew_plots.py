@@ -12,25 +12,24 @@ import sys
 
 cos_survey = sys.argv[1]
 ew_file = sys.argv[2]
-plot_dir = sys.argv[3]
 
-model = 'm50n512'
-wind = 's50j7k'
+model = 'm100n1024'
+wind = 's50'
 
-cos_sample_file = '/home/sapple/cgm/cos_samples/'+cos_survey+'/samples/'+model+'_'+wind+'_'+cos_survey+'_galaxy_sample.h5'
+plot_dir = '/home/sapple/cgm/analysis/plots/cos_'+cos_survey+'/'
+cos_sample_file = '/home/sapple/cgm/cos_samples/cos_'+cos_survey+'/samples/'+model+'_'+wind+'_cos_'+cos_survey+'_sample.h5'
 with h5py.File(cos_sample_file, 'r') as f:
     mass = np.repeat(f['mass'][:], 4)
-    ssfr = np.log10(np.repeat(f['ssfr'][:], 4) + 1.e-14)
-    impact = np.repeat()
+    ssfr = np.repeat(f['ssfr'][:], 4)
 
 
 
-ions = ['H1215', 'MgII2796', 'SiII1260', 'CIV1548', 'OVI1031', 'NeVIII770']
+ions = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
 
 for ion in ions:
 
     with h5py.File(ew_file, 'r') as f:
-        ew = f[ion+'_ew'][:]
+        ew = np.log10(f[ion+'_wave_ew'][:])
 
     plt.scatter(mass, ssfr, s=3, c=ew)
     plt.xlabel('M*')
