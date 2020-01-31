@@ -7,6 +7,7 @@ from astropy.io import fits, ascii
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 def get_cos_dwarfs():
     table_file = '/home/sapple/cgm/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
@@ -63,7 +64,7 @@ def get_cos_halos():
 
     return np.array(cos_rho), np.array(cos_M), np.log10(cos_ssfr)
 
-def get_cos_halos_lines(pg_line):
+def get_cos_halos_lines(pg_line, save_file):
 
     lookup_data = {'pg_lines' : ['H1215', 'MgII2796', 'SiIII1206', 'OVI1031'],
                     'ions' : ['HI', 'MgII', 'SiIII', 'OVI'], 
@@ -90,7 +91,28 @@ def get_cos_halos_lines(pg_line):
             EW.append(np.nan)
             EWerr.append(np.nan)
             continue
-    return np.array(EW), np.array(EWerr)
+
+    with h5py.File(save_file, 'a') as f:
+        f.create_dataset('EW_'+pg_line, data=np.array(EW))
+        f.create_dataset('EWerr_'+pg_line, data=np.array(EWerr))
+
+def read_halos_data(line):
+
+    lines_file = '/home/sapple/cgm/cos_samples/obs_data/cos_halos/lines_data.h5'
+    if not os.path.isfile(lines_file):
+        get_cos_halos_lines(line, lines_file)
+    else:
+        with h5py.File(lines_file) as f:
+            keys = list(f.keys())
+            if 'EW_'+line not in keys:
+                get_cos_halos_lines(line, lines_file)
+
+    with h5py.File(lines_file, 'r') as f:
+        EW = f['EW_'+line][:]
+        EWerr = f['EWerr_'+line][:]
+
+    return EW, EWerr
+
 
 def get_cos_dwarfs_lya():
     data_file = fits.open('/home/sapple/cgm/cos_samples/obs_data/cos_dwarfs/COS-Dwarfs_Lya.fits')
