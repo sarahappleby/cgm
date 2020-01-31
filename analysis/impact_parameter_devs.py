@@ -1,12 +1,14 @@
+# SA: leave this for now as it's not obvious which cos-dwarfs lya measurements correspond to which civ measurements
+# check this with the galaxy names in the fits files
+
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import h5py
 import sys
 import numpy as np
-from plot_cos_data import plot_dwarfs_civ, plot_dwarfs_lya, plot_halos
 
 sys.path.append('../cos_samples/')
-from get_cos_info import get_cos_halos, get_cos_dwarfs
+from get_cos_info import *
 
 def convert_to_log(y, yerr):
     yerr /= (y*np.log(10.))
@@ -52,6 +54,7 @@ ax = ax.flatten()
 halo_rho, halo_M, halo_ssfr = get_cos_halos()
 dwarfs_rho, dwarfs_M, dwarfs_ssfr = get_cos_dwarfs()
 
+EW_less_than = []
 
 for i, survey in enumerate(cos_survey):
 
@@ -82,26 +85,30 @@ for i, survey in enumerate(cos_survey):
     ew, ew_low, ew_high = median_cos_groups(ew, 20, len(cos_rho))
     ew_sig_low = np.abs(ew - ew_low)
     ew_sig_high = np.abs(ew_high - ew)
-
-    ax[i].errorbar(cos_rho[cos_ssfr < quench], ew[cos_ssfr < quench], yerr=[ew_sig_low[cos_ssfr < quench], ew_sig_high[cos_ssfr < quench]], 
-                    ms=3.5, marker='s', capsize=4, ls='', c='r')
-    ax[i].errorbar(cos_rho[cos_ssfr > quench], ew[cos_ssfr > quench], yerr=[ew_sig_low[cos_ssfr > quench], ew_sig_high[cos_ssfr > quench]], 
-                    ms=3.5, marker='s', capsize=4, ls='', c='b')
-    ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
-    ax[i].set_xlabel('Impact parameter')
-    ax[i].set_ylabel('EW ' + lines[i])
-    ax[i].set_ylim(-2.5, ylim)
-
+    
     if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
-        plot_dwarfs_civ(ax[i])
+        cos_ew, cos_ewerr, ew_less_than = get_cos_dwarfs_civ()
     elif (survey == 'dwarfs') & (lines[i] == 'H1215'):
-        plot_dwarfs_lya(ax[i])
+        cos_ew, cos_ewerr = get_cos_dwarfs_lya()
     elif (survey == 'halos'):
-        plot_halos(ax[i], lines[i])
+        cos_ew, cos_ewerr = read_halos_data(lines[i])
+
+    cos_ew = cos_ew[cos_M > mlim]
+    cos_ewerr = cos_ewerr[cos_M > mlim]
+
+    dev_ew = cos_ew - ew
+    dev_ewerr_hi = np.sqrt((cos_ew**2) * (cos_ewerr**2)  + (ew**2) * (ew_sig_high**2)) 
+    dev_ewerr_lo = np.sqrt((cos_ew**2) * (cos_ewerr**2)  + (ew**2) * (ew_sig_low**2))
+
+    ax[i].errorbar(cos_rho, dev_ew, yerr=[dev_ewerr_lo, dev_ewerr_hi], ls='')
 
     ax[i].legend(loc=1)
+    ax[i].set_xlabel('Impact parameter')
+    ax[i].set_ylabel('EW ' + lines[i] + '; COS - Simba')
 
 
-plt.savefig(plot_dir+'ions_impact_parameter.png')
+    EW_less_than = []
+
+plt.savefig(plot_dir+'ions_impact_parameter_dev.png')
 
 
