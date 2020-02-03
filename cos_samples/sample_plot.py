@@ -35,15 +35,19 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 
 mlim = np.log10(5.8e8)
+model = 'm100n1024'
 
 cos_halos_rho, cos_halos_mass, cos_halos_ssfr = get_cos_halos()
-cos_dwarfs_rho, cos_dwarfs_mass, cos_dwarfs_ssfr = get_cos_dwarfs()
+cos_dwarfs_rho, cos_dwarfs_mass, cos_dwarfs_ssfr, cos_dwarfs_less_than = get_cos_dwarfs(return_less_than=True)
+cos_dwarfs_ssfr = cos_dwarfs_ssfr[cos_dwarfs_mass > mlim]
+cos_dwarfs_less_than = cos_dwarfs_less_than[cos_dwarfs_mass > mlim]
+cos_dwarfs_mass = cos_dwarfs_mass[cos_dwarfs_mass > mlim]
 cos_halos_ssfr[cos_halos_ssfr < -11.5] = -11.5
 cos_dwarfs_ssfr[cos_dwarfs_ssfr < -11.5] = -11.5
 
-basic_dir = '/home/sapple/cgm/cos_samples/'
+basic_dir = '/home/sapple/cgm/cos_samples/'+model+'/'
 
-halos_sample_file = basic_dir + 'cos_halos/samples/m100n1024_s50_cos_halos_sample.h5'
+halos_sample_file = basic_dir + 'cos_halos/samples/'+model+'_s50_cos_halos_sample.h5'
 with h5py.File(halos_sample_file, 'r') as f:
     halos_mass = f['mass'][:]
     halos_ssfr = f['ssfr'][:]
@@ -69,7 +73,7 @@ im = plt.scatter(halos_mass[halos_ssfr > -11.5], halos_ssfr[halos_ssfr > -11.5],
 plt.colorbar(im, label=r'$\textrm{log} (f_{\textrm{gas}})$')
 plt.clim(np.max(halos_gas_frac), np.min(halos_gas_frac))
 plt.scatter(halos_mass[halos_ssfr == -11.5], halos_ssfr[halos_ssfr == -11.5], c=halos_gas_frac[halos_ssfr == -11.5], s=35, marker='$\downarrow$', cmap=halos_q_cmap)
-plt.scatter(cos_halos_mass, cos_halos_ssfr, marker='^', c='gray', s=25, label='COS-Halos')
+plt.scatter(cos_halos_mass, cos_halos_ssfr, marker='x', c='gray', s=25, label='COS-Halos')
 plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 plt.ylabel(r'$\textrm{log} (sSFR  / \textrm{M}_{\odot}\textrm{yr}^{-1})$')
 plt.ylim(-11.7, -9.)
@@ -86,7 +90,8 @@ im = plt.scatter(dwarfs_mass[dwarfs_ssfr > -11.5], dwarfs_ssfr[dwarfs_ssfr > -11
 plt.colorbar(im, label=r'$f_{\textrm{gas}}$')
 plt.clim(np.max(dwarfs_gas_frac), np.min(dwarfs_gas_frac))
 plt.scatter(dwarfs_mass[dwarfs_ssfr == -11.5], dwarfs_ssfr[dwarfs_ssfr == -11.5], c=dwarfs_gas_frac[dwarfs_ssfr == -11.5], s=35, marker='$\downarrow$', cmap=dwarfs_q_cmap)
-plt.scatter(cos_dwarfs_mass[cos_dwarfs_mass > mlim], cos_dwarfs_ssfr[cos_dwarfs_mass > mlim], marker='^', c='gray', s=25, label='COS-Dwarfs')
+plt.scatter(cos_dwarfs_mass[np.invert(cos_dwarfs_less_than)], cos_dwarfs_ssfr[np.invert(cos_dwarfs_less_than)], marker='x', c='gray', s=25, label='COS-Dwarfs')
+plt.scatter(cos_dwarfs_mass[cos_dwarfs_less_than], cos_dwarfs_ssfr[cos_dwarfs_less_than], marker='$\downarrow$', c='gray', s=50)
 plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 plt.ylabel(r'$\textrm{log} (sSFR  / \textrm{M}_{\odot}\textrm{yr}^{-1})$')
 plt.ylim(-11.7, -9.)
