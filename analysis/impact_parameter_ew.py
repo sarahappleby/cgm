@@ -27,14 +27,6 @@ def median_cos_groups(ew, num_gals, num_cos):
     return new_ew, ew_low, ew_high
 
 
-def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
-        new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
-                                                                                                                cmap(np.linspace(minval, maxval, n)))
-        return new_cmap
-
-cmap = plt.get_cmap('jet_r')
-cmap = truncate_colormap(cmap, 0.05, 1.0)
-
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 
@@ -87,6 +79,14 @@ for i, survey in enumerate(cos_survey):
     ew, ew_low, ew_high = median_cos_groups(ew, 20, len(cos_rho))
     ew_sig_low = np.abs(ew - ew_low)
     ew_sig_high = np.abs(ew_high - ew)
+    
+    # remove index 3 from dwarfs lya because this isnt in the data
+    if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
+        ew = np.delete(ew, 3)
+        ew_sig_low = np.delete(ew_sig_low, 3)
+        ew_sig_high = np.delete(ew_sig_high, 3)
+        cos_ssfr = np.delete(cos_ssfr, 3)
+        cos_rho = np.delete(cos_rho, 3)
 
     ax[i].errorbar(cos_rho[cos_ssfr < quench], ew[cos_ssfr < quench], yerr=[ew_sig_low[cos_ssfr < quench], ew_sig_high[cos_ssfr < quench]], 
                     ms=3.5, marker='s', capsize=4, ls='', c='r')
