@@ -55,8 +55,8 @@ for i, survey in enumerate(cos_survey):
     cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_cos_'+survey+'_sample.h5'
     with h5py.File(cos_sample_file, 'r') as f:
         mass = np.repeat(f['mass'][:], 4)
-        ssfr = np.repeat(f['ssfr'][:], 4) + 9.
-    ssfr[ssfr < -2.5] = -2.5
+        ssfr = np.repeat(f['ssfr'][:], 4)
+    ssfr[ssfr < -11.5] = -11.5
 
     if survey == 'dwarfs':
         snap = '151'
@@ -81,7 +81,7 @@ for i, survey in enumerate(cos_survey):
     ew_sig_high = np.abs(ew_high - ew)
     
     # remove index 3 from dwarfs lya because this isnt in the data
-    if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
+    if (survey == 'dwarfs') & (lines[i] == 'H1215'):
         ew = np.delete(ew, 3)
         ew_sig_low = np.delete(ew_sig_low, 3)
         ew_sig_high = np.delete(ew_sig_high, 3)
@@ -107,6 +107,6 @@ for i, survey in enumerate(cos_survey):
     ax[i].legend(loc=3, fontsize=10.5)
 
 
-plt.savefig(plot_dir+'ions_impact_parameter.png')
+plt.savefig(plot_dir+'rho_ew.png')
 
 

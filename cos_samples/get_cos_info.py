@@ -119,6 +119,16 @@ def read_halos_data(line):
 
 
 def get_cos_dwarfs_lya():
+    # remember to mask out item 3, which is not present for the Lya data.
+    
+    data_file = '/home/sapple/cgm/cos_samples/obs_data/cos_dwarfs/lya_data_civ_order.h5'
+    with h5py.File(data_file, 'r') as f:
+        EW = f['EW'][:]
+        EWerr = f['EWERR'][:]
+
+    return EW, EWerr
+
+def get_cos_dwarfs_lya_orig():
     data_file = fits.open('/home/sapple/cgm/cos_samples/obs_data/cos_dwarfs/COS-Dwarfs_Lya.fits')
 
     data = data_file[1].data
