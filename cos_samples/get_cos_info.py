@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-def get_cos_dwarfs():
+def get_cos_dwarfs(return_less_than=False):
     table_file = '/home/sapple/cgm/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
     table = ascii.read(table_file, format='latex')
     cos_rho = table['Rho']
@@ -26,8 +26,12 @@ def get_cos_dwarfs():
         if '$<$' in item:
             j = item.find('-')
             cos_ssfr[i] = item[j:]
-    cos_ssfr = np.array(cos_ssfr, dtype=float) # SA
-    return np.array(cos_rho), np.array(cos_M), cos_ssfr
+    cos_ssfr = np.array(cos_ssfr, dtype=float) 
+    
+    if return_less_than:
+        return np.array(cos_rho), np.array(cos_M), cos_ssfr, ssfr_less_than
+    else:
+        return np.array(cos_rho), np.array(cos_M), cos_ssfr
 
 def get_cos_dwarfs_civ():
     table_file = '/home/sapple/cgm/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
