@@ -35,8 +35,13 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
 cmap = plt.get_cmap('jet_r')
 cmap = truncate_colormap(cmap, 0.05, 1.0)
 
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif', size=14)
+
 cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
 lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
+plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$', 
+                r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
 det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
 
 model = 'm100n1024'
@@ -46,7 +51,7 @@ ylim = 0.7
 
 plot_dir = 'plots/'
 
-fig, ax = plt.subplots(3, 2, figsize=(12, 12))
+fig, ax = plt.subplots(3, 2, figsize=(12, 14))
 ax = ax.flatten()
 
 halo_rho, halo_M, halo_ssfr = get_cos_halos()
@@ -88,18 +93,18 @@ for i, survey in enumerate(cos_survey):
     ax[i].errorbar(cos_rho[cos_ssfr > quench], ew[cos_ssfr > quench], yerr=[ew_sig_low[cos_ssfr > quench], ew_sig_high[cos_ssfr > quench]], 
                     ms=3.5, marker='s', capsize=4, ls='', c='b')
     ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
-    ax[i].set_xlabel('Impact parameter')
-    ax[i].set_ylabel('EW ' + lines[i])
+    ax[i].set_xlabel(r'$\rho (\textrm{kpc})$')
+    ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
     ax[i].set_ylim(-2.5, ylim)
 
     if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
-        plot_dwarfs_civ(ax[i])
+        plot_dwarfs_civ(ax[i], quench)
     elif (survey == 'dwarfs') & (lines[i] == 'H1215'):
-        plot_dwarfs_lya(ax[i])
+        plot_dwarfs_lya(ax[i], quench)
     elif (survey == 'halos'):
-        plot_halos(ax[i], lines[i])
+        plot_halos(ax[i], lines[i], quench)
 
-    ax[i].legend(loc=1)
+    ax[i].legend(loc=3, fontsize=10.5)
 
 
 plt.savefig(plot_dir+'ions_impact_parameter.png')
