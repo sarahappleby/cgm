@@ -78,7 +78,7 @@ plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 plt.ylabel(r'$\textrm{log} (sSFR  / \textrm{M}_{\odot}\textrm{yr}^{-1})$')
 plt.ylim(-11.7, -9.)
 plt.legend(loc=1)
-plt.savefig('cos_halos_sample.png')
+plt.savefig('plots/cos_halos_sample.png')
 plt.clf()
 
 
@@ -96,6 +96,6 @@ plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 plt.ylabel(r'$\textrm{log} (sSFR  / \textrm{M}_{\odot}\textrm{yr}^{-1})$')
 plt.ylim(-11.7, -9.)
 plt.legend(loc=1)
-plt.savefig('cos_dwarfs_sample.png')
+plt.savefig('plots/cos_dwarfs_sample.png')
 plt.clf()
 
