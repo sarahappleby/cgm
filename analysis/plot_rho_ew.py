@@ -59,10 +59,12 @@ for i, survey in enumerate(cos_survey):
     ssfr[ssfr < -11.5] = -11.5
 
     if survey == 'dwarfs':
+        label = 'COS-Dwarfs'
         snap = '151'
         z = 0.
         cos_rho, cos_M, cos_ssfr = dwarfs_rho, dwarfs_M, dwarfs_ssfr
     elif survey == 'halos':
+        label = 'COS-Halos'
         snap = '137'
         z = 0.2 
         cos_rho, cos_M, cos_ssfr = halo_rho, halo_M, halo_ssfr
@@ -71,7 +73,7 @@ for i, survey in enumerate(cos_survey):
     cos_ssfr = cos_ssfr[cos_M > mlim]
     quench = -1.8  + 0.3*z - 9.
 
-    ew_file = 'data/cos_'+survey+'_'+model+'_'+snap+'_ew_data.h5'
+    ew_file = 'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_ew_data_lsf.h5'
 
     with h5py.File(ew_file, 'r') as f:
         ew = np.log10(f[lines[i]+'_wave_ew'][:])
@@ -88,25 +90,30 @@ for i, survey in enumerate(cos_survey):
         cos_ssfr = np.delete(cos_ssfr, 3)
         cos_rho = np.delete(cos_rho, 3)
 
-    ax[i].errorbar(cos_rho[cos_ssfr < quench], ew[cos_ssfr < quench], yerr=[ew_sig_low[cos_ssfr < quench], ew_sig_high[cos_ssfr < quench]], 
-                    ms=3.5, marker='s', capsize=4, ls='', c='r')
-    ax[i].errorbar(cos_rho[cos_ssfr > quench], ew[cos_ssfr > quench], yerr=[ew_sig_low[cos_ssfr > quench], ew_sig_high[cos_ssfr > quench]], 
-                    ms=3.5, marker='s', capsize=4, ls='', c='b')
+    l1 = ax[i].errorbar(cos_rho[cos_ssfr < quench], ew[cos_ssfr < quench], yerr=[ew_sig_low[cos_ssfr < quench], ew_sig_high[cos_ssfr < quench]], \
+                        ms=3.5, marker='s', capsize=4, ls='', c='r')
+    l2 = ax[i].errorbar(cos_rho[cos_ssfr > quench], ew[cos_ssfr > quench], yerr=[ew_sig_low[cos_ssfr > quench], ew_sig_high[cos_ssfr > quench]], \
+                        ms=3.5, marker='s', capsize=4, ls='', c='b')
+    if i == 0:
+        leg1 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=10.5, loc=4)
+
     ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
     ax[i].set_xlabel(r'$\rho (\textrm{kpc})$')
     ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
     ax[i].set_ylim(-2.5, ylim)
 
     if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
-        plot_dwarfs_civ(ax[i], quench)
+        c1, c2 = plot_dwarfs_civ(ax[i], quench)
     elif (survey == 'dwarfs') & (lines[i] == 'H1215'):
-        plot_dwarfs_lya(ax[i], quench)
+        c1, c2 = plot_dwarfs_lya(ax[i], quench)
     elif (survey == 'halos'):
-        plot_halos(ax[i], lines[i], quench)
+        c1, c2 = plot_halos(ax[i], lines[i], quench)
 
-    ax[i].legend(loc=3, fontsize=10.5)
+    leg2 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], loc=3, fontsize=10.5)
 
+    if i == 0:
+        ax[i].add_artist(leg1)
 
-plt.savefig(plot_dir+'rho_ew.png')
+plt.savefig(plot_dir+model+'_'+wind+'_rho_ew.png')
 
 

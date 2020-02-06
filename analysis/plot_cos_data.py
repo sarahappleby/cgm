@@ -38,11 +38,11 @@ def plot_dwarfs_lya(ax, quench):
     #            c='k', ls='', marker='x', markersize=6, capsize=4)
     #ax.errorbar(cos_rho[EWerr < 0.1], EW[EWerr < 0.1], yerr=EWerr[EWerr < 0.1],
     #            c='k', ls='', marker='x', markersize=6, label='COS-Dwarfs')
-    ax.errorbar(cos_rho[cos_ssfr > quench], EW[cos_ssfr > quench], yerr=EWerr[cos_ssfr > quench],
+    c1 = ax.errorbar(cos_rho[cos_ssfr > quench], EW[cos_ssfr > quench], yerr=EWerr[cos_ssfr > quench],
                 c='c', ls='', marker='x', markersize=6, capsize=4, label='COS-Dwarfs SF')
-    ax.errorbar(cos_rho[cos_ssfr < quench], EW[cos_ssfr < quench], yerr=EWerr[cos_ssfr < quench],
+    c2 = ax.errorbar(cos_rho[cos_ssfr < quench], EW[cos_ssfr < quench], yerr=EWerr[cos_ssfr < quench],
                 c='m', ls='', marker='x', markersize=6, capsize=4, label='COS-Dwarfs Q')
-
+    return c1, c2
 
 def plot_dwarfs_civ(ax, quench):
 
@@ -67,16 +67,17 @@ def plot_dwarfs_civ(ax, quench):
     #ax.errorbar(cos_rho[mask], EW[mask], yerr=EWerr[mask],
     #        c='k', ls='', marker='x', markersize=6, label='COS-Dwarfs')
     mask = np.invert(EW_less_than) * (cos_ssfr > quench)
-    ax.errorbar(cos_rho[mask], EW[mask], yerr=EWerr[mask], 
+    c1 = ax.errorbar(cos_rho[mask], EW[mask], yerr=EWerr[mask], 
                 c='c', ls='', marker='x', markersize=6, label='COS-Dwarfs SF')
     mask = np.invert(EW_less_than) * (cos_ssfr < quench)
-    ax.errorbar(cos_rho[mask], EW[mask], yerr=EWerr[mask],
+    c2 = ax.errorbar(cos_rho[mask], EW[mask], yerr=EWerr[mask],
                 c='m', ls='', marker='x', markersize=6, label='COS-Dwarfs Q')
     mask = EW_less_than * (cos_ssfr > quench)
     ax.scatter(cos_rho[mask], EW[mask], c='c', marker='$\downarrow$', s=60.)
     mask = EW_less_than * (cos_ssfr < quench)
     ax.scatter(cos_rho[mask], EW[mask], c='m', marker='$\downarrow$', s=60.)
 
+    return c1, c2
 
 def plot_halos(ax, line, quench):
 
@@ -94,10 +95,10 @@ def plot_halos(ax, line, quench):
     #ax.errorbar(cos_rho[mask], EW[mask], yerr=EWerr[mask],
     #        c='k', ls='', marker='x', markersize=6, label='COS-Halos')
     mask = np.invert(EW_upper_lim) * (cos_ssfr > quench)
-    ax.errorbar(cos_rho[mask], EW[mask], yerr=EWerr[mask],
+    c1 = ax.errorbar(cos_rho[mask], EW[mask], yerr=EWerr[mask],
             c='c', ls='', marker='x', markersize=6, capsize=4, label='COS-Halos SF')
     mask = np.invert(EW_upper_lim) * (cos_ssfr < quench)
-    ax.errorbar(cos_rho[mask], EW[mask], yerr=EWerr[mask],
+    c2 = ax.errorbar(cos_rho[mask], EW[mask], yerr=EWerr[mask],
             c='m', ls='', marker='x', markersize=6, capsize=4, label='COS-Halos Q')
     mask = EW_upper_lim * (cos_ssfr > quench)
     ax.scatter(cos_rho[mask], EW[mask],
@@ -106,5 +107,5 @@ def plot_halos(ax, line, quench):
     ax.scatter(cos_rho[mask], EW[mask],
             c='m', marker='$\downarrow$', s=60.)
 
-
+    return c1, c2
     

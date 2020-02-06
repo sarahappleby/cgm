@@ -14,20 +14,15 @@
 import h5py
 import numpy as np
 import sys
-import yt
 
-def vel_to_wave(vel, lambda_rest, c, z):
-        return lambda_rest * (1.0 + z) * (vel / c + 1.)
-
-def equivalent_width(flux, pixel_size):
-    return np.sum((np.ones(len(flux)) - flux) * pixel_size)
+from physics import vel_to_wave, equivalent_width
 
 if __name__ == '__main__':
 
     cos_survey = sys.argv[1]
 
-    model = 'm100n1024'
-    wind = 's50'
+    model = 'm50n512'
+    wind = 's50noagn'
 
     # possible ions to choose:
     ions = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
@@ -41,32 +36,12 @@ if __name__ == '__main__':
     elif cos_survey == 'halos':
         snap = '137'
     
-    """
-    # get size of bins 
-    snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
-    ds = yt.load(snapfile)
-    co = yt.utilities.cosmology.Cosmology()
-    hubble = co.hubble_parameter(ds.current_redshift).in_units('km/s/kpc')
-    vbox = ds.domain_right_edge[2].in_units('kpc') * hubble / ds.hubble_constant / (1.+ds.current_redshift)
-    pixel_size = 6. # km/s
-    Nbins = int(np.rint(vbox / pixel_size))
-    pixel_size = vbox / Nbins # very close to 6 km/s
-    """
-
-    ew_file = '/home/sapple/cgm/analysis/data/cos_'+cos_survey+'_'+model + '_'+snap+'_ew_data.h5'
-    spectra_folder = '/home/sapple/cgm/cos_samples/cos_'+cos_survey+'/spectra/'
-    cos_sample_file = '/home/sapple/cgm/cos_samples/cos_'+cos_survey+'/samples/'+model+'_'+wind+'_cos_'+cos_survey+'_sample.h5'
+    ew_file = '/home/sapple/cgm/analysis/data/cos_'+cos_survey+'_'+model + '_'+wind+'_'+snap+'_ew_data_lsf.h5'
+    spectra_folder = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+cos_survey+'/'+wind+'/'+'spectra/'
+    cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+cos_survey+'/samples/'+model+'_'+wind+'_cos_'+cos_survey+'_sample.h5'
     with h5py.File(cos_sample_file, 'r') as f:
         gal_ids = f['gal_ids'][:]
         vgal_position = f['vgal_position'][:][:, 2]
-
-
-    # for each galaxy:
-    #   find their spectra files
-    #   read in spectra files, extract the spectrum we want for the ion
-    #   get the velocity array and noise
-    #   get their velocity position
-    #   select a velocity range we want -> +/- 300km/s
 
     for ion in ions:
         
@@ -84,9 +59,12 @@ if __name__ == '__main__':
                 spectra_file = spectra_folder+'sample_galaxy_'+str(gal)+'_'+orient+'.h5'
 
                 with h5py.File(spectra_file, 'r') as f:
-                    flux = f[ion+'_flux'][:] + f['noise'][:]
-                    wavelength = f['wavelength'][:]
+                    flux = f[ion+'_flux_effects'][:]
+                    wavelength = f[ion+'_wavelength'][:]
                     velocity = f['velocity'][:]
+               
+                # the COS convolve method will go through all gratings and only convolve with the 
+                # wavelength-relavent part of the spectrum
 
                 pixel_size = wavelength[1] - wavelength[0]
                 vgal_mask = (velocity < vgal + velocity_width) & (velocity > vgal - velocity_width)

@@ -34,11 +34,13 @@ cmap = truncate_colormap(cmap, 0.05, 1.0)
 
 cos_survey = sys.argv[1]
 
-model = 'm100n1024'
-wind = 's50'
+model = 'm50n512'
+wind = 's50noagn'
 mlim = np.log10(5.8e8) # lower limit of M*
 lines = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
-halos_ions = ['H1215', 'MgII2796', 'SiIII1206', 'OVI1031',]
+plot_lines = [r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
+                    r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$', r'$\textrm{NeVIII}770$']
+halos_ions = ['H1215', 'MgII2796', 'SiIII1206', 'OVI1031', 'NeVIII770']
 det_thresh = np.log10([0.2, 0.1, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
 
 cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+cos_survey+'/samples/'+model+'_'+wind+'_cos_'+cos_survey+'_sample.h5'
@@ -51,13 +53,14 @@ ssfr[ssfr < -2.5] = -2.5
 if cos_survey == 'dwarfs':
     snap = '151'
     z = 0.
+    label = 'COS-Dwarfs'
     from get_cos_info import get_cos_dwarfs
     cos_rho, cos_M, cos_ssfr = get_cos_dwarfs()
     ylim = 0.5
 elif cos_survey == 'halos':
     snap = '137'
     z = 0.2
-    
+    label = 'COS-Halos'
     from get_cos_info import get_cos_halos
     cos_rho, cos_M, cos_ssfr = get_cos_halos()
     ylim = 1.0
@@ -66,8 +69,8 @@ cos_rho = cos_rho[cos_M > mlim]
 cos_ssfr = cos_ssfr[cos_M > mlim]
 quench = -1.8  + 0.3*z - 9.
 
-ew_file = 'data/cos_'+cos_survey+'_'+model+'_'+snap+'_ew_data.h5'
-plot_dir = 'plots/cos_'+cos_survey+'/'
+ew_file = 'data/cos_'+cos_survey+'_'+model+'_'+wind+'_'+snap+'_ew_data_lsf.h5'
+plot_dir = 'plots/'
 
 fig, ax = plt.subplots(3, 2, figsize=(12, 12))
 ax = ax.flatten()
@@ -84,25 +87,31 @@ for i, line in enumerate(lines):
     ew_sig_low = np.abs(ew - ew_low)
     ew_sig_high = np.abs(ew_high - ew)
 
-    ax[i].errorbar(cos_rho[cos_ssfr < quench], ew[cos_ssfr < quench], yerr=[ew_sig_low[cos_ssfr < quench], ew_sig_high[cos_ssfr < quench]], 
+    l1 = ax[i].errorbar(cos_rho[cos_ssfr < quench], ew[cos_ssfr < quench], yerr=[ew_sig_low[cos_ssfr < quench], ew_sig_high[cos_ssfr < quench]], 
                     ms=3.5, marker='s', capsize=4, ls='', c='r')
-    ax[i].errorbar(cos_rho[cos_ssfr > quench], ew[cos_ssfr > quench], yerr=[ew_sig_low[cos_ssfr > quench], ew_sig_high[cos_ssfr > quench]], 
+    l2 = ax[i].errorbar(cos_rho[cos_ssfr > quench], ew[cos_ssfr > quench], yerr=[ew_sig_low[cos_ssfr > quench], ew_sig_high[cos_ssfr > quench]], 
                     ms=3.5, marker='s', capsize=4, ls='', c='b')
+    if i == 0:
+        leg1 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=10.5, loc=4)
+
     ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
-    ax[i].set_xlabel('Impact parameter')
-    ax[i].set_ylabel('EW ' + line)
+    ax[i].set_xlabel(r'$\rho (\textrm{kpc})$')
+    ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
     ax[i].set_ylim(-2.5, ylim)
 
     if (cos_survey == 'dwarfs') & (line == 'CIV1548'):
-        plot_dwarfs_civ(ax[i])
+        c1, c2 = plot_dwarfs_civ(ax[i], quench)
     elif (line == 'H1215') & (cos_survey == 'dwarfs'):
-        plot_dwarfs_lya(ax[i])
+        c1, c2 = plot_dwarfs_lya(ax[i], quench)
     elif (cos_survey == 'halos') & (line in halos_ions):
-        plot_halos(ax[i], line)
+        c1, c2 = plot_halos(ax[i], line, quench)
 
-    ax[i].legend(loc=1)
+    leg2 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], loc=3, fontsize=10.5)
+
+    if i == 0:
+        ax[i].add_artist(leg1)
 
 
-plt.savefig(plot_dir+'ions_impact_parameter.png')
+plt.savefig(plot_dir+model+'_'+wind+'_'+cos_survey+'_rho_ew.png')
 
 
