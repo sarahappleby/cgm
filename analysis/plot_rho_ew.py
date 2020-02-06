@@ -34,20 +34,21 @@ cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
 lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
 plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$', 
                 r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
-det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
+det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon
 
 model = 'm100n1024'
 wind = 's50'
 mlim = np.log10(5.8e8) # lower limit of M*
 ylim = 0.7
+rvir_scaled = True
 
 plot_dir = 'plots/'
 
 fig, ax = plt.subplots(3, 2, figsize=(12, 14))
 ax = ax.flatten()
 
-halo_rho, halo_M, halo_ssfr = get_cos_halos()
-dwarfs_rho, dwarfs_M, dwarfs_ssfr = get_cos_dwarfs()
+halo_rho, halo_M, halo_r200, halo_ssfr = get_cos_halos()
+dwarfs_rho, dwarfs_M, dwarfs_r200, dwarfs_ssfr = get_cos_dwarfs()
 
 
 for i, survey in enumerate(cos_survey):

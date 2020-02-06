@@ -15,6 +15,7 @@ def get_cos_dwarfs(return_less_than=False):
     cos_rho = table['Rho']
     cos_M = table['logM_stellar']
     cos_ssfr = table['logsSFR']
+    cos_r200 = table['R_vir']
 
     # identify galaxies with sSFR lower limit
     ssfr_less_than = np.array([False for i in list(range(len(cos_ssfr)))])
@@ -29,9 +30,9 @@ def get_cos_dwarfs(return_less_than=False):
     cos_ssfr = np.array(cos_ssfr, dtype=float) 
     
     if return_less_than:
-        return np.array(cos_rho), np.array(cos_M), cos_ssfr, ssfr_less_than
+        return np.array(cos_rho), np.array(cos_M), np.array(cos_r200), cos_ssfr, ssfr_less_than
     else:
-        return np.array(cos_rho), np.array(cos_M), cos_ssfr
+        return np.array(cos_rho), np.array(cos_M), np.array(cos_r200), cos_ssfr
 
 def get_cos_dwarfs_civ():
     table_file = '/home/sapple/cgm/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
@@ -60,13 +61,15 @@ def get_cos_halos():
     cos_M = []
     cos_ssfr = []
     cos_rho = []
+    cos_r200 = []
     for cos in cos_halos:
         cos = cos.to_dict()
         cos_M.append(cos['galaxy']['stellar_mass'])
         cos_ssfr.append(cos['galaxy']['ssfr'])
         cos_rho.append(cos['rho'])
+        cos_r200.append(cos['rvir'])
 
-    return np.array(cos_rho), np.array(cos_M), np.log10(cos_ssfr)
+    return np.array(cos_rho), np.array(cos_M), np.array(cos_r200), np.log10(cos_ssfr)
 
 def get_cos_halos_lines(pg_line, save_file):
 

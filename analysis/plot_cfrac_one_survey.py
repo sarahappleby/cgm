@@ -13,14 +13,15 @@ plt.rc('font', family='serif', size=14)
 
 if __name__ == '__main__':
 
-    cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
-    lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
-    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
-                    r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
-    det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
+    cos_survey = sys.argv[1]
+    cos_survey = [cos_survey] * 6
+    lines = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
+    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
+                    r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$', r'$\textrm{NeVIII}770$']
+    det_thresh = [0.2, 0.1, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
 
-    model = 'm100n1024'
-    wind = 's50'
+    model = 'm50n512'
+    wind = 's50j7k'
     mlim = np.log10(5.8e8) # lower limit of M*
     plot_dir = 'plots/'
 
@@ -30,8 +31,8 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(3, 2, figsize=(12, 14))
     ax = ax.flatten()
 
-    halo_rho, halo_M, halo_ssfr = get_cos_halos()
-    dwarfs_rho, dwarfs_M, dwarfs_ssfr = get_cos_dwarfs()
+    halo_rho, halo_M, halo_r200, halo_ssfr = get_cos_halos()
+    dwarfs_rho, dwarfs_M, dwarfs_r200, dwarfs_ssfr = get_cos_dwarfs()
 
     halos_rho_long = np.repeat(halo_rho, 20.)
     dwarfs_rho_long = np.repeat(dwarfs_rho, 20.)
@@ -83,22 +84,28 @@ if __name__ == '__main__':
         if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
             EW, EWerr, EW_less_than = get_cos_dwarfs_civ() #in mA
             EW /= 1000.
+            compare = True
         elif (survey == 'dwarfs') & (lines[i] == 'H1215'):
             EW, EWerr = get_cos_dwarfs_lya() # in mA
             EW /= 1000.
             EW = np.delete(EW, 3) # delete the measurements from Cos dwarfs galaxy 3 for the Lya stuff
+            compare = True
         elif (survey == 'halos'):
             EW, EWerr = read_halos_data(lines[i])
             EW = np.abs(EW)
+            compare = True
+        else:
+            compare = False
 
-        EW = EW[cos_M > mlim]
+        if compare:
+            EW = EW[cos_M > mlim]
 
-        cos_sf_cfrac = compute_cfrac(EW[cos_ssfr > quench], cos_rho[cos_ssfr > quench], rho_bins, det_thresh[i])
-        cos_q_cfrac = compute_cfrac(EW[cos_ssfr < quench], cos_rho[cos_ssfr < quench], rho_bins, det_thresh[i])
+            cos_sf_cfrac = compute_cfrac(EW[cos_ssfr > quench], cos_rho[cos_ssfr > quench], rho_bins, det_thresh[i])
+            cos_q_cfrac = compute_cfrac(EW[cos_ssfr < quench], cos_rho[cos_ssfr < quench], rho_bins, det_thresh[i])
 
-        c1, = ax[i].plot(plot_bins, cos_sf_cfrac, c='c', marker='o', ls='--', label=label+' SF')
-        c2, = ax[i].plot(plot_bins, cos_q_cfrac, c='m', marker='o', ls='--', label=label+' Q')
-        leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
+            c1, = ax[i].plot(plot_bins, cos_sf_cfrac, c='c', marker='o', ls='--', label=label+' SF')
+            c2, = ax[i].plot(plot_bins, cos_q_cfrac, c='m', marker='o', ls='--', label=label+' Q')
+            leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
         
         l1, = ax[i].plot(plot_bins, sim_sf_cfrac, c='b', marker='o', ls='--')
         l2, = ax[i].plot(plot_bins, sim_q_cfrac, c='r', marker='o', ls='--')
@@ -109,8 +116,9 @@ if __name__ == '__main__':
         ax[i].set_ylabel(r'$\textrm{Covering fraction},\ $' + plot_lines[i])
         ax[i].set_ylim(0, 1.1)
 
-        if i==0:
-            ax[i].add_artist(leg1)
+        if compare:
+            if i==0:
+                ax[i].add_artist(leg1)
 
-    plt.savefig(plot_dir+model+'_'+wind+'_rho_cfrac.png')
+    plt.savefig(plot_dir+model+'_'+wind+'_'+survey+'_rho_cfrac.png')
 

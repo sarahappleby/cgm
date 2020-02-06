@@ -30,8 +30,8 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(3, 2, figsize=(12, 14))
     ax = ax.flatten()
 
-    halo_rho, halo_M, halo_ssfr = get_cos_halos()
-    dwarfs_rho, dwarfs_M, dwarfs_ssfr = get_cos_dwarfs()
+    halo_rho, halo_M, halo_r200, halo_ssfr = get_cos_halos()
+    dwarfs_rho, dwarfs_M, dwarfs_r200, dwarfs_ssfr = get_cos_dwarfs()
 
     halos_rho_long = np.repeat(halo_rho, 20.)
     dwarfs_rho_long = np.repeat(dwarfs_rho, 20.)

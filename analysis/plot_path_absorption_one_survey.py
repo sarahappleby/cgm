@@ -14,15 +14,16 @@ plt.rc('font', family='serif', size=14)
 
 if __name__ == '__main__':
 
-    cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
-    lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
-    wave_rest = [1215., 1215., 2796., 1206., 1548., 1031.]
-    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
-                    r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
-    det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1]
+    cos_survey = sys.argv[1]
+    cos_survey = [cos_survey]* 6
+    lines = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
+    wave_rest = [1215., 2796., 1206., 1548., 1031., 770.409]
+    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
+                    r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$', r'$\textrm{NeVIII}770$']
+    det_thresh = [0.2, 0.1, 0.1, 0.1, 0.1, 0.1]
 
-    model = 'm100n1024'
-    wind = 's50'
+    model = 'm50n512'
+    wind = 's50j7k'
     velocity_width = 300. # km/s
     mlim = np.log10(5.8e8) # lower limit of M*
     plot_dir = 'plots/'
@@ -45,12 +46,12 @@ if __name__ == '__main__':
             label = 'COS-Dwarfs'
             snap = '151'
             z = 0.
-            cos_rho, cos_M, cos_ssfr = dwarfs_rho, dwarfs_M, dwarfs_ssfr
+            cos_rho, cos_M, cos_ssfr = dwarfs_rho.copy(), dwarfs_M.copy(), dwarfs_ssfr.copy()
         elif survey == 'halos':
             label = 'COS-Halos'
             snap = '137'
             z = 0.2
-            cos_rho, cos_M, cos_ssfr = halo_rho, halo_M, halo_ssfr
+            cos_rho, cos_M, cos_ssfr = halo_rho.copy(), halo_M.copy(), halo_ssfr.copy()
 
         quench = -1.8  + 0.3*z - 9.
 
@@ -92,23 +93,29 @@ if __name__ == '__main__':
         if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
             EW, EWerr, EW_less_than = get_cos_dwarfs_civ() #in mA
             EW /= 1000.
+            compare = True
         elif (survey == 'dwarfs') & (lines[i] == 'H1215'):
             EW, EWerr = get_cos_dwarfs_lya() # in mA
             EW /= 1000.
             EW = np.delete(EW, 3) # delete the measurements from Cos dwarfs galaxy 3 for the Lya stuff
+            compare = True
         elif (survey == 'halos'):
             EW, EWerr = read_halos_data(lines[i])
             EW = np.abs(EW)
+            compare = True
+        else:
+            compare = False
 
-        EW = EW[cos_M > mlim]
-        cos_path_lengths = np.repeat(path_length[0], len(EW))
+        if compare:
+            EW = EW[cos_M > mlim]
+            cos_path_lengths = np.repeat(path_length[0], len(EW))
         
-        cos_sf_path_abs = compute_path_abs(EW[cos_ssfr > quench], cos_rho[cos_ssfr > quench], rho_bins, det_thresh[i], cos_path_lengths[cos_ssfr > quench])
-        cos_q_path_abs = compute_path_abs(EW[cos_ssfr < quench], cos_rho[cos_ssfr < quench], rho_bins, det_thresh[i], cos_path_lengths[cos_ssfr < quench])
+            cos_sf_path_abs = compute_path_abs(EW[cos_ssfr > quench], cos_rho[cos_ssfr > quench], rho_bins, det_thresh[i], cos_path_lengths[cos_ssfr > quench])
+            cos_q_path_abs = compute_path_abs(EW[cos_ssfr < quench], cos_rho[cos_ssfr < quench], rho_bins, det_thresh[i], cos_path_lengths[cos_ssfr < quench])
         
-        c1, = ax[i].plot(plot_bins, np.log10(cos_sf_path_abs), c='c', marker='o', ls='--')
-        c2, = ax[i].plot(plot_bins, np.log10(cos_q_path_abs), c='m', marker='o', ls='--')
-        leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
+            c1, = ax[i].plot(plot_bins, np.log10(cos_sf_path_abs), c='c', marker='o', ls='--')
+            c2, = ax[i].plot(plot_bins, np.log10(cos_q_path_abs), c='m', marker='o', ls='--')
+            leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
 
         l1, = ax[i].plot(plot_bins, np.log10(sim_sf_path_abs), c='b', marker='o', ls='--')
         l2, = ax[i].plot(plot_bins, np.log10(sim_q_path_abs), c='r', marker='o', ls='--')
@@ -118,10 +125,11 @@ if __name__ == '__main__':
         ax[i].set_xlabel(r'$\rho (\textrm{kpc})$')
         ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z)\ $' + plot_lines[i])
         
-        if i==0:
-            ax[i].add_artist(leg1)
+        if compare:
+            if i==0:
+                ax[i].add_artist(leg1)
 
-    plt.savefig(plot_dir+model+'_'+wind+'_rho_path_abs.png')
+    plt.savefig(plot_dir+model+'_'+wind+'_'+survey+'_rho_path_abs.png')
 
 
 

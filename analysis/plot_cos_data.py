@@ -16,7 +16,7 @@ def convert_to_log(y, yerr):
 
 def plot_dwarfs_lya(ax, quench):
 
-    cos_rho, cos_M, cos_ssfr = get_cos_dwarfs()
+    cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_dwarfs()
 
     EW, EWerr = get_cos_dwarfs_lya() # in mA
     EW /= 1000.
@@ -46,7 +46,7 @@ def plot_dwarfs_lya(ax, quench):
 
 def plot_dwarfs_civ(ax, quench):
 
-    cos_rho, cos_M, cos_ssfr = get_cos_dwarfs()
+    cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_dwarfs()
 
     EW, EWerr, EW_less_than = get_cos_dwarfs_civ() #in mA
     EW /= 1000.
@@ -81,7 +81,7 @@ def plot_dwarfs_civ(ax, quench):
 
 def plot_halos(ax, line, quench):
 
-    cos_rho, cos_M, cos_ssfr = get_cos_halos()
+    cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_halos()
    
     EW, EWerr = read_halos_data(line)
     
