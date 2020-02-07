@@ -38,16 +38,17 @@ if __name__ == '__main__':
 
     if survey == 'dwarfs':
         from get_cos_info import get_cos_dwarfs
-        cos_rho, cos_M, cos_ssfr = get_cos_dwarfs()
+        cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_dwarfs()
         snap = '151'
     elif survey == 'halos':
         from get_cos_info import get_cos_halos
-        cos_rho, cos_M, cos_ssfr = get_cos_halos()
+        cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_halos()
         snap = '137'
 
     cos_ids = np.arange(len(cos_M))[cos_M > mlim]
     cos_rho = cos_rho[cos_M > mlim]
     cos_ssfr = cos_ssfr[cos_M > mlim]
+    cos_r200 = cos_r200[cos_M > mlim]
     cos_M = cos_M[cos_M > mlim]
 
     numgals = len(cos_M)
@@ -77,6 +78,8 @@ if __name__ == '__main__':
     gal_recession = gal_pos.in_units('kpc')*hubble
     gal_vgal_pos = gal_vels + gal_recession
     gal_gas_frac = np.array([i.masses['gas'].in_units('Msun') /i.masses['stellar'].in_units('Msun') for i in sim.galaxies ])
+    # load in r200 here
+    gal_r200c = np.array([i.radii['r200c'].in_units('kpc') for i in sim.galaxies]) # in kpc
 
     if do_halo_check:
         objs = []
@@ -99,6 +102,7 @@ if __name__ == '__main__':
     ssfr = np.zeros(numgals*5)
     gas_frac = np.zeros(numgals*5)
     pos = np.zeros((numgals*5, 3))
+    r200 = np.zeros((numgals*5, 3))
     vgal_pos = np.zeros((numgals*5, 3))
 
 
@@ -199,6 +203,7 @@ if __name__ == '__main__':
             ssfr[ids] = gal_ssfr[indices[choose]]
             gas_frac[ids] = gal_gas_frac[indices[choose]]
             pos[ids] = gal_pos[indices[choose]]
+            r200[ids] = gal_r200[indices[choose]]
             vgal_pos[ids] = gal_vgal_pos[indices[choose]]
 
     	# do not repeat galaxies
@@ -211,6 +216,7 @@ if __name__ == '__main__':
             hf.create_dataset('ssfr', data=np.array(ssfr))
             hf.create_dataset('gas_frac', data=np.array(gas_frac))
             hf.create_dataset('position', data=np.array(pos))
+            hf.create_dataset('r200', data=np.array(r200))
             hf.create_dataset('vgal_position', data=np.array(vgal_pos))
             hf.attrs['pos_units'] = 'kpc/h'
             hf.attrs['mass_units'] = 'Msun'
