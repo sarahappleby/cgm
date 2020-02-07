@@ -56,10 +56,7 @@ if __name__ == '__main__':
     print('Loaded COS-Dwarfs survey data')
 
     infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
-    if not do_halo_check:
-        sim = caesar.load(infile, LoadHalo=False)
-    else:
-        sim = caesar.load(infile, LoadHalo=True)
+    sim = caesar.load(infile, LoadHalo=True)
     gal_cent = np.array([i.central for i in sim.galaxies])
 
     co = yt.utilities.cosmology.Cosmology()
@@ -79,7 +76,6 @@ if __name__ == '__main__':
     gal_vgal_pos = gal_vels + gal_recession
     gal_gas_frac = np.array([i.masses['gas'].in_units('Msun') /i.masses['stellar'].in_units('Msun') for i in sim.galaxies ])
     # load in r200 here
-    gal_r200c = np.array([i.radii['r200c'].in_units('kpc') for i in sim.galaxies]) # in kpc
 
     if do_halo_check:
         objs = []
@@ -102,7 +98,6 @@ if __name__ == '__main__':
     ssfr = np.zeros(numgals*5)
     gas_frac = np.zeros(numgals*5)
     pos = np.zeros((numgals*5, 3))
-    r200 = np.zeros((numgals*5, 3))
     vgal_pos = np.zeros((numgals*5, 3))
 
 
@@ -209,6 +204,10 @@ if __name__ == '__main__':
     	# do not repeat galaxies
             choose_mask[indices[choose]] = np.array([False] * 5)
 
+    gal_ids = np.array(gal_ids, dtype='int')
+    halo_r200 = np.array([i.halo.radii['r200c'].in_units('kpc') for i in np.array(sim.galaxies)[gal_ids]])
+    halo_pos = np.array([i.halo.pos.in_units('kpc/h') for i in np.array(sim.galaxies)[gal_ids]])
+
     with h5py.File(sample_dir+'/'+model+'_'+wind+'_cos_'+survey+'_sample.h5', 'a') as hf:
             hf.create_dataset('cos_ids', data=np.array(cos_ids))
             hf.create_dataset('gal_ids', data=np.array(gal_ids))
@@ -216,7 +215,8 @@ if __name__ == '__main__':
             hf.create_dataset('ssfr', data=np.array(ssfr))
             hf.create_dataset('gas_frac', data=np.array(gas_frac))
             hf.create_dataset('position', data=np.array(pos))
-            hf.create_dataset('r200', data=np.array(r200))
+            hf.create_dataset('halo_r200', data=np.array(halo_r200))
+            hf.create_dataset('halo_pos', data=np.array(halo_pos))
             hf.create_dataset('vgal_position', data=np.array(vgal_pos))
             hf.attrs['pos_units'] = 'kpc/h'
             hf.attrs['mass_units'] = 'Msun'
