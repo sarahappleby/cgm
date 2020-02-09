@@ -7,13 +7,79 @@ import yt
 import h5py
 import matplotlib.pyplot as plt
 
+def delete_indices(indices, delete_gals):
+    if len(delete_gals) > 0.:
+        indices = np.delete(indices, delete_gals)
+    return indices
 
-def check_halo_sample(prog_index, obj1, obj2, gal_id):
-    gal = obj1.galaxies[gal_id]
-    halo1_id = gal.parent_halo_index
+def get_halo_id(obj, gal_id):
+    gal = obj.galaxies[gal_id]
+    return gal.parent_halo_index
+
+def check_prog_sample(prog_index, obj1, obj2, gal_id):
+    halo1_id = get_halo_id(obj1, gal_id)
     halo2 = obj2.halos[prog_index[halo1_id]]
-    return halo2.central_galaxy.GroupID
 
+    return int(halo2.central_galaxy.GroupID)
+
+def check_r200_sample(r200_file, halo_id, wind):
+    with h5py.File(r200_file, 'r') as f:
+        r200_all = f[wind+'_halo_r200'][:]
+
+    r200 = r200_all[halo_id]
+    
+    return (r200 == 0.)
+
+def halo_check(sim, objs, prog_index, indices, r200_file):
+    wind_option = ['s50nojet', 's50nox', 's50noagn'] 
+
+    delete_gals = []
+    halo_ids = np.array([get_halo_id(sim, i) for i in indices])
+    check_array = check_r200_sample(r200_file, halo_ids, 's50j7k')
+    if True in check_array:
+        delete_gals.append(np.arange(len(indices))[check_array])
+    
+    for j, w in enumerate(wind_options):
+        w_halo_ids = np.zeros(len(indices))
+        check_array = np.array([False] * len(indices))
+        for i, gal in enumerate(indices):
+            try:
+                w_halo_ids[i] = check_prog_sample(prog_index[j], sim, objs[j], gal)
+            except AttributeError:
+                check_array[i] = True
+                w_halo_ids[i] = np.nan
+                continue
+        
+        
+        check_array[~np.isnan(w_halo_ids)] = check_r200_sample(r200_file, w_halo_ids[~np.isnan(w_halo_ids)].astype('int'), w)
+        if True in check_array:
+            delete_gals.append(np.arange(len(indices))[check_array])
+
+    delete_gals = [item for sublist in delete_gals for item in sublist]
+    delete_gals = np.unique(np.array(delete_gals))
+
+    print('Excluding galaxies with no central counterpart in other wind boxes')
+    indices = delete_indices(indices, delete_gals)
+
+    return indices
+
+def isolation_check(gal_pos, pos_range, gal_cent, indices):
+    
+    delete_gals = []
+    # check isolation criteria (no other galaxies within 1 Mpc)
+    for i, gal in enumerate(indices):
+        # compute distance of other galaxies to this one:
+        r = np.sqrt(np.sum((gal_pos - gal_pos[gal])**2, axis=1))
+        pos_mask = (r.value < pos_range) * gal_cent
+        # check for central galaxies in this range
+        # one of the galaxies will be the original galaxy, so at least 1 match is expected
+        if len(gal_pos[pos_mask]) > 1:
+            delete_gals.append(i)
+
+    print('Excluding galaxies within 1 Mpc')
+    indices = delete_indices(indices, delete_gals)
+    
+    return indices
 
 # for COS-Halos, run at snap='137' and survey = 'halos'
 # for COS-Dwarfs, run at snap='151' and survey = 'dwarfs'
@@ -50,9 +116,7 @@ if __name__ == '__main__':
     cos_ssfr = cos_ssfr[cos_M > mlim]
     cos_r200 = cos_r200[cos_M > mlim]
     cos_M = cos_M[cos_M > mlim]
-
     numgals = len(cos_M)
-
     print('Loaded COS-Dwarfs survey data')
 
     infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
@@ -77,19 +141,19 @@ if __name__ == '__main__':
     gal_gas_frac = np.array([i.masses['gas'].in_units('Msun') /i.masses['stellar'].in_units('Msun') for i in sim.galaxies ])
     # load in r200 here
 
+    print('Loaded caesar galaxy data from model ' + model + ' snapshot ' + snap)
+
     if do_halo_check:
         objs = []
         prog_index = []
         match_file = './m50n512/match_halos_'+snap+'.hdf5'
+        r200_file = '/home/sapple/cgm/cos_samples/m50n512/m50n512_'+snap+'_r200_info.h5'
         print('Loading other wind snaps for halo check')
         for w in wind_options:
             infile_new = '/home/rad/data/'+model+'/'+w+'/Groups/'+model+'_'+snap+'.hdf5'
             objs.append(caesar.load(infile_new, LoadHalo=True))
             with h5py.File(match_file, 'r') as f:
                 prog_index.append(f[wind+'_'+w][:])
-
-
-    print('Loaded caesar galaxy data from model ' + model + ' snapshot ' + snap)
 
     choose_mask = np.array([True] * len(sim.galaxies))
 
@@ -99,8 +163,6 @@ if __name__ == '__main__':
     gas_frac = np.zeros(numgals*5)
     pos = np.zeros((numgals*5, 3))
     vgal_pos = np.zeros((numgals*5, 3))
-
-
 
     for cos_id in np.argsort(cos_M):
             ids = range(cos_id*5, (cos_id+1)*5)
@@ -121,42 +183,20 @@ if __name__ == '__main__':
                 indices = np.where(mask == True)[0]
                 
                 if do_isolation:
-                    delete_gals = []
-                    # check isolation criteria (no other galaxies within 1 Mpc)
-                    for i, gal in enumerate(indices):
-                        # compute distance of other galaxies to this one:
-                        r = np.sqrt(np.sum((gal_pos - gal_pos[gal])**2, axis=1))
-                        pos_mask = (r.value < pos_range) * gal_cent
-                        # check for central galaxies in this range
-                        # one of the galaxies will be the original galaxy, so at least 1 match is expected
-                        if len(gal_sm[pos_mask]) > 1:
-                            delete_gals.append(i)
-                    if len(delete_gals) > 0.:
-                        print('Excluding galaxies within 1 Mpc')
-                        indices = np.delete(indices, delete_gals)
+                    indices = isolation_check(gal_pos, pos_range, gal_cent, indices)
 
                 if do_halo_check:
-                    delete_gals = []
-                    for i, gal in enumerate(indices):
-                        for j, w in enumerate(wind_options):
-                            try:
-                                new_i = check_halo_sample(prog_index[j], sim, objs[j], gal)
-                            except AttributeError:
-                                delete_gals.append(i)
-                                continue
-                    if len(delete_gals) > 0.:
-                        print('Excluding galaxies with no central counterpart in other wind boxes')
-                        indices = np.delete(indices, delete_gals)
+                    indices = halo_check(sim, objs, prog_index, indices, r200_file)
+                else:
+                    _r200 = np.array([i.halo.radii['r200c'].in_units('kpc/h') for i in np.array(sim.galaxies)[indices]])
+                    delete_gals = np.where(_r200 == 0.)[0]
+                    indices = delete_indices(indices, delete_gals)
 
-
-
-                if len(indices) < 5.: 
-                    
+                if len(indices) < 5.:                     
                     if (len(indices) < 2.) & (ssfr_range_init > 5.*ssfr_range) & (mass_range_init > 5.*mass_range):
                         print('No galaxies matching this criteria')
                         stop = True
                         continue
-
                     mass_range_init += 0.05
                     ssfr_range_init += 0.05
                     print('Expanding sSFR and mass search by 0.05 dex')
@@ -198,14 +238,13 @@ if __name__ == '__main__':
             ssfr[ids] = gal_ssfr[indices[choose]]
             gas_frac[ids] = gal_gas_frac[indices[choose]]
             pos[ids] = gal_pos[indices[choose]]
-            r200[ids] = gal_r200[indices[choose]]
             vgal_pos[ids] = gal_vgal_pos[indices[choose]]
 
     	# do not repeat galaxies
             choose_mask[indices[choose]] = np.array([False] * 5)
 
     gal_ids = np.array(gal_ids, dtype='int')
-    halo_r200 = np.array([i.halo.radii['r200c'].in_units('kpc') for i in np.array(sim.galaxies)[gal_ids]])
+    halo_r200 = np.array([i.halo.radii['r200c'].in_units('kpc/h') for i in np.array(sim.galaxies)[gal_ids]])
     halo_pos = np.array([i.halo.pos.in_units('kpc/h') for i in np.array(sim.galaxies)[gal_ids]])
 
     with h5py.File(sample_dir+'/'+model+'_'+wind+'_cos_'+survey+'_sample.h5', 'a') as hf:

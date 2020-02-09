@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
     model = 'm100n1024'
     wind = 's50'
-    survey = 'halos'
+    survey = 'dwarfs'
     verbose = 2
 
     if survey == 'dwarfs':
@@ -74,10 +74,10 @@ if __name__ == '__main__':
     data_dir = '/home/rad/data/'+model+'/'+wind+'/'
     snapfile = data_dir+'snap_'+model+'_'+snap+'.hdf5'
 
-    output_dir = '/home/sapple/cgm/cos_samples/cos_'+survey+'/samples/'
+    output_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
     output_file = output_dir + model+'_'+wind+'_'+snap+'.hdf5'
 
-    sample_file = 'cos_'+survey+'/samples/m100n1024_s50_cos_'+survey+'_sample.h5'
+    sample_file = model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_cos_'+survey+'_sample.h5'
     with h5py.File(sample_file, 'r') as f:
         gal_ids = np.array(f['gal_ids'][:], dtype='int')
 

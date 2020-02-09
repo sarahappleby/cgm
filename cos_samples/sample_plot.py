@@ -37,8 +37,8 @@ plt.rc('font', family='serif', size=14)
 mlim = np.log10(5.8e8)
 model = 'm100n1024'
 
-cos_halos_rho, cos_halos_mass, cos_halos_ssfr = get_cos_halos()
-cos_dwarfs_rho, cos_dwarfs_mass, cos_dwarfs_ssfr, cos_dwarfs_less_than = get_cos_dwarfs(return_less_than=True)
+cos_halos_rho, cos_halos_mass, _, cos_halos_ssfr = get_cos_halos()
+cos_dwarfs_rho, cos_dwarfs_mass, _, cos_dwarfs_ssfr, cos_dwarfs_less_than = get_cos_dwarfs(return_less_than=True)
 cos_dwarfs_ssfr = cos_dwarfs_ssfr[cos_dwarfs_mass > mlim]
 cos_dwarfs_less_than = cos_dwarfs_less_than[cos_dwarfs_mass > mlim]
 cos_dwarfs_mass = cos_dwarfs_mass[cos_dwarfs_mass > mlim]

@@ -22,11 +22,11 @@ mlim = np.log10(5.8e8)
 
 if survey == 'dwarfs':
     from get_cos_info import get_cos_dwarfs
-    cos_rho, cos_M, cos_ssfr = get_cos_dwarfs()
+    cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_dwarfs()
     snap = '151'
 elif survey == 'halos':
     from get_cos_info import get_cos_halos
-    cos_rho, cos_M, cos_ssfr = get_cos_halos()
+    cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_halos()
     snap = '137'
 
 data_dir = '/home/rad/data/'+model+'/'+wind+'/'
@@ -41,7 +41,7 @@ snapfile = data_dir + 'snap_'+model+'_'+snap +'.hdf5'
 hsml = readsnap(snapfile, 'SmoothingLength', 'gas', suppress=1, units=1)  # in kpc/h, comoving
 gas_pos = readsnap(snapfile, 'pos', 'gas', suppress=1, units=1) # in kpc/h, comoving
 
-sample_dir = '/home/sapple/cgm/cos_samples/cos_'+survey+'/samples/'
+sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
 sample_file = sample_dir+model+'_'+wind+'_cos_'+survey+'_sample.h5'
 with h5py.File(sample_file, 'r') as f:
     gal_id = f['gal_ids'][:].astype('int')[sample_gal]

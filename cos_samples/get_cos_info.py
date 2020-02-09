@@ -67,7 +67,7 @@ def get_cos_halos():
         cos_M.append(cos['galaxy']['stellar_mass'])
         cos_ssfr.append(cos['galaxy']['ssfr'])
         cos_rho.append(cos['rho'])
-        cos_r200.append(cos['rvir'])
+        cos_r200.append(cos['galaxy']['rvir'])
 
     return np.array(cos_rho), np.array(cos_M), np.array(cos_r200), np.log10(cos_ssfr)
 

@@ -21,20 +21,27 @@ line = sys.argv[6]
 lambda_rest = float(re.findall(r'\d+', line)[0])
 
 ids = list(range(num*5, (num+1)*5))
+ids = [155]
 
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
-snapfile = '/home/sapple/cgm/cos_samples/cos_'+survey+'/samples/'+model+'_'+wind+'_'+snap+'.hdf5'
+snapfile = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_'+snap+'.hdf5'
 
-sample_dir = '/home/sapple/cgm/cos_samples/cos_'+survey+'/samples/'
-save_dir = '/home/sapple/cgm/cos_samples/cos_'+survey+'/'
+sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
+save_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/'
+
+if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
+    os.makedirs(save_dir + '/plots/')
+    os.makedirs(save_dir + '/spectra/')
+    os.makedirs(save_dir + '/output/')
 
 if survey == 'dwarfs':
     from get_cos_info import get_cos_dwarfs
-    cos_rho, cos_M, cos_ssfr = get_cos_dwarfs()
+    cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_dwarfs()
 
 elif survey == 'halos':
     from get_cos_info import get_cos_halos
-    cos_rho, cos_M, cos_ssfr = get_cos_halos()
+    cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_halos()
 
 # Get some info from yt:
 ds = yt.load(snapfile)
