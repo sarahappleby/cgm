@@ -1,14 +1,20 @@
 import numpy as np
+from physcs import compute_cfrac
 
-def cosmic_variance(ew, pos, boxsize):
+def get_cosmic_variance(ew, pos, boxsize, quantity, thresh=None, pl=None):
     octant_ids = octants_2d(pos, boxsize)
-    percentile = np.zeros(8):
+    measure = np.zeros(8)
     for i in range(8):
         i_using = np.concatenate(np.delete(octant_ids, i))
-        percentile[i] = nanpercentile(ew[i_using.astype('int')], per)
-    mean_perc = np.sum(percentile) / 8.
-    cosmic_std = np.sqrt(variance_jk(percentile, mean_perc))
-    mean, err = convert_to_log(mean_perc, cosmic_std)
+        if quantity == 'ew':
+            measure[i] = np.nanpercentile(ew[i_using.astype('int')], 50)
+        elif quantity == 'cfrac':
+            measure[i] = compute_cfrac(ew[i_using.astype('int')], thresh)
+        elif quantity == 'path_abs':
+            measure[i] = compute_path_abs(ew[i_using.astype('int')], pl[i_using.astype('int')])
+    mean_m = np.sum(measure) / 8.
+    cosmic_std = np.sqrt(variance_jk(measure, mean_m))
+    mean, err = convert_to_log(mean_m, cosmic_std)
     return mean, err
 
 def variance_jk(samples, mean):

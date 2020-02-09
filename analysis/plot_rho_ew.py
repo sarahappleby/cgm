@@ -24,6 +24,11 @@ mlim = np.log10(5.8e8) # lower limit of M*
 ylim = 0.7
 r200_scaled = True
 
+if model == 'm100n1024':
+    boxsize = 100000.
+elif model == 'm50n512':
+    boxsize = 50000.
+
 plot_dir = 'plots/'
 
 fig, ax = plt.subplots(3, 2, figsize=(12, 14))
@@ -39,7 +44,8 @@ for i, survey in enumerate(cos_survey):
     with h5py.File(cos_sample_file, 'r') as f:
         mass = np.repeat(f['mass'][:], 4)
         ssfr = np.repeat(f['ssfr'][:], 4)
-        r200 = np.repeat(f['r200'][:], 4)
+        pos = np.repeat(f['pos'][:], 4)
+        r200 = np.repeat(f['halo_r200'][:], 4)
     ssfr[ssfr < -11.5] = -11.5
 
     if survey == 'dwarfs':
@@ -63,15 +69,12 @@ for i, survey in enumerate(cos_survey):
     with h5py.File(ew_file, 'r') as f:
         ew = np.log10(f[lines[i]+'_wave_ew'][:])
 
-    ew, ew_low, ew_high = median_ew_cos_groups(ew, 20, len(cos_rho))
-    ew_sig_low = np.abs(ew - ew_low)
-    ew_sig_high = np.abs(ew_high - ew)
+    ew, ew_err = median_ew_cos_groups(ew, pos, 20, len(cos_rho), boxsize)
     
     # remove index 3 from dwarfs lya because this isnt in the data
     if (survey == 'dwarfs') & (lines[i] == 'H1215'):
         ew = np.delete(ew, 3)
-        ew_sig_low = np.delete(ew_sig_low, 3)
-        ew_sig_high = np.delete(ew_sig_high, 3)
+        ew_err = np.delete(ew_err, 3)
         cos_ssfr = np.delete(cos_ssfr, 3)
         cos_rho = np.delete(cos_rho, 3)
 
@@ -82,9 +85,9 @@ for i, survey in enumerate(cos_survey):
         dist = cos_rho.copy()
         xlabel = r'$\rho (\textrm{kpc})$'
 
-    l1 = ax[i].errorbar(dist[cos_ssfr < quench], ew[cos_ssfr < quench], yerr=[ew_sig_low[cos_ssfr < quench], ew_sig_high[cos_ssfr < quench]], \
+    l1 = ax[i].errorbar(dist[cos_ssfr < quench], ew[cos_ssfr < quench], yerr=ew_err[cos_ssfr < quench], \
                         ms=3.5, marker='s', capsize=4, ls='', c='r')
-    l2 = ax[i].errorbar(dist[cos_ssfr > quench], ew[cos_ssfr > quench], yerr=[ew_sig_low[cos_ssfr > quench], ew_sig_high[cos_ssfr > quench]], \
+    l2 = ax[i].errorbar(dist[cos_ssfr > quench], ew[cos_ssfr > quench], yerr=ew_err[cos_ssfr > quench], \
                         ms=3.5, marker='s', capsize=4, ls='', c='b')
     if i == 0:
         leg1 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=10.5, loc=4)

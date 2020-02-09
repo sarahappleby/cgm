@@ -24,6 +24,11 @@ if __name__ == '__main__':
     mlim = np.log10(5.8e8) # lower limit of M*
     plot_dir = 'plots/'
 
+    if model == 'm100n1024':
+        boxsize = 100000. 
+    elif model == 'm50n512':
+        boxsize = 50000.
+
     rho_bins = np.arange(0., 200., 40.)
     plot_bins = rho_bins[:-1] + 20
 
@@ -43,6 +48,7 @@ if __name__ == '__main__':
         with h5py.File(cos_sample_file, 'r') as f:
             mass = np.repeat(f['mass'][:], 4)
             ssfr = np.repeat(f['ssfr'][:], 4)
+            pos = np.repeat(f['pos'][:], 4)
         ssfr[ssfr < -11.5] = -11.5
 
         if survey == 'dwarfs':
@@ -77,8 +83,8 @@ if __name__ == '__main__':
             ssfr = np.delete(ssfr, np.arange(3*20, 4*20))
             ew = np.delete(ew, np.arange(3*20, 4*20))
 
-        sim_sf_cfrac = compute_cfrac(ew[ssfr > quench], cos_rho_long[ssfr > quench], rho_bins, det_thresh[i])
-        sim_q_cfrac = compute_cfrac(ew[ssfr < quench], cos_rho_long[ssfr < quench], rho_bins, det_thresh[i])
+        sim_sf_cfrac = compute_cfrac(ew[ssfr > quench], cos_rho_long[ssfr > quench], pos[ssfr > quench], rho_bins, det_thresh[i], boxsize)
+        sim_q_cfrac = compute_cfrac(ew[ssfr < quench], cos_rho_long[ssfr < quench], pos[ssfr < quench], rho_bins, det_thresh[i], boxsize)
         
         if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
             EW, EWerr, EW_less_than = get_cos_dwarfs_civ() #in mA
