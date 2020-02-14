@@ -116,7 +116,7 @@ if __name__ == '__main__':
         ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
         ax[i].set_ylim(-2.5, ylim)
         if r200_scaled:
-            ax[i].set_xlim(0, 1.6)
+            ax[i].set_xlim(0, 1.25)
         else:
             ax[i].set_xlim(25, 145)
 
