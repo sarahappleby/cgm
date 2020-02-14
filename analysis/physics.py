@@ -54,18 +54,39 @@ def wave_to_z(wave, lambda_rest):
 def equivalent_width(flux, pixel_size):
     return np.sum((np.ones(len(flux)) - flux) * pixel_size)
 
-def compute_binned_ew(ew, rho, rho_bins):
-    binned_ew = bin_data(rho, ew, rho_bins)
-    ew = np.array([np.nanmedian(i) for i in binned_ew])
-    ew_low = np.array([np.nanpercentile(i, 25) for i in binned_ew])
-    ew_high = np.array([np.nanpercentile(i, 75) for i in binned_ew])
+def sim_binned_ew(data_dict, mask, rho_bins, boxsize):
+    binned_ew = bin_data(data_dict['sim_dist'][mask], data_dict['ew'][mask], rho_bins)
+    binned_pos = bin_data(data_dict['sim_dist'][mask], data_dict['pos'][mask], rho_bins)
+    
+    ew = np.zeros(len(binned_ew))
+    ew_err = np.zeros(len(binned_ew))
+    
+    for i in range(len(binned_ew)):
+        if len(binned_ew[i]) > 0.:
+            ew[i], ew_err[i] = get_cosmic_variance(binned_ew[i], binned_pos[i], boxsize, 'ew')    
+        else:
+            ew[i], ew_err[i] = np.nan, np.nan
+    
+    return convert_to_log(ew, ew_err)
 
-    #sig_low = np.abs(ew - ew_low)
-    #sig_high = np.abs(ew_high - ew)
+def cos_binned_ew(cos_dict, mask, rho_bins):
+    binned_ew = bin_data(cos_dict['cos_dist'][mask], cos_dict['EW'][mask], rho_bins)
+    binned_ew_err = bin_data(cos_dict['cos_dist'][mask], cos_dict['EWerr'][mask], rho_bins)
 
-    #ew, ewerr = convert_to_log(ew, np.array([sig_low, sig_high]))
+    ew = np.zeros(len(binned_ew))
+    lo = np.zeros(len(binned_ew))
+    hi = np.zeros(len(binned_ew))
 
-    return ew, ew_low, ew_high
+    for i in range(len(binned_ew)):
+        data = binned_ew[i]
+        ew[i] = np.nanmedian(data)
+        lo[i] = np.nanpercentile(data, 25)
+        hi[i] = np.nanpercentile(data, 75)
+
+    sig_lo = np.abs(ew - lo)
+    sig_hi = np.abs(hi - ew)
+
+    return convert_to_log(ew, np.array([sig_lo, sig_hi]))
 
 def median_ew_cos_groups(ew, rho, ssfr, num_gals, num_cos):
     new_ew = np.zeros(num_cos)
@@ -132,9 +153,7 @@ def compute_path_length(vgal, vel_window, lambda_rest, z, ):
 
     return np.abs(z_high - z_low)
 
-def sim_binned_path_abs(data_dict, ssfr_mask, rho_bins, thresh, boxsize):
-    ew_mask = data_dict['ew'] > thresh
-    mask = ew_mask * ssfr_mask
+def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, boxsize):
     binned_ew = bin_data(data_dict['sim_dist'][mask], data_dict['ew'][mask], rho_bins)
     binned_pl = bin_data(data_dict['sim_dist'][mask], data_dict['path_length'][mask], rho_bins)
     binned_pos = bin_data(data_dict['sim_dist'][mask], data_dict['pos'][mask], rho_bins)
@@ -143,12 +162,17 @@ def sim_binned_path_abs(data_dict, ssfr_mask, rho_bins, thresh, boxsize):
     path_abs_err = np.zeros(len(binned_ew))
 
     for i in range(len(binned_ew)):
-        if len(binned_ew[i]) > 0.:
-            path_abs[i], path_abs_err[i] = get_cosmic_variance(binned_ew[i], binned_pos[i], boxsize, 'path_abs', pl=binned_pl[i])
+        mask_ew = binned_ew[i] > thresh
+        data = binned_ew[i][mask_ew]
+        if len(data) > 0.:
+            path_abs[i], path_abs_err[i] = get_cosmic_variance(binned_ew[i][mask_ew], binned_pos[i][mask_ew], boxsize, 'path_abs', pl=binned_pl[i])
         else:
             path_abs[i], path_abs_err[i] = np.nan, np.nan
 
-    return path_abs, path_abs_err 
+    path_abs[path_abs == 0.] = 10**1.6
+    path_abs[np.isnan(path_abs)] = 10**1.6
+
+    return convert_to_log(path_abs, path_abs_err)
 
 def cos_binned_path_abs(cos_dict, ssfr_mask, rho_bins, thresh):
     ew_mask = cos_dict['EW'] > thresh

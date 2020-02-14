@@ -1,10 +1,9 @@
-
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import h5py
 import sys
 import numpy as np
-from physics import do_bins, do_exclude_outliers, compute_path_length, sim_binned_path_abs, cos_binned_path_abs
+from physics import do_bins, do_exclude_outliers, sim_binned_ew, cos_binned_ew
 
 sys.path.append('../cos_samples/')
 from get_cos_info import get_cos_halos, get_cos_dwarfs, read_halos_data, get_cos_dwarfs_lya, get_cos_dwarfs_civ
@@ -16,28 +15,28 @@ if __name__ == '__main__':
 
     cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
     lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
-    wave_rest = [1215., 1215., 2796., 1206., 1548., 1031.]
     plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
-    det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1]
+    det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
 
     model = 'm100n1024'
     wind = 's50'
-    velocity_width = 300. # km/s
     mlim = np.log10(5.8e8) # lower limit of M*
     plot_dir = 'plots/'
     r200_scaled = True
     do_equal_bins = False
+    h = 0.68
     nbins_sim = 4
     nbins_cos = 3
     out = 5.
-    h = 0.68
+    ylim = 0.7
 
-    plot_name = model+'_'+wind +'_rho_path_abs'
+    plot_name = model+'_'+wind +'_rho_ew_med'
     if r200_scaled:
         plot_name += '_scaled'
     if do_equal_bins:
         plot_name += '_equal_bins'
+    if plot_name[-1] == '_': plot_name = plot_name[:-1]
     plot_name += '.png'
 
     if model == 'm100n1024':
@@ -66,19 +65,12 @@ if __name__ == '__main__':
 
     halo_rho, halo_M, halo_r200, halo_ssfr = get_cos_halos()
     dwarfs_rho, dwarfs_M, dwarfs_r200, dwarfs_ssfr = get_cos_dwarfs()
-    
+
     for i, survey in enumerate(cos_survey):
 
         data_dict = {}
         cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_cos_'+survey+'_sample.h5'
         with h5py.File(cos_sample_file, 'r') as f:
-            keys = list(f.keys())
-            if 'path_length_'+lines[i] not in keys:
-                vgal = f['vgal_position'][:][:, 2]
-                path_length = compute_path_length(vgal, velocity_width, wave_rest[i], z)
-                f.create_dataset('path_length_'+lines[i], data=np.array(path_length))
-            
-            data_dict['path_length'] = np.repeat(f['path_length_'+lines[i]][:], 4)
             data_dict['mass'] = np.repeat(f['mass'][:], 4)
             data_dict['ssfr'] = np.repeat(f['ssfr'][:], 4)
             data_dict['pos'] = np.repeat(f['position'][:], 4, axis=0)
@@ -97,7 +89,7 @@ if __name__ == '__main__':
             z = 0.2
             cos_dict['rho'], cos_dict['M'], cos_dict['r200'], cos_dict['ssfr'] = halo_rho, halo_M, halo_r200, halo_ssfr
         quench = -1.8  + 0.3*z - 9.
-    
+
         if r200_scaled:
             cos_dict['rho'] = cos_dict['rho'].astype(float)
             cos_dict['rho'] *= h * (1+z) # get in kpc/h
@@ -142,57 +134,53 @@ if __name__ == '__main__':
             mask = (cos_dict['ssfr'] < quench)
             rho_bins_cos_q, plot_bins_cos_q = do_bins(cos_dict['cos_dist'][mask], nbins_cos)
 
-
-        sim_sf_path_abs, sim_sf_err = sim_binned_path_abs(data_dict, (data_dict['ssfr'] > quench), rho_bins_sim_sf, det_thresh[i], boxsize)
-        sim_q_path_abs, sim_q_err = sim_binned_path_abs(data_dict, (data_dict['ssfr'] < quench), rho_bins_sim_q, det_thresh[i], boxsize)
+        mask = data_dict['ssfr'] > quench
+        sim_sf_ew, sim_sf_err = sim_binned_ew(data_dict, mask, rho_bins_sim_sf, boxsize)
+        mask = data_dict['ssfr'] < quench
+        sim_q_ew, sim_q_err = sim_binned_ew(data_dict, mask, rho_bins_sim_q, boxsize)
 
         if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
             cos_dict['EW'], cos_dict['EWerr'], cos_dict['EW_less_than'] = get_cos_dwarfs_civ() #in mA
             cos_dict['EW'] /= 1000.
+            cos_dict['EWerr'] /= 1000.
         elif (survey == 'dwarfs') & (lines[i] == 'H1215'):
             cos_dict['EW'], cos_dict['EWerr'] = get_cos_dwarfs_lya() # in mA
             cos_dict['EW'] /= 1000.
+            cos_dict['EWerr'] /= 1000.
             cos_dict['EW'] = np.delete(cos_dict['EW'], 3) # delete the measurements from Cos dwarfs galaxy 3 for the Lya stuff
+            cos_dict['EWerr'] = np.delete(cos_dict['EWerr'], 3)
         elif (survey == 'halos'):
             cos_dict['EW'], cos_dict['EWerr'] = read_halos_data(lines[i])
             cos_dict['EW'] = np.abs(cos_dict['EW'])
         cos_dict['EW'] = cos_dict['EW'][mass_mask]
+        cos_dict['EWerr'] = cos_dict['EWerr'][mass_mask]
 
         if survey == 'halos':
             ew_mask = cos_dict['EW'] > 0.
             for k in cos_dict.keys():
                 cos_dict[k] = cos_dict[k][ew_mask]
-        
-        cos_dict['path_length'] = np.repeat(data_dict['path_length'][0], len(cos_dict['EW']))
-        
-        cos_sf_path_abs = cos_binned_path_abs(cos_dict, (cos_dict['ssfr'] > quench), rho_bins_cos_sf, det_thresh[i])
-        cos_q_path_abs = cos_binned_path_abs(cos_dict, (cos_dict['ssfr'] < quench), rho_bins_cos_q, det_thresh[i])
-       
-        cos_sf_path_abs[cos_sf_path_abs == 0.] = 10**1.6
-        cos_q_path_abs[cos_q_path_abs == 0.] = 10**1.6
 
-        c1, = ax[i].plot(plot_bins_cos_sf, np.log10(cos_sf_path_abs), c='c', marker='o', ls='--')
-        c2, = ax[i].plot(plot_bins_cos_q, np.log10(cos_q_path_abs), c='m', marker='o', ls='--')
+        cos_sf_ew, cos_sf_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] > quench), rho_bins_cos_sf)
+        cos_q_ew, cos_q_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] < quench), rho_bins_cos_q)
+
+        c1 = ax[i].errorbar(plot_bins_cos_sf, cos_sf_ew, yerr=cos_sf_err, capsize=4, c='c', marker='o', ls='--', label=label+' SF')
+        #c2 = ax[i].errorbar(plot_bins_cos_q, cos_q_ew, yerr=cos_q_err, capsize=4, c='m', marker='o', ls='--', label=label+' Q')
+        #c1, = ax[i].plot(plot_bins_cos_sf, cos_sf_ew, c='c', marker='o', ls='--', label=label+' SF')
+        c2, = ax[i].plot(plot_bins_cos_q, cos_q_ew, c='m', marker='o', ls='--', label=label+' Q')
         leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
 
-        l1 = ax[i].errorbar(plot_bins_sim_sf, sim_sf_path_abs, yerr=sim_sf_err, c='b', marker='o', ls='--')
-        l2 = ax[i].errorbar(plot_bins_sim_q, sim_q_path_abs, yerr=sim_q_err, c='r', marker='o', ls='--')
+        l1 = ax[i].errorbar(plot_bins_sim_sf, sim_sf_ew, yerr=sim_sf_err, capsize=4, c='b', marker='o', ls='--')
+        l2 = ax[i].errorbar(plot_bins_sim_q, sim_q_ew, yerr=sim_q_err, capsize=4, c='r', marker='o', ls='--')
         if i == 0:
             leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=10.5)
 
+        ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
         ax[i].set_xlabel(xlabel)
-        ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z),\ $' + plot_lines[i])
-       
-        ax[i].set_ylim(1.5, 2.9)
+        ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
+        ax[i].set_ylim(-2, ylim)
         if r200_scaled:
             ax[i].set_xlim(0, 1.1)
         else:
             ax[i].set_xlim(25, 145)
 
-        if i==0:
-            ax[i].add_artist(leg1)
-
     plt.savefig(plot_dir+plot_name)
-
-
-

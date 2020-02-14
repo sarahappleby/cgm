@@ -27,7 +27,8 @@ if __name__ == '__main__':
     r200_scaled = True
     do_equal_bins = False
     h = 0.68
-    nbins = 4
+    nbins_sim = 4
+    nbins_cos = 3
     out = 5.
 
     plot_name = model+'_'+wind +'_rho_cfrac'
@@ -125,13 +126,13 @@ if __name__ == '__main__':
         if not do_equal_bins:
             data_dict = do_exclude_outliers(data_dict, out)
             mask = (data_dict['ssfr'] > quench)
-            rho_bins_sim_sf, plot_bins_sim_sf = do_bins(data_dict['sim_dist'][mask], nbins)
+            rho_bins_sim_sf, plot_bins_sim_sf = do_bins(data_dict['sim_dist'][mask], nbins_sim)
             mask = (data_dict['ssfr'] < quench)
-            rho_bins_sim_q, plot_bins_sim_q = do_bins(data_dict['sim_dist'][mask], nbins)
+            rho_bins_sim_q, plot_bins_sim_q = do_bins(data_dict['sim_dist'][mask], nbins_sim)
             mask = (cos_dict['ssfr'] > quench)
-            rho_bins_cos_sf, plot_bins_cos_sf = do_bins(cos_dict['cos_dist'][mask], nbins)
+            rho_bins_cos_sf, plot_bins_cos_sf = do_bins(cos_dict['cos_dist'][mask], nbins_cos)
             mask = (cos_dict['ssfr'] < quench)
-            rho_bins_cos_q, plot_bins_cos_q = do_bins(cos_dict['cos_dist'][mask], nbins)
+            rho_bins_cos_q, plot_bins_cos_q = do_bins(cos_dict['cos_dist'][mask], nbins_cos)
 
         sim_sf_cfrac, sim_sf_err = sim_binned_cfrac(data_dict, (data_dict['ssfr'] > quench), rho_bins_sim_sf, det_thresh[i], boxsize)
         sim_q_cfrac, sim_q_err = sim_binned_cfrac(data_dict, (data_dict['ssfr'] < quench), rho_bins_sim_q, det_thresh[i], boxsize)

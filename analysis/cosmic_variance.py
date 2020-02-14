@@ -1,21 +1,21 @@
 import numpy as np
-from physcs import compute_cfrac
 
 def get_cosmic_variance(ew, pos, boxsize, quantity, thresh=None, pl=None):
     octant_ids = octants_2d(pos, boxsize)
     measure = np.zeros(8)
     for i in range(8):
         i_using = np.concatenate(np.delete(octant_ids, i))
-        if quantity == 'ew':
-            measure[i] = np.nanpercentile(ew[i_using.astype('int')], 50)
-        elif quantity == 'cfrac':
+        if quantity == 'cfrac':
+            from physics import compute_cfrac
             measure[i] = compute_cfrac(ew[i_using.astype('int')], thresh)
         elif quantity == 'path_abs':
+            from physics import compute_path_abs
             measure[i] = compute_path_abs(ew[i_using.astype('int')], pl[i_using.astype('int')])
-    mean_m = np.sum(measure) / 8.
+        elif quantity == 'ew':
+            measure[i] = np.nanmedian(ew[i_using.astype('int')])
+    mean_m = np.nansum(measure) / 8.
     cosmic_std = np.sqrt(variance_jk(measure, mean_m))
-    mean, err = convert_to_log(mean_m, cosmic_std)
-    return mean, err
+    return mean_m, cosmic_std
 
 def variance_jk(samples, mean):
         n = len(samples)
@@ -44,17 +44,17 @@ def octants_2d(pos_array, boxsize):
         elif pos_ya[i] and not pos_x[i]:
             inds_2 = np.append(inds_2, i)
         elif pos_yb[i] and pos_x[i]:
-            inds_3 = np.append(inds_1, i)
+            inds_3 = np.append(inds_3, i)
         elif pos_yb[i] and not pos_x[i]:
-            inds_4 = np.append(inds_2, i)
+            inds_4 = np.append(inds_4, i)
         elif pos_yc[i] and pos_x[i]:
-            inds_5 = np.append(inds_1, i)
+            inds_5 = np.append(inds_5, i)
         elif pos_yc[i] and not pos_x[i]:
-            inds_6 = np.append(inds_2, i)
+            inds_6 = np.append(inds_6, i)
         elif pos_yd[i] and pos_x[i]:
-            inds_7 = np.append(inds_1, i)
+            inds_7 = np.append(inds_7, i)
         elif pos_yd[i] and not pos_x[i]:
-            inds_8 = np.append(inds_2, i)
+            inds_8 = np.append(inds_8, i)
 
     return np.array((inds_1, inds_2, inds_3, inds_4, inds_5, inds_6, inds_7, inds_8))
 
