@@ -1,7 +1,6 @@
 import sys
 import os
 import numpy as np
-from astropy.io import ascii
 import caesar
 import yt
 import h5py
@@ -23,9 +22,9 @@ def check_prog_sample(prog_index, obj1, obj2, gal_id):
     return int(halo2.central_galaxy.GroupID)
 
 def check_r200_sample(r200_file, halo_id, wind):
+    # returns a True if the r200 is zero
     with h5py.File(r200_file, 'r') as f:
         r200_all = f[wind+'_halo_r200'][:]
-
     r200 = r200_all[halo_id]
     
     return (r200 == 0.)
@@ -35,10 +34,12 @@ def halo_check(sim, objs, prog_index, indices, r200_file):
 
     delete_gals = []
     halo_ids = np.array([get_halo_id(sim, i) for i in indices])
+    # get that the fiducial box halo has a non-zero r200
     check_array = check_r200_sample(r200_file, halo_ids, 's50j7k')
     if True in check_array:
         delete_gals.append(np.arange(len(indices))[check_array])
     
+    # for each halo, check it in the other wind boxes and check r200 is not zero
     for j, w in enumerate(wind_options):
         w_halo_ids = np.zeros(len(indices))
         check_array = np.array([False] * len(indices))
@@ -49,8 +50,7 @@ def halo_check(sim, objs, prog_index, indices, r200_file):
                 check_array[i] = True
                 w_halo_ids[i] = np.nan
                 continue
-        
-        
+    
         check_array[~np.isnan(w_halo_ids)] = check_r200_sample(r200_file, w_halo_ids[~np.isnan(w_halo_ids)].astype('int'), w)
         if True in check_array:
             delete_gals.append(np.arange(len(indices))[check_array])
@@ -95,13 +95,17 @@ if __name__ == '__main__':
     ssfr_range = 0.1 # dex
     pos_range = 1000. # kpc/h
     mlim = np.log10(5.8e8) # lower limit of M*
+    
+    # set to True if we want to have the isolation criteria
     do_isolation = False
+    # set to True if we want to check for halos in other wind boxes
     do_halo_check = True
     if do_halo_check: wind_options = ['s50nojet', 's50nox', 's50noagn']
 
     if not os.path.exists(sample_dir):
     	os.makedirs(sample_dir)
 
+    # load in cos survey data and get rid of low mass objects
     if survey == 'dwarfs':
         from get_cos_info import get_cos_dwarfs
         cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_dwarfs()
@@ -122,11 +126,9 @@ if __name__ == '__main__':
     infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
     sim = caesar.load(infile, LoadHalo=True)
     gal_cent = np.array([i.central for i in sim.galaxies])
-
     co = yt.utilities.cosmology.Cosmology()
     hubble = co.hubble_parameter(sim.simulation.redshift).in_units('km/s/kpc')
     redshift = sim.simulation.redshift
-
     quench = (-1.8+0.3*redshift) - 9. # define galaxy as quenched
 
     gal_sm = yt.YTArray([sim.galaxies[i].masses['stellar'].in_units('Msun') for i in range(len(sim.galaxies))], 'Msun')
@@ -139,10 +141,10 @@ if __name__ == '__main__':
     gal_recession = gal_pos.in_units('kpc')*hubble
     gal_vgal_pos = gal_vels + gal_recession
     gal_gas_frac = np.array([i.masses['gas'].in_units('Msun') /i.masses['stellar'].in_units('Msun') for i in sim.galaxies ])
-    # load in r200 here
 
     print('Loaded caesar galaxy data from model ' + model + ' snapshot ' + snap)
 
+    # load in the other wind boxes if we need them
     if do_halo_check:
         objs = []
         prog_index = []
@@ -155,8 +157,10 @@ if __name__ == '__main__':
             with h5py.File(match_file, 'r') as f:
                 prog_index.append(f[wind+'_'+w][:])
 
+    # initially we can choose any galaxy
     choose_mask = np.array([True] * len(sim.galaxies))
 
+    # empty arrays to store 5 simba galaxies per cos galaxy
     gal_ids = np.zeros(numgals*5)
     mass = np.zeros(numgals*5)
     ssfr = np.zeros(numgals*5)
@@ -173,6 +177,7 @@ if __name__ == '__main__':
             stop = False
             indices = []
             while not stop:
+                # get galaxy mask
                 mass_mask = (gal_sm >= (cos_M[cos_id] - mass_range_init)) & (gal_sm <= (cos_M[cos_id] + mass_range_init)) & (gal_sm > mlim)
                 # if cos galaxy is near quenching, we want to match it to galaxies with low sSFR
                 if cos_ssfr[cos_id] <= quench:
@@ -209,8 +214,7 @@ if __name__ == '__main__':
                 print ('No galaxies selected')
                 continue
 
-            # instead, choose the 5 that match most closely in mass and ssfr
-
+            # choose the 5 that match most closely in mass and ssfr
             mass_dev = np.abs(cos_M[cos_id] - gal_sm[indices])
             ssfr_choosing = gal_ssfr[indices]
             if cos_ssfr[cos_id] < quench:
@@ -240,7 +244,7 @@ if __name__ == '__main__':
             pos[ids] = gal_pos[indices[choose]]
             vgal_pos[ids] = gal_vgal_pos[indices[choose]]
 
-    	# do not repeat galaxies
+    	    # do not repeat galaxies
             choose_mask[indices[choose]] = np.array([False] * 5)
 
     gal_ids = np.array(gal_ids, dtype='int')
