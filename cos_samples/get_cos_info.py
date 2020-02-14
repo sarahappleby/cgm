@@ -8,14 +8,16 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+from pyigm.cgm import cos_halos as pch
 
 def get_cos_dwarfs(return_less_than=False):
+    h = 0.68
     table_file = '/home/sapple/cgm/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
     table = ascii.read(table_file, format='latex')
     cos_rho = table['Rho']
     cos_M = table['logM_stellar']
     cos_ssfr = table['logsSFR']
-    cos_r200 = table['R_vir']
+    cos_r200 = table['R_vir'] * h**2 # get in kpc/h
 
     # identify galaxies with sSFR lower limit
     ssfr_less_than = np.array([False for i in list(range(len(cos_ssfr)))])
@@ -56,7 +58,7 @@ def get_cos_dwarfs_civ():
     return ew_civ, ew_civ_err, ew_less_than
 
 def get_cos_halos():
-    from pyigm.cgm import cos_halos as pch
+    h = 0.68
     cos_halos = pch.COSHalos()
     cos_M = []
     cos_ssfr = []
@@ -68,7 +70,7 @@ def get_cos_halos():
         cos_ssfr.append(cos['galaxy']['ssfr'])
         cos_rho.append(cos['rho'])
         cos_r200.append(cos['galaxy']['rvir'])
-
+    cos_r200 = np.array(cos_r200) * h # get in kpc/h, already corrected for 1 + z seemingly
     return np.array(cos_rho), np.array(cos_M), np.array(cos_r200), np.log10(cos_ssfr)
 
 def get_cos_halos_lines(pg_line, save_file):
@@ -81,7 +83,6 @@ def get_cos_halos_lines(pg_line, save_file):
     ion = lookup_data['ions'][place]
     line = lookup_data['lines'][place]
 
-    from pyigm.cgm import cos_halos as pch
     cos_halos = pch.COSHalos()
     EW = []
     EWerr = []
