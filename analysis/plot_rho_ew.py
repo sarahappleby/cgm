@@ -26,14 +26,14 @@ if __name__ == '__main__':
     ylim = 0.7
     plot_dir = 'plots/'
     h = 0.68
-    r200_scaled = False
+    r200_scaled = True
 
     if model == 'm100n1024':
         boxsize = 100000.
     elif model == 'm50n512':
         boxsize = 50000.
 
-    plot_name = model+'_'+wind +'_rho_cfrac'
+    plot_name = model+'_'+wind +'_rho_ew'
     if r200_scaled:
         plot_name += '_scaled'
     plot_name += '.png'
@@ -43,7 +43,6 @@ if __name__ == '__main__':
 
     halo_rho, halo_M, halo_r200, halo_ssfr = get_cos_halos()
     dwarfs_rho, dwarfs_M, dwarfs_r200, dwarfs_ssfr = get_cos_dwarfs()
-
 
     for i, survey in enumerate(cos_survey):
 
@@ -69,6 +68,10 @@ if __name__ == '__main__':
             cos_dict['rho'], cos_dict['M'], cos_dict['r200'], cos_dict['ssfr'] = halo_rho, halo_M, halo_r200, halo_ssfr
         quench = -1.8  + 0.3*z - 9.
 
+        if r200_scaled:
+            cos_dict['rho'] = cos_dict['rho'].astype(float)
+            cos_dict['rho'] *= h * (1+z) # get in kpc/h
+
         mass_mask = cos_dict['M'] > mlim
         for k in cos_dict.keys():
             cos_dict[k] = cos_dict[k][mass_mask]
@@ -89,13 +92,10 @@ if __name__ == '__main__':
             for k in data_dict.keys():
                 data_dict[k] = np.delete(data_dict[k], np.arange(3*20, 4*20), axis=0)
 
-
         if r200_scaled:
-            cos_dict['cos_dist'] = cos_dict['rho'] / cos_dict['r200']
             data_dict['sim_dist'] = cos_rho_long / data_dict['r200']
             xlabel = r'$\rho / r_{200}$'
         else:
-            cos_dict['cos_dist'] = cos_dict['rho'].copy()
             data_dict['sim_dist'] = cos_rho_long.copy()
             xlabel = r'$\rho (\textrm{kpc})$'
 
@@ -116,7 +116,7 @@ if __name__ == '__main__':
         ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
         ax[i].set_ylim(-2.5, ylim)
         if r200_scaled:
-            ax[i].set_xlim(0, 1.5)
+            ax[i].set_xlim(0, 1.6)
         else:
             ax[i].set_xlim(25, 145)
 

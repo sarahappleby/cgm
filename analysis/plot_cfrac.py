@@ -24,7 +24,7 @@ if __name__ == '__main__':
     wind = 's50'
     mlim = np.log10(5.8e8) # lower limit of M*
     plot_dir = 'plots/'
-    r200_scaled = False
+    r200_scaled = True
     do_equal_bins = False
     h = 0.68
     nbins = 4
@@ -65,10 +65,6 @@ if __name__ == '__main__':
     halo_rho, halo_M, halo_r200, halo_ssfr = get_cos_halos()
     dwarfs_rho, dwarfs_M, dwarfs_r200, dwarfs_ssfr = get_cos_dwarfs()
 
-    halos_rho_long = np.repeat(halo_rho, 20.)
-    dwarfs_rho_long = np.repeat(dwarfs_rho, 20.)
-
-
     for i, survey in enumerate(cos_survey):
 
         data_dict = {}
@@ -92,6 +88,10 @@ if __name__ == '__main__':
             z = 0.2
             cos_dict['rho'], cos_dict['M'], cos_dict['r200'], cos_dict['ssfr'] = halo_rho, halo_M, halo_r200, halo_ssfr
         quench = -1.8  + 0.3*z - 9.
+
+        if r200_scaled:
+            cos_dict['rho'] = cos_dict['rho'].astype(float)
+            cos_dict['rho'] *= h * (1+z) # get in kpc/h
 
         mass_mask = cos_dict['M'] > mlim
         for k in cos_dict.keys():
@@ -169,7 +169,7 @@ if __name__ == '__main__':
         ax[i].set_ylabel(r'$f_{\textrm{cov}},\ $' + plot_lines[i])
         ax[i].set_ylim(-0.1, 1.1)
         if r200_scaled:
-            ax[i].set_xlim(0, 1.5)
+            ax[i].set_xlim(0, 1.1)
         else:
             ax[i].set_xlim(25, 145)
 
