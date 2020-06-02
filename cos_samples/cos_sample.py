@@ -2,92 +2,276 @@ import sys
 import os
 import numpy as np
 import caesar
-from pyigm.cgm import cos_halos as pch
 import yt
+import h5py
+import matplotlib.pyplot as plt
 
-model = sys.argv[1]
-snap = sys.argv[2]
-wind = sys.argv[3]
+def delete_indices(indices, delete_gals):
+    if len(delete_gals) > 0.:
+        indices = np.delete(indices, delete_gals)
+    return indices
 
-sample_dir = '/home/sapple/cgm/cos_samples/pygad/periodic/kpch/samples/'
+def get_halo_id(obj, gal_id):
+    gal = obj.galaxies[gal_id]
+    return gal.parent_halo_index
 
-infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
+def check_prog_sample(prog_index, obj1, obj2, gal_id):
+    halo1_id = get_halo_id(obj1, gal_id)
+    halo2 = obj2.halos[prog_index[halo1_id]]
 
-mass_range = 0.125
+    return int(halo2.central_galaxy.GroupID)
 
-cos_halos = pch.COSHalos()
-cos_M = []
-cos_ssfr = []
-cos_rho = []
-for cos in cos_halos:
-	cos = cos.to_dict()
-	cos_M.append(cos['galaxy']['stellar_mass'])
-	cos_ssfr.append(cos['galaxy']['ssfr'])
-	cos_rho.append(cos['rho'])
-cos_rho = YTArray(cos_rho, 'kpc')
+def check_r200_sample(r200_file, halo_id, wind):
+    # returns a True if the r200 is zero
+    with h5py.File(r200_file, 'r') as f:
+        r200_all = f[wind+'_halo_r200'][:]
+    r200 = r200_all[halo_id]
+    
+    return (r200 == 0.)
 
-print 'Loaded COS-Halos survey data'
+def halo_check(sim, objs, prog_index, indices, r200_file):
+    wind_option = ['s50nojet', 's50nox', 's50noagn'] 
 
-sim = caesar.load(infile)
-gals = sim.central_galaxies
+    delete_gals = []
+    halo_ids = np.array([get_halo_id(sim, i) for i in indices])
+    # get that the fiducial box halo has a non-zero r200
+    check_array = check_r200_sample(r200_file, halo_ids, 's50j7k')
+    if True in check_array:
+        delete_gals.append(np.arange(len(indices))[check_array])
+    
+    # for each halo, check it in the other wind boxes and check r200 is not zero
+    for j, w in enumerate(wind_options):
+        w_halo_ids = np.zeros(len(indices))
+        check_array = np.array([False] * len(indices))
+        for i, gal in enumerate(indices):
+            try:
+                w_halo_ids[i] = check_prog_sample(prog_index[j], sim, objs[j], gal)
+            except AttributeError:
+                check_array[i] = True
+                w_halo_ids[i] = np.nan
+                continue
+    
+        check_array[~np.isnan(w_halo_ids)] = check_r200_sample(r200_file, w_halo_ids[~np.isnan(w_halo_ids)].astype('int'), w)
+        if True in check_array:
+            delete_gals.append(np.arange(len(indices))[check_array])
 
-co = yt.utilities.cosmology.Cosmology()
-hubble = co.hubble_parameter(ds.current_redshift).in_units('km/s/kpc')
+    delete_gals = [item for sublist in delete_gals for item in sublist]
+    delete_gals = np.unique(np.array(delete_gals))
 
-stellar_masses = yt.YTArray([gals[i].masses['stellar'].in_units('Msun') for i in range(len(gals))], 'Msun')
-sfr = np.array([gals[i].sfr.in_units('Msun/yr') for i in range(len(gals))])
-ssfr = sfr / stellar_masses
-positions = yt.YTArray([gals[i].pos.in_units('kpc/h') for i in range(len(gals))], 'kpc/h')
-vels = yt.YTArray([gals[i].vel.in_units('km/s') for i in range(len(gals))], 'km/s')
-stellar_masses = np.log10(stellar_masses)
-recession = positions.in_units('kpc')*hubble
-vgal_position = vels + recession
+    print('Excluding galaxies with no central counterpart in other wind boxes')
+    indices = delete_indices(indices, delete_gals)
 
-print 'Loaded caesar galaxy data from model ' + model + ' snapshot ' + snap
+    return indices
 
-for cos_id in range(44):
-	if os.path.isfile(sample_dir+'cos_galaxy_'+str(cos_id)+'_sample_data.h5'):
-		continue
-	else:
+def isolation_check(gal_pos, pos_range, gal_cent, indices):
+    
+    delete_gals = []
+    # check isolation criteria (no other galaxies within 1 Mpc)
+    for i, gal in enumerate(indices):
+        # compute distance of other galaxies to this one:
+        r = np.sqrt(np.sum((gal_pos - gal_pos[gal])**2, axis=1))
+        pos_mask = (r.value < pos_range) * gal_cent
+        # check for central galaxies in this range
+        # one of the galaxies will be the original galaxy, so at least 1 match is expected
+        if len(gal_pos[pos_mask]) > 1:
+            delete_gals.append(i)
 
-		print '\nFinding the caesar galaxies in the mass and ssfr range of COS Halos galaxy ' + str(cos_id)
-		
-		mass_mask = (stellar_masses > (cos_M[cos_id] - mass_range)) & (stellar_masses < (cos_M[cos_id] + mass_range))
-		stop = False
-		init = 0.1
-		while not stop:
-			ssfr_mask = (ssfr > (1. - init)*cos_ssfr[cos_id]) & (ssfr < (1. + init)*cos_ssfr[cos_id])
-			mask = mass_mask * ssfr_mask
-			indices = np.where(mask == True)[0]
-			if len(indices) < 5.: 
-				init += 0.1
-				continue
-			else:
-				stop = True
-				continue
+    print('Excluding galaxies within 1 Mpc')
+    indices = delete_indices(indices, delete_gals)
+    
+    return indices
 
-		# choose 5 of the galaxies that satisfy the COS-Halos galaxy's conditions
-		choose = np.sort(np.random.choice(range(len(indices)), 5, replace=False))
-		print 'Chosen galaxies ' + str(indices[choose])
-		gal_ids = indices[choose]
+# for COS-Halos, run at snap='137' and survey = 'halos'
+# for COS-Dwarfs, run at snap='151' and survey = 'dwarfs'
 
-		mass_sample = stellar_masses[indices[choose]]
-		ssfr_sample = ssfr[indices[choose]]
-		pos_sample = positions[indices[choose]]
-		vels_sample = vels[indices[choose]]
-		vgal_position_sample = vgal_position[indices[choose]]
+if __name__ == '__main__':
 
-		del gals, stellar_masses, ssfr, mass_mask, ssfr_mask
+    model = 'm50n512'
+    wind = 's50j7k'
+    survey = sys.argv[1]
 
-		with h5py.File(sample_dir+'/samples/cos_galaxy_'+str(cos_id)+'_sample_data.h5', 'w') as hf:
-			hf.create_dataset('mask', data=np.array(mask))
-			hf.create_dataset('gal_ids', data=np.array(indices[choose]))
-			hf.create_dataset('mass', data=np.array(mass_sample))
-			hf.create_dataset('ssfr', data=np.array(ssfr_sample))
-			hf.create_dataset('position', data=np.array(pos_sample))
-			hf.create_dataset('vgal_position', data=np.array(vgal_position_sample))
-			hf.attrs['pos_units'] = 'kpc/h'
-			hf.attrs['mass_units'] = 'Msun'
-			hf.attrs['ssfr_units'] = 'Msun/yr'
-			hf.attrs['vel_units'] = 'km/s'
-		hf.close()
+    sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
+    mass_range = 0.1 # dex
+    ssfr_range = 0.1 # dex
+    pos_range = 1000. # kpc/h
+    mlim = np.log10(5.8e8) # lower limit of M*
+    
+    # set to True if we want to have the isolation criteria
+    do_isolation = False
+    # set to True if we want to check for halos in other wind boxes
+    do_halo_check = True
+    if do_halo_check: wind_options = ['s50nojet', 's50nox', 's50noagn']
+
+    if not os.path.exists(sample_dir):
+    	os.makedirs(sample_dir)
+
+    # load in cos survey data and get rid of low mass objects
+    if survey == 'dwarfs':
+        from get_cos_info import get_cos_dwarfs
+        cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_dwarfs()
+        snap = '151'
+    elif survey == 'halos':
+        from get_cos_info import get_cos_halos
+        cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_halos()
+        snap = '137'
+
+    cos_ids = np.arange(len(cos_M))[cos_M > mlim]
+    cos_rho = cos_rho[cos_M > mlim]
+    cos_ssfr = cos_ssfr[cos_M > mlim]
+    cos_r200 = cos_r200[cos_M > mlim]
+    cos_M = cos_M[cos_M > mlim]
+    numgals = len(cos_M)
+    print('Loaded COS-Dwarfs survey data')
+
+    infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
+    sim = caesar.load(infile, LoadHalo=True)
+    gal_cent = np.array([i.central for i in sim.galaxies])
+    co = yt.utilities.cosmology.Cosmology()
+    hubble = co.hubble_parameter(sim.simulation.redshift).in_units('km/s/kpc')
+    redshift = sim.simulation.redshift
+    quench = (-1.8+0.3*redshift) - 9. # define galaxy as quenched
+
+    gal_sm = yt.YTArray([sim.galaxies[i].masses['stellar'].in_units('Msun') for i in range(len(sim.galaxies))], 'Msun')
+    gal_sfr = yt.YTArray([sim.galaxies[i].sfr.in_units('Msun/yr') for i in range(len(sim.galaxies))], 'Msun/yr')
+    gal_ssfr = gal_sfr / gal_sm
+    gal_ssfr = np.log10(gal_ssfr.value + 1e-14)
+    gal_pos = yt.YTArray([sim.galaxies[i].pos.in_units('kpc/h') for i in range(len(sim.galaxies))], 'kpc/h')
+    gal_vels = yt.YTArray([sim.galaxies[i].vel.in_units('km/s') for i in range(len(sim.galaxies))], 'km/s')
+    gal_sm = np.log10(gal_sm)
+    gal_recession = gal_pos.in_units('kpc')*hubble
+    gal_vgal_pos = gal_vels + gal_recession
+    gal_gas_frac = np.array([i.masses['gas'].in_units('Msun') /i.masses['stellar'].in_units('Msun') for i in sim.galaxies ])
+
+    print('Loaded caesar galaxy data from model ' + model + ' snapshot ' + snap)
+
+    # load in the other wind boxes if we need them
+    if do_halo_check:
+        objs = []
+        prog_index = []
+        match_file = './m50n512/match_halos_'+snap+'.hdf5'
+        r200_file = '/home/sapple/cgm/cos_samples/m50n512/m50n512_'+snap+'_r200_info.h5'
+        print('Loading other wind snaps for halo check')
+        for w in wind_options:
+            infile_new = '/home/rad/data/'+model+'/'+w+'/Groups/'+model+'_'+snap+'.hdf5'
+            objs.append(caesar.load(infile_new, LoadHalo=True))
+            with h5py.File(match_file, 'r') as f:
+                prog_index.append(f[wind+'_'+w][:])
+
+    # initially we can choose any galaxy
+    choose_mask = np.array([True] * len(sim.galaxies))
+
+    # empty arrays to store 5 simba galaxies per cos galaxy
+    gal_ids = np.zeros(numgals*5)
+    mass = np.zeros(numgals*5)
+    ssfr = np.zeros(numgals*5)
+    gas_frac = np.zeros(numgals*5)
+    pos = np.zeros((numgals*5, 3))
+    vgal_pos = np.zeros((numgals*5, 3))
+
+    for cos_id in np.argsort(cos_M):
+            ids = range(cos_id*5, (cos_id+1)*5)
+            print('\nFinding the caesar galaxies in the mass and ssfr range of COS Halos galaxy ' + str(cos_id))
+            
+            mass_range_init = mass_range + 0.
+            ssfr_range_init = ssfr_range + 0.
+            stop = False
+            indices = []
+            while not stop:
+                # get galaxy mask
+                mass_mask = (gal_sm >= (cos_M[cos_id] - mass_range_init)) & (gal_sm <= (cos_M[cos_id] + mass_range_init)) & (gal_sm > mlim)
+                # if cos galaxy is near quenching, we want to match it to galaxies with low sSFR
+                if cos_ssfr[cos_id] <= quench:
+                    ssfr_mask = (gal_ssfr <= (cos_ssfr[cos_id] + ssfr_range_init))
+                else:
+                    ssfr_mask = (gal_ssfr >= (cos_ssfr[cos_id] - ssfr_range_init)) & (gal_ssfr <= (cos_ssfr[cos_id] + ssfr_range_init))
+                mask = mass_mask * ssfr_mask * gal_cent * choose_mask
+                indices = np.where(mask == True)[0]
+                
+                if do_isolation:
+                    indices = isolation_check(gal_pos, pos_range, gal_cent, indices)
+
+                if do_halo_check:
+                    indices = halo_check(sim, objs, prog_index, indices, r200_file)
+                else:
+                    _r200 = np.array([i.halo.radii['r200c'].in_units('kpc/h') for i in np.array(sim.galaxies)[indices]])
+                    delete_gals = np.where(_r200 == 0.)[0]
+                    indices = delete_indices(indices, delete_gals)
+
+                if len(indices) < 5.:                     
+                    if (len(indices) < 2.) & (ssfr_range_init > 5.*ssfr_range) & (mass_range_init > 5.*mass_range):
+                        print('No galaxies matching this criteria')
+                        stop = True
+                        continue
+                    mass_range_init += 0.05
+                    ssfr_range_init += 0.05
+                    print('Expanding sSFR and mass search by 0.05 dex')
+                    continue
+                else:
+                    stop = True
+                    continue
+
+            if len(indices) < 1.:
+                print ('No galaxies selected')
+                continue
+
+            # choose the 5 that match most closely in mass and ssfr
+            mass_dev = np.abs(cos_M[cos_id] - gal_sm[indices])
+            ssfr_choosing = gal_ssfr[indices]
+            if cos_ssfr[cos_id] < quench:
+                ssfr_choosing[ssfr_choosing < quench] = cos_ssfr[cos_id]
+            ssfr_dev = np.abs(cos_ssfr[cos_id] - ssfr_choosing)
+            dev = np.sqrt(mass_dev**2 + ssfr_dev**2)
+            choose = np.argsort(dev)[:5]
+
+            print('Chosen galaxies ' + str(indices[choose]))
+            print('COS-Dwarfs M*: '+ str(cos_M[cos_id]) + '; selected M* : ' + str(gal_sm[indices[choose]]))
+            print('COS-Dwarfs sSFR: ' + str(cos_ssfr[cos_id]) + '; selected sSFR : ' + str(np.array(gal_ssfr[indices[choose]])))
+
+            plt.scatter(cos_M[cos_id], cos_ssfr[cos_id], c='k', marker='x', label='COS-Dwarfs')
+            plt.scatter(gal_sm[indices[choose]], np.array(gal_ssfr[indices[choose]]))
+            if survey == 'dwarfs':
+                plt.xlim(8., 10.5)
+            elif survey == 'halos':
+                plt.xlim(9.5, 12.)
+            plt.ylim(-14, -8.5)
+            plt.savefig(sample_dir+'plots/cos_id_'+str(cos_id)+'.png')
+            plt.clf()
+
+            gal_ids[ids] = indices[choose]
+            mass[ids] = gal_sm[indices[choose]]
+            ssfr[ids] = gal_ssfr[indices[choose]]
+            gas_frac[ids] = gal_gas_frac[indices[choose]]
+            pos[ids] = gal_pos[indices[choose]]
+            vgal_pos[ids] = gal_vgal_pos[indices[choose]]
+
+    	    # do not repeat galaxies
+            choose_mask[indices[choose]] = np.array([False] * 5)
+
+    gal_ids = np.array(gal_ids, dtype='int')
+    halo_r200 = np.array([i.halo.radii['r200c'].in_units('kpc/h') for i in np.array(sim.galaxies)[gal_ids]])
+    halo_pos = np.array([i.halo.pos.in_units('kpc/h') for i in np.array(sim.galaxies)[gal_ids]])
+
+    with h5py.File(sample_dir+'/'+model+'_'+wind+'_cos_'+survey+'_sample.h5', 'a') as hf:
+            hf.create_dataset('cos_ids', data=np.array(cos_ids))
+            hf.create_dataset('gal_ids', data=np.array(gal_ids))
+            hf.create_dataset('mass', data=np.array(mass))
+            hf.create_dataset('ssfr', data=np.array(ssfr))
+            hf.create_dataset('gas_frac', data=np.array(gas_frac))
+            hf.create_dataset('position', data=np.array(pos))
+            hf.create_dataset('halo_r200', data=np.array(halo_r200))
+            hf.create_dataset('halo_pos', data=np.array(halo_pos))
+            hf.create_dataset('vgal_position', data=np.array(vgal_pos))
+            hf.attrs['pos_units'] = 'kpc/h'
+            hf.attrs['mass_units'] = 'Msun'
+            hf.attrs['ssfr_units'] = 'Msun/yr'
+            hf.attrs['vel_units'] = 'km/s'
+
+    plt.scatter(cos_M, cos_ssfr, c='k', marker='x', label='COS-Dwarfs')
+    plt.scatter(mass, ssfr, s=2., c='b', label='Simba')
+    plt.xlabel('log M*')
+    plt.ylabel('log sSFR')
+    plt.ylim(-14.5, )
+    plt.legend()
+    plt.savefig(sample_dir + '/'+model+'_'+wind+'_sample_plot.png')
+    plt.clf()
+
