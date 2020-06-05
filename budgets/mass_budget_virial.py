@@ -2,23 +2,35 @@ import numpy as np
 import caesar
 from pygadgetreader import readsnap
 
+def get_bin_edges(x_min, x_max, dx):
+	return np.arange(x_min, x_max+dx, dx)
 
-photo_temp = 10.**4.5 # in K
+def bin_data(x, y, xbins):
+    digitized = np.digitize(x, xbins)
+    return np.array([y[digitized == i] for i in range(1, len(xbins))])
+
+def get_bin_middle(xbins):
+    return np.array([xbins[i] + 0.5*(xbins[i+1] - xbins[i]) for i in range(len(xbins)-1)])
+
 cold_temp = 1.e5
 hot_temp = 1.e6
 ism_density = 0.13 # hydrogen number density, cm**-3
+# pressurised ISM temperature floor
+min_mass = 9.5
+max_mass = 12.
+dm = 0.5 # dex
+mass_bins = get_bin_edges(min_mass, max_mass, dm)
+plot_bins = get_bin_middle(mass_bins)
 
 data_dir = '/home/sarah/data/'
 snapfile = data_dir+'snap_m12.5n128_135.hdf5'
 caesarfile = data_dir+'caesar_snap_m12.5n128_135.hdf5'
-savedir = '/home/sarah/cgm/budgets/'
 
 sim = caesar.load(caesarfile)
 h = sim.simulation.hubble_constant
 
 gal_sm = np.array([i.masses['stellar'].in_units('Msun') for i in sim.central_galaxies])
 gal_sfr = np.array([i.sfr.in_units('Msun/yr') for i in sim.central_galaxies])
-gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('K') for i in sim.central_galaxies])
 gal_ssfr = gal_sfr / gal_sm
 gal_sm = np.log10(gal_sm)
 gal_ssfr = np.log10(gal_ssfr)
@@ -27,55 +39,34 @@ gas_mass = readsnap(snapfile, 'mass', 'gas', suppress=1, units=1) / h # in Mo
 gas_nh = readsnap(snapfile, 'nh', 'gas', suppress=1, units=1) # in g/cm^3
 gas_delaytime = readsnap(snapfile, 'DelayTime', 'gas', suppress=1)
 gas_temp = readsnap(snapfile, 'u', 'gas', suppress=1, units=1) # in K
-#dust_mass = readsnap(snapfile, 'Dust_Masses', 'gas', suppress=1, units=1) / h # in Mo
+#dust_frac = readsnap(snapfile, 'Dust_Masses', 'gas', suppress=1, units=1) # in fraction
 #dust_z = readsnap(snapfile, 'Dust_Metallicity', 'gas', suppress=1, units=1)
-dust_mass = np.zeros(len(gas_mass))
-dust_z = np.zeros(len(gas_mass))
 star_mass = readsnap(snapfile, 'mass', 'star', suppress=1, units=1) / h # in Mo
 
-phases = ['Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
-		  'Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < Tvir)', 'Hot CGM (T > Tvir)', 
-		  'ISM', 'Wind', 'Dust', 'Stars', 'Total']
-mass_budget = {phase: np.zeros(len(sim.central_galaxies)) for phase in phases}
+phases = ['Cool CGM', 'Warm CGM', 'Hot CGM', 'ISM', 'Wind', 'Dust', 'Stars']
+colours = ['m', 'tab:orange', 'g', 'b', 'c', 'tab:pink', 'r']
+masses = np.zeros((7, len(sim.central_galaxies)))
 
 for i in range(len(sim.central_galaxies)):
 	glist = sim.galaxies[i].halo.glist
-	slist = sim.galaxies[i].halo.slist
+	slist = sim.galaxies[i].halo.slist # there can be stars in the halo of the galaxy that skews the stellar mass estimate of halo
 
 	cgm_gas_mask = gas_nh[glist] < ism_density
+	cold_gas_mask = gas_temp[glist] < cold_temp
+	warm_gas_mask = (gas_temp[glist] > cold_temp) & (gas_temp[glist] < hot_temp)
+	hot_gas_mask = gas_temp[glist] > hot_temp
 	wind_mask = gas_delaytime[glist] > 0.
 
-	cool_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] < cold_temp)
-	warm_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > cold_temp) & (gas_temp[glist] < hot_temp)
-	hot_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > hot_temp)
-	mass_budget['Cool CGM (T < 10^5)'][i] = np.sum(gas_mass[glist][cool_gas_mask])
-	mass_budget['Warm CGM (10^5 < T < 10^6)'][i] = np.sum(gas_mass[glist][warm_gas_mask])
-	mass_budget['Hot CGM (T > 10^6)'][i] = np.sum(gas_mass[glist][hot_gas_mask])
+	masses[0][i] = np.sum(gas_mass[glist][cgm_gas_mask * cold_gas_mask]) # cold CGM gas
+	masses[1][i] = np.sum(gas_mass[glist][cgm_gas_mask * warm_gas_mask]) # warm CGM gas
+	masses[2][i] = np.sum(gas_mass[glist][cgm_gas_mask * hot_gas_mask]) # hot CGM gas
+	masses[3][i] = np.sum(gas_mass[glist][np.invert(cgm_gas_mask)]) # ISM gas
+	masses[4][i] = np.sum(gas_mass[glist][wind_mask]) # Wind particles
+	#masses[5][i] = np.sum(gas_mass[glist]*dust_frac[glist]) # Dust particles
+	masses[6][i] = np.sum(star_mass[slist]) # Stars
 
-	cool_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] < photo_temp)
-	warm_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > photo_temp) & (gas_temp[glist] < gal_tvir[i])
-	hot_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > gal_tvir[i])	
-	mass_budget['Cool CGM (T < Tphoto)'][i] = np.sum(gas_mass[glist][cool_gas_mask])
-	mass_budget['Warm CGM (Tphoto < T < Tvir)'][i] = np.sum(gas_mass[glist][warm_gas_mask])
-	mass_budget['Hot CGM (T > Tvir)'][i] = np.sum(gas_mass[glist][hot_gas_mask])
-
-	mass_budget['ISM'][i] = np.sum(gas_mass[glist][np.invert(cgm_gas_mask) & np.invert(wind_mask)])
-	mass_budget['Wind'][i] = np.sum(gas_mass[glist][wind_mask])
-	mass_budget['Dust'][i] = np.sum(dust_mass[glist][np.invert(wind_mask)])
-	mass_budget['Stars'][i] = np.sum(star_mass[slist])
-
-	mass_budget['Total'][i] = np.sum(gas_mass[glist]) + np.sum(dust_mass[glist]) + np.sum(star_mass[slist])
-
-mass_fractions = {k: p/mass_budget['Total'] for k, p in mass_budget.items()} 
-mass_fractions['Total'] = mass_budget['Total'].copy()
-
-with h5py.File(savedir+'mass_budget.h5', 'a') as hf: 
-	for k, p in mass_budget.items(): 
-		hf.create_dataset(k, data=np.array(p)) 
-
-with h5py.File(savedir+'mass_fractions.h5', 'a') as hf: 
-	for k, p in mass_fractions.items(): 
-		hf.create_dataset(k, data=np.array(p)) 
+total_mass = np.sum(masses, axis=0)
+mass_fracs = masses / total_mass
 
 medians = np.zeros((len(phases), len(plot_bins)))
 per_25 = np.zeros((len(phases), len(plot_bins)))
