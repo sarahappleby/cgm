@@ -1,4 +1,5 @@
-import numpy as np 
+import numpy as np
+import hp5y 
 import caesar
 from pygadgetreader import readsnap
 
@@ -76,45 +77,3 @@ with h5py.File(savedir+'mass_budget.h5', 'a') as hf:
 with h5py.File(savedir+'mass_fractions.h5', 'a') as hf: 
 	for k, p in mass_fractions.items(): 
 		hf.create_dataset(k, data=np.array(p)) 
-
-medians = np.zeros((len(phases), len(plot_bins)))
-per_25 = np.zeros((len(phases), len(plot_bins)))
-per_75 = np.zeros((len(phases), len(plot_bins)))
-n_bin = np.zeros((len(phases), len(plot_bins)))
-
-for i in range(len(phases)):
-	binned_data = bin_data(gal_sm, masses[i], mass_bins)
-	medians[i] = [np.nanpercentile(j, 50.) for j in binned_data]
-	per_25[i] = [np.nanpercentile(j, 25.) for j in binned_data]
-	per_75[i] = [np.nanpercentile(j, 75.) for j in binned_data]
-	n_bin[i] = [len(j) for j in binned_data]
-
-for i in range(len(phases)):
-	plt.plot(plot_bins, np.log10(medians[i]), color=colours[i], label=phases[i])
-plt.legend(loc=2)
-plt.xlabel('M*')
-plt.ylabel('Mass')
-plt.xlim(min_mass, max_mass)
-plt.savefig('/home/sarah/cgm/budgets/mass_mufasa_128.png')
-plt.clf()
-
-medians = np.zeros((len(phases), len(plot_bins)))
-per_25 = np.zeros((len(phases), len(plot_bins)))
-per_75 = np.zeros((len(phases), len(plot_bins)))
-n_bin = np.zeros((len(phases), len(plot_bins)))
-
-for i in range(len(phases)):
-	binned_data = bin_data(gal_sm, mass_fracs[i], mass_bins)
-	medians[i] = [np.nanpercentile(j, 50.) for j in binned_data]
-	per_25[i] = [np.nanpercentile(j, 25.) for j in binned_data]
-	per_75[i] = [np.nanpercentile(j, 75.) for j in binned_data]
-	n_bin[i] = [len(j) for j in binned_data]
-
-for i in range(len(phases)):
-	plt.plot(plot_bins, medians[i], color=colours[i], label=phases[i])
-plt.legend(loc=2)
-plt.xlabel('M*')
-plt.ylabel('Mass fraction')
-plt.xlim(min_mass, max_mass)
-plt.savefig('/home/sarah/cgm/budgets/mass_frac_mufasa_128.png')
-plt.clf()
