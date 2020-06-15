@@ -11,29 +11,29 @@ omega_b = 0.048
 omega_m = 0.3
 f_baryon = omega_b / omega_m
 
-snap = '151'
-wind = 's50'
-model = 'm100n1024'
+# snap = '151'
+# wind = 's50'
+# model = 'm100n1024'
 
-datadir = '/home/rad/data/'+model+'/'+wind+'/'
-snapfile = datadir + 'snap_'+model+'_'+snap+ '.hdf5'
-caesarfile = datadir + '/Groups/'+model+'_'+snap+'.hdf5'
-savedir = '/home/sapple/cgm/budgets/data/'
-sim = caesar.quick_load(caesarfile)
+# datadir = '/home/rad/data/'+model+'/'+wind+'/'
+# snapfile = datadir + 'snap_'+model+'_'+snap+ '.hdf5'
+# caesarfile = datadir + '/Groups/'+model+'_'+snap+'.hdf5'
+# savedir = '/home/sapple/cgm/budgets/data/'
+# sim = caesar.quick_load(caesarfile)
 
-# datadir = '/home/sarah/data/'
-# snapfile = datadir+'snap_m12.5n128_135.hdf5'
-# caesarfile = datadir+'caesar_snap_m12.5n128_135.hdf5'
-# savedir = '/home/sarah/cgm/budgets/data/'
-# sim = caesar.load(caesarfile)
+datadir = '/home/sarah/data/'
+snapfile = datadir+'snap_m12.5n128_135.hdf5'
+caesarfile = datadir+'caesar_snap_m12.5n128_135.hdf5'
+savedir = '/home/sarah/cgm/budgets/data/'
+sim = caesar.load(caesarfile)
 
 h = sim.simulation.hubble_constant
 
 central = np.array([i.central for i in sim.galaxies])
 gal_sm = np.array([i.masses['stellar'].in_units('Msun') for i in sim.galaxies])
 gal_sfr = np.array([i.sfr.in_units('Msun/yr') for i in sim.galaxies])
-gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('km**2/s**2') for i in sim.galaxies])
-#gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('K') for i in sim.galaxies])
+#gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('km**2/s**2') for i in sim.galaxies])
+gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('K') for i in sim.galaxies])
 gal_ssfr = gal_sfr / gal_sm
 gal_sm = np.log10(gal_sm)
 gal_ssfr = np.log10(gal_ssfr)
@@ -44,8 +44,8 @@ gas_z = readsnap(snapfile, 'z', 'gas', suppress=1, units=1)
 gas_nh = readsnap(snapfile, 'nh', 'gas', suppress=1, units=1) # in g/cm^3
 gas_delaytime = readsnap(snapfile, 'DelayTime', 'gas', suppress=1)
 gas_temp = readsnap(snapfile, 'u', 'gas', suppress=1, units=1) # in K
-dust_mass = readsnap(snapfile, 'Dust_Masses', 'gas', suppress=1, units=1) / h # in Mo
-#dust_mass = np.zeros(len(gas_mass))
+#dust_mass = readsnap(snapfile, 'Dust_Masses', 'gas', suppress=1, units=1) / h # in Mo
+dust_mass = np.zeros(len(gas_mass))
 star_mass = readsnap(snapfile, 'mass', 'star', suppress=1, units=1) / h # in Mo
 star_z = readsnap(snapfile, 'z', 'star', suppress=1, units=1)
 
