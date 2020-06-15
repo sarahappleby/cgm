@@ -12,12 +12,22 @@ omega_b = 0.048
 omega_m = 0.3
 f_baryon = omega_b / omega_m
 
-data_dir = '/home/sarah/data/'
-snapfile = data_dir+'snap_m12.5n128_135.hdf5'
-caesarfile = data_dir+'caesar_snap_m12.5n128_135.hdf5'
-savedir = '/home/sarah/cgm/budgets/data/'
+snap = '151'
+wind = 's50'
+model = 'm100n1024'
 
-sim = caesar.load(caesarfile)
+datadir = '/home/rad/data/'+model+'/'+wind+'/'
+snapfile = datadir + 'snap_'+model+'_'+snap+ '.hdf5'
+caesarfile = datadir + '/Groups/'+model+'_'+snap+'.hdf5'
+savedir = '/home/sapple/cgm/budgets/data/'
+sim = ceasar.quick_load(caesarfile)
+
+#data_dir = '/home/sarah/data/'
+#snapfile = datadir+'snap_m12.5n128_135.hdf5'
+#caesarfile = datadir+'caesar_snap_m12.5n128_135.hdf5'
+#savedir = '/home/sarah/cgm/budgets/data/'
+#sim = caesar.load(caesarfile)
+
 h = sim.simulation.hubble_constant
 
 gal_sm = np.array([i.masses['stellar'].in_units('Msun') for i in sim.central_galaxies])
@@ -33,10 +43,10 @@ gas_z = readsnap(snapfile, 'z', 'gas', suppress=1, units=1)
 gas_nh = readsnap(snapfile, 'nh', 'gas', suppress=1, units=1) # in g/cm^3
 gas_delaytime = readsnap(snapfile, 'DelayTime', 'gas', suppress=1)
 gas_temp = readsnap(snapfile, 'u', 'gas', suppress=1, units=1) # in K
-#dust_mass = readsnap(snapfile, 'Dust_Masses', 'gas', suppress=1, units=1) / h # in Mo
-#dust_z = readsnap(snapfile, 'Dust_Metallicity', 'gas', suppress=1, units=1)
-dust_mass = np.zeros(len(gas_mass))
-dust_z = np.zeros(len(gas_mass))
+dust_mass = readsnap(snapfile, 'Dust_Masses', 'gas', suppress=1, units=1) / h # in Mo
+dust_z = readsnap(snapfile, 'Dust_Metallicity', 'gas', suppress=1, units=1)
+#dust_mass = np.zeros(len(gas_mass))
+#dust_z = np.zeros(len(gas_mass))
 star_mass = readsnap(snapfile, 'mass', 'star', suppress=1, units=1) / h # in Mo
 star_z = readsnap(snapfile, 'z', 'star', suppress=1, units=1)
 
@@ -50,7 +60,7 @@ del metal_budget['Dark matter']
 # get the particle ids for different gas phases
 all_gas_ids = np.arange(len(gas_mass))
 gparts = {phase: np.array([]) for phase in phases}
-del gparts['Dust'], gparts['Stars'], gparts['Dark matter'], gparts['Total baryons']
+del gparts['Stars'], gparts['Dark matter'], gparts['Total baryons']
 
 for i in range(len(sim.central_galaxies)):
 	glist = sim.galaxies[i].halo.glist
@@ -86,10 +96,11 @@ for i in range(len(sim.central_galaxies)):
 	metal_budget['Warm CGM (Tphoto < T < Tvir)'][i] = np.sum(gas_mass[glist][warm_gas_mask] * gas_z[glist][warm_gas_mask])
 	metal_budget['Hot CGM (T > Tvir)'][i] = np.sum(gas_mass[glist][hot_gas_mask] * gas_z[glist][hot_gas_mask])
 
-	mass_budget['ISM'][i] = np.sum(gas_mass[glist][np.invert(cgm_gas_mask) & np.invert(wind_mask)])
-	mass_budget['Wind'][i] = np.sum(gas_mass[glist][wind_mask])
 	gparts['ISM'] = np.append(gparts['ISM'], all_gas_ids[glist][np.invert(cgm_gas_mask) & np.invert(wind_mask)])
 	gparts['Wind'] = np.append(gparts['Wind'], all_gas_ids[glist][wind_mask])
+	gparts['Dust'] = np.append(gparts['Dust'], all_gas_ids[glist][np.invert(wind_mask)])
+	mass_budget['ISM'][i] = np.sum(gas_mass[glist][np.invert(cgm_gas_mask) & np.invert(wind_mask)])
+	mass_budget['Wind'][i] = np.sum(gas_mass[glist][wind_mask])
 	mass_budget['Dust'][i] = np.sum(dust_mass[glist][np.invert(wind_mask)])
 	mass_budget['Stars'][i] = np.sum(star_mass[slist])
 	mass_budget['Dark matter'][i] = np.sum(dm_mass[dmlist])
