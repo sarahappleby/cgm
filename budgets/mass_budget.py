@@ -3,7 +3,6 @@ import h5py
 import caesar
 from pygadgetreader import readsnap
 
-
 photo_temp = 10.**4.5 # in K
 cold_temp = 1.e5
 hot_temp = 1.e6
@@ -20,7 +19,7 @@ datadir = '/home/rad/data/'+model+'/'+wind+'/'
 snapfile = datadir + 'snap_'+model+'_'+snap+ '.hdf5'
 caesarfile = datadir + '/Groups/'+model+'_'+snap+'.hdf5'
 savedir = '/home/sapple/cgm/budgets/data/'
-sim = ceasar.quick_load(caesarfile)
+sim = caesar.quick_load(caesarfile)
 
 #datadir = '/home/sarah/data/'
 #snapfile = datadir+'snap_m12.5n128_135.hdf5'
@@ -33,7 +32,7 @@ h = sim.simulation.hubble_constant
 central = np.array([i.central for i in sim.galaxies])
 gal_sm = np.array([i.masses['stellar'].in_units('Msun') for i in sim.galaxies])[central]
 gal_sfr = np.array([i.sfr.in_units('Msun/yr') for i in sim.galaxies])[central]
-gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('K') for i in sim.galaxies])[central]
+gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('km**2/s**2') for i in sim.galaxies])[central]
 gal_ssfr = gal_sfr / gal_sm
 gal_sm = np.log10(gal_sm)
 gal_ssfr = np.log10(gal_ssfr)
