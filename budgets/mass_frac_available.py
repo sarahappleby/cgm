@@ -5,6 +5,9 @@ import caesar
 import os
 from plotting_methods import *
 
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif', size=14)
+
 min_mass = 9.5
 max_mass = 12.
 dm = 0.2 # dex
@@ -18,16 +21,18 @@ if model == 'm100n1024':
 elif model == 'm50n512':
     boxsize = 50000.
 
-#fracdata_dir = '/home/sarah/cgm/budgets/data/'
-#savedir = '/home/sarah/cgm/budgets/plots/'
-fracdata_dir = '/home/sapple/cgm/budgets/data/'
-savedir = '/home/sapple/cgm/budgets/plots/'
+fracdata_dir = '/home/sarah/cgm/budgets/data/'
+savedir = '/home/sarah/cgm/budgets/plots/'
+# fracdata_dir = '/home/sapple/cgm/budgets/data/'
+# savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < Tvir)', 'Hot CGM (T > Tvir)',
               'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
               'ISM', 'Wind', 'Dust', 'Stars', 'Total baryons']
 plot_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < Tvir)', 'Hot CGM (T > Tvir)', 
               'ISM', 'Wind', 'Dust', 'Stars']
+plot_phases_labels = [r'Cool CGM $(T < T_{\rm photo})$', r'Warm CGM $(T_{\rm photo} < T < T_{\rm vir})$', 
+                      r'Hot CGM $(T > T_{\rm vir})$', 'ISM', 'Wind', 'Dust', 'Stars']
 colours = ['m', 'tab:orange', 'g', 'b', 'c', 'tab:pink', 'r']
 stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std', 'ngals']
 
@@ -88,11 +93,12 @@ else:
         hf.create_dataset('smass_bins', data=np.array(plot_bins))
 
 for i, phase in enumerate(plot_phases):
-    plt.errorbar(plot_bins, frac_stats[phase]['median'], yerr=frac_stats[phase]['percentile_25_75'], color=colours[i], label=phase)
+    plt.errorbar(plot_bins, frac_stats[phase]['median'], yerr=frac_stats[phase]['percentile_25_75'], 
+                capsize=3, color=colours[i], label=plot_phases_labels[i])
 
-plt.legend(loc=2)
-plt.xlabel('M*')
-plt.ylabel('Mass fraction')
-plt.xlim(min_mass, max_mass)
+plt.legend(loc=3, fontsize=11)
+plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
+plt.ylabel(r'$\textrm{log} (f_{\rm Total})$')
+plt.xlim(min_mass, plot_bins[-1]+dm)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_avail_fracs.png')
 plt.clf()
