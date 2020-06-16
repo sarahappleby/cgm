@@ -29,7 +29,7 @@ all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < Tvir)', 'Hot CGM 
 plot_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < Tvir)', 'Hot CGM (T > Tvir)', 
               'ISM', 'Wind', 'Dust', 'Stars']
 colours = ['m', 'tab:orange', 'g', 'b', 'c', 'tab:pink', 'r']
-stats = ['median', 'cosmic_std', 'ngals']
+stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std', 'ngals']
 
 mass_stats_file = massdata_dir+model+'_'+wind+'_'+snap+'_mass_budget_stats.h5'
 
@@ -46,7 +46,7 @@ if os.path.isfile(mass_stats_file):
 else:
 
     mass_bins = get_bin_edges(min_mass, max_mass, dm)
-    plot_bins = get_bin_middle(mass_bins)
+    plot_bins = get_bin_middle(np.append(mass_bins, mass_bins[-1] + dm))
 
     # get the galaxy data:
     #caesarfile = '/home/sarah/data/caesar_snap_m12.5n128_135.hdf5'
@@ -73,7 +73,13 @@ else:
         for i in range(len(plot_bins)):
             medians[i], cosmic_stds[i] = get_cosmic_variance(binned_data[i], binned_pos[i], boxsize)
 
-        mass_stats[phase]['median'], mass_stats[phase]['cosmic_std'] = convert_to_log(medians, cosmic_stds)
+        mass_stats[phase]['cosmic_median'], mass_stats[phase]['cosmic_std'] = convert_to_log(medians, cosmic_stds)
+        medians = np.array([np.nanpercentile(j, 50.) for j in binned_data])
+        per25 = np.array([np.nanpercentile(j, 25.) for j in binned_data])
+        per75 = np.array([np.nanpercentile(j, 75.) for j in binned_data])
+        upper = per75 - medians
+        lower = medians - per25
+        mass_stats[phase]['median'], mass_stats[phase]['percentile_25_75'] = convert_to_log(medians, np.array([lower, upper]))
         mass_stats[phase]['ngals'] = [len(j) for j in binned_data]
 
     with h5py.File(mass_stats_file, 'a') as hf:
@@ -85,11 +91,11 @@ else:
         hf.create_dataset('smass_bins', data=np.array(plot_bins))
 
 for i, phase in enumerate(plot_phases):
-    plt.errorbar(plot_bins, mass_stats[phase]['median'], yerr=mass_stats[phase]['cosmic_std'], color=colours[i], label=phase)
+    plt.errorbar(plot_bins, mass_stats[phase]['median'], yerr=mass_stats[phase]['percentile_25_75'], color=colours[i], label=phase)
 
 plt.legend(loc=2)
 plt.xlabel('M*')
 plt.ylabel('Mass')
-plt.xlim(min_mass, max_mass)
+plt.xlim(min_mass, plot_bins[-1]+dm)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_mass_budget.png')
 plt.clf()
