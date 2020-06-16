@@ -6,7 +6,7 @@ import os
 from plotting_methods import *
 
 min_mass = 9.5
-max_mass = 13.
+max_mass = 12.
 dm = 0.2 # dex
 
 snap = '151'
@@ -35,7 +35,7 @@ mass_stats_file = massdata_dir+model+'_'+wind+'_'+snap+'_mass_budget_stats.h5'
 
 if os.path.isfile(mass_stats_file):
 
-    mass_stats = {p: {} for p in phases}
+    mass_stats = {p: {} for p in plot_phases}
     with h5py.File(mass_stats_file, 'r') as hf:
         for phase in plot_phases:
             for stat in stats:
@@ -64,9 +64,9 @@ else:
             mass_budget[phase] = hf[phase][:]
 
     mass_stats = {phase: {} for phase in all_phases}
-    binned_pos = bin_data(gal_sm, gal_pos, 10.**mass_bins)
+    binned_pos = bin_data(gal_sm, gal_pos, 10.**mass_bins, group_high=True)
     for phase in all_phases:
-        binned_data = bin_data(gal_sm, mass_budget[phase], 10.**mass_bins)
+        binned_data = bin_data(gal_sm, mass_budget[phase], 10.**mass_bins, group_high=True)
         
         medians = np.zeros(len(plot_bins))
         cosmic_stds = np.zeros(len(plot_bins))

@@ -7,7 +7,7 @@ from plotting_methods import *
 
 min_mass = 9.5
 max_mass = 12.
-dm = 0.5 # dex
+dm = 0.2 # dex
 
 snap = '151'
 wind = 's50'
@@ -35,7 +35,7 @@ metal_stats_file = metaldata_dir+model+'_'+wind+'_'+snap+'_metal_budget_stats.h5
 
 if os.path.isfile(metal_stats_file):
 
-    metal_stats = {p: {} for p in phases}
+    metal_stats = {p: {} for p in plot_phases}
     with h5py.File(metal_stats_file, 'r') as hf:
         for phase in plot_phases:
             for stat in stats:
@@ -64,9 +64,9 @@ else:
             metal_budget[phase] = hf[phase][:]
 
     metal_stats = {phase: {} for phase in all_phases}
-    binned_pos = bin_data(gal_sm, gal_pos, 10.**mass_bins)
+    binned_pos = bin_data(gal_sm, gal_pos, 10.**mass_bins, group_high=True)
     for phase in all_phases:
-        binned_data = bin_data(gal_sm, metal_budget[phase], 10.**mass_bins)
+        binned_data = bin_data(gal_sm, metal_budget[phase], 10.**mass_bins, group_high=True)
         
         medians = np.zeros(len(plot_bins))
         cosmic_stds = np.zeros(len(plot_bins))

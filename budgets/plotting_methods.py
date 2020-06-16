@@ -3,12 +3,16 @@ import numpy as np
 def get_bin_edges(x_min, x_max, dx):
 	return np.arange(x_min, x_max+dx, dx)
 
-def bin_data(x, y, xbins):
-    digitized = np.digitize(x, xbins)
-    return np.array([y[digitized == i] for i in range(1, len(xbins))])
-
 def get_bin_middle(xbins):
     return np.array([xbins[i] + 0.5*(xbins[i+1] - xbins[i]) for i in range(len(xbins)-1)])
+
+def bin_data(x, y, xbins, group_high=False):
+    digitized = np.digitize(x, xbins)
+    binned_data = [y[digitized == i] for i in range(1, len(xbins))]
+    if group_high:
+        extra_bin = y[x > xbins[-1]]
+        binned_data.append(extra_bin)
+    return np.array(binned_data)
 
 def convert_to_log(y, yerr):
     yerr /= (y*np.log(10.))
