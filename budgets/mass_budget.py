@@ -7,6 +7,7 @@ photo_temp = 10.**4.5 # in K
 cold_temp = 1.e5
 hot_temp = 1.e6
 ism_density = 0.13 # hydrogen number density, cm**-3
+dust_mass_factor = 1.e10
 omega_b = 0.048
 omega_m = 0.3
 f_baryon = omega_b / omega_m
@@ -44,7 +45,7 @@ gas_z = readsnap(snapfile, 'z', 'gas', suppress=1, units=1)
 gas_nh = readsnap(snapfile, 'nh', 'gas', suppress=1, units=1) # in g/cm^3
 gas_delaytime = readsnap(snapfile, 'DelayTime', 'gas', suppress=1)
 gas_temp = readsnap(snapfile, 'u', 'gas', suppress=1, units=1) # in K
-dust_mass = readsnap(snapfile, 'Dust_Masses', 'gas', suppress=1, units=1) / h # in Mo
+dust_mass = readsnap(snapfile, 'Dust_Masses', 'gas', suppress=1, units=1) * dust_mass_factor/ h # in Mo
 #dust_mass = np.zeros(len(gas_mass))
 star_mass = readsnap(snapfile, 'mass', 'star', suppress=1, units=1) / h # in Mo
 star_z = readsnap(snapfile, 'z', 'star', suppress=1, units=1)
