@@ -32,7 +32,7 @@ all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < Tvir)', 'Hot CGM 
 plot_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < Tvir)', 'Hot CGM (T > Tvir)', 
               'ISM', 'Wind', 'Dust', 'Stars']
 plot_phases_labels = [r'Cool CGM $(T < T_{\rm photo})$', r'Warm CGM $(T_{\rm photo} < T < T_{\rm vir})$', 
-					  r'Hot CGM $(T > T_{\rm vir})$', 'ISM', 'Wind', 'Dust', 'Stars']
+                      r'Hot CGM $(T > T_{\rm vir})$', 'ISM', 'Wind', 'Dust', 'Stars']
 colours = ['m', 'tab:orange', 'g', 'b', 'c', 'tab:pink', 'r']
 stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std', 'ngals']
 
@@ -75,13 +75,13 @@ else:
         for i in range(len(plot_bins)):
             medians[i], cosmic_stds[i] = get_cosmic_variance(binned_data[i], binned_pos[i], boxsize)
 
-        frac_stats[phase]['cosmic_median'], frac_stats[phase]['cosmic_std'] = convert_to_log(medians, cosmic_stds)
+        frac_stats[phase]['cosmic_median'], frac_stats[phase]['cosmic_std'] = medians, cosmic_stds
         medians = np.array([np.nanpercentile(j, 50.) for j in binned_data])
         per25 = np.array([np.nanpercentile(j, 25.) for j in binned_data])
         per75 = np.array([np.nanpercentile(j, 75.) for j in binned_data])
         upper = per75 - medians
         lower = medians - per25
-        frac_stats[phase]['median'], frac_stats[phase]['percentile_25_75'] = convert_to_log(medians, np.array([lower, upper]))
+        frac_stats[phase]['median'], frac_stats[phase]['percentile_25_75'] = medians, np.array([lower, upper])
         frac_stats[phase]['ngals'] = [len(j) for j in binned_data]
 
     with h5py.File(frac_stats_file, 'a') as hf:
@@ -92,9 +92,22 @@ else:
 
         hf.create_dataset('smass_bins', data=np.array(plot_bins))
 
+running_total = np.zeros(len(plot_bins))
 for i, phase in enumerate(plot_phases):
+    plt.fill_between(plot_bins, running_total, running_total + frac_stats[phase]['median'], color=colours[i], label=plot_phases_labels[i])
+    running_total += frac_stats[phase]['median']
+plt.legend(loc=2, fontsize=11)
+plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
+plt.ylabel(r'$f_{\rm \Omega}$')
+plt.xlim(min_mass, plot_bins[-1]+dm)
+plt.savefig(savedir+model+'_'+wind+'_'+snap+'_omega_fracs_peeples.png')
+plt.clf()
+
+for i, phase in enumerate(plot_phases):
+    frac_stats[phase]['median'], frac_stats[phase]['percentile_25_75'] = \
+    convert_to_log(frac_stats[phase]['median'], frac_stats[phase]['percentile_25_75'])
     plt.errorbar(plot_bins, frac_stats[phase]['median'], yerr=frac_stats[phase]['percentile_25_75'], 
-    				capsize=3, color=colours[i], label=plot_phases_labels[i])
+                    capsize=3, color=colours[i], label=plot_phases_labels[i])
 
 plt.legend(loc=3, fontsize=11)
 plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
