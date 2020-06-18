@@ -136,7 +136,12 @@ omega_mass_fractions = {k: p/cosmic_baryons for k, p in mass_budget.items()}
 omega_mass_fractions['Cosmic baryon mass'] = cosmic_baryons.copy()
 del omega_mass_fractions['Dark matter']
 
-with h5py.File(savedir+'mass_budget.h5', 'a') as hf: 
+available_metal_fractions = {k: p/metal_budget['Total baryons'] for k, p in metal_budget.items()} 
+available_metal_fractions['Total baryons'] = metal_budget['Total baryons'].copy()
+
+metallicities = {k: p/mass_budget[k] for k, p in metal_budget.items()}
+
+"""with h5py.File(savedir+'mass_budget.h5', 'a') as hf: 
     for k, p in mass_budget.items(): 
         hf.create_dataset(k, data=np.array(p)) 
 
@@ -150,6 +155,14 @@ with h5py.File(savedir+'omega_mass_fraction.h5', 'a') as hf:
 
 with h5py.File(savedir+'metal_budget.h5', 'a') as hf: 
     for k, p in metal_budget.items(): 
+        hf.create_dataset(k, data=np.array(p)) 
+"""
+with h5py.File(savedir+'available_metal_fraction.h5', 'a') as hf: 
+    for k, p in available_metal_fractions.items(): 
+        hf.create_dataset(k, data=np.array(p)) 
+
+with h5py.File(savedir+'metallicities.h5', 'a') as hf: 
+    for k, p in metallicities.items(): 
         hf.create_dataset(k, data=np.array(p)) 
 
 #with h5py.File(savedir+'particle_ids.h5', 'a') as hf:
