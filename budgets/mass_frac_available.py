@@ -33,85 +33,70 @@ plot_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < Tvir)', 'Hot CGM
               'ISM', 'Wind', 'Dust', 'Stars']
 plot_phases_labels = [r'Cool CGM $(T < T_{\rm photo})$', r'Warm CGM $(T_{\rm photo} < T < T_{\rm vir})$', 
                       r'Hot CGM $(T > T_{\rm vir})$', 'ISM', 'Wind', 'Dust', 'Stars']
-colours = ['m', 'tab:orange', 'g', 'b', 'c', 'tab:pink', 'r']
-stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std', 'ngals']
+colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
+stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std']
 
 frac_stats_file = fracdata_dir+model+'_'+wind+'_'+snap+'_avail_frac_stats.h5'
 
 if os.path.isfile(frac_stats_file):
 
-    frac_stats = {p: {} for p in plot_phases}
-    with h5py.File(frac_stats_file, 'r') as hf:
-        for phase in plot_phases:
-            for stat in stats:
-                frac_stats[phase][stat] = hf[phase][stat][:]
+    frac_stats = read_phase_stats(frac_stats_file, plot_phases, stats)
 
-        plot_bins = hf['smass_bins'][:]
 else:
-    mass_bins = get_bin_edges(min_mass, max_mass, dm)
-    plot_bins = get_bin_middle(np.append(mass_bins, mass_bins[-1] + dm))
 
     # get the galaxy data:
     #caesarfile = '/home/sarah/data/caesar_snap_m12.5n128_135.hdf5'
     #sim = caesar.load(caesarfile)
     caesarfile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
     sim = caesar.quick_load(caesarfile)
+    quench = -1.8  + 0.3*sim.simulation.redshift
     central = np.array([i.central for i in sim.galaxies])
     gal_sm = np.array([i.masses['stellar'].in_units('Msun') for i in sim.galaxies])[central]
+    gal_sfr = np.array([i.sfr.in_units('Msun/Gyr') for i in sim.galaxies])[central]
+    gal_ssfr = np.log10(gal_sfr / gal_sm) 
+
     gal_pos = np.array([i.pos.in_units('kpc/h') for i in sim.galaxies])[central]
 
-    fractions = {}
-    with h5py.File(fracdata_dir+'available_mass_fraction.h5', 'r') as hf:
-        for p in all_phases:
-            fractions[p] = hf[p][:]
+    fractions = read_phases(fracdata_dir+'available_mass_fraction.h5', all_phases)
 
-    frac_stats = {phase: {} for phase in all_phases}
-    binned_pos = bin_data(gal_sm, gal_pos, 10.**mass_bins, group_high=True)
-    for phase in all_phases:
-        binned_data = bin_data(gal_sm, fractions[phase], 10.**mass_bins, group_high=True)
-        
-        medians = np.zeros(len(plot_bins))
-        cosmic_stds = np.zeros(len(plot_bins))
-        for i in range(len(plot_bins)):
-            medians[i], cosmic_stds[i] = get_cosmic_variance(binned_data[i], binned_pos[i], boxsize)
+    frac_stats = {}
+    mass_bins = get_bin_edges(min_mass, max_mass, dm)
+    frac_stats['smass_bins'] = get_bin_middle(np.append(mass_bins, mass_bins[-1] + dm))  
 
-        frac_stats[phase]['cosmic_median'], frac_stats[phase]['cosmic_std'] = medians, cosmic_stds
-        medians = np.array([np.nanpercentile(j, 50.) for j in binned_data])
-        per25 = np.array([np.nanpercentile(j, 25.) for j in binned_data])
-        per75 = np.array([np.nanpercentile(j, 75.) for j in binned_data])
-        upper = per75 - medians
-        lower = medians - per25
-        frac_stats[phase]['median'], frac_stats[phase]['percentile_25_75'] = medians, np.array([lower, upper])
-        frac_stats[phase]['ngals'] = [len(j) for j in binned_data]
+    mask = np.array([True] * len(gal_sm))
+    frac_stats['all'] = get_phase_stats(gal_sm, gal_pos, fractions, mask, all_phases, mass_bins, boxsize, logresults=False)
 
-    with h5py.File(frac_stats_file, 'a') as hf:
-        for phase in all_phases:
-            grp = hf.create_group(phase)
-            for stat in stats:
-                grp.create_dataset(stat, data=np.array(frac_stats[phase][stat]))
+    mask = gal_ssfr > quench
+    frac_stats['star_forming'] = get_phase_stats(gal_sm, gal_pos, fractions, mask, all_phases, mass_bins, boxsize, logresults=False)
 
-        hf.create_dataset('smass_bins', data=np.array(plot_bins))
+    mask = gal_ssfr < quench
+    frac_stats['quenched'] = get_phase_stats(gal_sm, gal_pos, fractions, mask, all_phases, mass_bins, boxsize, logresults=False)
 
-running_total = np.zeros(len(plot_bins))
+    write_phase_stats(frac_stats_file, frac_stats, all_phases, stats)
+
+fig, ax = plt.subplots(1, 3, figsize=(15, 6))
+ax = ax.flatten()
+
+running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
-    plt.fill_between(plot_bins, running_total, running_total + frac_stats[phase]['median'], color=colours[i], label=plot_phases_labels[i])
-    running_total += frac_stats[phase]['median']
-plt.legend(loc=4, fontsize=11)
-plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-plt.ylabel(r'$f_{\rm Total}$')
-plt.xlim(min_mass, plot_bins[-1]+dm)
+    ax[0].fill_between(frac_stats['smass_bins'], running_total, running_total + frac_stats['all'][phase]['median'], color=colours[i], label=plot_phases_labels[i])
+    running_total += frac_stats['all'][phase]['median']
+running_total = np.zeros(len(frac_stats['smass_bins']))
+for i, phase in enumerate(plot_phases):
+    ax[1].fill_between(frac_stats['smass_bins'], running_total, running_total + frac_stats['star_forming'][phase]['median'], color=colours[i], label=plot_phases_labels[i])
+    running_total += frac_stats['star_forming'][phase]['median']
+running_total = np.zeros(len(frac_stats['smass_bins']))
+for i, phase in enumerate(plot_phases):
+    ax[2].fill_between(frac_stats['smass_bins'], running_total, running_total + frac_stats['quenched'][phase]['median'], color=colours[i], label=plot_phases_labels[i])
+    running_total += frac_stats['quenched'][phase]['median']
+ax[0].annotate('All', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
+ax[1].annotate('SF', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
+ax[2].annotate('Q', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
+for i in range(3):
+    ax[i].set_xlim(min_mass, frac_stats['smass_bins'][-1]+0.5*dm)
+    ax[i].set_ylim(0, 1)
+    ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
+    ax[i].set_ylabel(r'$f_{\rm Total}$')
+ax[1].legend(loc=4, fontsize=11)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_avail_fracs_peeples.png')
-plt.clf()
-
-for i, phase in enumerate(plot_phases):
-    frac_stats[phase]['median'], frac_stats[phase]['percentile_25_75'] = \
-        convert_to_log(frac_stats[phase]['median'], frac_stats[phase]['percentile_25_75'])
-    plt.errorbar(plot_bins, frac_stats[phase]['median'], yerr=frac_stats[phase]['percentile_25_75'], 
-                capsize=3, color=colours[i], label=plot_phases_labels[i])
-
-plt.legend(loc=3, fontsize=11)
-plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-plt.ylabel(r'$\textrm{log} (f_{\rm Total})$')
-plt.xlim(min_mass, plot_bins[-1]+dm)
-plt.savefig(savedir+model+'_'+wind+'_'+snap+'_avail_fracs.png')
 plt.clf()

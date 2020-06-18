@@ -1,4 +1,5 @@
 import numpy as np 
+import h5py
 
 def get_bin_edges(x_min, x_max, dx):
 	return np.arange(x_min, x_max+dx, dx)
@@ -18,6 +19,70 @@ def convert_to_log(y, yerr):
     yerr /= (y*np.log(10.))
     y = np.log10(y)
     return y, yerr
+
+def read_phases(phase_file, phases):
+    phase_dict = {}
+    with h5py.File(phase_file, 'r') as pf:
+        for phase in phases:
+            phase_dict[phase] = pf[phase][:]
+    return phase_dict
+
+def get_phase_stats(sm, pos, mass_budget, mask, phases, mass_bins, boxsize, logresults=False):
+
+    stat_dict = {phase: {} for phase in phases}
+
+    binned_pos = bin_data(sm[mask], pos[mask], 10.**mass_bins, group_high=True)
+    stat_dict['ngals'] = [len(j) for j in binned_pos]
+
+    for phase in phases:
+        binned_data = bin_data(sm[mask], mass_budget[phase][mask], 10.**mass_bins, group_high=True)
+        
+        medians = np.zeros(len(mass_bins))
+        cosmic_stds = np.zeros(len(mass_bins))
+        for i in range(len(mass_bins)):
+            if len(binned_data[i]) > 0.:
+                medians[i], cosmic_stds[i] = get_cosmic_variance(binned_data[i], binned_pos[i], boxsize)
+            else:
+                medians[i], cosmic_stds[i] = np.nan, np.nan
+        if logresults:
+            stat_dict[phase]['cosmic_median'], stat_dict[phase]['cosmic_std'] = convert_to_log(medians, cosmic_stds)
+        else:
+            stat_dict[phase]['cosmic_median'], stat_dict[phase]['cosmic_std'] = medians, cosmic_stds
+
+        medians = np.array([np.nanpercentile(j, 50.) for j in binned_data])
+        per25 = np.array([np.nanpercentile(j, 25.) for j in binned_data])
+        per75 = np.array([np.nanpercentile(j, 75.) for j in binned_data])
+        upper = per75 - medians
+        lower = medians - per25
+        if logresults:
+            stat_dict[phase]['median'], stat_dict[phase]['percentile_25_75'] = convert_to_log(medians, np.array([lower, upper]))
+        else:
+            stat_dict[phase]['median'], stat_dict[phase]['percentile_25_75'] = medians, np.array([lower, upper])
+
+    return stat_dict
+
+def read_phase_stats(stats_file, phases, stats):
+    stats_dict = {}
+    with h5py.File(stats_file, 'r') as sf:
+        for cut in ['all', 'star_forming', 'quenched']:
+            stats_dict[cut] = {p: {} for p in phases}
+            for phase in phases:
+                for stat in stats:
+                    stats_dict[cut][phase][stat] = sf[cut][phase][stat][:]
+
+        stats_dict['smass_bins'] = sf['smass_bins'][:]
+    return stats_dict
+
+def write_phase_stats(stats_file, stats_dict, phases, stats, ):
+    with h5py.File(stats_file, 'a') as hf:
+        for cut in ['all', 'star_forming', 'quenched']:
+            cut_grp = hf.create_group(cut)
+            for phase in phases:
+                phase_grp = cut_grp.create_group(phase)
+                for stat in stats:
+                    phase_grp.create_dataset(stat, data=np.array(stats_dict[cut][phase][stat]))
+        hf.create_dataset('smass_bins', data=np.array(stats_dict['smass_bins']))
+    return
 
 def variance_jk(samples, mean):
         n = len(samples)
