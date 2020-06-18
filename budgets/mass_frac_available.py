@@ -77,18 +77,36 @@ else:
 fig, ax = plt.subplots(1, 3, figsize=(15, 6))
 ax = ax.flatten()
 
+total = np.zeros(len(frac_stats['smass_bins']))
+for phase in plot_phases:
+    total += frac_stats['all'][phase]['median']
+    
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
-    ax[0].fill_between(frac_stats['smass_bins'], running_total, running_total + frac_stats['all'][phase]['median'], color=colours[i], label=plot_phases_labels[i])
-    running_total += frac_stats['all'][phase]['median']
+    ax[0].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['all'][phase]['median'] / total), 
+                        color=colours[i], label=plot_phases_labels[i])
+    running_total += frac_stats['all'][phase]['median'] / total
+
+total = np.zeros(len(frac_stats['smass_bins']))
+for phase in plot_phases:
+    total += frac_stats['star_forming'][phase]['median']
+
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
-    ax[1].fill_between(frac_stats['smass_bins'], running_total, running_total + frac_stats['star_forming'][phase]['median'], color=colours[i], label=plot_phases_labels[i])
-    running_total += frac_stats['star_forming'][phase]['median']
+    ax[1].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['star_forming'][phase]['median'] / total), 
+                        color=colours[i], label=plot_phases_labels[i])
+    running_total += frac_stats['star_forming'][phase]['median'] / total
+
+total = np.zeros(len(frac_stats['smass_bins']))
+for phase in plot_phases:
+    total += frac_stats['quenched'][phase]['median']
+
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
-    ax[2].fill_between(frac_stats['smass_bins'], running_total, running_total + frac_stats['quenched'][phase]['median'], color=colours[i], label=plot_phases_labels[i])
-    running_total += frac_stats['quenched'][phase]['median']
+    ax[2].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['quenched'][phase]['median'] / total), 
+                        color=colours[i], label=plot_phases_labels[i])
+    running_total += frac_stats['quenched'][phase]['median'] / total
+
 ax[0].annotate('All', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
 ax[1].annotate('SF', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
 ax[2].annotate('Q', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
