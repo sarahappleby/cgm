@@ -5,7 +5,7 @@ from pygadgetreader import readsnap
 
 photo_temp = 10.**4.5 # in K
 cold_temp = 1.e5
-hot_temp = 1.e6
+hot_temp = 1.e7
 ism_density = 0.13 # hydrogen number density, cm**-3
 dust_mass_factor = 1.e10
 omega_b = 0.048
@@ -57,11 +57,6 @@ mass_budget = {phase: np.zeros(len(sim.galaxies)) for phase in phases}
 metal_budget = {phase: np.zeros(len(sim.galaxies)) for phase in phases}
 del metal_budget['Dark matter']
 
-# get the particle ids for different gas phases
-#all_gas_ids = np.arange(len(gas_mass))
-#gparts = {phase: np.array([]) for phase in phases}
-#del gparts['Stars'], gparts['Dark matter'], gparts['Total baryons']
-
 print('Finished loading in particle data arrays')
 
 for i in range(len(sim.galaxies)):
@@ -79,9 +74,6 @@ for i in range(len(sim.galaxies)):
         cool_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] < cold_temp)
         warm_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > cold_temp) & (gas_temp[glist] < hot_temp)
         hot_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > hot_temp)
-        #gparts['Cool CGM (T < 10^5)'] = np.append(gparts['Cool CGM (T < 10^5)'], all_gas_ids[glist][cool_gas_mask])
-        #gparts['Warm CGM (10^5 < T < 10^6)'] = np.append(gparts['Warm CGM (10^5 < T < 10^6)'], all_gas_ids[glist][warm_gas_mask])
-        #gparts['Hot CGM (T > 10^6)'] = np.append(gparts['Hot CGM (T > 10^6)'], all_gas_ids[glist][hot_gas_mask])
         mass_budget['Cool CGM (T < 10^5)'][i] = np.sum(gas_mass[glist][cool_gas_mask])
         mass_budget['Warm CGM (10^5 < T < 10^6)'][i] = np.sum(gas_mass[glist][warm_gas_mask])
         mass_budget['Hot CGM (T > 10^6)'][i] = np.sum(gas_mass[glist][hot_gas_mask])
@@ -90,11 +82,8 @@ for i in range(len(sim.galaxies)):
         metal_budget['Hot CGM (T > 10^6)'][i] = np.sum(gas_mass[glist][hot_gas_mask] * gas_z[glist][hot_gas_mask])
 
         cool_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] < photo_temp)
-        warm_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > photo_temp) & (gas_temp[glist] < gal_tvir[i])
-        hot_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > gal_tvir[i])
-        #gparts['Cool CGM (T < Tphoto)'] = np.append(gparts['Cool CGM (T < Tphoto)'], all_gas_ids[glist][cool_gas_mask])
-        #gparts['Warm CGM (Tphoto < T < Tvir)'] = np.append(gparts['Warm CGM (Tphoto < T < Tvir)'], all_gas_ids[glist][warm_gas_mask])
-        #gparts['Hot CGM (T > Tvir)'] = np.append(gparts['Hot CGM (T > Tvir)'], all_gas_ids[glist][hot_gas_mask])
+        warm_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > photo_temp) & (gas_temp[glist] < 0.5*gal_tvir[i])
+        hot_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > 0.5*gal_tvir[i])
         mass_budget['Cool CGM (T < Tphoto)'][i] = np.sum(gas_mass[glist][cool_gas_mask])
         mass_budget['Warm CGM (Tphoto < T < Tvir)'][i] = np.sum(gas_mass[glist][warm_gas_mask])
         mass_budget['Hot CGM (T > Tvir)'][i] = np.sum(gas_mass[glist][hot_gas_mask])
@@ -102,9 +91,6 @@ for i in range(len(sim.galaxies)):
         metal_budget['Warm CGM (Tphoto < T < Tvir)'][i] = np.sum(gas_mass[glist][warm_gas_mask] * gas_z[glist][warm_gas_mask])
         metal_budget['Hot CGM (T > Tvir)'][i] = np.sum(gas_mass[glist][hot_gas_mask] * gas_z[glist][hot_gas_mask])
 
-        #gparts['ISM'] = np.append(gparts['ISM'], all_gas_ids[glist][np.invert(cgm_gas_mask) & np.invert(wind_mask)])
-        #gparts['Wind'] = np.append(gparts['Wind'], all_gas_ids[glist][wind_mask])
-        #gparts['Dust'] = np.append(gparts['Dust'], all_gas_ids[glist][np.invert(wind_mask)])
         mass_budget['ISM'][i] = np.sum(gas_mass[glist][np.invert(cgm_gas_mask) & np.invert(wind_mask)])
         mass_budget['Wind'][i] = np.sum(gas_mass[glist][wind_mask])
         mass_budget['Dust'][i] = np.sum(dust_mass[glist][np.invert(wind_mask)])
@@ -121,12 +107,6 @@ for i in range(len(sim.galaxies)):
 mass_budget = {k: p[central] for k, p in mass_budget.items()}
 metal_budget = {k: p[central] for k, p in metal_budget.items()}
 
-#gparts = {k: np.unique(np.sort(p.astype('int'))) for k, p in gparts.items()}
-#dmparts = np.concatenate(np.array([i.halo.dmlist for i in sim.galaxies])[central])
-#dmparts = np.unique(np.sort(dmparts))
-#sparts = np.concatenate(np.array([i.halo.slist for i in sim.galaxies])[central])
-#sparts = np.unique(np.sort(sparts))
-
 available_mass_fractions = {k: p/mass_budget['Total baryons'] for k, p in mass_budget.items()} 
 available_mass_fractions['Total baryons'] = mass_budget['Total baryons'].copy()
 del available_mass_fractions['Dark matter']
@@ -141,7 +121,7 @@ available_metal_fractions['Total baryons'] = metal_budget['Total baryons'].copy(
 
 metallicities = {k: p/mass_budget[k] for k, p in metal_budget.items()}
 
-"""with h5py.File(savedir+'mass_budget.h5', 'a') as hf: 
+with h5py.File(savedir+'mass_budget.h5', 'a') as hf: 
     for k, p in mass_budget.items(): 
         hf.create_dataset(k, data=np.array(p)) 
 
@@ -156,7 +136,7 @@ with h5py.File(savedir+'omega_mass_fraction.h5', 'a') as hf:
 with h5py.File(savedir+'metal_budget.h5', 'a') as hf: 
     for k, p in metal_budget.items(): 
         hf.create_dataset(k, data=np.array(p)) 
-"""
+
 with h5py.File(savedir+'available_metal_fraction.h5', 'a') as hf: 
     for k, p in available_metal_fractions.items(): 
         hf.create_dataset(k, data=np.array(p)) 
@@ -164,9 +144,3 @@ with h5py.File(savedir+'available_metal_fraction.h5', 'a') as hf:
 with h5py.File(savedir+'metallicities.h5', 'a') as hf: 
     for k, p in metallicities.items(): 
         hf.create_dataset(k, data=np.array(p)) 
-
-#with h5py.File(savedir+'particle_ids.h5', 'a') as hf:
-#    for k, p in gparts.items():
-#        hf.create_dataset(k, data=np.array(p))
-#    hf.create_dataset('Stars', data=np.array(sparts))
-#    hf.create_dataset('Dark matter', data=np.array(dmparts))
