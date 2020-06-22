@@ -11,6 +11,8 @@ from astropy.io import ascii
 from generate_spectra import generate_pygad_spectrum
 
 mlim = np.log10(5.8e8)
+sqrt2 = np.sqrt(2.)
+
 
 model = sys.argv[1]
 snap = sys.argv[2]
@@ -86,19 +88,36 @@ for i in list(range(len(gal_ids))):
 	print('Generating spectra for sample galaxy ' + str(gal_ids[i]))
 	gal_name = 'sample_galaxy_' + str(gal_ids[i]) + '_'
 
-	spec_name = gal_name + 'x_plus'
+	spec_name = gal_name + '0_deg'
 	los = pos_sample[i][:2].copy(); los[0] += cos_rho[cos_id]
 	print('In kpc/h: ' + str(los))
 	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 	
-	spec_name = gal_name + 'x_minus'
+        spec_name = gal_name + '45_deg'
+        los = pos_sample[i][:2].copy(); los[0] += (cos_rho[cos_id] / sqrt2); los[1] += (cos_rho[cos_id] / sqrt2)
+        generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+
+        spec_name = gal_name + '90_deg'
+        los = pos_sample[i][:2].copy(); los[1] += cos_rho[cos_id]
+        generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+
+        spec_name = gal_name + '135_deg'
+        los = pos_sample[i][:2].copy(); los[0] -= (cos_rho[cos_id] / sqrt2); los[1] += (cos_rho[cos_id] / sqrt2)
+        generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+
+	spec_name = gal_name + '180_deg'
 	los = pos_sample[i][:2].copy(); los[0] -= cos_rho[cos_id]
 	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 
-	spec_name = gal_name + 'y_plus'
-	los = pos_sample[i][:2].copy(); los[1] += cos_rho[cos_id]
-	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
-	
-	spec_name = gal_name + 'y_minus'    
+        spec_name = gal_name + '225_deg'
+        los = pos_sample[i][:2].copy(); los[0] -= (cos_rho[cos_id] / sqrt2); los[1] -= (cos_rho[cos_id] / sqrt2)
+        generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+
+	spec_name = gal_name + '270_deg'    
 	los = pos_sample[i][:2].copy(); los[1] -= cos_rho[cos_id]
 	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+
+        spec_name = gal_name + '315_deg'
+        los = pos_sample[i][:2].copy(); los[0] += (cos_rho[cos_id] / sqrt2); los[1] -= (cos_rho[cos_id] / sqrt2)
+        generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+
