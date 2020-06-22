@@ -18,7 +18,7 @@ sqrt2 = np.sqrt(2.)
 sample_gal = int(sys.argv[1]) # supply the gal id that we want from command line
 survey = sys.argv[2]
 model = 'm50n512'
-wind = 's50j7k'
+wind = 's50nox'
 mlim = np.log10(5.8e8)
 
 if survey == 'dwarfs':
@@ -75,7 +75,7 @@ for l in los:
 
 partids = np.unique(np.sort(partids))
 
-with h5py.File(sample_dir+'particle_selection.h5', 'a') as f:
+with h5py.File(sample_dir+wind+'_particle_selection.h5', 'a') as f:
     f.create_dataset('plist_'+str(sample_gal)+'_'+str(gal_id), data=np.array(partids))
 
 del partids

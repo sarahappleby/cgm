@@ -61,8 +61,8 @@ def prepare_out_file(snapfile, output_file, numpart):
 
 if __name__ == '__main__':
 
-    model = 'm100n1024'
-    wind = 's50'
+    model = 'm50n512'
+    wind = 's50nox'
     survey = 'dwarfs'
     verbose = 2
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         gal_ids = np.array(f['gal_ids'][:], dtype='int')
 
     plist = np.array([])
-    with h5py.File(output_dir+'particle_selection.h5', 'r') as f:
+    with h5py.File(output_dir+wind+'_particle_selection.h5', 'r') as f:
         for i, gal in enumerate(gal_ids):
             plist = np.append(plist, np.array(f['plist_'+str(i)+'_'+str(gal)][:], dtype='int'))
 
