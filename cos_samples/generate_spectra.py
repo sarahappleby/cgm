@@ -95,7 +95,9 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_lim
         fluxes = np.exp(-1.*taus)
    
     if not line == 'MgII2796':
-            f_conv, n_conv = pg.analysis.absorption_spectra.apply_LSF(wavelengths, fluxes, noise_vector, grating='COS_G130M')
+        f_conv, n_conv = pg.analysis.absorption_spectra.apply_LSF(wavelengths, fluxes, noise_vector, grating='COS_G130M')
+    else:
+        f_conv = fluxes.copy()
     f_conv += noise
     contin = pg.analysis.absorption_spectra.fit_continuum(wavelengths, f_conv, noise_vector, order=1, sigma_lim=1.5)
     fluxes_effected = f_conv / contin
