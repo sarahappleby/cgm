@@ -26,13 +26,13 @@ savedir = '/home/sarah/cgm/budgets/plots/'
 # fracdata_dir = '/home/sapple/cgm/budgets/data/'
 # savedir = '/home/sapple/cgm/budgets/plots/'
 
-all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < Tvir)', 'Hot CGM (T > Tvir)',
+all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
               'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
-              'ISM', 'Wind', 'Dust', 'Stars', 'Total baryons']
-plot_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < Tvir)', 'Hot CGM (T > Tvir)', 
+              'ISM', 'Wind', 'Dust', 'Stars', 'Dark matter', 'Total baryons']
+plot_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)', 
               'ISM', 'Wind', 'Dust', 'Stars']
-plot_phases_labels = [r'Cool CGM $(T < T_{\rm photo})$', r'Warm CGM $(T_{\rm photo} < T < T_{\rm vir})$', 
-                      r'Hot CGM $(T > T_{\rm vir})$', 'ISM', 'Wind', 'Dust', 'Stars']
+plot_phases_labels = [r'Cool CGM $(T < T_{\rm photo})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
+                      r'Hot CGM $(T > 0.5T_{\rm vir})$', 'ISM', 'Wind', 'Dust', 'Stars']
 colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
 stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std']
 

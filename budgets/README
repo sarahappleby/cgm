@@ -1,0 +1,27 @@
+Scripts starting with 'get_' are for computing masses and fractions from the Simba snapshots.
+Scripts starting with 'plot_' are for computing stats (medians etc.) and producing plots.
+
+1) get_mass_budget:
+Computes the total masses and metal masses of the specified phases, as well as fractions wrt the total available baryon
+mass and wrt the cosmic fraction of baryons.
+
+2) plotting_methods:
+Binning, get stats for different phases, get cosmic variance errors, reading and writing data to file.
+
+3) plot_mass_budget:
+Masses of different phases as a function of stellar mass, separated into star forming and quenched.
+
+4) plot_mass_frac_available:
+Mass fractions of different phases as a function of stellar mass, separated into star forming and quenched.
+
+5) plot_mass_frac_omega:
+Mass fractions of different phases wrt cosmic baryon fractions, as a function of stellar mass, separated into star forming and quenched.
+
+6) plot_metal_budget:
+Metal masses of different phases as a function of stellar mass, separated into star forming and quenched.
+
+7) plot_metal_frac_available:
+Metal mass fractions of different phases as a function of stellar mass, separated into star forming and quenched.
+
+8) plot_metallicities:
+Metallicities of different phases as a function of stellar mass, separated into star forming and quenched.

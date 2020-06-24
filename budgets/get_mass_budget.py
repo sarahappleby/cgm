@@ -51,7 +51,7 @@ star_mass = readsnap(snapfile, 'mass', 'star', suppress=1, units=1) / h # in Mo
 star_z = readsnap(snapfile, 'z', 'star', suppress=1, units=1)
 
 phases = ['Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
-          'Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < Tvir)', 'Hot CGM (T > Tvir)', 
+          'Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)', 
           'ISM', 'Wind', 'Dust', 'Stars', 'Dark matter', 'Total baryons']
 mass_budget = {phase: np.zeros(len(sim.galaxies)) for phase in phases}
 metal_budget = {phase: np.zeros(len(sim.galaxies)) for phase in phases}
@@ -85,11 +85,11 @@ for i in range(len(sim.galaxies)):
         warm_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > photo_temp) & (gas_temp[glist] < 0.5*gal_tvir[i])
         hot_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] > 0.5*gal_tvir[i])
         mass_budget['Cool CGM (T < Tphoto)'][i] = np.sum(gas_mass[glist][cool_gas_mask])
-        mass_budget['Warm CGM (Tphoto < T < Tvir)'][i] = np.sum(gas_mass[glist][warm_gas_mask])
-        mass_budget['Hot CGM (T > Tvir)'][i] = np.sum(gas_mass[glist][hot_gas_mask])
+        mass_budget['Warm CGM (Tphoto < T < 0.5Tvir)'][i] = np.sum(gas_mass[glist][warm_gas_mask])
+        mass_budget['Hot CGM (T > 0.5Tvir)'][i] = np.sum(gas_mass[glist][hot_gas_mask])
         metal_budget['Cool CGM (T < Tphoto)'][i] = np.sum(gas_mass[glist][cool_gas_mask] * gas_z[glist][cool_gas_mask])
-        metal_budget['Warm CGM (Tphoto < T < Tvir)'][i] = np.sum(gas_mass[glist][warm_gas_mask] * gas_z[glist][warm_gas_mask])
-        metal_budget['Hot CGM (T > Tvir)'][i] = np.sum(gas_mass[glist][hot_gas_mask] * gas_z[glist][hot_gas_mask])
+        metal_budget['Warm CGM (Tphoto < T < 0.5Tvir)'][i] = np.sum(gas_mass[glist][warm_gas_mask] * gas_z[glist][warm_gas_mask])
+        metal_budget['Hot CGM (T > 0.5Tvir)'][i] = np.sum(gas_mass[glist][hot_gas_mask] * gas_z[glist][hot_gas_mask])
 
         mass_budget['ISM'][i] = np.sum(gas_mass[glist][np.invert(cgm_gas_mask) & np.invert(wind_mask)])
         mass_budget['Wind'][i] = np.sum(gas_mass[glist][wind_mask])
