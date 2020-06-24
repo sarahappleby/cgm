@@ -23,27 +23,26 @@ line = sys.argv[6]
 lambda_rest = float(re.findall(r'\d+', line)[0])
 
 ids = list(range(num*5, (num+1)*5))
-ids = [155]
 
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
 snapfile = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_'+snap+'.hdf5'
 
 sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
-save_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/'
+save_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/'+wind+'/'
 
 if not os.path.exists(save_dir):
-    os.makedirs(save_dir)
-    os.makedirs(save_dir + '/plots/')
-    os.makedirs(save_dir + '/spectra/')
-    os.makedirs(save_dir + '/output/')
+	os.makedirs(save_dir)
+	os.makedirs(save_dir + '/plots/')
+	os.makedirs(save_dir + '/spectra/')
+	os.makedirs(save_dir + '/output/')
 
 if survey == 'dwarfs':
-    from get_cos_info import get_cos_dwarfs
-    cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_dwarfs()
+	from get_cos_info import get_cos_dwarfs
+	cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_dwarfs()
 
 elif survey == 'halos':
-    from get_cos_info import get_cos_halos
-    cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_halos()
+	from get_cos_info import get_cos_halos
+	cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_halos()
 
 # Get some info from yt:
 ds = yt.load(snapfile)
@@ -57,9 +56,9 @@ vel_range = 600. # km/s
 pixel_size = 6 # km/s
 periodic_vel = True
 if periodic_vel:
-    v_limits = [-600., vbox.value+600.]
+	v_limits = [-600., vbox.value+600.]
 else:
-    v_limits = [0., vbox]
+	v_limits = [0., vbox]
 total_v = np.sum(np.abs(v_limits))
 Nbins = int(np.rint(total_v / pixel_size))
 
@@ -67,14 +66,14 @@ Nbins = int(np.rint(total_v / pixel_size))
 
 # Load in data for the sample galaxies corresponding to this COS-Halos galaxy
 with h5py.File(sample_dir+model+'_'+wind+'_cos_'+survey+'_sample.h5', 'r') as cos_sample:
-    
-    gal_ids = (cos_sample['gal_ids'][:])[ids]
-    cos_ids = cos_sample['cos_ids'][:]
-    # we can't have the line of sight as a pygad UnitArr because it can't convert between kpc/h and ckpc/h_0
-    # so instead we convert to default units of s['pos']
-    # hence kpc/h and the factor of (1+z) is necessary
-    pos_sample = (cos_sample['position'][:]  *  (1.+ds.current_redshift))[ids]
-    vgal_position_sample = (cos_sample['vgal_position'][:])[ids][:, 2]
+	
+	gal_ids = (cos_sample['gal_ids'][:])[ids]
+	cos_ids = cos_sample['cos_ids'][:]
+	# we can't have the line of sight as a pygad UnitArr because it can't convert between kpc/h and ckpc/h_0
+	# so instead we convert to default units of s['pos']
+	# hence kpc/h and the factor of (1+z) is necessary
+	pos_sample = (cos_sample['position'][:]  *  (1.+ds.current_redshift))[ids]
+	vgal_position_sample = (cos_sample['vgal_position'][:])[ids][:, 2]
 
 cos_id = cos_ids[num]
 cos_rho = cos_rho * (ds.hubble_constant * (1 + ds.current_redshift)) # originally in kpc, need in kpc/h to match pygad
@@ -92,32 +91,32 @@ for i in list(range(len(gal_ids))):
 	los = pos_sample[i][:2].copy(); los[0] += cos_rho[cos_id]
 	print('In kpc/h: ' + str(los))
 	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
-	
-        spec_name = gal_name + '45_deg'
-        los = pos_sample[i][:2].copy(); los[0] += (cos_rho[cos_id] / sqrt2); los[1] += (cos_rho[cos_id] / sqrt2)
-        generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 
-        spec_name = gal_name + '90_deg'
-        los = pos_sample[i][:2].copy(); los[1] += cos_rho[cos_id]
-        generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+	spec_name = gal_name + '45_deg'
+	los = pos_sample[i][:2].copy(); los[0] += (cos_rho[cos_id] / sqrt2); los[1] += (cos_rho[cos_id] / sqrt2)
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 
-        spec_name = gal_name + '135_deg'
-        los = pos_sample[i][:2].copy(); los[0] -= (cos_rho[cos_id] / sqrt2); los[1] += (cos_rho[cos_id] / sqrt2)
-        generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+	spec_name = gal_name + '90_deg'
+	los = pos_sample[i][:2].copy(); los[1] += cos_rho[cos_id]
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+
+	spec_name = gal_name + '135_deg'
+	los = pos_sample[i][:2].copy(); los[0] -= (cos_rho[cos_id] / sqrt2); los[1] += (cos_rho[cos_id] / sqrt2)
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 
 	spec_name = gal_name + '180_deg'
 	los = pos_sample[i][:2].copy(); los[0] -= cos_rho[cos_id]
 	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 
-        spec_name = gal_name + '225_deg'
-        los = pos_sample[i][:2].copy(); los[0] -= (cos_rho[cos_id] / sqrt2); los[1] -= (cos_rho[cos_id] / sqrt2)
-        generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+	spec_name = gal_name + '225_deg'
+	los = pos_sample[i][:2].copy(); los[0] -= (cos_rho[cos_id] / sqrt2); los[1] -= (cos_rho[cos_id] / sqrt2)
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 
 	spec_name = gal_name + '270_deg'    
 	los = pos_sample[i][:2].copy(); los[1] -= cos_rho[cos_id]
 	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 
-        spec_name = gal_name + '315_deg'
-        los = pos_sample[i][:2].copy(); los[0] += (cos_rho[cos_id] / sqrt2); los[1] -= (cos_rho[cos_id] / sqrt2)
-        generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
+	spec_name = gal_name + '315_deg'
+	los = pos_sample[i][:2].copy(); los[0] += (cos_rho[cos_id] / sqrt2); los[1] -= (cos_rho[cos_id] / sqrt2)
+	generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_limits, Nbins, snr, vgal_position_sample[i], vel_range, spec_name, save_dir)
 
