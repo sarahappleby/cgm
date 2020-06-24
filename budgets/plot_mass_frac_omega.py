@@ -21,14 +21,14 @@ if model == 'm100n1024':
 elif model == 'm50n512':
     boxsize = 50000.
 
-fracdata_dir = '/home/sarah/cgm/budgets/data/'
-savedir = '/home/sarah/cgm/budgets/plots/'
-# fracdata_dir = '/home/sapple/cgm/budgets/data/'
-# savedir = '/home/sapple/cgm/budgets/plots/'
+#fracdata_dir = '/home/sarah/cgm/budgets/data/'
+#savedir = '/home/sarah/cgm/budgets/plots/'
+fracdata_dir = '/home/sapple/cgm/budgets/data/'
+savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
               'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
-              'ISM', 'Wind', 'Dust', 'Stars', 'Dark matter', 'Total baryons']
+              'ISM', 'Wind', 'Dust', 'Stars', 'Cosmic baryon mass']
 plot_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)', 
               'ISM', 'Wind', 'Dust', 'Stars']
 plot_phases_labels = [r'Cool CGM $(T < T_{\rm photo})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$', 

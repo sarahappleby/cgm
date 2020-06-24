@@ -14,8 +14,8 @@ if __name__ == '__main__':
 	model = 'm50n512'
 	wind1 = 's50j7k'
 	wind_options = ['s50nojet', 's50nox', 's50noagn']
-	snap = '151'
-	survey = 'dwarfs'
+	snap = '137'
+	survey = 'halos'
 
 	sample_file = './m50n512/cos_' + survey+'/samples/'+model+'_'+wind1+'_cos_'+survey+'_sample.h5'
 	with h5py.File(sample_file, 'r') as f:

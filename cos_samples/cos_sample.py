@@ -124,7 +124,7 @@ if __name__ == '__main__':
     print('Loaded COS-Dwarfs survey data')
 
     infile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
-    sim = caesar.load(infile, LoadHalo=True)
+    sim = caesar.load(infile)
     gal_cent = np.array([i.central for i in sim.galaxies])
     co = yt.utilities.cosmology.Cosmology()
     hubble = co.hubble_parameter(sim.simulation.redshift).in_units('km/s/kpc')
@@ -153,7 +153,7 @@ if __name__ == '__main__':
         print('Loading other wind snaps for halo check')
         for w in wind_options:
             infile_new = '/home/rad/data/'+model+'/'+w+'/Groups/'+model+'_'+snap+'.hdf5'
-            objs.append(caesar.load(infile_new, LoadHalo=True))
+            objs.append(caesar.load(infile_new))
             with h5py.File(match_file, 'r') as f:
                 prog_index.append(f[wind+'_'+w][:])
 
