@@ -15,10 +15,10 @@ import sys
 # SA: write bash script to submit the cos id and the number 0-4 for the galaxy, run python wrapper which then looks up the gal id and supplies it to this script
 
 sqrt2 = np.sqrt(2.)
-sample_gal = int(sys.argv[1]) # supply the gal id that we want from command line
-survey = sys.argv[2]
-model = 'm50n512'
-wind = 's50nox'
+model = sys.argv[1]
+wind = sys.argv[2]
+sample_gal = int(sys.argv[3]) # supply the gal id that we want from command line
+survey = sys.argv[4]
 mlim = np.log10(5.8e8)
 
 if survey == 'dwarfs':
