@@ -1,6 +1,17 @@
 import numpy as np 
 import h5py
 
+def get_cb_colours(name):
+    # paul tol colour palette:
+    # https://davidmathlogic.com/colorblind/#%23332288-%23117733-%2344AA99-%2388CCEE-%23DDCC77-%23CC6677-%23AA4499
+    if name == 'tol':
+        return ['#332288', '#117733', '#44AA99', '#88CCEE', '#DDCC77', '#CC6677', '#AA4499']
+    # Okabe and Ito 2008
+    # https://serialmentor.com/dataviz/color-pitfalls.html
+    elif name == 'okabe':
+        return ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7']
+
+
 def get_bin_edges(x_min, x_max, dx):
 	return np.arange(x_min, x_max+dx, dx)
 

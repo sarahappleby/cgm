@@ -8,6 +8,7 @@ from plotting_methods import *
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 
+alpha = 1.
 min_mass = 9.5
 max_mass = 12.
 dm = 0.2 # dex
@@ -23,16 +24,16 @@ elif model == 'm50n512':
 
 fracdata_dir = '/home/sarah/cgm/budgets/data/'
 savedir = '/home/sarah/cgm/budgets/plots/'
-fracdata_dir = '/home/sapple/cgm/budgets/data/'
-savedir = '/home/sapple/cgm/budgets/plots/'
+# fracdata_dir = '/home/sapple/cgm/budgets/data/'
+# savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
               'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
               'ISM', 'Wind', 'Dust', 'Stars', 'Total baryons']
-plot_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)', 
-              'ISM', 'Wind', 'Dust', 'Stars']
-plot_phases_labels = [r'Cool CGM $(T < T_{\rm photo})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
-                      r'Hot CGM $(T > 0.5T_{\rm vir})$', 'ISM', 'Wind', 'Dust', 'Stars']
+plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool CGM (T < Tphoto)',
+                'Wind', 'Dust', 'ISM', 'Stars']
+plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
+                      r'Cool CGM $(T < T_{\rm photo})$', 'Wind', 'Dust', 'ISM', 'Stars']
 colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
 stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std']
 
@@ -84,7 +85,7 @@ for phase in plot_phases:
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
     ax[0].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['all'][phase]['median'] / total), 
-                        color=colours[i], label=plot_phases_labels[i])
+                        color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['all'][phase]['median'] / total
 
 total = np.zeros(len(frac_stats['smass_bins']))
@@ -94,7 +95,7 @@ for phase in plot_phases:
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
     ax[1].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['star_forming'][phase]['median'] / total), 
-                        color=colours[i], label=plot_phases_labels[i])
+                        color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['star_forming'][phase]['median'] / total
 
 total = np.zeros(len(frac_stats['smass_bins']))
@@ -104,17 +105,17 @@ for phase in plot_phases:
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
     ax[2].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['quenched'][phase]['median'] / total), 
-                        color=colours[i], label=plot_phases_labels[i])
+                        color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['quenched'][phase]['median'] / total
     
-ax[0].annotate('All', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
-ax[1].annotate('SF', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
-ax[2].annotate('Q', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
+ax[0].set_title('All')
+ax[1].set_title('Star forming')
+ax[2].set_title('Quenched')
 for i in range(3):
-    ax[i].set_xlim(min_mass, frac_stats['smass_bins'][-1]+0.5*dm)
+    ax[i].set_xlim(frac_stats['smass_bins'][0], frac_stats['smass_bins'][-1])
     ax[i].set_ylim(0, 1)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
     ax[i].set_ylabel(r'$f_{Z\ {\rm Total}}$')
-ax[1].legend(loc=4, fontsize=11)
+ax[0].legend(loc=1, fontsize=11)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_avail_metal_fracs_peeples.png')
 plt.clf()

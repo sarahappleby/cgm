@@ -23,17 +23,17 @@ elif model == 'm50n512':
 
 zdata_dir = '/home/sarah/cgm/budgets/data/'
 savedir = '/home/sarah/cgm/budgets/plots/'
-zdata_dir = '/home/sapple/cgm/budgets/data/'
-savedir = '/home/sapple/cgm/budgets/plots/'
+# zdata_dir = '/home/sapple/cgm/budgets/data/'
+# savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
               'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
               'ISM', 'Wind', 'Dust', 'Stars', 'Total baryons']
-plot_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)', 
-              'ISM', 'Wind', 'Stars']
-plot_phases_labels = [r'Cool CGM $(T < T_{\rm photo})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
-                      r'Hot CGM $(T > 0.5T_{\rm vir})$', 'ISM', 'Wind','Stars']
-colours = ['m', 'b', 'c', 'g', 'tab:orange', 'r']
+plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool CGM (T < Tphoto)',
+                'Wind', 'ISM', 'Stars']
+plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
+                      r'Cool CGM $(T < T_{\rm photo})$', 'Wind', 'ISM', 'Stars']
+colours = ['m', 'b', 'c', 'g', 'tab:pink', 'r']
 stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std']
 
 z_stats_file = zdata_dir+model+'_'+wind+'_'+snap+'_metallicities_stats.h5'
@@ -87,9 +87,9 @@ for i, phase in enumerate(plot_phases):
 for i, phase in enumerate(plot_phases):
     ax[2].errorbar(z_stats['smass_bins'], z_stats['quenched'][phase]['median'], yerr=z_stats['quenched'][phase]['percentile_25_75'], 
                 capsize=3, color=colours[i], label=plot_phases_labels[i])
-ax[0].annotate('All', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
-ax[1].annotate('SF', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
-ax[2].annotate('Q', xy=(0.05, 0.9), xycoords='axes fraction',size=16,bbox=dict(boxstyle="round", fc="w"))
+ax[0].set_title('All')
+ax[1].set_title('Star forming')
+ax[2].set_title('Quenched')
 for i in range(3):
     ax[i].set_xlim(min_mass, z_stats['smass_bins'][-1]+0.5*dm)
     ax[i].set_ylim(-3.5, -1.5)
