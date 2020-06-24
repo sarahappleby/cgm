@@ -7,7 +7,7 @@ from plotting_methods import *
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
-
+palette_name = 'tol'
 min_mass = 9.5
 max_mass = 12.
 dm = 0.2 # dex
@@ -34,6 +34,7 @@ plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool
 plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
                       r'Cool CGM $(T < T_{\rm photo})$', 'Wind', 'Dust', 'ISM', 'Stars']
 colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
+colours = get_cb_colours(palette_name)[::-1]
 stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std']
 
 mass_stats_file = massdata_dir+model+'_'+wind+'_'+snap+'_mass_budget_stats.h5'
