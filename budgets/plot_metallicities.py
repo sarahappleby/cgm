@@ -98,5 +98,5 @@ for i in range(3):
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
     ax[i].set_ylabel(r'$Z$')
 ax[0].legend(loc=4, fontsize=11, )
-plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metallcities.png')
+plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metallcities.png', bbox_inches = 'tight')
 plt.clf()
