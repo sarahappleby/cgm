@@ -13,7 +13,7 @@ omega_m = 0.3
 f_baryon = omega_b / omega_m
 
 snap = '151'
-wind = 's50nojet'
+wind = 's50noagn'
 model = 'm50n512'
 
 datadir = '/home/rad/data/'+model+'/'+wind+'/'

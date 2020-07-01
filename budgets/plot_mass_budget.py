@@ -14,13 +14,13 @@ max_mass = 12.
 dm = 0.2 # dex
 
 snap = '151'
-wind = 's50'
-model = 'm100n1024'
+wind = 's50noagn'
+model = 'm50n512'
 
 data_dir = '/home/sarah/cgm/budgets/data/'
 savedir = '/home/sarah/cgm/budgets/plots/'
-# massdata_dir = '/home/sapple/cgm/budgets/data/'
-# savedir = '/home/sapple/cgm/budgets/plots/'
+data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+savedir = '/home/sapple/cgm/budgets/plots/'
 
 plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool CGM (T < Tphoto)',
                 'Wind', 'Dust', 'ISM', 'Stars']
