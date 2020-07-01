@@ -5,7 +5,7 @@ from pygadgetreader import readsnap
 
 photo_temp = 10.**4.5 # in K
 cold_temp = 1.e5
-hot_temp = 1.e7
+hot_temp = 1.e6
 ism_density = 0.13 # hydrogen number density, cm**-3
 dust_mass_factor = 1.e10
 omega_b = 0.048
@@ -13,13 +13,13 @@ omega_m = 0.3
 f_baryon = omega_b / omega_m
 
 snap = '151'
-wind = 's50'
-model = 'm100n1024'
+wind = 's50nojet'
+model = 'm50n512'
 
 datadir = '/home/rad/data/'+model+'/'+wind+'/'
 snapfile = datadir + 'snap_'+model+'_'+snap+ '.hdf5'
 caesarfile = datadir + '/Groups/'+model+'_'+snap+'.hdf5'
-savedir = '/home/sapple/cgm/budgets/data/'
+savedir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
 sim = caesar.quick_load(caesarfile)
 
 # datadir = '/home/sarah/data/'
