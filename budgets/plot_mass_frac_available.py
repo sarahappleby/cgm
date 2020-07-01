@@ -119,5 +119,5 @@ for i in range(3):
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
     ax[i].set_ylabel(r'$f_{\rm Total}$')
 ax[2].legend(loc=2, fontsize=11)
-plt.savefig(savedir+model+'_'+wind+'_'+snap+'_avail_fracs_peeples.png')
+plt.savefig(savedir+model+'_'+wind+'_'+snap+'_avail_fracs_peeples.png', bbox_inches = 'tight')
 plt.clf()

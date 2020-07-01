@@ -8,6 +8,7 @@ from plotting_methods import *
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 
+solar_z = 0.0134
 palette_name = 'tol'
 min_mass = 9.5
 max_mass = 12.
@@ -61,6 +62,8 @@ else:
 
     # get the mass budget data:
     metallicities = read_phases(zdata_dir+'metallicities.h5', all_phases)
+    for phase in all_phases:
+        metallicities[phase] /= solar_z
 
     z_stats = {}
     mass_bins = get_bin_edges(min_mass, max_mass, dm)
@@ -77,7 +80,9 @@ else:
 
     write_phase_stats(z_stats_file, z_stats, all_phases, stats)
 
-fig, ax = plt.subplots(1, 3, figsize=(18, 6))
+
+
+fig, ax = plt.subplots(1, 3, figsize=(20, 6))
 ax = ax.flatten()
 
 for i, phase in enumerate(plot_phases):
@@ -94,9 +99,9 @@ ax[1].set_title('Star forming')
 ax[2].set_title('Quenched')
 for i in range(3):
     ax[i].set_xlim(min_mass, z_stats['smass_bins'][-1]+0.5*dm)
-    ax[i].set_ylim(-3.5, -1.5)
+    ax[i].set_ylim(-1.5, 0.4)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-    ax[i].set_ylabel(r'$Z$')
-ax[0].legend(loc=4, fontsize=11, )
-plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metallcities.png')
+    ax[i].set_ylabel(r'$\textrm{log} (Z / Z_{\odot})$')
+ax[0].legend(loc=4, fontsize=11, framealpha=0.)
+plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metallcities.png', bbox_inches = 'tight')
 plt.clf()
