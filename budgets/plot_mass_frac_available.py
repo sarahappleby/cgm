@@ -15,8 +15,8 @@ max_mass = 12.
 dm = 0.2 # dex
 
 snap = '151'
-wind = 's50noagn'
-model = 'm50n512'
+wind = 's50'
+model = 'm100n1024'
 
 if model == 'm100n1024':
     boxsize = 100000.
@@ -25,8 +25,8 @@ elif model == 'm50n512':
 
 fracdata_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
 savedir = '/home/sarah/cgm/budgets/plots/'
-fracdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
-savedir = '/home/sapple/cgm/budgets/plots/'
+# fracdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+# savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
               'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
@@ -86,6 +86,8 @@ for phase in plot_phases:
     
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue
     ax[0].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['all'][phase]['median'] / total), 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['all'][phase]['median'] / total
@@ -96,6 +98,8 @@ for phase in plot_phases:
 
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue    
     ax[1].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['star_forming'][phase]['median'] / total), 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['star_forming'][phase]['median'] / total
@@ -106,6 +110,8 @@ for phase in plot_phases:
 
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue    
     ax[2].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['quenched'][phase]['median'] / total), 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['quenched'][phase]['median'] / total

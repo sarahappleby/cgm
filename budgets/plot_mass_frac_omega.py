@@ -15,8 +15,8 @@ max_mass = 12.
 dm = 0.2 # dex
 
 snap = '151'
-wind = 's50noagn'
-model = 'm50n512'
+wind = 's50'
+model = 'm100n1024'
 
 if model == 'm100n1024':
     boxsize = 100000.
@@ -82,16 +82,22 @@ ax = ax.flatten()
 
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue
     ax[0].fill_between(frac_stats['smass_bins'], running_total, running_total + frac_stats['all'][phase]['median'], 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['all'][phase]['median']
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue    
     ax[1].fill_between(frac_stats['smass_bins'], running_total, running_total + frac_stats['star_forming'][phase]['median'], 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['star_forming'][phase]['median']
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue    
     ax[2].fill_between(frac_stats['smass_bins'], running_total, running_total + frac_stats['quenched'][phase]['median'], 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['quenched'][phase]['median']
