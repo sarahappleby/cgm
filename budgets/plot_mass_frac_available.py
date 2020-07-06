@@ -24,10 +24,13 @@ if model == 'm100n1024':
 elif model == 'm50n512':
     boxsize = 50000.
 
-fracdata_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
-savedir = '/home/sarah/cgm/budgets/plots/'
-# fracdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
-# savedir = '/home/sapple/cgm/budgets/plots/'
+system = sys.argv[3]
+if system == 'laptop':
+    fracdata_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
+    savedir = '/home/sarah/cgm/budgets/plots/'
+elif system == 'ursa':
+    fracdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+    savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
               'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
@@ -38,7 +41,7 @@ plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm pho
                       r'Cool CGM $(T < T_{\rm photo})$', 'Wind', 'Dust', 'ISM', 'Stars']
 colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
 colours = get_cb_colours(palette_name)[::-1]
-stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std']
+stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
 frac_stats_file = fracdata_dir+model+'_'+wind+'_'+snap+'_avail_frac_stats.h5'
 

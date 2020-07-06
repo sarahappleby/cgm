@@ -18,17 +18,20 @@ snap = '151'
 model = sys.argv[1]
 wind = sys.argv[2]
 
-data_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
-savedir = '/home/sarah/cgm/budgets/plots/'
-# data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
-# savedir = '/home/sapple/cgm/budgets/plots/'
+system = sys.argv[3]
+if system == 'laptop':
+    data_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
+    savedir = '/home/sarah/cgm/budgets/plots/'
+elif system == 'ursa':
+    data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+    savedir = '/home/sapple/cgm/budgets/plots/'
 
 plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool CGM (T < Tphoto)',
                 'Wind', 'Dust', 'ISM', 'Stars']
 plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
                       r'Cool CGM $(T < T_{\rm photo})$', 'Wind', 'Dust', 'ISM', 'Stars']
 colours = get_cb_colours(palette_name)[::-1]
-stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std']
+stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
 mass_stats_file = data_dir+model+'_'+wind+'_'+snap+'_mass_budget_stats.h5'
 frac_stats_file = data_dir+model+'_'+wind+'_'+snap+'_avail_frac_stats.h5'

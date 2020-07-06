@@ -17,8 +17,11 @@ snap = '151'
 winds = ['s50j7k', 's50nox', 's50nojet', 's50noagn']
 model = 'm50n512'
 
-savedir = '/home/sarah/cgm/budgets/plots/'
-# savedir = '/home/sapple/cgm/budgets/plots/'
+system = sys.argv[3]
+if system == 'laptop':
+	savedir = '/home/sarah/cgm/budgets/plots/'
+elif system == 'ursa':
+	savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
 			  'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
@@ -29,7 +32,7 @@ plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm pho
 					  r'Cool CGM $(T < T_{\rm photo})$', 'Wind', 'Dust', 'ISM', 'Stars']
 colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
 colours = get_cb_colours(palette_name)[::-1]
-stats = ['median', 'percentile_25_75', 'cosmic_median', 'cosmic_std']
+stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
 fig, ax = plt.subplots(2, 2, figsize=(11, 11))
 ax = ax.flatten()
