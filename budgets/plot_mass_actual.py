@@ -22,7 +22,7 @@ if model == 'm100n1024':
 elif model == 'm50n512':
     boxsize = 50000.
 
-massdata_dir = '/home/sarah/cgm/budgets/data/'
+massdata_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
 savedir = '/home/sarah/cgm/budgets/plots/'
 massdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
 savedir = '/home/sapple/cgm/budgets/plots/'

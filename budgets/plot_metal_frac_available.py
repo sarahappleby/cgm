@@ -24,7 +24,7 @@ if model == 'm100n1024':
 elif model == 'm50n512':
     boxsize = 50000.
 
-fracdata_dir = '/home/sarah/cgm/budgets/data/'
+fracdata_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
 savedir = '/home/sarah/cgm/budgets/plots/'
 fracdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
 savedir = '/home/sapple/cgm/budgets/plots/'

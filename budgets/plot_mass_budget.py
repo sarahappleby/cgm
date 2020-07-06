@@ -18,10 +18,10 @@ snap = '151'
 model = sys.argv[1]
 wind = sys.argv[2]
 
-data_dir = '/home/sarah/cgm/budgets/data/'
+data_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
 savedir = '/home/sarah/cgm/budgets/plots/'
-data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
-savedir = '/home/sapple/cgm/budgets/plots/'
+# data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+# savedir = '/home/sapple/cgm/budgets/plots/'
 
 plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool CGM (T < Tphoto)',
                 'Wind', 'Dust', 'ISM', 'Stars']
@@ -77,6 +77,8 @@ for phase in plot_phases:
     
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue
     ax[3].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['all'][phase]['median'] / total), 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['all'][phase]['median'] / total
@@ -87,6 +89,8 @@ for phase in plot_phases:
 
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue
     ax[4].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['star_forming'][phase]['median'] / total), 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['star_forming'][phase]['median'] / total
@@ -97,6 +101,8 @@ for phase in plot_phases:
 
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue    
     ax[5].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['quenched'][phase]['median'] / total), 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['quenched'][phase]['median'] / total
