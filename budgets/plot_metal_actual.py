@@ -3,6 +3,7 @@ import numpy as np
 import h5py
 import caesar
 import os
+import sys
 from plotting_methods import *
 
 plt.rc('text', usetex=True)
@@ -14,8 +15,8 @@ max_mass = 12.
 dm = 0.2 # dex
 
 snap = '151'
-wind = 's50noagn'
-model = 'm50n512'
+model = sys.argv[1]
+wind = sys.argv[2]
 
 if model == 'm100n1024':
     boxsize = 100000.

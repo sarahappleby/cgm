@@ -88,6 +88,7 @@ def write_phase_stats(stats_file, stats_dict, phases, stats, ):
     with h5py.File(stats_file, 'a') as hf:
         for cut in ['all', 'star_forming', 'quenched']:
             cut_grp = hf.create_group(cut)
+            cut_grp.create_dataset('ngals', data=np.array(stats_dict[cut]['ngals']))
             for phase in phases:
                 phase_grp = cut_grp.create_group(phase)
                 for stat in stats:

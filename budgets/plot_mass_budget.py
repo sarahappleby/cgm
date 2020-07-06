@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import h5py
 import os
+import sys
 import numpy as np 
 from plotting_methods import get_cb_colours, read_phase_stats
 
@@ -14,8 +15,8 @@ max_mass = 12.
 dm = 0.2 # dex
 
 snap = '151'
-wind = 's50noagn'
-model = 'm50n512'
+model = sys.argv[1]
+wind = sys.argv[2]
 
 data_dir = '/home/sarah/cgm/budgets/data/'
 savedir = '/home/sarah/cgm/budgets/plots/'
