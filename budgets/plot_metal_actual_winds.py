@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
 import h5py
 import os
+import sys
+import caesar
 import numpy as np 
-from plotting_methods import get_cb_colours, read_phase_stats
+from plotting_methods import *
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
@@ -14,10 +16,11 @@ max_mass = 12.
 dm = 0.2 # dex
 
 snap = '151'
-winds = ['s50j7k', 's50nox', 's50nojet', 's50noagn']
+winds = ['s50', 's50nox', 's50nojet', 's50noagn']
 model = 'm50n512'
+boxsize = 50000.
 
-system = sys.argv[3]
+system = sys.argv[1]
 if system == 'laptop':
 	savedir = '/home/sarah/cgm/budgets/plots/'
 elif system == 'ursa':
@@ -25,7 +28,7 @@ elif system == 'ursa':
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
 			  'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
-			  'ISM', 'Wind', 'Dust', 'Stars', 'Cosmic baryon mass']
+			  'ISM', 'Wind', 'Dust', 'Stars', 'Total baryons']
 plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool CGM (T < Tphoto)',
 				'Wind', 'Dust', 'ISM', 'Stars']
 plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
@@ -39,8 +42,10 @@ ax = ax.flatten()
 
 for w, wind in enumerate(winds):
 
-	data_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
-	# data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+	if system == 'laptop':
+		data_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
+	elif system == 'ursa':
+		data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
 	metal_stats_file = data_dir+model+'_'+wind+'_'+snap+'_metal_budget_stats.h5'
 
 	if os.path.isfile(metal_stats_file):
@@ -62,7 +67,7 @@ for w, wind in enumerate(winds):
 
 		gal_pos = np.array([i.pos.in_units('kpc/h') for i in sim.galaxies])[central]
 
-		metal_budget = read_phases(metaldata_dir+'metal_budget.h5', all_phases)
+		metal_budget = read_phases(data_dir+'metal_budget.h5', all_phases)
 
 		metal_stats = {}
 		mass_bins = get_bin_edges(min_mass, max_mass, dm)
