@@ -7,6 +7,7 @@ photo_temp = 10.**4.5 # in K
 cold_temp = 1.e5
 hot_temp = 1.e6
 ism_density = 0.13 # hydrogen number density, cm**-3
+ism_sfr = 0.
 dust_mass_factor = 1.e10
 omega_b = 0.048
 omega_m = 0.3
@@ -41,8 +42,9 @@ gal_ssfr = np.log10(gal_ssfr)
 
 dm_mass = readsnap(snapfile, 'mass', 'dm', suppress=1, units=1) / h # in Mo)
 gas_mass = readsnap(snapfile, 'mass', 'gas', suppress=1, units=1) / h # in Mo
+gas_sfr = readsnap(snapfile, 'sfr', 'gas', suppress=1, units=1) # in Mo/yr
 gas_z = readsnap(snapfile, 'z', 'gas', suppress=1, units=1)
-gas_nh = readsnap(snapfile, 'nh', 'gas', suppress=1, units=1) # in g/cm^3
+#gas_nh = readsnap(snapfile, 'nh', 'gas', suppress=1, units=1) # in g/cm^3
 gas_delaytime = readsnap(snapfile, 'DelayTime', 'gas', suppress=1)
 gas_temp = readsnap(snapfile, 'u', 'gas', suppress=1, units=1) # in K
 dust_mass = readsnap(snapfile, 'Dust_Masses', 'gas', suppress=1, units=1) * dust_mass_factor/ h # in Mo
@@ -68,7 +70,7 @@ for i in range(len(sim.galaxies)):
         slist = sim.galaxies[i].halo.slist
         dmlist = sim.galaxies[i].halo.dmlist
 
-        cgm_gas_mask = gas_nh[glist] < ism_density
+        cgm_gas_mask = np.invert(gas_sfr[glist] > ism_sfr)
         wind_mask = gas_delaytime[glist] > 0.
 
         cool_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] < cold_temp)
