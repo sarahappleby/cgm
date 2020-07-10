@@ -3,6 +3,18 @@ import h5py
 import caesar
 from pygadgetreader import readsnap
 
+def ism_phase_line(nH):
+    # ISM particles have:
+    # log T  = 4 + 1/3 log nH  (+ 1 dex)
+    return 5. + 0.33*nH
+
+def get_ism_mask(temp, nH, ism_density):
+    nH_mask = nH > ism_density
+    ism_line = ism_phase_line(np.log10(nH))
+    temp_mask = (np.log10(temp) - ism_line < 0.)
+    return temp_mask * nH_mask
+
+
 photo_temp = 10.**4.5 # in K
 cold_temp = 1.e5
 hot_temp = 1.e6
@@ -23,11 +35,11 @@ caesarfile = datadir + '/Groups/'+model+'_'+snap+'.hdf5'
 savedir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
 sim = caesar.quick_load(caesarfile)
 
-# datadir = '/home/sarah/data/'
-# snapfile = datadir+'snap_m12.5n128_135.hdf5'
-# caesarfile = datadir+'caesar_snap_m12.5n128_135.hdf5'
-# savedir = '/home/sarah/cgm/budgets/data/'
-# sim = caesar.load(caesarfile)
+datadir = '/home/sarah/data/'
+snapfile = datadir+'snap_m12.5n128_135.hdf5'
+caesarfile = datadir+'caesar_snap_m12.5n128_135.hdf5'
+savedir = '/home/sarah/cgm/budgets/data/'
+sim = caesar.load(caesarfile)
 
 h = sim.simulation.hubble_constant
 
@@ -44,7 +56,7 @@ dm_mass = readsnap(snapfile, 'mass', 'dm', suppress=1, units=1) / h # in Mo)
 gas_mass = readsnap(snapfile, 'mass', 'gas', suppress=1, units=1) / h # in Mo
 gas_sfr = readsnap(snapfile, 'sfr', 'gas', suppress=1, units=1) # in Mo/yr
 gas_z = readsnap(snapfile, 'z', 'gas', suppress=1, units=1)
-#gas_nh = readsnap(snapfile, 'nh', 'gas', suppress=1, units=1) # in g/cm^3
+gas_nh = readsnap(snapfile, 'nh', 'gas', suppress=1, units=1) # in g/cm^3
 gas_delaytime = readsnap(snapfile, 'DelayTime', 'gas', suppress=1)
 gas_temp = readsnap(snapfile, 'u', 'gas', suppress=1, units=1) # in K
 dust_mass = readsnap(snapfile, 'Dust_Masses', 'gas', suppress=1, units=1) * dust_mass_factor/ h # in Mo
@@ -70,7 +82,9 @@ for i in range(len(sim.galaxies)):
         slist = sim.galaxies[i].halo.slist
         dmlist = sim.galaxies[i].halo.dmlist
 
-        cgm_gas_mask = np.invert(gas_sfr[glist] > ism_sfr)
+        ism_gas_mask = get_ism_mask(gas_temp, gas_nH, ism_density)
+        #cgm_gas_mask = np.invert(gas_sfr[glist] > ism_sfr)
+        cgm_gas_mask = np.invert(ism_gas_mask)
         wind_mask = gas_delaytime[glist] > 0.
 
         cool_gas_mask = cgm_gas_mask & np.invert(wind_mask) & (gas_temp[glist] < cold_temp)
