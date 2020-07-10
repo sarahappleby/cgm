@@ -1,6 +1,7 @@
 import numpy as np
 import h5py 
 import caesar
+import sys
 from pygadgetreader import readsnap
 
 def ism_phase_line(nH):
@@ -25,21 +26,21 @@ omega_b = 0.048
 omega_m = 0.3
 f_baryon = omega_b / omega_m
 
-snap = '151'
-wind = 's50noagn'
-model = 'm50n512'
+model = sys.argv[1]
+wind = sys.argv[2]
+snap = sys.argv[3]
 
 datadir = '/home/rad/data/'+model+'/'+wind+'/'
 snapfile = datadir + 'snap_'+model+'_'+snap+ '.hdf5'
 caesarfile = datadir + '/Groups/'+model+'_'+snap+'.hdf5'
-savedir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+savedir = '/home/sapple/cgm/budgets/data_ism_phase/'+model+'_'+wind+'/'
 sim = caesar.quick_load(caesarfile)
 
-datadir = '/home/sarah/data/'
-snapfile = datadir+'snap_m12.5n128_135.hdf5'
-caesarfile = datadir+'caesar_snap_m12.5n128_135.hdf5'
-savedir = '/home/sarah/cgm/budgets/data/'
-sim = caesar.load(caesarfile)
+#datadir = '/home/sarah/data/'
+#snapfile = datadir+'snap_m12.5n128_135.hdf5'
+#caesarfile = datadir+'caesar_snap_m12.5n128_135.hdf5'
+#savedir = '/home/sarah/cgm/budgets/data/'
+#sim = caesar.load(caesarfile)
 
 h = sim.simulation.hubble_constant
 
@@ -82,7 +83,7 @@ for i in range(len(sim.galaxies)):
         slist = sim.galaxies[i].halo.slist
         dmlist = sim.galaxies[i].halo.dmlist
 
-        ism_gas_mask = get_ism_mask(gas_temp, gas_nH, ism_density)
+        ism_gas_mask = get_ism_mask(gas_temp[glist], gas_nh[glist], ism_density)
         #cgm_gas_mask = np.invert(gas_sfr[glist] > ism_sfr)
         cgm_gas_mask = np.invert(ism_gas_mask)
         wind_mask = gas_delaytime[glist] > 0.
