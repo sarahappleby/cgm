@@ -41,6 +41,7 @@ plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm pho
                       r'Cool CGM $(T < T_{\rm photo})$', 'Wind', 'ISM', 'Stars']
 colours = ['m', 'b', 'c', 'g', 'tab:pink', 'r']
 colours = get_cb_colours(palette_name)[::-1]
+colours = np.delete(colours, 4)
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
 z_stats_file = zdata_dir+model+'_'+wind+'_'+snap+'_metallicities_stats.h5'
