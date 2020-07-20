@@ -18,13 +18,24 @@ def get_bin_edges(x_min, x_max, dx):
 def get_bin_middle(xbins):
     return np.array([xbins[i] + 0.5*(xbins[i+1] - xbins[i]) for i in range(len(xbins)-1)])
 
-def bin_data(x, y, xbins, group_high=False):
+def bin_data(x, y, xbins, find_higher=False):
     digitized = np.digitize(x, xbins)
     binned_data = [y[digitized == i] for i in range(1, len(xbins))]
-    if group_high:
+    if find_higher:
+        ngals = [len(j) for j in binned_data]
         extra_bin = y[x > xbins[-1]]
         binned_data.append(extra_bin)
     return np.array(binned_data)
+
+def group_high_mass(binned_data, min_ngals=10):
+    j = len(binned_data) - 1
+    ngals_end = len(binned_data[j])
+    while ngals_end < min_ngals:
+        binned_data[j-1] = np.concatenate((binned_data[j-1], binned_data[j]))
+        binned_data[j] = np.array([])
+        j -= 1
+        ngals_end = len(binned_data[j])
+    return binned_data
 
 def convert_to_log(y, yerr):
     yerr /= (y*np.log(10.))
@@ -38,16 +49,16 @@ def read_phases(phase_file, phases):
             phase_dict[phase] = pf[phase][:]
     return phase_dict
 
-def get_phase_stats(sm, pos, mass_budget, mask, phases, mass_bins, boxsize, logresults=False):
+def get_phase_stats(sm, pos, mass_budget, mask, phases, mass_bins, boxsize, logresults=False, min_ngals=10):
 
     stat_dict = {phase: {} for phase in phases}
 
-    binned_pos = bin_data(sm[mask], pos[mask], 10.**mass_bins, group_high=True)
+    binned_pos = bin_data(sm[mask], pos[mask], 10.**mass_bins, find_higher=True)
     stat_dict['ngals'] = [len(j) for j in binned_pos]
 
     for phase in phases:
-        binned_data = bin_data(sm[mask], mass_budget[phase][mask], 10.**mass_bins, group_high=True)
-        
+        binned_data = bin_data(sm[mask], mass_budget[phase][mask], 10.**mass_bins, find_higher=True)
+
         medians = np.zeros(len(mass_bins))
         cosmic_stds = np.zeros(len(mass_bins))
         for i in range(len(mass_bins)):

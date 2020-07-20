@@ -11,9 +11,9 @@ plt.rc('font', family='serif', size=14)
 palette_name = 'tol'
 
 alpha = 1.
-min_mass = 9.5
+min_mass = 9.
 max_mass = 12.
-dm = 0.2 # dex
+dm = 0.25 # dex
 
 snap = '151'
 winds = ['s50', 's50nox', 's50nojet', 's50noagn']
