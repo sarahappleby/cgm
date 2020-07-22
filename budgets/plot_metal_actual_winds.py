@@ -14,11 +14,13 @@ alpha = 1.
 min_mass = 9.
 max_mass = 12.
 dm = 0.25 # dex
+ngals_min = 10
 
 snap = '151'
 winds = ['s50', 's50nox', 's50nojet', 's50noagn']
 model = 'm50n512'
 boxsize = 50000.
+wind_title = [r'$\textbf{Simba}$', r'$\textbf{No-Xray}$', r'$\textbf{No-jet}$', r'$\textbf{No-AGN}$']
 
 system = sys.argv[1]
 if system == 'laptop':
@@ -37,7 +39,7 @@ colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
 colours = get_cb_colours(palette_name)[::-1]
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
-fig, ax = plt.subplots(2, 2, figsize=(12, 12))
+fig, ax = plt.subplots(2, 2, figsize=(13, 13))
 ax = ax.flatten()
 
 for w, wind in enumerate(winds):
@@ -84,15 +86,18 @@ for w, wind in enumerate(winds):
 
 		write_phase_stats(metal_stats_file, metal_stats, all_phases, stats)
 
+	mask = metal_stats['all']['ngals'][:] > ngals_min
+
 	for i, phase in enumerate(plot_phases):
-		ax[w].errorbar(metal_stats['smass_bins'], metal_stats['all'][phase]['median'], yerr=metal_stats['all'][phase]['percentile_25_75'], 
+		ax[w].errorbar(metal_stats['smass_bins'][mask], metal_stats['all'][phase]['median'][mask], 
+					yerr=[metal_stats['all'][phase]['percentile_25_75'][0][mask], metal_stats['all'][phase]['percentile_25_75'][1][mask]], 
 					capsize=3, color=colours[i], label=plot_phases_labels[i])
 
 	ax[w].set_xlim(min_mass, metal_stats['smass_bins'][-1]+0.5*dm)
 	ax[w].set_ylim(5.5, 11.5)
 	ax[w].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 	ax[w].set_ylabel(r'$\textrm{log} (M_Z / \textrm{M}_{\odot})$')
-	ax[w].annotate(wind, xy=(0.05, 0.05), xycoords='axes fraction')
+	ax[w].set_title(wind_title[w])
 
 ax[0].legend(loc=2, fontsize=11, framealpha=0.)
 plt.savefig(savedir+model+'_'+snap+'_metal_actual_winds.png', bbox_inches = 'tight')

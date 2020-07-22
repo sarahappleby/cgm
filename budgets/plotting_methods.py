@@ -91,6 +91,7 @@ def read_phase_stats(stats_file, phases, stats):
     with h5py.File(stats_file, 'r') as sf:
         for cut in ['all', 'star_forming', 'quenched']:
             stats_dict[cut] = {p: {} for p in phases}
+            stats_dict[cut]['ngals'] = sf[cut]['ngals'][:]
             for phase in phases:
                 for stat in stats:
                     stats_dict[cut][phase][stat] = sf[cut][phase][stat][:]

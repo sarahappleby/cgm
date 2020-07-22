@@ -14,11 +14,13 @@ alpha = 1.
 min_mass = 9.
 max_mass = 12.
 dm = 0.25 # dex
+ngals_min = 10
 
 snap = '151'
 winds = ['s50', 's50nox', 's50nojet', 's50noagn']
 model = 'm50n512'
 boxsize = 50000.
+wind_title = [r'$\textbf{Simba}$', r'$\textbf{No-Xray}$', r'$\textbf{No-jet}$', r'$\textbf{No-AGN}$']
 
 system = sys.argv[1]
 if system == 'laptop':
@@ -37,7 +39,7 @@ colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
 colours = get_cb_colours(palette_name)[::-1]
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
-fig, ax = plt.subplots(2, 2, figsize=(12, 12))
+fig, ax = plt.subplots(2, 2, figsize=(13, 13))
 ax = ax.flatten()
 
 for w, wind in enumerate(winds):
@@ -84,6 +86,8 @@ for w, wind in enumerate(winds):
 
 		write_phase_stats(frac_stats_file, frac_stats, all_phases, stats)
 
+	mask = frac_stats['all']['ngals'][:] > ngals_min
+
 	total = np.zeros(len(frac_stats['smass_bins']))
 	for phase in plot_phases:
 		total += frac_stats['all'][phase]['median']
@@ -92,17 +96,17 @@ for w, wind in enumerate(winds):
 	for i, phase in enumerate(plot_phases):
 		if phase == 'Dust':
 			continue
-		ax[w].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['all'][phase]['median'] / total), 
+		ax[w].fill_between(frac_stats['smass_bins'][mask], running_total[mask], running_total[mask] + (frac_stats['all'][phase]['median'][mask] / total[mask]), 
 							color=colours[i], label=plot_phases_labels[i], alpha=alpha)
 		running_total += frac_stats['all'][phase]['median'] / total
 	
-	ax[w].annotate(wind, xy=(0.05, 0.9), xycoords='axes fraction', bbox=dict(boxstyle="round", fc="w"))
+	ax[w].set_title(wind_title[w])
 
 	ax[w].set_xlim(frac_stats['smass_bins'][0], frac_stats['smass_bins'][-1])
 	ax[w].set_ylim(0, 1)
 	ax[w].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 	ax[w].set_ylabel(r'$f_{\rm Total}$')
 
-ax[2].legend(loc=4, fontsize=11)
+ax[1].legend(loc=1, fontsize=11)
 plt.savefig(savedir+model+'_'+snap+'_avail_fracs_peeples_winds.png', bbox_inches = 'tight')
 plt.clf()

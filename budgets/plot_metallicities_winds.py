@@ -15,11 +15,13 @@ alpha = 1.
 min_mass = 9.
 max_mass = 12.
 dm = 0.25 # dex
+ngals_min = 10
 
 snap = '151'
 winds = ['s50', 's50nox', 's50nojet', 's50noagn']
 model = 'm50n512'
 boxsize = 50000.
+wind_title = [r'$\textbf{Simba}$', r'$\textbf{No-Xray}$', r'$\textbf{No-jet}$', r'$\textbf{No-AGN}$']
 
 system = sys.argv[1]
 if system == 'laptop':
@@ -39,7 +41,7 @@ colours = get_cb_colours(palette_name)[::-1]
 colours = np.delete(colours, 4)
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
-fig, ax = plt.subplots(2, 2, figsize=(12, 12))
+fig, ax = plt.subplots(2, 2, figsize=(13, 13))
 ax = ax.flatten()
 
 for w, wind in enumerate(winds):
@@ -89,15 +91,18 @@ for w, wind in enumerate(winds):
 
 		write_phase_stats(z_stats_file, z_stats, all_phases, stats)
 
+	mask = z_stats['all']['ngals'][:] > ngals_min
+
 	for i, phase in enumerate(plot_phases):
-		ax[w].errorbar(z_stats['smass_bins'], z_stats['all'][phase]['median'], yerr=z_stats['all'][phase]['percentile_25_75'], 
+		ax[w].errorbar(z_stats['smass_bins'][mask], z_stats['all'][phase]['median'][mask], 
+					yerr=[z_stats['all'][phase]['percentile_25_75'][0][mask], z_stats['all'][phase]['percentile_25_75'][1][mask]], 
 					capsize=3, color=colours[i], label=plot_phases_labels[i])
 
 	ax[w].set_xlim(min_mass, z_stats['smass_bins'][-1]+0.5*dm)
 	ax[w].set_ylim(-1.7, 0.4)
 	ax[w].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 	ax[w].set_ylabel(r'$\textrm{log} (Z / Z_{\odot})$')
-	ax[w].annotate(wind, xy=(0.05, 0.92), xycoords='axes fraction')
+	ax[w].set_title(wind_title[w])
 
 ax[0].legend(loc=4, fontsize=11, framealpha=0.)
 plt.savefig(savedir+model+'_'+snap+'_metallcities_winds.png', bbox_inches = 'tight')

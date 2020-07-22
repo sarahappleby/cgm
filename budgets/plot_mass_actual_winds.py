@@ -14,11 +14,13 @@ alpha = 1.
 min_mass = 9.
 max_mass = 12.
 dm = 0.25 # dex
+ngals_min = 10
 
 snap = '151'
 winds = ['s50', 's50nox', 's50nojet', 's50noagn']
 model = 'm50n512'
 boxsize = 50000.
+wind_title = [r'$\textbf{Simba}$', r'$\textbf{No-Xray}$', r'$\textbf{No-jet}$', r'$\textbf{No-AGN}$']
 
 system = sys.argv[1]
 if system == 'laptop':
@@ -37,7 +39,7 @@ colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
 colours = get_cb_colours(palette_name)[::-1]
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
-fig, ax = plt.subplots(2, 2, figsize=(11, 11))
+fig, ax = plt.subplots(2, 2, figsize=(13, 13))
 ax = ax.flatten()
 
 for w, wind in enumerate(winds):
@@ -85,10 +87,13 @@ for w, wind in enumerate(winds):
 
 		write_phase_stats(mass_stats_file, mass_stats, all_phases, stats)
 
+	mask = mass_stats['all']['ngals'][:] > ngals_min
+
 	for i, phase in enumerate(plot_phases):
-		ax[w].errorbar(mass_stats['smass_bins'], mass_stats['all'][phase]['median'], yerr=mass_stats['all'][phase]['percentile_25_75'], 
+		ax[w].errorbar(mass_stats['smass_bins'][mask], mass_stats['all'][phase]['median'][mask], 
+					yerr=[mass_stats['all'][phase]['percentile_25_75'][0][mask], mass_stats['all'][phase]['percentile_25_75'][1][mask]], 
 					capsize=3, color=colours[i], label=plot_phases_labels[i])
-	ax[w].annotate(wind, xy=(0.8, 0.05), xycoords='axes fraction')
+	ax[w].set_title(wind_title[w])
 
 	ax[w].set_xlim(min_mass, mass_stats['smass_bins'][-1]+0.5*dm)
 	ax[w].set_ylim(6.5, 14)
