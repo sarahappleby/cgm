@@ -33,7 +33,7 @@ snap = sys.argv[3]
 datadir = '/home/rad/data/'+model+'/'+wind+'/'
 snapfile = datadir + 'snap_'+model+'_'+snap+ '.hdf5'
 caesarfile = datadir + '/Groups/'+model+'_'+snap+'.hdf5'
-savedir = '/home/sapple/cgm/budgets/data_ism_phase/'+model+'_'+wind+'/'
+savedir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
 sim = caesar.quick_load(caesarfile)
 
 #datadir = '/home/sarah/data/'
