@@ -64,38 +64,29 @@ with h5py.File(dwarfs_sample_file, 'r') as f:
 halos_ssfr[halos_ssfr < -11.5] = -11.5
 dwarfs_ssfr[dwarfs_ssfr < -11.5] = -11.5
 
-# use full cmap for one population, and use clims for full colorbar. then use truncated colormap for the other population
-halos_q_bound = np.abs(np.max(halos_gas_frac[halos_ssfr == -11.5])) / (np.abs(np.min(halos_gas_frac)) + np.abs(np.max(halos_gas_frac)))
-halos_q_cmap = truncate_colormap(cmap, 0,halos_q_bound)
+all_ssfr = np.concatenate((dwarfs_ssfr, halos_ssfr))
+all_mass = np.concatenate((dwarfs_mass, halos_mass))
+all_gfrac = np.concatenate((dwarfs_gas_frac, halos_gas_frac))
 
 fig, ax = plt.subplots(figsize=(7, 5))
-im = plt.scatter(halos_mass[halos_ssfr > -11.5], halos_ssfr[halos_ssfr > -11.5], c=halos_gas_frac[halos_ssfr > -11.5], s=7, marker='o', cmap=cmap)
+
+im = plt.scatter(all_mass[all_ssfr > -11.5], all_ssfr[all_ssfr > -11.5], c=all_gfrac[all_ssfr > -11.5], s=4, marker='o', cmap=cmap)
 plt.colorbar(im, label=r'$\textrm{log} (f_{\textrm{gas}})$')
-plt.clim(np.max(halos_gas_frac), np.min(halos_gas_frac))
-plt.scatter(halos_mass[halos_ssfr == -11.5], halos_ssfr[halos_ssfr == -11.5], c=halos_gas_frac[halos_ssfr == -11.5], s=35, marker='$\downarrow$', cmap=halos_q_cmap)
-plt.scatter(cos_halos_mass, cos_halos_ssfr, marker='x', c='gray', s=25, label='COS-Halos')
+plt.clim(np.max(all_gfrac), np.min(all_gfrac))
+plt.scatter(all_mass[all_ssfr == -11.5], all_ssfr[all_ssfr == -11.5], c=all_gfrac[all_ssfr == -11.5], s=35, marker='$\downarrow$', cmap=cmap)
+
+plt.scatter(cos_halos_mass[cos_halos_ssfr > -11.5], cos_halos_ssfr[cos_halos_ssfr > -11.5], 
+            marker='x', c='dimgray', s=25, label='COS-Halos')
+plt.scatter(cos_halos_mass[cos_halos_ssfr == -11.5], cos_halos_ssfr[cos_halos_ssfr == -11.5], 
+            marker='$\downarrow$', c='dimgray', s=50)
+plt.scatter(cos_dwarfs_mass[np.invert(cos_dwarfs_less_than)], cos_dwarfs_ssfr[np.invert(cos_dwarfs_less_than)], 
+            marker='+', c='darkgray', s=30, label='COS-Dwarfs')
+plt.scatter(cos_dwarfs_mass[cos_dwarfs_less_than], cos_dwarfs_ssfr[cos_dwarfs_less_than], 
+            marker='$\downarrow$', c='darkgray', s=50)
+
 plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 plt.ylabel(r'$\textrm{log} (sSFR  / \textrm{M}_{\odot}\textrm{yr}^{-1})$')
-plt.ylim(-11.7, -9.)
+plt.ylim(-11.7, -8.8)
 plt.legend(loc=1)
-plt.savefig('plots/cos_halos_sample.png')
+plt.savefig('plots/cos_sample.png')
 plt.clf()
-
-
-dwarfs_q_bound = np.abs(np.max(dwarfs_gas_frac[dwarfs_ssfr == -11.5])) / (np.abs(np.min(dwarfs_gas_frac)) + np.abs(np.max(dwarfs_gas_frac)))
-dwarfs_q_cmap = truncate_colormap(cmap, 0,dwarfs_q_bound)
-
-fig, ax = plt.subplots(figsize=(7, 5))
-im = plt.scatter(dwarfs_mass[dwarfs_ssfr > -11.5], dwarfs_ssfr[dwarfs_ssfr > -11.5], c=dwarfs_gas_frac[dwarfs_ssfr > -11.5], s=7, marker='o', cmap=cmap)
-plt.colorbar(im, label=r'$f_{\textrm{gas}}$')
-plt.clim(np.max(dwarfs_gas_frac), np.min(dwarfs_gas_frac))
-plt.scatter(dwarfs_mass[dwarfs_ssfr == -11.5], dwarfs_ssfr[dwarfs_ssfr == -11.5], c=dwarfs_gas_frac[dwarfs_ssfr == -11.5], s=35, marker='$\downarrow$', cmap=dwarfs_q_cmap)
-plt.scatter(cos_dwarfs_mass[np.invert(cos_dwarfs_less_than)], cos_dwarfs_ssfr[np.invert(cos_dwarfs_less_than)], marker='x', c='gray', s=25, label='COS-Dwarfs')
-plt.scatter(cos_dwarfs_mass[cos_dwarfs_less_than], cos_dwarfs_ssfr[cos_dwarfs_less_than], marker='$\downarrow$', c='gray', s=50)
-plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-plt.ylabel(r'$\textrm{log} (sSFR  / \textrm{M}_{\odot}\textrm{yr}^{-1})$')
-plt.ylim(-11.7, -9.)
-plt.legend(loc=1)
-plt.savefig('plots/cos_dwarfs_sample.png')
-plt.clf()
-
