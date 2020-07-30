@@ -92,9 +92,12 @@ if __name__ == '__main__':
 
     sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
     mass_range = 0.1 # dex
+    mass_range_lim = 0.15 # limit of how far away in mass dex we can look
     ssfr_range = 0.1 # dex
+    ssfr_range_lim = 0.25 # limit of how far away in ssfr dex we can look (excludes quenched galaxies)
     pos_range = 1000. # kpc/h
     mlim = np.log10(5.8e8) # lower limit of M*
+    ngals_each = 5
     
     # set to True if we want to have the isolation criteria
     do_isolation = False
@@ -161,15 +164,17 @@ if __name__ == '__main__':
     choose_mask = np.array([True] * len(sim.galaxies))
 
     # empty arrays to store 5 simba galaxies per cos galaxy
-    gal_ids = np.zeros(numgals*5)
-    mass = np.zeros(numgals*5)
-    ssfr = np.zeros(numgals*5)
-    gas_frac = np.zeros(numgals*5)
-    pos = np.zeros((numgals*5, 3))
-    vgal_pos = np.zeros((numgals*5, 3))
+    gal_ids = np.zeros(numgals*ngals_each)
+    mass = np.zeros(numgals*ngals_each)
+    ssfr = np.zeros(numgals*ngals_each)
+    gas_frac = np.zeros(numgals*ngals_each)
+    pos = np.zeros((numgals*ngals_each, 3))
+    vgal_pos = np.zeros((numgals*ngals_each, 3))
+    halo_pos = np.zeros((numgals*ngals_each, 3))
+    halo_r200 = np.zeros((numgals*ngals_each))
 
-    for cos_id in np.argsort(cos_M):
-            ids = range(cos_id*5, (cos_id+1)*5)
+    for cos_id in np.arange(len(cos_M)):
+            ids = range(cos_id*ngals_each, (cos_id+1)*ngals_each)
             print('\nFinding the caesar galaxies in the mass and ssfr range of COS Halos galaxy ' + str(cos_id))
             
             mass_range_init = mass_range + 0.
@@ -190,16 +195,16 @@ if __name__ == '__main__':
                 if do_isolation:
                     indices = isolation_check(gal_pos, pos_range, gal_cent, indices)
 
-                if do_halo_check:
+                if do_halo_check & len(indices) > 0:
                     indices = halo_check(sim, objs, prog_index, indices, r200_file)
-                else:
+                if not do_halo_check:
                     _r200 = np.array([i.halo.radii['r200c'].in_units('kpc/h') for i in np.array(sim.galaxies)[indices]])
                     delete_gals = np.where(_r200 == 0.)[0]
                     indices = delete_indices(indices, delete_gals)
 
-                if len(indices) < 5.:                     
-                    if (len(indices) < 2.) & (ssfr_range_init > 5.*ssfr_range) & (mass_range_init > 5.*mass_range):
-                        print('No galaxies matching this criteria')
+                if len(indices) < ngals_each:                     
+                    if (ssfr_range_init > ssfr_range_lim) or (mass_range_init > mass_range_lim):
+                        print('Insufficient galaxies matching this criteria')
                         stop = True
                         continue
                     mass_range_init += 0.05
@@ -214,14 +219,14 @@ if __name__ == '__main__':
                 print ('No galaxies selected')
                 continue
 
-            # choose the 5 that match most closely in mass and ssfr
+            # choose the ngals_each (5) that match most closely in mass and ssfr
             mass_dev = np.abs(cos_M[cos_id] - gal_sm[indices])
             ssfr_choosing = gal_ssfr[indices]
             if cos_ssfr[cos_id] < quench:
                 ssfr_choosing[ssfr_choosing < quench] = cos_ssfr[cos_id]
             ssfr_dev = np.abs(cos_ssfr[cos_id] - ssfr_choosing)
             dev = np.sqrt(mass_dev**2 + ssfr_dev**2)
-            choose = np.argsort(dev)[:5]
+            choose = np.argsort(dev)[:ngals_each]
 
             print('Chosen galaxies ' + str(indices[choose]))
             print('COS-Dwarfs M*: '+ str(cos_M[cos_id]) + '; selected M* : ' + str(gal_sm[indices[choose]]))
@@ -237,19 +242,31 @@ if __name__ == '__main__':
             plt.savefig(sample_dir+'plots/cos_id_'+str(cos_id)+'.png')
             plt.clf()
 
-            gal_ids[ids] = indices[choose]
-            mass[ids] = gal_sm[indices[choose]]
-            ssfr[ids] = gal_ssfr[indices[choose]]
-            gas_frac[ids] = gal_gas_frac[indices[choose]]
-            pos[ids] = gal_pos[indices[choose]]
-            vgal_pos[ids] = gal_vgal_pos[indices[choose]]
+            # in case we have fewer galaxies than required, lets fill gaps with nans:
+            if ngals_each - len(indices[choose]) > 0.:
+                empty = np.array([np.nan] * (ngals_each - len(indices)))
 
-    	    # do not repeat galaxies
-            choose_mask[indices[choose]] = np.array([False] * 5)
+                gal_ids[ids] = np.concatenate((indices[choose], empty))
+                mass[ids] = np.concatenate((gal_sm[indices[choose]], empty))
+                ssfr[ids] = np.concatenate((gal_ssfr[indices[choose]], empty))
+                gas_frac[ids] = np.concatenate((gal_gas_frac[indices[choose]], empty))
+                pos[ids] = np.concatenate((gal_pos[indices[choose]], np.transpose([empty for _ in range(3)])))
+                vgal_pos[ids] = np.concatenate((gal_vgal_pos[indices[choose]], np.transpose([empty for _ in range(3)])))
+            else:
+                gal_ids[ids] = indices[choose]
+                mass[ids] = gal_sm[indices[choose]]
+                ssfr[ids] = gal_ssfr[indices[choose]]
+                gas_frac[ids] = gal_gas_frac[indices[choose]]
+                pos[ids] = gal_pos[indices[choose]]
+                vgal_pos[ids] = gal_vgal_pos[indices[choose]]
 
-    gal_ids = np.array(gal_ids, dtype='int')
-    halo_r200 = np.array([i.halo.radii['r200c'].in_units('kpc/h') for i in np.array(sim.galaxies)[gal_ids]])
-    halo_pos = np.array([i.halo.pos.in_units('kpc/h') for i in np.array(sim.galaxies)[gal_ids]])
+    	        # do not repeat galaxies
+                choose_mask[indices[choose]] = np.array([False] * (len(indices[choose])))
+    
+    halo_r200[~np.isnan(gal_ids)] = \
+            np.array([sim.galaxies[int(i)].halo.virial_quantities['r200c'].in_units('kpc/h') for i in gal_ids if ~np.isnan(i)])
+    halo_pos[~np.isnan(gal_ids)] = \
+            np.array([sim.galaxies[int(i)].halo.pos.in_units('kpc/h') for i in gal_ids if ~np.isnan(i)])
 
     with h5py.File(sample_dir+'/'+model+'_'+wind+'_cos_'+survey+'_sample.h5', 'a') as hf:
             hf.create_dataset('cos_ids', data=np.array(cos_ids))
@@ -266,7 +283,7 @@ if __name__ == '__main__':
             hf.attrs['ssfr_units'] = 'Msun/yr'
             hf.attrs['vel_units'] = 'km/s'
 
-    plt.scatter(cos_M, cos_ssfr, c='k', marker='x', label='COS-Dwarfs')
+    plt.scatter(cos_M, cos_ssfr, c='k', marker='x', label='COS-'+survey)
     plt.scatter(mass, ssfr, s=2., c='b', label='Simba')
     plt.xlabel('log M*')
     plt.ylabel('log sSFR')
