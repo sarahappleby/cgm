@@ -26,11 +26,15 @@ ids = list(range(num*5, (num+1)*5))
 
 if (model == 'm50n512') & (survey == 'halos'):
     ignore_cos_gals = [18, 29]
+if (model == 'm25n512') & (survey == 'dwarfs'):
+    ignore_cos_gals = [10, 17, 36]
+if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
+    ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
+    ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
     if num in ignore_cos_gals:
         print('Ignoring certain m50n512 COS-Halos galaxies')
         import sys
-        sys.exit()
- 
+        sys.exit() 
 
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
 snapfile = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_'+snap+'.hdf5'
