@@ -8,18 +8,22 @@ import sys
 # for each galaxy in the sample, identify particles that contribute towards the line of sight using the smoothing length of each particle
 # save new dataset containing only these particles using Chris's approach
 
-# SA: modify this such that we are running for one galaxy at a time to save some memory potentially
-# Also, check it works by running new spectrum with saved data
-
-# SA: write python wrapper type thing for this that runs it with every gal id from the sample
-# SA: write bash script to submit the cos id and the number 0-4 for the galaxy, run python wrapper which then looks up the gal id and supplies it to this script
-
 sqrt2 = np.sqrt(2.)
 model = sys.argv[1]
 wind = sys.argv[2]
 sample_gal = int(sys.argv[3]) # supply the gal id that we want from command line
 survey = sys.argv[4]
 mlim = np.log10(5.8e8)
+
+# new: for the m50n512 samples, ignore certain COS-Halos galaxies for which there are insufficient Simba analogs. 
+if (model == 'm50n512') & (survey == 'halos'):
+    ignore_cos_gals = [18, 29]
+    ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
+    ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
+    if sample_gal in ignore_simba_gals:
+        print('Ignoring certain m50n512 COS-Halos galaxies')
+        import sys
+        sys.exit()
 
 if survey == 'dwarfs':
     from get_cos_info import get_cos_dwarfs

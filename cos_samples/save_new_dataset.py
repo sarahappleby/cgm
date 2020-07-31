@@ -71,6 +71,11 @@ if __name__ == '__main__':
     elif survey == 'halos':
         snap = '137'
 
+    if (model == 'm50n512') & (survey == 'halos'):
+        ignore_cos_gals = [18, 29]
+        ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
+        ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
+
     data_dir = '/home/rad/data/'+model+'/'+wind+'/'
     snapfile = data_dir+'snap_'+model+'_'+snap+'.hdf5'
 
@@ -84,7 +89,11 @@ if __name__ == '__main__':
     plist = np.array([])
     with h5py.File(output_dir+wind+'_particle_selection.h5', 'r') as f:
         for i, gal in enumerate(gal_ids):
-            plist = np.append(plist, np.array(f['plist_'+str(i)+'_'+str(gal)][:], dtype='int'))
+            if (model == 'm50n512') & (survey == 'halos') & (i in ignore_simba_gals):
+                print('Ignoring certain m50n512 COS-Halos galaxies')
+                continue
+            else:
+                plist = np.append(plist, np.array(f['plist_'+str(i)+'_'+str(gal)][:], dtype='int'))
 
     plist = np.unique(np.sort(plist)).astype('int')
 

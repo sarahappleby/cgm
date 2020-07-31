@@ -1,13 +1,13 @@
 #!/bin/bash
 
 pipeline_path=/home/sapple/cgm/cos_samples/
-survey=dwarfs
-model=m100n1024
-wind=s50
+survey=halos
+model=m50n512
+wind=s50j7k
 output_file=/home/sapple/cgm/cos_samples/$model/cos_$survey/$wind/output/
 
 
-for ii in {50..189}
+for ii in {0..219}
 do
    echo Submitting job $ii
    job='gal_'$ii'_.txt'
