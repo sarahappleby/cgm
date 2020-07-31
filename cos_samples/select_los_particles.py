@@ -15,9 +15,13 @@ sample_gal = int(sys.argv[3]) # supply the gal id that we want from command line
 survey = sys.argv[4]
 mlim = np.log10(5.8e8)
 
-# new: for the m50n512 samples, ignore certain COS-Halos galaxies for which there are insufficient Simba analogs. 
+# new: for the m50n512 samples, ignore certain COS-Halos galaxies for which there are insufficient Simba analogs.
+# Also, for certain COS-Dwarf galaxies in the m25n512 sample.
 if (model == 'm50n512') & (survey == 'halos'):
     ignore_cos_gals = [18, 29]
+if (model == 'm25n512') & (survey == 'dwarfs'):
+    ignore_cos_gals = [10, 17, 36]
+if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
     ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
     ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
     if sample_gal in ignore_simba_gals:

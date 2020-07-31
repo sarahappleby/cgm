@@ -24,6 +24,14 @@ lambda_rest = float(re.findall(r'\d+', line)[0])
 
 ids = list(range(num*5, (num+1)*5))
 
+if (model == 'm50n512') & (survey == 'halos'):
+    ignore_cos_gals = [18, 29]
+    if num in ignore_cos_gals:
+        print('Ignoring certain m50n512 COS-Halos galaxies')
+        import sys
+        sys.exit()
+ 
+
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
 snapfile = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_'+snap+'.hdf5'
 

@@ -62,8 +62,8 @@ def prepare_out_file(snapfile, output_file, numpart):
 if __name__ == '__main__':
 
     model = 'm50n512'
-    wind = 's50nox'
-    survey = 'dwarfs'
+    wind = 's50noagn'
+    survey = 'halos'
     verbose = 2
 
     if survey == 'dwarfs':
@@ -73,6 +73,9 @@ if __name__ == '__main__':
 
     if (model == 'm50n512') & (survey == 'halos'):
         ignore_cos_gals = [18, 29]
+    if (model == 'm25n512') & (survey == 'dwarfs'):
+        ignore_cos_gals = [10, 17, 36]
+    if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
         ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
         ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
 
@@ -89,9 +92,10 @@ if __name__ == '__main__':
     plist = np.array([])
     with h5py.File(output_dir+wind+'_particle_selection.h5', 'r') as f:
         for i, gal in enumerate(gal_ids):
-            if (model == 'm50n512') & (survey == 'halos') & (i in ignore_simba_gals):
-                print('Ignoring certain m50n512 COS-Halos galaxies')
-                continue
+            if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
+                if (i in ignore_simba_gals):
+                    print('Ignoring certain m50n512 COS-Halos galaxies')
+                    continue
             else:
                 plist = np.append(plist, np.array(f['plist_'+str(i)+'_'+str(gal)][:], dtype='int'))
 

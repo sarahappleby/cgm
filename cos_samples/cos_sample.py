@@ -86,8 +86,8 @@ def isolation_check(gal_pos, pos_range, gal_cent, indices):
 
 if __name__ == '__main__':
 
-    model = 'm50n512'
-    wind = 's50j7k'
+    model = 'm25n512'
+    wind = 's50'
     survey = sys.argv[1]
 
     sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     # set to True if we want to have the isolation criteria
     do_isolation = False
     # set to True if we want to check for halos in other wind boxes
-    do_halo_check = True
+    do_halo_check = False
     if do_halo_check: wind_options = ['s50nojet', 's50nox', 's50noagn']
 
     if not os.path.exists(sample_dir):
@@ -198,7 +198,7 @@ if __name__ == '__main__':
                 if do_halo_check & len(indices) > 0:
                     indices = halo_check(sim, objs, prog_index, indices, r200_file)
                 if not do_halo_check:
-                    _r200 = np.array([i.halo.radii['r200c'].in_units('kpc/h') for i in np.array(sim.galaxies)[indices]])
+                    _r200 = np.array([i.halo.virial_quantities['r200c'].in_units('kpc/h') for i in np.array(sim.galaxies)[indices]])
                     delete_gals = np.where(_r200 == 0.)[0]
                     indices = delete_indices(indices, delete_gals)
 
