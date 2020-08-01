@@ -61,9 +61,9 @@ def prepare_out_file(snapfile, output_file, numpart):
 
 if __name__ == '__main__':
 
-    model = 'm50n512'
-    wind = 's50noagn'
-    survey = 'halos'
+    model = 'm25n512'
+    wind = 's50'
+    survey = 'dwarfs'
     verbose = 2
 
     if survey == 'dwarfs':
@@ -92,11 +92,14 @@ if __name__ == '__main__':
     plist = np.array([])
     with h5py.File(output_dir+wind+'_particle_selection.h5', 'r') as f:
         for i, gal in enumerate(gal_ids):
-            if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
-                if (i in ignore_simba_gals):
-                    print('Ignoring certain m50n512 COS-Halos galaxies')
-                    continue
+            if (model == 'm50n512') & (survey == 'halos') & (i in ignore_simba_gals):
+                print('Ignoring certain m50n512 COS-Halos galaxies')
+                continue
+            elif (model == 'm25n512') & (survey == 'dwarfs') & (i in ignore_simba_gals):
+                print('Ignoring certain m25n512 COS-Dwarfs galaxies')
+                continue
             else:
+                print('Reading in galaxy '+str(i))
                 plist = np.append(plist, np.array(f['plist_'+str(i)+'_'+str(gal)][:], dtype='int'))
 
     plist = np.unique(np.sort(plist)).astype('int')
