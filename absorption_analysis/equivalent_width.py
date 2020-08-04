@@ -20,13 +20,13 @@ from physics import vel_to_wave, equivalent_width
 if __name__ == '__main__':
 
     cos_survey = sys.argv[1]
-
-    model = 'm50n512'
-    wind = 's50noagn'
+    model = sys.argv[2]
+    wind = sys.argv[3]
 
     # possible ions to choose:
     ions = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
-    orients = ['x_minus', 'x_plus', 'y_minus', 'y_plus']
+    orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg']
+    orients = ['0_deg', '90_deg', '180_deg', '270_deg']
     velocity_width = 300. #km/s
     bin_size = 6. # km/s 
     c = 2.98e8 # km/s
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     elif cos_survey == 'halos':
         snap = '137'
     
-    ew_file = '/home/sapple/cgm/analysis/data/cos_'+cos_survey+'_'+model + '_'+wind+'_'+snap+'_ew_data_lsf.h5'
+    ew_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+cos_survey+'_'+model + '_'+wind+'_'+snap+'_ew_data_lsf.h5'
     spectra_folder = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+cos_survey+'/'+wind+'/'+'spectra/'
     cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+cos_survey+'/samples/'+model+'_'+wind+'_cos_'+cos_survey+'_sample.h5'
     with h5py.File(cos_sample_file, 'r') as f:
@@ -45,8 +45,8 @@ if __name__ == '__main__':
 
     for ion in ions:
         
-        ew_l = np.zeros((len(gal_ids), 4))
-        ew_v = np.zeros((len(gal_ids), 4))
+        ew_l = np.zeros((len(gal_ids), len(orients)))
+        ew_v = np.zeros((len(gal_ids), len(orients)))
 
         for i, gal in enumerate(gal_ids):
             
@@ -66,7 +66,6 @@ if __name__ == '__main__':
                 # the COS convolve method will go through all gratings and only convolve with the 
                 # wavelength-relavent part of the spectrum
 
-                pixel_size = wavelength[1] - wavelength[0]
                 vgal_mask = (velocity < vgal + velocity_width) & (velocity > vgal - velocity_width)
                 flux_use = flux[vgal_mask]
                 pixel_size = velocity[1] - velocity[0]
