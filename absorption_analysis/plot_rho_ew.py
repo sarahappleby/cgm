@@ -12,6 +12,49 @@ from get_cos_info import get_cos_halos, get_cos_dwarfs
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 
+def read_simulation_sample(model, wind, snap, survey, norients, lines, r200_scaled):
+
+    data_dict = {}
+    cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_cos_'+survey+'_sample.h5'
+    with h5py.File(cos_sample_file, 'r') as f:
+        data_dict['mass'] = np.repeat(f['mass'][:], norients)
+        data_dict['ssfr'] = np.repeat(f['ssfr'][:], norients)
+        data_dict['pos'] = np.repeat(f['position'][:], norients, axis=0)
+        data_dict['r200'] = np.repeat(f['halo_r200'][:], norients)
+    data_dict['ssfr'][data_dict['ssfr'] < -11.5] = -11.5
+
+    for line in lines:
+        # Read in the equivalent widths of the simulation galaxies spectra
+        ew_file = 'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_ew_data_lsf.h5'
+        with h5py.File(ew_file, 'r') as f:
+            data_dict['ew_'+line] = f[line+'_wave_ew'][:]
+
+    return data_dict
+
+def make_cos_dict(survey, mlim, r200_scaled=False):
+
+    # read in the parameters of the COS galaxies
+    cos_dict = {}
+    if survey == 'halos':
+        cos_dict['rho'], cos_dict['mass'], cos_dict['r200'], cos_dict['ssfr'] = get_cos_halos()
+        z = 0.25
+    elif survey == 'dwarfs':
+        cos_dict['rho'], cos_dict['mass'], cos_dict['r200'], cos_dict['ssfr'] = get_cos_dwarfs()
+        z = 0.
+
+    # rescale the impact parameters into kpc/h
+    if r200_scaled:
+        cos_dict['rho'] = cos_dict['rho'].astype(float)
+        cos_dict['rho'] *= h * (1+z) # get in kpc/h
+
+    # remove COS galaxies below the mass threshold
+    mass_mask = cos_dict['mass'] > mlim
+    for k in cos_dict.keys():
+        cos_dict[k] = cos_dict[k][mass_mask]
+
+    return cos_dict
+
+
 if __name__ == '__main__':
 
     cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
@@ -27,86 +70,73 @@ if __name__ == '__main__':
     plot_dir = 'plots/'
     h = 0.68
     r200_scaled = True
+    norients = 8
+    ngals_each = 5
 
     if model == 'm100n1024':
         boxsize = 100000.
     elif model == 'm50n512':
         boxsize = 50000.
 
+    # adjust the filename
     plot_name = model+'_'+wind +'_rho_ew'
     if r200_scaled:
         plot_name += '_scaled'
     plot_name += '.png'
 
+    # read in the parameters of the COS galaxies
+    cos_halos_dict = make_cos_dict('halos', mlim, r200_scaled)
+    cos_dwarfs_dict = make_cos_dict('dwarfs', mlim, r200_scaled)    
+
+    sim_halos_dict = read_simulation_sample(model, wind, '137', 'halos', norients, lines, r200_scaled)
+    sim_halos_dict['rho'] = np.repeat(cos_halos_dict['rho'], norients*ngals_each)
+
+    sim_dwarfs_dict = read_simulation_sample(model, wind, '151', 'dwarfs', norients, lines, r200_scaled)
+    sim_dwarfs_dict['rho'] = np.repeat(cos_dwarfs_dict['rho'], norients*ngals_each)
+    
+    if r200_scaled:
+        sim_halos_dict['dist'] = sim_halos_dict['rho'] / sim_halos_dict['r200']
+        sim_dwarfs_dict['dist'] = sim_dwarfs_dict['rho'] / sim_dwarfs_dict['r200']
+        xlabel = r'$\rho / r_{200}$'
+    else:
+        sim_halos_dict['dist'] = sim_halos_dict['rho'].copy()
+        sim_dwarfs_dict['dist'] = sim_dwarfs_dict['rho'].copy()
+
     fig, ax = plt.subplots(3, 2, figsize=(12, 14))
     ax = ax.flatten()
 
-    halo_rho, halo_M, halo_r200, halo_ssfr = get_cos_halos()
-    dwarfs_rho, dwarfs_M, dwarfs_r200, dwarfs_ssfr = get_cos_dwarfs()
-
     for i, survey in enumerate(cos_survey):
 
-        data_dict = {}
-        cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_cos_'+survey+'_sample.h5'
-        with h5py.File(cos_sample_file, 'r') as f:
-            data_dict['mass'] = np.repeat(f['mass'][:], 4)
-            data_dict['ssfr'] = np.repeat(f['ssfr'][:], 4)
-            data_dict['pos'] = np.repeat(f['position'][:], 4, axis=0)
-            data_dict['r200'] = np.repeat(f['halo_r200'][:], 4)
-        data_dict['ssfr'][data_dict['ssfr'] < -11.5] = -11.5
-
-        cos_dict = {}
-        if survey == 'dwarfs':
+        # assign the COS survey that we want and set some parameters
+        if i in [1, 4]:
+            cos_dict = cos_dwarfs_dict.copy()
+            sim_dict = sim_dwarfs_dict.copy()
             label = 'COS-Dwarfs'
-            snap = '151'
             z = 0.
-            cos_dict['rho'], cos_dict['M'], cos_dict['r200'], cos_dict['ssfr'] = dwarfs_rho, dwarfs_M, dwarfs_r200, dwarfs_ssfr
-        elif survey == 'halos':
+        else:
+            cos_dict = cos_halos_dict.copy()
+            sim_dict = sim_halos_dict.copy()
             label = 'COS-Halos'
-            snap = '137'
-            z = 0.2 
-            cos_dict['rho'], cos_dict['M'], cos_dict['r200'], cos_dict['ssfr'] = halo_rho, halo_M, halo_r200, halo_ssfr
+            z = 0.25
         quench = -1.8  + 0.3*z - 9.
 
-        if r200_scaled:
-            cos_dict['rho'] = cos_dict['rho'].astype(float)
-            cos_dict['rho'] *= h * (1+z) # get in kpc/h
-
-        mass_mask = cos_dict['M'] > mlim
-        for k in cos_dict.keys():
-            cos_dict[k] = cos_dict[k][mass_mask]
-
+        # removing COS-Dwarfs galaxy 3 for the Lya stuff
         if (survey == 'dwarfs') & (lines[i] == 'H1215'):
-            mass_mask = np.delete(mass_mask, 3)
             for k in cos_dict.keys():
                 cos_dict[k] = np.delete(cos_dict[k], 3)
-        
-        cos_rho_long = np.repeat(cos_dict['rho'], 20)
+            for k in sim_dict.keys():
+                sim_dict[k] = np.delete(sim_dict[k], np.arange(3*norients*ngals_each, 4*norients*ngals_each), axis=0)
 
-        ew_file = 'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_ew_data_lsf.h5'
-        with h5py.File(ew_file, 'r') as f:
-            data_dict['ew'] = f[lines[i]+'_wave_ew'][:]
+        # find the median and range equivalent width for each of the simulation galaxies
+        sim_dict['ew_'+lines[i]+'_median'], sim_dict['ew_err_'+lines[i]], sim_dict['median_dist'], sim_dict['ssfr_median'] = \
+                median_ew_cos_groups(sim_dict['ew_'+lines[i]], sim_dict['dist'], sim_dict['ssfr'], norients*ngals_each, len(cos_dict['rho'])) 
 
-        # delete the measurements from Cos dwarfs galaxy 3 for the Lya stuff
-        if (survey == 'dwarfs') & (lines[i] == 'H1215'):
-            for k in data_dict.keys():
-                data_dict[k] = np.delete(data_dict[k], np.arange(3*20, 4*20), axis=0)
-
-        if r200_scaled:
-            data_dict['sim_dist'] = cos_rho_long / data_dict['r200']
-            xlabel = r'$\rho / r_{200}$'
-        else:
-            data_dict['sim_dist'] = cos_rho_long.copy()
-            xlabel = r'$\rho (\textrm{kpc})$'
-
-        data_dict['ew'], data_dict['ew_err'], data_dict['median_r'], data_dict['median_ssfr'] = \
-                median_ew_cos_groups(data_dict['ew'], data_dict['sim_dist'], data_dict['ssfr'], 20, len(cos_dict['rho'])) 
-
-        mask = data_dict['median_ssfr'] < quench
-        l1 = ax[i].errorbar(data_dict['median_r'][mask], data_dict['ew'][mask], yerr=[data_dict['ew_err'][0][mask], data_dict['ew_err'][1][mask]], \
+        # plot the simulation equivalent widths
+        mask = sim_dict['ssfr_median'] < quench
+        l1 = ax[i].errorbar(sim_dict['median_dist'][mask], sim_dict['ew_'+lines[i]+'_median'][mask], yerr=[sim_dict['ew_err_'+lines[i]][0][mask], sim_dict['ew_err_'+lines[i]][1][mask]], \
                             ms=3.5, marker='s', capsize=4, ls='', c='r')
-        mask = data_dict['median_ssfr'] > quench
-        l2 = ax[i].errorbar(data_dict['median_r'][mask], data_dict['ew'][mask], yerr=[data_dict['ew_err'][0][mask], data_dict['ew_err'][1][mask]], \
+        mask = sim_dict['ssfr_median'] > quench
+        l2 = ax[i].errorbar(sim_dict['median_dist'][mask], sim_dict['ew_'+lines[i]+'_median'][mask], yerr=[sim_dict['ew_err_'+lines[i]][0][mask], sim_dict['ew_err_'+lines[i]][1][mask]], \
                 ms=3.5, marker='s', capsize=4, ls='', c='b')
         if i == 0:
             leg1 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=10.5, loc=4)
@@ -120,6 +150,7 @@ if __name__ == '__main__':
         else:
             ax[i].set_xlim(25, 145)
 
+        # plot the COS equivalent widths
         if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
             c1, c2 = plot_dwarfs_civ(ax[i], quench, r200_scaled=r200_scaled)
         elif (survey == 'dwarfs') & (lines[i] == 'H1215'):

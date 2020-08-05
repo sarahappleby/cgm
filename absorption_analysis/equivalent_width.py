@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # possible ions to choose:
     ions = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg']
-    orients = ['0_deg', '90_deg', '180_deg', '270_deg']
+    #orients = ['45_deg', '135_deg', '225_deg', '315_deg']
     velocity_width = 300. #km/s
     bin_size = 6. # km/s 
     c = 2.98e8 # km/s
