@@ -18,11 +18,11 @@ def get_bin_middle(xbins):
 
 def do_exclude_outliers(data_dict, out, both=False):
     if both:
-        per_lo = np.nanpercentile(data_dict['sim_dist'], out)
+        per_lo = np.nanpercentile(data_dict['dist'], out)
     else:
         per_lo = 0.
-    per_hi = np.nanpercentile(data_dict['sim_dist'], 100. - out)
-    mask = (data_dict['sim_dist'] > per_lo) & (data_dict['sim_dist'] < per_hi)
+    per_hi = np.nanpercentile(data_dict['dist'], 100. - out)
+    mask = (data_dict['dist'] > per_lo) & (data_dict['dist'] < per_hi)
 
     keys = list(data_dict.keys())
     for k in keys:

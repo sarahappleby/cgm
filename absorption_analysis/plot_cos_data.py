@@ -15,6 +15,30 @@ def convert_to_log(y, yerr):
     y = np.log10(y)
     return y, yerr
 
+def make_cos_dict(survey, mlim, r200_scaled=False):
+
+    # read in the parameters of the COS galaxies
+    cos_dict = {}
+    if survey == 'halos':
+        cos_dict['rho'], cos_dict['mass'], cos_dict['r200'], cos_dict['ssfr'] = get_cos_halos()
+        z = 0.25
+    elif survey == 'dwarfs':
+        cos_dict['rho'], cos_dict['mass'], cos_dict['r200'], cos_dict['ssfr'] = get_cos_dwarfs()
+        z = 0.
+
+    # rescale the impact parameters into kpc/h
+    if r200_scaled:
+        cos_dict['rho'] = cos_dict['rho'].astype(float)
+        cos_dict['rho'] *= h * (1+z) # get in kpc/h
+
+    # remove COS galaxies below the mass threshold
+    mass_mask = cos_dict['mass'] > mlim
+    for k in cos_dict.keys():
+        cos_dict[k] = cos_dict[k][mass_mask]
+
+    return cos_dict
+
+
 def plot_dwarfs_lya(ax, quench, r200_scaled=False):
 
     cos_rho, cos_M, cos_r200, cos_ssfr = get_cos_dwarfs()

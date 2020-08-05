@@ -3,8 +3,8 @@ import matplotlib.colors as colors
 import h5py
 import sys
 import numpy as np
-from plot_cos_data import plot_dwarfs_civ, plot_dwarfs_lya, plot_halos
-from physics import median_ew_cos_groups, convert_to_log
+from plot_cos_data import mae_cos_dict, plot_dwarfs_civ, plot_dwarfs_lya, plot_halos
+from physics import median_ew_cos_groups
 
 sys.path.append('../cos_samples/')
 from get_cos_info import get_cos_halos, get_cos_dwarfs
@@ -31,30 +31,6 @@ def read_simulation_sample(model, wind, snap, survey, norients, lines, r200_scal
 
     return data_dict
 
-def make_cos_dict(survey, mlim, r200_scaled=False):
-
-    # read in the parameters of the COS galaxies
-    cos_dict = {}
-    if survey == 'halos':
-        cos_dict['rho'], cos_dict['mass'], cos_dict['r200'], cos_dict['ssfr'] = get_cos_halos()
-        z = 0.25
-    elif survey == 'dwarfs':
-        cos_dict['rho'], cos_dict['mass'], cos_dict['r200'], cos_dict['ssfr'] = get_cos_dwarfs()
-        z = 0.
-
-    # rescale the impact parameters into kpc/h
-    if r200_scaled:
-        cos_dict['rho'] = cos_dict['rho'].astype(float)
-        cos_dict['rho'] *= h * (1+z) # get in kpc/h
-
-    # remove COS galaxies below the mass threshold
-    mass_mask = cos_dict['mass'] > mlim
-    for k in cos_dict.keys():
-        cos_dict[k] = cos_dict[k][mass_mask]
-
-    return cos_dict
-
-
 if __name__ == '__main__':
 
     cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
@@ -72,11 +48,6 @@ if __name__ == '__main__':
     r200_scaled = True
     norients = 8
     ngals_each = 5
-
-    if model == 'm100n1024':
-        boxsize = 100000.
-    elif model == 'm50n512':
-        boxsize = 50000.
 
     # adjust the filename
     plot_name = model+'_'+wind +'_rho_ew'
@@ -101,6 +72,7 @@ if __name__ == '__main__':
     else:
         sim_halos_dict['dist'] = sim_halos_dict['rho'].copy()
         sim_dwarfs_dict['dist'] = sim_dwarfs_dict['rho'].copy()
+        xlabel = r'$\rho (\textrm{kpc})$'
 
     fig, ax = plt.subplots(3, 2, figsize=(12, 14))
     ax = ax.flatten()
@@ -108,12 +80,12 @@ if __name__ == '__main__':
     for i, survey in enumerate(cos_survey):
 
         # assign the COS survey that we want and set some parameters
-        if i in [1, 4]:
+        if survey == 'dwarfs':
             cos_dict = cos_dwarfs_dict.copy()
             sim_dict = sim_dwarfs_dict.copy()
             label = 'COS-Dwarfs'
             z = 0.
-        else:
+        elif survey == 'halos':
             cos_dict = cos_halos_dict.copy()
             sim_dict = sim_halos_dict.copy()
             label = 'COS-Halos'
