@@ -3,33 +3,14 @@ import matplotlib.colors as colors
 import h5py
 import sys
 import numpy as np
-from plot_cos_data import mae_cos_dict, plot_dwarfs_civ, plot_dwarfs_lya, plot_halos
-from physics import median_ew_cos_groups
+from plot_cos_data import plot_dwarfs_civ, plot_dwarfs_lya, plot_halos
+from analysis_methods import median_ew_cos_groups, read_simulation_sample
 
 sys.path.append('../cos_samples/')
-from get_cos_info import get_cos_halos, get_cos_dwarfs
+from get_cos_info import get_cos_halos, get_cos_dwarfs, make_cos_dict
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
-
-def read_simulation_sample(model, wind, snap, survey, norients, lines, r200_scaled):
-
-    data_dict = {}
-    cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_cos_'+survey+'_sample.h5'
-    with h5py.File(cos_sample_file, 'r') as f:
-        data_dict['mass'] = np.repeat(f['mass'][:], norients)
-        data_dict['ssfr'] = np.repeat(f['ssfr'][:], norients)
-        data_dict['pos'] = np.repeat(f['position'][:], norients, axis=0)
-        data_dict['r200'] = np.repeat(f['halo_r200'][:], norients)
-    data_dict['ssfr'][data_dict['ssfr'] < -11.5] = -11.5
-
-    for line in lines:
-        # Read in the equivalent widths of the simulation galaxies spectra
-        ew_file = 'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_ew_data_lsf.h5'
-        with h5py.File(ew_file, 'r') as f:
-            data_dict['ew_'+line] = f[line+'_wave_ew'][:]
-
-    return data_dict
 
 if __name__ == '__main__':
 
