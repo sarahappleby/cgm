@@ -3,16 +3,18 @@ import matplotlib.colors as colors
 import h5py
 import sys
 import numpy as np
-from physics import do_bins, do_exclude_outliers, sim_binned_ew, cos_binned_ew
+from analysis_methods import *
 
 sys.path.append('../cos_samples/')
-from get_cos_info import get_cos_halos, get_cos_dwarfs, read_halos_data, get_cos_dwarfs_lya, get_cos_dwarfs_civ
+from get_cos_info import make_cos_dict, read_halos_data, get_cos_dwarfs_lya, get_cos_dwarfs_civ
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 
+
 if __name__ == '__main__':
 
+    # set some parameters
     cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
     lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
     plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
@@ -24,13 +26,19 @@ if __name__ == '__main__':
     mlim = np.log10(5.8e8) # lower limit of M*
     plot_dir = 'plots/'
     r200_scaled = True
-    do_equal_bins = False
-    h = 0.68
+    do_equal_bins = False # same bin spacing for all subsets
     nbins_sim = 4
     nbins_cos = 3
+    norients = 8
+    ngals_each = 5
     out = 5.
     ylim = 0.7
 
+    # get the quenching thresholds for each survey
+    halos_z = 0.25; halos_quench = quench_thresh(halos_z)
+    dwarfs_z = 0.; dwarfs_quench = quench_thresh(dwarfs_z)
+
+    # set plot name according to parameters
     plot_name = model+'_'+wind +'_rho_ew_med'
     if r200_scaled:
         plot_name += '_scaled'
@@ -39,106 +47,80 @@ if __name__ == '__main__':
     if plot_name[-1] == '_': plot_name = plot_name[:-1]
     plot_name += '.png'
 
+    # get box size for cosmic variance errors
     if model == 'm100n1024':
         boxsize = 100000.
     elif model == 'm50n512':
         boxsize = 50000.
 
-    if do_equal_bins:
-        if r200_scaled:
-            r_end = 1.
-            dr = .2
-        else:
-            r_end = 200.
-            dr = 40.
-        rho_bins_sim_q = np.arange(0., r_end, dr)
-        rho_bins_cos_q = np.arange(0., r_end, dr)
-        rho_bins_sim_sf = np.arange(0., r_end, dr)
-        rho_bins_cos_sf = np.arange(0., r_end, dr)
-        plot_bins_sim_q = rho_bins_sim[:-1] + 0.5*dr
-        plot_bins_cos_q = rho_bins_cos[:-1] + 0.5*dr
-        plot_bins_sim_sf = rho_bins_sim[:-1] + 0.5*dr
-        plot_bins_cos_sf = rho_bins_cos[:-1] + 0.5*dr
+    # read in COS sample data, masked for low mass galaxies
+    cos_halos_dict, cos_halos_mmask = make_cos_dict('halos', mlim, r200_scaled)
+    cos_dwarfs_dict, cos_dwarfs_mmask = make_cos_dict('dwarfs', mlim, r200_scaled)
+
+    # create the dicts to hold the simulation sample data
+    sim_halos_dict = read_simulation_sample(model, wind, '137', 'halos', norients, lines, r200_scaled)
+    sim_halos_dict['rho'] = np.repeat(cos_halos_dict['rho'], norients*ngals_each)
+
+    sim_dwarfs_dict = read_simulation_sample(model, wind, '151', 'dwarfs', norients, lines, r200_scaled)
+    sim_dwarfs_dict['rho'] = np.repeat(cos_dwarfs_dict['rho'], norients*ngals_each)
+
+    # rescaled the x axis by r200
+    if r200_scaled:        
+        cos_halos_dict['dist'] = cos_halos_dict['rho'] / cos_halos_dict['r200']
+        cos_dwarfs_dict['dist'] = cos_dwarfs_dict['rho'] / cos_dwarfs_dict['r200']
+        sim_halos_dict['dist'] = sim_halos_dict['rho'] / sim_halos_dict['r200']
+        sim_dwarfs_dict['dist'] = sim_dwarfs_dict['rho'] / sim_dwarfs_dict['r200']    
+        xlabel = r'$\rho / r_{200}$'
+    else:
+        cos_halos_dict['dist'] = cos_halos_dict['rho'].copy()
+        cos_dwarfs_dict['dist'] = cos_dwarfs_dict['rho'].copy()
+        sim_halos_dict['dist'] = sim_halos_dict['rho'].copy()
+        sim_dwarfs_dict['dist'] = sim_dwarfs_dict['rho'].copy()
+        xlabel = r'$\rho (\textrm{kpc})$'
+
+    # make the bins, either same bins for all or based on individual sample distributions
+    cos_halos_dict = get_dict_bins(cos_halos_dict, nbins_cos, halos_quench, do_equal_bins, r200_scaled)
+    cos_dwarfs_dict = get_dict_bins(cos_dwarfs_dict, nbins_cos, dwarfs_quench, do_equal_bins, r200_scaled)
+
+    sim_halos_dict = get_dict_bins(sim_halos_dict, nbins_sim, dwarfs_quench, do_equal_bins, r200_scaled)
+    sim_dwarfs_dict = get_dict_bins(sim_dwarfs_dict, nbins_sim, dwarfs_quench, do_equal_bins, r200_scaled)
 
     fig, ax = plt.subplots(3, 2, figsize=(12, 14))
     ax = ax.flatten()
 
-    halo_rho, halo_M, halo_r200, halo_ssfr = get_cos_halos()
-    dwarfs_rho, dwarfs_M, dwarfs_r200, dwarfs_ssfr = get_cos_dwarfs()
-
     for i, survey in enumerate(cos_survey):
 
-        data_dict = {}
-        cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_cos_'+survey+'_sample.h5'
-        with h5py.File(cos_sample_file, 'r') as f:
-            data_dict['mass'] = np.repeat(f['mass'][:], 4)
-            data_dict['ssfr'] = np.repeat(f['ssfr'][:], 4)
-            data_dict['pos'] = np.repeat(f['position'][:], 4, axis=0)
-            data_dict['r200'] = np.repeat(f['halo_r200'][:], 4)
-        data_dict['ssfr'][data_dict['ssfr'] < -11.5] = -11.5
-
-        cos_dict = {}
+        # choose the survey and some params
         if survey == 'dwarfs':
+            cos_dict = cos_dwarfs_dict.copy()
+            sim_dict = sim_dwarfs_dict.copy()
+            mass_mask = cos_dwarfs_mmask.copy()
             label = 'COS-Dwarfs'
-            snap = '151'
-            z = 0.
-            cos_dict['rho'], cos_dict['M'], cos_dict['r200'], cos_dict['ssfr'] = dwarfs_rho, dwarfs_M, dwarfs_r200, dwarfs_ssfr
+            quench = dwarfs_quench + 0.
         elif survey == 'halos':
+            cos_dict = cos_halos_dict.copy()
+            sim_dict = sim_halos_dict.copy()
+            mass_mask = cos_halos_mmask.copy()
             label = 'COS-Halos'
-            snap = '137'
-            z = 0.2
-            cos_dict['rho'], cos_dict['M'], cos_dict['r200'], cos_dict['ssfr'] = halo_rho, halo_M, halo_r200, halo_ssfr
-        quench = -1.8  + 0.3*z - 9.
+            quench = halos_quench + 0.
 
-        if r200_scaled:
-            cos_dict['rho'] = cos_dict['rho'].astype(float)
-            cos_dict['rho'] *= h * (1+z) # get in kpc/h
-
-        mass_mask = cos_dict['M'] > mlim
-        for k in cos_dict.keys():
-            cos_dict[k] = cos_dict[k][mass_mask]
-
+        # removing COS-Dwarfs galaxy 3 for the Lya stuff
         if (survey == 'dwarfs') & (lines[i] == 'H1215'):
             mass_mask = np.delete(mass_mask, 3)
             for k in cos_dict.keys():
-                cos_dict[k] = np.delete(cos_dict[k], 3)
+                if k in ['dist_bins_sf', 'plot_bins_sf', 'dist_bins_q',  'plot_bins_q']: continue
+                else: cos_dict[k] = np.delete(cos_dict[k], 3)
+            for k in sim_dict.keys():
+                if k in ['dist_bins_sf', 'plot_bins_sf', 'dist_bins_q',  'plot_bins_q']: continue
+                else: sim_dict[k] = np.delete(sim_dict[k], np.arange(3*norients*ngals_each, 4*norients*ngals_each), axis=0)
 
-        cos_rho_long = np.repeat(cos_dict['rho'], 20)
+        # get binned medians for the simulation sample
+        mask = sim_dict['ssfr'] > quench
+        sim_sf_ew, sim_sf_err = sim_binned_ew(sim_dict, mask, sim_dict['dist_bins_sf'], lines[i], boxsize)
+        mask = sim_dict['ssfr'] < quench
+        sim_q_ew, sim_q_err = sim_binned_ew(sim_dict, mask, sim_dict['dist_bins_q'], lines[i], boxsize)
 
-        ew_file = 'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_ew_data_lsf.h5'
-        with h5py.File(ew_file, 'r') as f:
-            data_dict['ew'] = f[lines[i]+'_wave_ew'][:]
-
-        # delete the measurements from Cos dwarfs galaxy 3 for the Lya stuff
-        if (survey == 'dwarfs') & (lines[i] == 'H1215'):
-            for k in data_dict.keys():
-                data_dict[k] = np.delete(data_dict[k], np.arange(3*20, 4*20), axis=0)
-
-        if r200_scaled:
-            cos_dict['cos_dist'] = cos_dict['rho'] / cos_dict['r200']
-            data_dict['sim_dist'] = cos_rho_long / data_dict['r200']
-            xlabel = r'$\rho / r_{200}$'
-        else:
-            cos_dict['cos_dist'] = cos_dict['rho'].copy()
-            data_dict['sim_dist'] = cos_rho_long.copy()
-            xlabel = r'$\rho (\textrm{kpc})$'
-
-        if not do_equal_bins:
-            data_dict = do_exclude_outliers(data_dict, out)
-            mask = (data_dict['ssfr'] > quench)
-            rho_bins_sim_sf, plot_bins_sim_sf = do_bins(data_dict['sim_dist'][mask], nbins_sim)
-            mask = (data_dict['ssfr'] < quench)
-            rho_bins_sim_q, plot_bins_sim_q = do_bins(data_dict['sim_dist'][mask], nbins_sim)
-            mask = (cos_dict['ssfr'] > quench)
-            rho_bins_cos_sf, plot_bins_cos_sf = do_bins(cos_dict['cos_dist'][mask], nbins_cos)
-            mask = (cos_dict['ssfr'] < quench)
-            rho_bins_cos_q, plot_bins_cos_q = do_bins(cos_dict['cos_dist'][mask], nbins_cos)
-
-        mask = data_dict['ssfr'] > quench
-        sim_sf_ew, sim_sf_err = sim_binned_ew(data_dict, mask, rho_bins_sim_sf, boxsize)
-        mask = data_dict['ssfr'] < quench
-        sim_q_ew, sim_q_err = sim_binned_ew(data_dict, mask, rho_bins_sim_q, boxsize)
-
+        # read in COS observations, set units, remove dwarfs galaxy 3 for Lya, do mass mask
         if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
             cos_dict['EW'], cos_dict['EWerr'], cos_dict['EW_less_than'] = get_cos_dwarfs_civ() #in mA
             cos_dict['EW'] /= 1000.
@@ -157,20 +139,25 @@ if __name__ == '__main__':
 
         if survey == 'halos':
             ew_mask = cos_dict['EW'] > 0.
-            for k in cos_dict.keys():
+            for k in ['rho', 'mass', 'r200', 'ssfr', 'dist', 'EW', 'EWerr']:
                 cos_dict[k] = cos_dict[k][ew_mask]
 
-        cos_sf_ew, cos_sf_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] > quench), rho_bins_cos_sf)
-        cos_q_ew, cos_q_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] < quench), rho_bins_cos_q)
+        #cos_sf_ew, cos_sf_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] > quench), cos_dict['dist_bins_sf'])
+        #cos_q_ew, cos_q_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] < quench), cos_dict['dist_bins_q'])
 
-        c1 = ax[i].errorbar(plot_bins_cos_sf, cos_sf_ew, yerr=cos_sf_err, capsize=4, c='c', marker='o', ls='--', label=label+' SF')
-        #c2 = ax[i].errorbar(plot_bins_cos_q, cos_q_ew, yerr=cos_q_err, capsize=4, c='m', marker='o', ls='--', label=label+' Q')
-        #c1, = ax[i].plot(plot_bins_cos_sf, cos_sf_ew, c='c', marker='o', ls='--', label=label+' SF')
-        c2, = ax[i].plot(plot_bins_cos_q, cos_q_ew, c='m', marker='o', ls='--', label=label+' Q')
+        #c1 = ax[i].errorbar(cos_dict['plot_bins_sf'], cos_sf_ew, yerr=cos_sf_err, capsize=4, c='c', marker='o', ls='--', label=label+' SF')
+        #c2 = ax[i].errorbar(cos_dict['plot_bins_q'], cos_q_ew, yerr=cos_q_err, capsize=4, c='m', marker='o', ls='--', label=label+' Q')
+        #c1, = ax[i].plot(cos_dict['plot_bins_sf'], cos_sf_ew, c='c', marker='o', ls='--', label=label+' SF')
+        #c2, = ax[i].plot(cos_dict['plot_bins_q'], cos_q_ew, c='m', marker='o', ls='--', label=label+' Q')
+        cos_dict['EW'], cos_dict['EWerr'] = convert_to_log(cos_dict['EW'], cos_dict['EWerr'])
+        c1 = ax[i].errorbar(cos_dict['dist'][cos_dict['ssfr'] > quench], cos_dict['EW'][cos_dict['ssfr'] > quench], 
+                            yerr=cos_dict['EWerr'][cos_dict['ssfr'] > quench], ls='', capsize=4, c='c', marker='o', label=label+' SF')
+        c2 = ax[i].errorbar(cos_dict['dist'][cos_dict['ssfr'] < quench], cos_dict['EW'][cos_dict['ssfr'] < quench], 
+                            yerr=cos_dict['EWerr'][cos_dict['ssfr'] < quench], ls='', capsize=4, c='m', marker='o', label=label+' Q')
         leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
 
-        l1 = ax[i].errorbar(plot_bins_sim_sf, sim_sf_ew, yerr=sim_sf_err, capsize=4, c='b', marker='o', ls='--')
-        l2 = ax[i].errorbar(plot_bins_sim_q, sim_q_ew, yerr=sim_q_err, capsize=4, c='r', marker='o', ls='--')
+        l1 = ax[i].errorbar(sim_dict['plot_bins_sf'], sim_sf_ew, yerr=sim_sf_err, capsize=4, c='b', marker='o', ls='--')
+        l2 = ax[i].errorbar(sim_dict['plot_bins_q'], sim_q_ew, yerr=sim_q_err, capsize=4, c='r', marker='o', ls='--')
         if i == 0:
             leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=10.5)
 

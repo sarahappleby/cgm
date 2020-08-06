@@ -10,6 +10,30 @@ import numpy as np
 import os
 from pyigm.cgm import cos_halos as pch
 
+def make_cos_dict(survey, mlim, r200_scaled=False, h=0.68):
+
+    # read in the parameters of the COS galaxies
+    cos_dict = {}
+    if survey == 'halos':
+        cos_dict['rho'], cos_dict['mass'], cos_dict['r200'], cos_dict['ssfr'] = get_cos_halos()
+        z = 0.25
+    elif survey == 'dwarfs':
+        cos_dict['rho'], cos_dict['mass'], cos_dict['r200'], cos_dict['ssfr'] = get_cos_dwarfs()
+        z = 0.
+
+    # rescale the impact parameters into kpc/h
+    if r200_scaled:
+        cos_dict['rho'] = cos_dict['rho'].astype(float)
+        cos_dict['rho'] *= h * (1+z) # get in kpc/h
+
+    # remove COS galaxies below the mass threshold
+    mass_mask = cos_dict['mass'] > mlim
+    for k in cos_dict.keys():
+        cos_dict[k] = cos_dict[k][mass_mask]
+
+    return cos_dict, mass_mask
+
+
 def get_cos_dwarfs(return_less_than=False):
     h = 0.68
     table_file = '/home/sapple/cgm/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'

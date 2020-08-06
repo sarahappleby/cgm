@@ -113,9 +113,9 @@ def median_ew_cos_groups(ew, rho, ssfr, num_gals, num_cos):
 
     return new_ew, err, med_r, med_s
 
-def sim_binned_ew(data_dict, mask, rho_bins, boxsize):
-    binned_ew = bin_data(data_dict['sim_dist'][mask], data_dict['ew'][mask], rho_bins)
-    binned_pos = bin_data(data_dict['sim_dist'][mask], data_dict['pos'][mask], rho_bins)
+def sim_binned_ew(data_dict, mask, rho_bins, line, boxsize):
+    binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew_'+line][mask], rho_bins)
+    binned_pos = bin_data(data_dict['dist'][mask], data_dict['pos'][mask], rho_bins)
 
     ew = np.zeros(len(binned_ew))
     ew_err = np.zeros(len(binned_ew))
@@ -129,8 +129,8 @@ def sim_binned_ew(data_dict, mask, rho_bins, boxsize):
     return convert_to_log(ew, ew_err)
 
 def cos_binned_ew(cos_dict, mask, rho_bins):
-    binned_ew = bin_data(cos_dict['cos_dist'][mask], cos_dict['EW'][mask], rho_bins)
-    binned_ew_err = bin_data(cos_dict['cos_dist'][mask], cos_dict['EWerr'][mask], rho_bins)
+    binned_ew = bin_data(cos_dict['dist'][mask], cos_dict['EW'][mask], rho_bins)
+    binned_ew_err = bin_data(cos_dict['dist'][mask], cos_dict['EWerr'][mask], rho_bins)
 
     ew = np.zeros(len(binned_ew))
     lo = np.zeros(len(binned_ew))
@@ -148,8 +148,8 @@ def cos_binned_ew(cos_dict, mask, rho_bins):
     return convert_to_log(ew, np.array([sig_lo, sig_hi]))
 
 def sim_binned_cfrac(data_dict, mask, rho_bins, thresh, boxsize):
-    binned_ew = bin_data(data_dict['sim_dist'][mask], data_dict['ew'][mask], rho_bins)
-    binned_pos = bin_data(data_dict['sim_dist'][mask], data_dict['pos'][mask], rho_bins)
+    binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew'][mask], rho_bins)
+    binned_pos = bin_data(data_dict['dist'][mask], data_dict['pos'][mask], rho_bins)
 
     cfrac = np.zeros(len(binned_ew))
     cfrac_cv = np.zeros(len(binned_ew))
@@ -163,7 +163,7 @@ def sim_binned_cfrac(data_dict, mask, rho_bins, thresh, boxsize):
     return cfrac, cfrac_cv
 
 def cos_binned_cfrac(cos_dict, mask, rho_bins, thresh):
-    binned_ew = bin_data(cos_dict['cos_dist'][mask], cos_dict['EW'][mask], rho_bins)
+    binned_ew = bin_data(cos_dict['dist'][mask], cos_dict['EW'][mask], rho_bins)
     cfrac = np.zeros(len(binned_ew))
 
     for i in range(len(binned_ew)):
@@ -172,9 +172,9 @@ def cos_binned_cfrac(cos_dict, mask, rho_bins, thresh):
     return cfrac
 
 def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, boxsize):
-    binned_ew = bin_data(data_dict['sim_dist'][mask], data_dict['ew'][mask], rho_bins)
-    binned_pl = bin_data(data_dict['sim_dist'][mask], data_dict['path_length'][mask], rho_bins)
-    binned_pos = bin_data(data_dict['sim_dist'][mask], data_dict['pos'][mask], rho_bins)
+    binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew'][mask], rho_bins)
+    binned_pl = bin_data(data_dict['dist'][mask], data_dict['path_length'][mask], rho_bins)
+    binned_pos = bin_data(data_dict['dist'][mask], data_dict['pos'][mask], rho_bins)
 
     path_abs = np.zeros(len(binned_ew))
     path_abs_err = np.zeros(len(binned_ew))
@@ -195,8 +195,8 @@ def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, boxsize):
 def cos_binned_path_abs(cos_dict, ssfr_mask, rho_bins, thresh):
     ew_mask = cos_dict['EW'] > thresh
     mask = ew_mask * ssfr_mask
-    binned_ew = bin_data(cos_dict['cos_dist'][mask], cos_dict['EW'][mask], rho_bins)
-    binned_pl = bin_data(cos_dict['cos_dist'][mask], cos_dict['path_length'][mask], rho_bins)
+    binned_ew = bin_data(cos_dict['dist'][mask], cos_dict['EW'][mask], rho_bins)
+    binned_pl = bin_data(cos_dict['dist'][mask], cos_dict['path_length'][mask], rho_bins)
 
     path_abs = np.zeros(len(binned_ew))
     path_abs_err = np.zeros(len(binned_ew))
