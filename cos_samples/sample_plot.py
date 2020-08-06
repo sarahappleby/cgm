@@ -1,6 +1,7 @@
 import numpy as np
 from astropy.io import ascii
 import h5py
+import sys
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from pyigm.cgm import cos_halos as pch
@@ -35,7 +36,8 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 
 mlim = np.log10(5.8e8)
-model = 'm100n1024'
+model = sys.argv[1]
+wind = sys.argv[2]
 
 cos_halos_rho, cos_halos_mass, _, cos_halos_ssfr = get_cos_halos()
 cos_dwarfs_rho, cos_dwarfs_mass, _, cos_dwarfs_ssfr, cos_dwarfs_less_than = get_cos_dwarfs(return_less_than=True)
@@ -47,14 +49,14 @@ cos_dwarfs_ssfr[cos_dwarfs_ssfr < -11.5] = -11.5
 
 basic_dir = '/home/sapple/cgm/cos_samples/'+model+'/'
 
-halos_sample_file = basic_dir + 'cos_halos/samples/'+model+'_s50_cos_halos_sample.h5'
+halos_sample_file = basic_dir + 'cos_halos/samples/'+model+'_'+wind+'_cos_halos_sample.h5'
 with h5py.File(halos_sample_file, 'r') as f:
     halos_mass = f['mass'][:]
     halos_ssfr = f['ssfr'][:]
     halos_ids = np.array(f['gal_ids'][:], dtype=int)
     halos_gas_frac = np.log10(f['gas_frac'][:] + 1.e-3)
 
-dwarfs_sample_file = basic_dir + 'cos_dwarfs/samples/m100n1024_s50_cos_dwarfs_sample.h5'
+dwarfs_sample_file = basic_dir + 'cos_dwarfs/samples/'+model+'_'+wind+'_cos_dwarfs_sample.h5'
 with h5py.File(dwarfs_sample_file, 'r') as f:
     dwarfs_mass = f['mass'][:]
     dwarfs_ssfr = f['ssfr'][:]
@@ -88,5 +90,5 @@ plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 plt.ylabel(r'$\textrm{log} (sSFR  / \textrm{yr}^{-1})$')
 plt.ylim(-11.7, -8.8)
 plt.legend(loc=1)
-plt.savefig('plots/cos_sample.png')
+plt.savefig('plots/'+model+'_'+wind+'_cos_sample.png')
 plt.clf()
