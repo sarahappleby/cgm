@@ -74,7 +74,7 @@ fig, ax = plt.subplots(figsize=(7, 5))
 
 im = plt.scatter(all_mass[all_ssfr > -11.5], all_ssfr[all_ssfr > -11.5], c=all_gfrac[all_ssfr > -11.5], s=4, marker='o', cmap=cmap)
 plt.colorbar(im, label=r'$\textrm{log} (f_{\textrm{gas}})$')
-plt.clim(np.max(all_gfrac), np.min(all_gfrac))
+plt.clim(1.0, -3.)
 plt.scatter(all_mass[all_ssfr == -11.5], all_ssfr[all_ssfr == -11.5], c=all_gfrac[all_ssfr == -11.5], s=35, marker='$\downarrow$', cmap=cmap)
 
 plt.scatter(cos_halos_mass[cos_halos_ssfr > -11.5], cos_halos_ssfr[cos_halos_ssfr > -11.5], 
@@ -90,5 +90,5 @@ plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 plt.ylabel(r'$\textrm{log} (sSFR  / \textrm{yr}^{-1})$')
 plt.ylim(-11.7, -8.8)
 plt.legend(loc=1)
-plt.savefig('plots/'+model+'_'+wind+'_cos_sample.png')
+plt.savefig('/home/sapple/cgm/cos_samples/plots/'+model+'_'+wind+'_cos_sample.png')
 plt.clf()
