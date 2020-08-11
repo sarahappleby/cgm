@@ -37,8 +37,8 @@ if __name__ == '__main__':
     plot_name += '.png'
 
     # read in the parameters of the COS galaxies
-    cos_halos_dict = make_cos_dict('halos', mlim, r200_scaled)
-    cos_dwarfs_dict = make_cos_dict('dwarfs', mlim, r200_scaled)    
+    cos_halos_dict, _ = make_cos_dict('halos', mlim, r200_scaled)
+    cos_dwarfs_dict, _ = make_cos_dict('dwarfs', mlim, r200_scaled)    
 
     sim_halos_dict = read_simulation_sample(model, wind, '137', 'halos', norients, lines, r200_scaled)
     sim_halos_dict['rho'] = np.repeat(cos_halos_dict['rho'], norients*ngals_each)

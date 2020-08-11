@@ -23,16 +23,19 @@ if __name__ == '__main__':
 
     model = 'm100n1024'
     wind = 's50'
-    mlim = np.log10(5.8e8) # lower limit of M*
+    
     plot_dir = 'plots/'
     r200_scaled = True
     do_equal_bins = False # same bin spacing for all subsets
-    nbins_sim = 4
-    nbins_cos = 3
     norients = 8
     ngals_each = 5
-    out = 5.
+    mlim = np.log10(5.8e8) # lower limit of M*
     ylim = 0.7
+
+    nbins_halos_q = 2
+    nbins_halos_sf = 3
+    nbins_dwarfs_q = 1
+    nbins_dwarfs_sf = 3
 
     # get the quenching thresholds for each survey
     halos_z = 0.25; halos_quench = quench_thresh(halos_z)
@@ -78,12 +81,17 @@ if __name__ == '__main__':
         sim_dwarfs_dict['dist'] = sim_dwarfs_dict['rho'].copy()
         xlabel = r'$\rho (\textrm{kpc})$'
 
-    # make the bins, either same bins for all or based on individual sample distributions
-    cos_halos_dict = get_dict_bins(cos_halos_dict, nbins_cos, halos_quench, do_equal_bins, r200_scaled)
-    cos_dwarfs_dict = get_dict_bins(cos_dwarfs_dict, nbins_cos, dwarfs_quench, do_equal_bins, r200_scaled)
+    # get the bins for the COS data - these nbins ensure there are roughly ~8 galaxies in each bin
+    mask = (cos_halos_dict['ssfr'] > halos_quench)
+    cos_halos_dict['dist_bins_sf'], cos_halos_dict['plot_bins_sf'] = do_bins(cos_halos_dict['dist'][mask], nbins_halos_sf)
+    cos_halos_dict['dist_bins_q'], cos_halos_dict['plot_bins_q'] = do_bins(cos_halos_dict['dist'][~mask], nbins_halos_q)
 
-    sim_halos_dict = get_dict_bins(sim_halos_dict, nbins_sim, dwarfs_quench, do_equal_bins, r200_scaled)
-    sim_dwarfs_dict = get_dict_bins(sim_dwarfs_dict, nbins_sim, dwarfs_quench, do_equal_bins, r200_scaled)
+    mask = (cos_dwarfs_dict['ssfr'] > dwarfs_quench)
+    cos_dwarfs_dict['dist_bins_sf'], cos_dwarfs_dict['plot_bins_sf'] = do_bins(cos_dwarfs_dict['dist'][mask], nbins_dwarfs_sf)
+    cos_dwarfs_dict['dist_bins_q'], cos_dwarfs_dict['plot_bins_q'] = do_bins(cos_dwarfs_dict['dist'][~mask], nbins_dwarfs_q) 
+
+    sim_halos_dict = get_equal_bins(sim_halos_dict, 'halos', r200_scaled)
+    sim_dwarfs_dict = get_equal_bins(sim_dwarfs_dict, 'dwarfs', r200_scaled)
 
     fig, ax = plt.subplots(3, 2, figsize=(12, 14))
     ax = ax.flatten()
@@ -142,18 +150,31 @@ if __name__ == '__main__':
             for k in ['rho', 'mass', 'r200', 'ssfr', 'dist', 'EW', 'EWerr']:
                 cos_dict[k] = cos_dict[k][ew_mask]
 
-        #cos_sf_ew, cos_sf_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] > quench), cos_dict['dist_bins_sf'])
-        #cos_q_ew, cos_q_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] < quench), cos_dict['dist_bins_q'])
+        cos_sf_ew, cos_sf_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] > quench), cos_dict['dist_bins_sf'])
+        cos_q_ew, cos_q_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] < quench), cos_dict['dist_bins_q'])
 
-        #c1 = ax[i].errorbar(cos_dict['plot_bins_sf'], cos_sf_ew, yerr=cos_sf_err, capsize=4, c='c', marker='o', ls='--', label=label+' SF')
-        #c2 = ax[i].errorbar(cos_dict['plot_bins_q'], cos_q_ew, yerr=cos_q_err, capsize=4, c='m', marker='o', ls='--', label=label+' Q')
-        #c1, = ax[i].plot(cos_dict['plot_bins_sf'], cos_sf_ew, c='c', marker='o', ls='--', label=label+' SF')
-        #c2, = ax[i].plot(cos_dict['plot_bins_q'], cos_q_ew, c='m', marker='o', ls='--', label=label+' Q')
-        cos_dict['EW'], cos_dict['EWerr'] = convert_to_log(cos_dict['EW'], cos_dict['EWerr'])
-        c1 = ax[i].errorbar(cos_dict['dist'][cos_dict['ssfr'] > quench], cos_dict['EW'][cos_dict['ssfr'] > quench], 
-                            yerr=cos_dict['EWerr'][cos_dict['ssfr'] > quench], ls='', capsize=4, c='c', marker='o', label=label+' SF')
-        c2 = ax[i].errorbar(cos_dict['dist'][cos_dict['ssfr'] < quench], cos_dict['EW'][cos_dict['ssfr'] < quench], 
-                            yerr=cos_dict['EWerr'][cos_dict['ssfr'] < quench], ls='', capsize=4, c='m', marker='o', label=label+' Q')
+        # plot the COS data as boxes showing the extent of the data
+
+        # change this to x and y errorbars, then change symbols and think about colour
+
+        for j in range(len(cos_dict['dist_bins_sf']) - 1):
+            ax[i].hlines(cos_sf_ew[j], xmin=cos_dict['dist_bins_sf'][j], xmax=cos_dict['dist_bins_sf'][j + 1], colors=['c'], ls='-')
+            ax[i].hlines(cos_sf_ew[j] - cos_sf_err[0][j], xmin=cos_dict['dist_bins_sf'][j], xmax=cos_dict['dist_bins_sf'][j + 1], colors=['c'], ls='--')
+            ax[i].hlines(cos_sf_ew[j] + cos_sf_err[1][j], xmin=cos_dict['dist_bins_sf'][j], xmax=cos_dict['dist_bins_sf'][j + 1], colors=['c'], ls='--')
+        for j in range(len(cos_dict['dist_bins_q']) - 1):
+            ax[i].hlines(cos_q_ew[j], xmin=cos_dict['dist_bins_q'][j], xmax=cos_dict['dist_bins_q'][j + 1], colors=['m'], ls='-')
+            ax[i].hlines(cos_q_ew[j] - cos_q_err[0][j], xmin=cos_dict['dist_bins_q'][j], xmax=cos_dict['dist_bins_q'][j + 1], colors=['m'], ls='--')
+            ax[i].hlines(cos_q_ew[j] + cos_q_err[1][j], xmin=cos_dict['dist_bins_q'][j], xmax=cos_dict['dist_bins_q'][j + 1], colors=['m'], ls='--')
+
+        c1 = ax[i].errorbar(cos_dict['plot_bins_sf'], cos_sf_ew, yerr=cos_sf_err, capsize=4, c='c', marker='o', ls='', label=label+' SF')
+        c2 = ax[i].errorbar(cos_dict['plot_bins_q'], cos_q_ew, yerr=cos_q_err, capsize=4, c='m', marker='o', ls='', label=label+' Q')
+
+        #cos_dict['EW'], cos_dict['EWerr'] = convert_to_log(cos_dict['EW'], cos_dict['EWerr'])
+        #c1 = ax[i].errorbar(cos_dict['dist'][cos_dict['ssfr'] > quench], cos_dict['EW'][cos_dict['ssfr'] > quench], 
+        #                    yerr=cos_dict['EWerr'][cos_dict['ssfr'] > quench], ls='', capsize=4, c='c', marker='o', label=label+' SF')
+        #c2 = ax[i].errorbar(cos_dict['dist'][cos_dict['ssfr'] < quench], cos_dict['EW'][cos_dict['ssfr'] < quench], 
+        #                    yerr=cos_dict['EWerr'][cos_dict['ssfr'] < quench], ls='', capsize=4, c='m', marker='o', label=label+' Q')
+        
         leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
 
         l1 = ax[i].errorbar(sim_dict['plot_bins_sf'], sim_sf_ew, yerr=sim_sf_err, capsize=4, c='b', marker='o', ls='--')
@@ -166,7 +187,7 @@ if __name__ == '__main__':
         ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
         ax[i].set_ylim(-2, ylim)
         if r200_scaled:
-            ax[i].set_xlim(0, 1.1)
+            ax[i].set_xlim(0, 1.5)
         else:
             ax[i].set_xlim(25, 145)
 

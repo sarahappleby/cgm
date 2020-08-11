@@ -22,33 +22,22 @@ def read_simulation_sample(model, wind, snap, survey, norients, lines, r200_scal
 
     return data_dict
 
-def get_dict_bins(data_dict, nbins, quench, do_equal_bins=False, r200_scaled=False, out=0., data=None):
+def get_equal_bins(data_dict, survey, r200_scaled=False):
 
-    if do_equal_bins:
-
-        if r200_scaled:
+    if r200_scaled:
+        if survey == 'halos':
             r_end = 1.
-            dr = .2
-        else:
-            r_end = 200.
-            dr = 40.
-
-        data_dict['dist_bins_q'] = np.arange(0., r_end, dr)
-        data_dict['dist_bins_sf'] = np.arange(0., r_end, dr)
-        data_dict['plot_bins_q'] = data_dict['dist_bins_q'][:-1] + 0.5*dr
-        data_dict['plot_bins_sf'] = data_dict['dist_bins_sf'][:-1] + 0.5*dr
+        elif survey == 'dwarfs':
+            r_end = 1.4
+        dr = .2
     else:
+        r_end = 200.
+        dr = 40.
 
-        # excluding outlying points for the purpose of centering bins; I'm not convinced I should do this
-        #if data == 'sim':
-        #    use_dict = do_exclude_outliers(data_dict, out)
-        #elif data == 'cos':
-        #    use_dict = data_dict.copy()
-
-        mask = (data_dict['ssfr'] > quench)
-        data_dict['dist_bins_sf'], data_dict['plot_bins_sf'] = do_bins(data_dict['dist'][mask], nbins)
-        mask = (data_dict['ssfr'] < quench)
-        data_dict['dist_bins_q'], data_dict['plot_bins_q'] = do_bins(data_dict['dist'][mask], nbins)
+    data_dict['dist_bins_q'] = np.arange(0., r_end+dr, dr)
+    data_dict['dist_bins_sf'] = np.arange(0., r_end+dr, dr)
+    data_dict['plot_bins_q'] = data_dict['dist_bins_q'][:-1] + 0.5*dr
+    data_dict['plot_bins_sf'] = data_dict['dist_bins_sf'][:-1] + 0.5*dr
 
     return data_dict
 
