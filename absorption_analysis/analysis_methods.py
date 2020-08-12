@@ -3,6 +3,19 @@ import h5py
 from cosmic_variance import *
 from physics import *
 
+def write_dict_to_h5(data_dict, h5_file):
+    with h5py.File(h5_file, 'a') as f:
+        for k in data_dict.keys():
+            f.create_dataset(k, data=np.array(data_dict[k]))
+    return 
+
+def read_dict_from_h5(h5_file):
+    data_dict = {}
+    with h5py.File(h5_file, 'r') as f:
+        for k in f.keys():
+            data_dict[k] = f[k][:]
+    return data_dict
+
 def read_simulation_sample(model, wind, snap, survey, norients, lines, r200_scaled):
 
     data_dict = {}
@@ -23,7 +36,7 @@ def read_simulation_sample(model, wind, snap, survey, norients, lines, r200_scal
 
     return data_dict
 
-def get_equal_bins(data_dict, survey, r200_scaled=False):
+def get_equal_bins(survey, r200_scaled=False):
 
     if r200_scaled:
         if survey == 'halos':
@@ -35,12 +48,13 @@ def get_equal_bins(data_dict, survey, r200_scaled=False):
         r_end = 200.
         dr = 40.
 
-    data_dict['dist_bins_q'] = np.arange(0., r_end+dr, dr)
-    data_dict['dist_bins_sf'] = np.arange(0., r_end+dr, dr)
-    data_dict['plot_bins_q'] = data_dict['dist_bins_q'][:-1] + 0.5*dr
-    data_dict['plot_bins_sf'] = data_dict['dist_bins_sf'][:-1] + 0.5*dr
+    plot_dict = {}
+    plot_dict['dist_bins_q'] = np.arange(0., r_end+dr, dr)
+    plot_dict['dist_bins_sf'] = np.arange(0., r_end+dr, dr)
+    plot_dict['plot_bins_q'] = plot_dict['dist_bins_q'][:-1] + 0.5*dr
+    plot_dict['plot_bins_sf'] = plot_dict['dist_bins_sf'][:-1] + 0.5*dr
 
-    return data_dict
+    return plot_dict
 
 def bin_data(x, y, xbins):
     digitized = np.digitize(x, xbins)
@@ -143,7 +157,7 @@ def cos_binned_ew(cos_dict, mask, rho_bins):
     sig_lo = np.abs(ew - lo)
     sig_hi = np.abs(hi - ew)
 
-    return ew, [sig_lo, sig_hi]
+    return ew, std, sig_lo, sig_hi
 
 def sim_binned_cfrac(data_dict, mask, rho_bins, thresh, line, boxsize):
     binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew_'+line][mask], rho_bins)
