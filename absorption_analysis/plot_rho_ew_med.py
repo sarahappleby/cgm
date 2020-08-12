@@ -149,7 +149,7 @@ if __name__ == '__main__':
                 cos_dict[k] = cos_dict[k][ew_mask]
 
         cos_sf_ew, cos_sf_yerr = cos_binned_ew(cos_dict, (cos_dict['ssfr'] > quench), cos_dict['dist_bins_sf'])
-        cos_q_ew, cos_q_yerr = cos_binned_ew(cos_dict, (cos_dict['ssfr'] < quench), cos_dict['dist_bins_q'])
+        cos_q_ew, cos_q_yerr  = cos_binned_ew(cos_dict, (cos_dict['ssfr'] < quench), cos_dict['dist_bins_q'])
 
         # plot the COS data as boxes showing the extent of the data
 

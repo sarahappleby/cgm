@@ -129,19 +129,21 @@ def cos_binned_ew(cos_dict, mask, rho_bins):
     binned_ew_err = bin_data(cos_dict['dist'][mask], cos_dict['EWerr'][mask], rho_bins)
 
     ew = np.zeros(len(binned_ew))
+    std = np.zeros(len(binned_ew))
     lo = np.zeros(len(binned_ew))
     hi = np.zeros(len(binned_ew))
 
     for i in range(len(binned_ew)):
-        data = binned_ew[i]
+        data = np.log10(binned_ew[i])
         ew[i] = np.nanmedian(data)
+        std[i] = np.nanstd(data)
         lo[i] = np.nanpercentile(data, 25)
         hi[i] = np.nanpercentile(data, 75)
 
     sig_lo = np.abs(ew - lo)
     sig_hi = np.abs(hi - ew)
 
-    return convert_to_log(ew, np.array([sig_lo, sig_hi]))
+    return ew, [sig_lo, sig_hi]
 
 def sim_binned_cfrac(data_dict, mask, rho_bins, thresh, line, boxsize):
     binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew_'+line][mask], rho_bins)
