@@ -12,9 +12,10 @@ def read_simulation_sample(model, wind, snap, survey, norients, lines, r200_scal
         data_dict['ssfr'] = np.repeat(f['ssfr'][:], norients)
         data_dict['pos'] = np.repeat(f['position'][:], norients, axis=0)
         data_dict['r200'] = np.repeat(f['halo_r200'][:], norients)
+        data_dict['vgal_position'] = np.repeat(f['vgal_position'][:][:, 2], norients)
     data_dict['ssfr'][data_dict['ssfr'] < -11.5] = -11.5
 
-    for line in lines:
+    for i, line in enumerate(lines):
         # Read in the equivalent widths of the simulation galaxies spectra
         ew_file = 'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_ew_data_lsf.h5'
         with h5py.File(ew_file, 'r') as f:
@@ -142,8 +143,8 @@ def cos_binned_ew(cos_dict, mask, rho_bins):
 
     return convert_to_log(ew, np.array([sig_lo, sig_hi]))
 
-def sim_binned_cfrac(data_dict, mask, rho_bins, thresh, boxsize):
-    binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew'][mask], rho_bins)
+def sim_binned_cfrac(data_dict, mask, rho_bins, thresh, line, boxsize):
+    binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew_'+line][mask], rho_bins)
     binned_pos = bin_data(data_dict['dist'][mask], data_dict['pos'][mask], rho_bins)
 
     cfrac = np.zeros(len(binned_ew))
@@ -166,9 +167,9 @@ def cos_binned_cfrac(cos_dict, mask, rho_bins, thresh):
 
     return cfrac
 
-def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, boxsize):
-    binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew'][mask], rho_bins)
-    binned_pl = bin_data(data_dict['dist'][mask], data_dict['path_length'][mask], rho_bins)
+def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, line, boxsize):
+    binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew_'+line][mask], rho_bins)
+    binned_pl = bin_data(data_dict['dist'][mask], data_dict['path_length_'+line][mask], rho_bins)
     binned_pos = bin_data(data_dict['dist'][mask], data_dict['pos'][mask], rho_bins)
 
     path_abs = np.zeros(len(binned_ew))

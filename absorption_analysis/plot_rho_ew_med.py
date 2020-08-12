@@ -123,10 +123,8 @@ if __name__ == '__main__':
                 else: sim_dict[k] = np.delete(sim_dict[k], np.arange(3*norients*ngals_each, 4*norients*ngals_each), axis=0)
 
         # get binned medians for the simulation sample
-        mask = sim_dict['ssfr'] > quench
-        sim_sf_ew, sim_sf_err = sim_binned_ew(sim_dict, mask, sim_dict['dist_bins_sf'], lines[i], boxsize)
-        mask = sim_dict['ssfr'] < quench
-        sim_q_ew, sim_q_err = sim_binned_ew(sim_dict, mask, sim_dict['dist_bins_q'], lines[i], boxsize)
+        sim_sf_ew, sim_sf_err = sim_binned_ew(sim_dict, (sim_dict['ssfr'] > quench), sim_dict['dist_bins_sf'], lines[i], boxsize)
+        sim_q_ew, sim_q_err = sim_binned_ew(sim_dict, (sim_dict['ssfr'] < quench), sim_dict['dist_bins_q'], lines[i], boxsize)
 
         # read in COS observations, set units, remove dwarfs galaxy 3 for Lya, do mass mask
         if (survey == 'dwarfs') & (lines[i] == 'CIV1548'):
@@ -158,9 +156,10 @@ if __name__ == '__main__':
         cos_sf_xerr = get_xerr_from_bins(cos_dict['dist_bins_sf'], cos_dict['plot_bins_sf'])
         cos_q_xerr = get_xerr_from_bins(cos_dict['dist_bins_q'], cos_dict['plot_bins_q'])
 
-        c1 = ax[i].errorbar(cos_dict['plot_bins_sf'], cos_sf_ew, xerr=cos_sf_xerr, yerr=cos_sf_yerr, capsize=4, c='c', marker='o', ls='', label=label+' SF')
-        c2 = ax[i].errorbar(cos_dict['plot_bins_q'], cos_q_ew, xerr=cos_q_xerr, yerr=cos_q_yerr, capsize=4, c='m', marker='o', ls='', label=label+' Q')
-
+        c1 = ax[i].errorbar(cos_dict['plot_bins_sf'], cos_sf_ew, xerr=cos_sf_xerr, yerr=cos_sf_yerr, 
+                            capsize=4, c='c', marker='', ls='', label=label+' SF')
+        c2 = ax[i].errorbar(cos_dict['plot_bins_q'], cos_q_ew, xerr=cos_q_xerr, yerr=cos_q_yerr, 
+                            capsize=4, c='m', marker='', ls='', label=label+' Q')
         leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
 
         # plot the Simba data as lines
