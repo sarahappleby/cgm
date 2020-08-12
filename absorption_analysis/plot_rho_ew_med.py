@@ -150,33 +150,20 @@ if __name__ == '__main__':
             for k in ['rho', 'mass', 'r200', 'ssfr', 'dist', 'EW', 'EWerr']:
                 cos_dict[k] = cos_dict[k][ew_mask]
 
-        cos_sf_ew, cos_sf_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] > quench), cos_dict['dist_bins_sf'])
-        cos_q_ew, cos_q_err = cos_binned_ew(cos_dict, (cos_dict['ssfr'] < quench), cos_dict['dist_bins_q'])
+        cos_sf_ew, cos_sf_yerr = cos_binned_ew(cos_dict, (cos_dict['ssfr'] > quench), cos_dict['dist_bins_sf'])
+        cos_q_ew, cos_q_yerr = cos_binned_ew(cos_dict, (cos_dict['ssfr'] < quench), cos_dict['dist_bins_q'])
 
         # plot the COS data as boxes showing the extent of the data
 
-        # change this to x and y errorbars, then change symbols and think about colour
+        cos_sf_xerr = get_xerr_from_bins(cos_dict['dist_bins_sf'], cos_dict['plot_bins_sf'])
+        cos_q_xerr = get_xerr_from_bins(cos_dict['dist_bins_q'], cos_dict['plot_bins_q'])
 
-        for j in range(len(cos_dict['dist_bins_sf']) - 1):
-            ax[i].hlines(cos_sf_ew[j], xmin=cos_dict['dist_bins_sf'][j], xmax=cos_dict['dist_bins_sf'][j + 1], colors=['c'], ls='-')
-            ax[i].hlines(cos_sf_ew[j] - cos_sf_err[0][j], xmin=cos_dict['dist_bins_sf'][j], xmax=cos_dict['dist_bins_sf'][j + 1], colors=['c'], ls='--')
-            ax[i].hlines(cos_sf_ew[j] + cos_sf_err[1][j], xmin=cos_dict['dist_bins_sf'][j], xmax=cos_dict['dist_bins_sf'][j + 1], colors=['c'], ls='--')
-        for j in range(len(cos_dict['dist_bins_q']) - 1):
-            ax[i].hlines(cos_q_ew[j], xmin=cos_dict['dist_bins_q'][j], xmax=cos_dict['dist_bins_q'][j + 1], colors=['m'], ls='-')
-            ax[i].hlines(cos_q_ew[j] - cos_q_err[0][j], xmin=cos_dict['dist_bins_q'][j], xmax=cos_dict['dist_bins_q'][j + 1], colors=['m'], ls='--')
-            ax[i].hlines(cos_q_ew[j] + cos_q_err[1][j], xmin=cos_dict['dist_bins_q'][j], xmax=cos_dict['dist_bins_q'][j + 1], colors=['m'], ls='--')
+        c1 = ax[i].errorbar(cos_dict['plot_bins_sf'], cos_sf_ew, xerr=cos_sf_xerr, yerr=cos_sf_yerr, capsize=4, c='c', marker='o', ls='', label=label+' SF')
+        c2 = ax[i].errorbar(cos_dict['plot_bins_q'], cos_q_ew, xerr=cos_q_xerr, yerr=cos_q_yerr, capsize=4, c='m', marker='o', ls='', label=label+' Q')
 
-        c1 = ax[i].errorbar(cos_dict['plot_bins_sf'], cos_sf_ew, yerr=cos_sf_err, capsize=4, c='c', marker='o', ls='', label=label+' SF')
-        c2 = ax[i].errorbar(cos_dict['plot_bins_q'], cos_q_ew, yerr=cos_q_err, capsize=4, c='m', marker='o', ls='', label=label+' Q')
-
-        #cos_dict['EW'], cos_dict['EWerr'] = convert_to_log(cos_dict['EW'], cos_dict['EWerr'])
-        #c1 = ax[i].errorbar(cos_dict['dist'][cos_dict['ssfr'] > quench], cos_dict['EW'][cos_dict['ssfr'] > quench], 
-        #                    yerr=cos_dict['EWerr'][cos_dict['ssfr'] > quench], ls='', capsize=4, c='c', marker='o', label=label+' SF')
-        #c2 = ax[i].errorbar(cos_dict['dist'][cos_dict['ssfr'] < quench], cos_dict['EW'][cos_dict['ssfr'] < quench], 
-        #                    yerr=cos_dict['EWerr'][cos_dict['ssfr'] < quench], ls='', capsize=4, c='m', marker='o', label=label+' Q')
-        
         leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
 
+        # plot the Simba data as lines
         l1 = ax[i].errorbar(sim_dict['plot_bins_sf'], sim_sf_ew, yerr=sim_sf_err, capsize=4, c='b', marker='o', ls='--')
         l2 = ax[i].errorbar(sim_dict['plot_bins_q'], sim_q_ew, yerr=sim_q_err, capsize=4, c='r', marker='o', ls='--')
         if i == 0:

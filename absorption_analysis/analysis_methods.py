@@ -56,6 +56,12 @@ def get_bin_edges(x, nbins):
 def get_bin_middle(xbins):
     return np.array([xbins[i] + 0.5*(xbins[i+1] - xbins[i]) for i in range(len(xbins)-1)])
 
+def get_xerr_from_bins(bin_edges, bin_middle):
+    xerr_array = []
+    for i in range(len(bin_middle)):
+        xerr_array.append([bin_middle[i] - bin_edges[i], bin_edges[i+1] - bin_middle[i]])
+    return np.transpose(xerr_array)
+
 def do_bins(x, nbins):
 
     rho_bins = get_bin_edges(x, nbins)
