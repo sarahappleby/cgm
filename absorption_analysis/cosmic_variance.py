@@ -7,7 +7,7 @@ def get_cosmic_variance(ew, pos, boxsize, quantity, thresh=None, pl=None):
         i_using = np.concatenate(np.delete(octant_ids, i))
         if quantity == 'cfrac':
             from physics import compute_cfrac
-            measure[i] = compute_cfrac(ew[i_using.astype('int')], thresh)
+            measure[i], _ = compute_cfrac(ew[i_using.astype('int')], thresh)
         elif quantity == 'path_abs':
             from physics import compute_path_abs
             measure[i] = compute_path_abs(ew[i_using.astype('int')], pl[i_using.astype('int')])

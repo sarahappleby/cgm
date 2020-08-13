@@ -22,9 +22,14 @@ def equivalent_width(flux, pixel_size):
 
 def compute_cfrac(ew, det_thresh):
     if len(ew) == 0.:
-        return np.nan
+        cfrac = np.nan
+        poisson = np.nan
     else:
-        return float((len(np.where(ew > det_thresh)[0]))) / float(len(ew))
+        nlim = len(np.where(ew > det_thresh)[0])
+        cfrac = float(nlim) / float(len(ew))
+        poisson = np.sqrt(nlim) / float(len(ew))
+
+    return cfrac, poisson
 
 def compute_path_length(vgal, vel_window, lambda_rest, z, ):
     c = 2.99792e5 # km/s

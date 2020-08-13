@@ -165,23 +165,26 @@ def sim_binned_cfrac(data_dict, mask, rho_bins, thresh, line, boxsize):
 
     cfrac = np.zeros(len(binned_ew))
     cfrac_cv = np.zeros(len(binned_ew))
+    poisson = np.zeros(len(binned_ew))
 
     for i in range(len(binned_ew)):
         if len(binned_ew[i]) > 0.:
             cfrac[i], cfrac_cv[i] = get_cosmic_variance(binned_ew[i], binned_pos[i], boxsize, 'cfrac', thresh)
+            _, poisson[i] = compute_cfrac(binned_ew[i], thresh)
         else:
             cfrac[i], cfrac_cv[i] = np.nan, np.nan
 
-    return cfrac, cfrac_cv
+    return cfrac, cfrac_cv, poisson
 
 def cos_binned_cfrac(cos_dict, mask, rho_bins, thresh):
     binned_ew = bin_data(cos_dict['dist'][mask], cos_dict['EW'][mask], rho_bins)
     cfrac = np.zeros(len(binned_ew))
+    poisson = np.zeros(len(binned_ew)) # how I love les poisson
 
     for i in range(len(binned_ew)):
-        cfrac[i] = compute_cfrac(binned_ew[i], thresh)
+        cfrac[i], poisson[i] = compute_cfrac(binned_ew[i], thresh)
 
-    return cfrac
+    return cfrac, poisson
 
 def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, line, boxsize):
     binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew_'+line][mask], rho_bins)
