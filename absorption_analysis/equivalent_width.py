@@ -30,6 +30,7 @@ if __name__ == '__main__':
     velocity_width = 300. #km/s
     bin_size = 6. # km/s 
     c = 2.98e8 # km/s
+    ngals_each = 5
 
     if cos_survey == 'dwarfs':
         snap = '151'
@@ -43,13 +44,16 @@ if __name__ == '__main__':
         gal_ids = f['gal_ids'][:]
         vgal_position = f['vgal_position'][:][:, 2]
 
+    # ignore the galaxies that dont have counterparts in the m50n512 boxes
     if (model == 'm50n512') & (cos_survey == 'halos'):
         ignore_cos_gals = [18, 29]
     if (model == 'm25n512') & (cos_survey == 'dwarfs'):
         ignore_cos_gals = [10, 17, 36]
     if ((model == 'm50n512') & (cos_survey == 'halos')) or ((model == 'm25n512') & (cos_survey == 'dwarfs')):
-        ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
+        ignore_simba_gals = [list(range(num*ngals_each, (num+1)*ngals_each)) for num in ignore_cos_gals]
         ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
+    else:
+        ignore_simba_gals = []
 
     for ion in ions:
         
