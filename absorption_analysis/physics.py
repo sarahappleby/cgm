@@ -48,4 +48,9 @@ def compute_path_abs(ew, pl):
 
     return np.divide(total_ew, total_pl, out=np.zeros_like(total_ew), where=total_pl!=0)
 
+def compute_path_abs_err(ew, ew_err, pl):
+    total_pl = np.nansum(pl)
+    total_sq_err = np.nansum(ew_err**2.)
+
+    return np.sqrt(total_sq_err) / total_pl
 

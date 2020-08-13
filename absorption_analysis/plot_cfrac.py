@@ -6,9 +6,6 @@ import sys
 import numpy as np
 from analysis_methods import *
 
-sys.path.append('../cos_samples/')
-from get_cos_info import make_cos_dict, read_halos_data, get_cos_dwarfs_lya, get_cos_dwarfs_civ
-
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 
