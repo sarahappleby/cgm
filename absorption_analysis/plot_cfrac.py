@@ -18,8 +18,8 @@ if __name__ == '__main__':
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
     det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
 
-    model = 'm100n1024'
-    wind = 's50'
+    model = sys.argv[1]
+    wind = sys.argv[2]
 
     plot_dir = 'plots/'
     r200_scaled = True
