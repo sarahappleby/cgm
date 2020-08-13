@@ -49,6 +49,17 @@ if __name__ == '__main__':
 
     quench = quench_thresh(z)
 
+    # ignore the galaxies that dont have counterparts in the m50n512 boxes
+    if (model == 'm50n512') & (survey == 'halos'):
+        ignore_cos_gals = [18, 29]
+    if (model == 'm25n512') & (survey == 'dwarfs'):
+        ignore_cos_gals = [10, 17, 36]
+    if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
+        ignore_simba_gals = [list(range(num*norients*ngals_each, (num+1)*norients*ngals_each)) for num in ignore_cos_gals]
+        ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
+    else:
+        ignore_simba_gals = []
+
     cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_obs_path_abs_data.h5'
     sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_sim_path_abs_data.h5'
 
@@ -89,6 +100,12 @@ if __name__ == '__main__':
         
             cos_dict = cos_dict_orig.copy()
             mass_mask = cos_mmask.copy()
+
+            if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
+                mass_mask = np.delete(mass_mask, ignore_cos_gals)
+                for k in cos_dict.keys():
+                    cos_dict[k] = np.delete(cos_dict[k], ignore_cos_gals)
+
             # removing COS-Dwarfs galaxy 3 for the Lya stuff
             if (survey == 'dwarfs') & (line == 'H1215'):
                 mass_mask = np.delete(mass_mask, 3)
@@ -111,6 +128,9 @@ if __name__ == '__main__':
             elif (survey == 'halos'):
                 cos_dict['EW'], cos_dict['EWerr'] = read_halos_data(line)
                 cos_dict['EW'] = np.abs(cos_dict['EW'])
+            if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
+                cos_dict['EW'] = np.delete(cos_dict['EW'], ignore_cos_gals)
+                cos_dict['EWerr'] = np.delete(cos_dict['EWerr'], ignore_cos_gals)
             cos_dict['EW'] = cos_dict['EW'][mass_mask]
             cos_dict['EWerr'] = cos_dict['EWerr'][mass_mask]
 
@@ -121,6 +141,10 @@ if __name__ == '__main__':
 
             sim_dict['path_length_'+lines[i]] = compute_path_length(sim_dict['vgal_position'], velocity_width, wave_rest[i], z)
             cos_dict['path_length'] = np.repeat(sim_dict['path_length_'+lines[i]][0], len(cos_dict['EW']))
+
+            if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
+                for k in sim_dict.keys():
+                    sim_dict[k] = np.delete(sim_dict[k], ignore_simba_gals, axis=0)
 
             # get binned medians for the simulation sample
             sim_plot_dict['path_abs_'+line+'_sf'], sim_plot_dict['path_abs_'+line+'_cv_std_sf'] = \
