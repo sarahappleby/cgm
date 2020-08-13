@@ -43,13 +43,24 @@ if __name__ == '__main__':
         gal_ids = f['gal_ids'][:]
         vgal_position = f['vgal_position'][:][:, 2]
 
+    if (model == 'm50n512') & (cos_survey == 'halos'):
+        ignore_cos_gals = [18, 29]
+    if (model == 'm25n512') & (cos_survey == 'dwarfs'):
+        ignore_cos_gals = [10, 17, 36]
+    if ((model == 'm50n512') & (cos_survey == 'halos')) or ((model == 'm25n512') & (cos_survey == 'dwarfs')):
+        ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
+        ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
+
     for ion in ions:
         
         ew_l = np.zeros((len(gal_ids), len(orients)))
         ew_v = np.zeros((len(gal_ids), len(orients)))
 
         for i, gal in enumerate(gal_ids):
-            
+        
+            if i in ignore_simba_gals:
+                continue
+
             vgal = vgal_position[i]
 
             for j, orient in enumerate(orients):
