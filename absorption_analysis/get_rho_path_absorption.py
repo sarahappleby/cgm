@@ -147,10 +147,13 @@ if __name__ == '__main__':
                     sim_dict[k] = np.delete(sim_dict[k], ignore_simba_gals, axis=0)
 
             # get binned medians for the simulation sample
+            mask = (sim_dict['ssfr'] > quench)
+            sim_plot_dict['ngals_'+line+'_sf'] = get_ngals(sim_dict['dist'][mask], sim_plot_dict['dist_bins_sf'])
             sim_plot_dict['path_abs_'+line+'_sf'], sim_plot_dict['path_abs_'+line+'_cv_std_sf'] = \
-                    sim_binned_path_abs(sim_dict, (sim_dict['ssfr'] > quench), sim_plot_dict['dist_bins_sf'], det_thresh[i], line, boxsize)
+                    sim_binned_path_abs(sim_dict, mask, sim_plot_dict['dist_bins_sf'], det_thresh[i], line, boxsize)
+            sim_plot_dict['ngals_'+line+'_q'] = get_ngals(sim_dict['dist'][~mask], sim_plot_dict['dist_bins_q'])
             sim_plot_dict['path_abs_'+line+'_q'], sim_plot_dict['path_abs_'+line+'_cv_std_q'] = \
-                    sim_binned_path_abs(sim_dict, (sim_dict['ssfr'] < quench), sim_plot_dict['dist_bins_q'], det_thresh[i], line, boxsize)
+                    sim_binned_path_abs(sim_dict, ~mask, sim_plot_dict['dist_bins_q'], det_thresh[i], line, boxsize)
 
             cos_plot_dict['path_abs_'+line+'_sf'], cos_plot_dict['path_abs_'+line+'_std_sf'] = \
                     cos_binned_path_abs(cos_dict, (cos_dict['ssfr'] > quench), cos_plot_dict['dist_bins_sf'], det_thresh[i])

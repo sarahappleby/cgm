@@ -36,14 +36,17 @@ def read_simulation_sample(model, wind, snap, survey, norients, lines, r200_scal
 
     return data_dict
 
-def get_equal_bins(survey, r200_scaled=False):
+def get_equal_bins(model, survey, r200_scaled=False):
 
     if r200_scaled:
         if survey == 'halos':
             r_end = 1.
         elif survey == 'dwarfs':
             r_end = 1.4
-        dr = .2
+        if model == 'm100n1024':
+            dr = .2
+        elif model == 'm50n512':
+            dr = 0.25
     else:
         r_end = 200.
         dr = 40.
@@ -122,6 +125,10 @@ def median_ew_cos_groups(ew, rho, ssfr, num_gals, num_cos):
     new_ew, err = convert_to_log(new_ew, np.array([sig_lo, sig_hi]))
 
     return new_ew, err, med_r, med_s
+
+def get_ngals(dist, rho_bins):
+    binned_data = bin_data(dist, dist, rho_bins)
+    return np.array([len(x) for x in binned_data])
 
 def sim_binned_ew(data_dict, mask, rho_bins, line, boxsize):
     binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew_'+line][mask], rho_bins)

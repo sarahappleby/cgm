@@ -150,7 +150,10 @@ if __name__ == '__main__':
                     sim_dict[k] = np.delete(sim_dict[k], np.arange(3*norients*ngals_each, 4*norients*ngals_each), axis=0)
 
             # get binned medians for the simulation sample
-            sim_plot_dict['EW_'+line+'_med_sf'], sim_plot_dict['EW_'+line+'_cosmic_std_sf'] = sim_binned_ew(sim_dict, (sim_dict['ssfr'] > quench), sim_plot_dict['dist_bins_sf'], line, boxsize)
-            sim_plot_dict['EW_'+line+'_med_q'], sim_plot_dict['EW_'+line+'_cosmic_std_q'] = sim_binned_ew(sim_dict, (sim_dict['ssfr'] < quench), sim_plot_dict['dist_bins_q'], line, boxsize)
+            mask = (sim_dict['ssfr'] > quench)
+            sim_plot_dict['ngals_'+line+'_sf'] = get_ngals(sim_dict['dist'][mask], sim_plot_dict['dist_bins_sf'])
+            sim_plot_dict['EW_'+line+'_med_sf'], sim_plot_dict['EW_'+line+'_cosmic_std_sf'] = sim_binned_ew(sim_dict, mask, sim_plot_dict['dist_bins_sf'], line, boxsize)
+            sim_plot_dict['ngals_'+line+'_q'] = get_ngals(sim_dict['dist'][~mask], sim_plot_dict['dist_bins_q'])
+            sim_plot_dict['EW_'+line+'_med_q'], sim_plot_dict['EW_'+line+'_cosmic_std_q'] = sim_binned_ew(sim_dict, ~mask, sim_plot_dict['dist_bins_q'], line, boxsize)
 
         write_dict_to_h5(sim_plot_dict, sim_file)
