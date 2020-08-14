@@ -94,7 +94,7 @@ if __name__ == '__main__':
         else:
             sim_dict['dist'] = sim_dict['rho'].copy()
 
-        sim_plot_dict = get_equal_bins(survey, r200_scaled)
+        sim_plot_dict = get_equal_bins(model, survey, r200_scaled)
 
         for i, line in enumerate(lines):
         

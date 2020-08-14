@@ -140,7 +140,7 @@ if __name__ == '__main__':
             for k in sim_dict.keys():
                 sim_dict[k] = np.delete(sim_dict[k], ignore_simba_gals, axis=0)
 
-        sim_plot_dict = get_equal_bins(survey, r200_scaled)
+        sim_plot_dict = get_equal_bins(model, survey, r200_scaled)
 
         for i, line in enumerate(lines):
 
