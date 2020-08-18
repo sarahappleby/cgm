@@ -43,7 +43,7 @@ if __name__ == '__main__':
     line_x = Line2D([0,1],[0,1],ls=ls[2], marker=markers[2], color='grey')
     line_agn = Line2D([0,1],[0,1],ls=ls[3], marker=markers[3], color='grey')
 
-    leg = ax[0].legend([line_sim, line_jet, line_x, line_agn],wind_labels, loc=1, fontsize=12)
+    leg = ax[0].legend([line_sim, line_jet, line_x, line_agn],wind_labels, loc=4, fontsize=12)
     ax[0].add_artist(leg)
 
     for j, wind in enumerate(winds):
@@ -60,9 +60,11 @@ if __name__ == '__main__':
             if survey == 'dwarfs':
                 sim_plot_dict = sim_dwarfs_plot_dict
                 label = 'COS-Dwarfs'
+                x = 0.75
             elif survey == 'halos':
                 sim_plot_dict = sim_halos_plot_dict
                 label = 'COS-Halos'
+                x = 0.77
 
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'], 
                                 yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_sf'], 
@@ -75,6 +77,8 @@ if __name__ == '__main__':
                     leg3 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=10.5, loc=3)
 
             if j == 0:
+                ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=12,
+                                bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
                 ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
                 ax[i].set_xlabel(xlabel)
                 ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')

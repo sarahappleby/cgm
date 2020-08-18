@@ -79,8 +79,7 @@ if __name__ == '__main__':
             leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=10.5)
 
         ax[i].set_xlabel(xlabel)
-        ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z),\ $' + plot_lines[i])
-       
+        ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z),\ $' + plot_lines[i])       
         ax[i].set_ylim(1.5, 2.9)
         if r200_scaled:
             ax[i].set_xlim(0, 1.5)
