@@ -20,6 +20,7 @@ if __name__ == '__main__':
 
     model = 'm50n512'
     winds = ['s50j7k', 's50nox', 's50nojet', 's50noagn']
+    wind_labels = [r'$\textrm{Simba}$', r'$\textrm{No-Xray}$', r'$\textrm{No-jet}$', r'$\textrm{No-AGN}$']
     ls = ['-', '--', (0, (3, 5, 1, 5, 1, 5)), ':']
     markers = ['o', 'D', 's', 'v']
     ylim = 0.5
@@ -44,7 +45,7 @@ if __name__ == '__main__':
     line_x = Line2D([0,1],[0,1],ls=ls[2], marker=markers[2], color='grey')
     line_agn = Line2D([0,1],[0,1],ls=ls[3], marker=markers[3], color='grey')
 
-    leg = ax[0].legend([line_sim, line_jet, line_x, line_agn],winds, loc=1, fontsize=12)
+    leg = ax[0].legend([line_sim, line_jet, line_x, line_agn],wind_labels, loc=1, fontsize=12)
     ax[0].add_artist(leg)
 
     for j, wind in enumerate(winds):

@@ -83,7 +83,6 @@ if __name__ == '__main__':
         if i == 0:
             leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=10.5)
             
-
         ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
         ax[i].set_xlabel(xlabel)
         ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
