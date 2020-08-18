@@ -10,14 +10,11 @@ plt.rc('font', family='serif', size=14)
 
 if __name__ == '__main__':
 
-
-    # instead, essentially just do the same as for one wind, but plot the summary data and not the observations
-
     cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
     lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
-    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
-                        r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$', r'$\textrm{NeVIII}770$']
-    det_thresh = np.log10([0.2, 0.1, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
+    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$',r'$\textrm{MgII}2796$',
+                    r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
+    det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
 
     model = 'm50n512'
     winds = ['s50j7k', 's50nox', 's50nojet', 's50noagn']
@@ -43,8 +40,8 @@ if __name__ == '__main__':
     line_x = Line2D([0,1],[0,1],ls=ls[2], marker=markers[2], color='k')
     line_agn = Line2D([0,1],[0,1],ls=ls[3], marker=markers[3], color='k')
 
-    leg = ax[1].legend([line_sim, line_jet, line_x, line_agn],winds, loc=1, fontsize=12)
-    ax[1].add_artist(leg)
+    leg = ax[0].legend([line_sim, line_jet, line_x, line_agn],winds, loc=1, fontsize=12)
+    ax[0].add_artist(leg)
 
     for j, wind in enumerate(winds):
 
@@ -71,8 +68,8 @@ if __name__ == '__main__':
                                 yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'], 
                                 capsize=4, c='r', markersize=6, marker=markers[j], linestyle=ls[j], label='Simba Q')
             if j == 0:
-                if i == 1:
-                    leg3 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=10.5, loc=2)
+                if i == 0:
+                    leg3 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=10.5, loc=3)
 
             if j == 0:
                 ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)

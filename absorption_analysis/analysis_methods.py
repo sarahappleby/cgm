@@ -198,8 +198,8 @@ def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, line, boxsize):
     binned_pl = bin_data(data_dict['dist'][mask], data_dict['path_length_'+line][mask], rho_bins)
     binned_pos = bin_data(data_dict['dist'][mask], data_dict['pos'][mask], rho_bins)
 
-    path_abs = np.zeros(len(binned_ew))
-    path_abs_err = np.zeros(len(binned_ew))
+    path_abs = np.array([np.nan]* len(binned_ew))
+    path_abs_err = np.array([np.nan]* len(binned_ew))
 
     for i in range(len(binned_ew)):
         mask_ew = binned_ew[i] > thresh
@@ -210,7 +210,6 @@ def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, line, boxsize):
             path_abs[i], path_abs_err[i] = np.nan, np.nan
 
     path_abs[path_abs == 0.] = 10**1.6
-    path_abs[np.isnan(path_abs)] = 10**1.6
 
     return convert_to_log(path_abs, path_abs_err)
 
