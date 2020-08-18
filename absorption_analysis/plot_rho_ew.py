@@ -87,11 +87,12 @@ if __name__ == '__main__':
                 median_ew_cos_groups(sim_dict['ew_'+lines[i]], sim_dict['dist'], sim_dict['ssfr'], norients*ngals_each, len(cos_dict['rho'])) 
 
         # plot the simulation equivalent widths
-        mask = sim_dict['ssfr_median'] < quench
-        l1 = ax[i].errorbar(sim_dict['median_dist'][mask], sim_dict['ew_'+lines[i]+'_median'][mask], 
+
+        mask = sim_dict['ssfr_median'] > quench
+        l1 = ax[i].errorbar(sim_dict['median_dist'][mask], sim_dict['ew_'+lines[i]+'_median'][mask],
                             yerr=[sim_dict['ew_err_'+lines[i]][0][mask], sim_dict['ew_err_'+lines[i]][1][mask]],
                             ms=3.5, marker='s', capsize=4, ls='', c=sim_colors[0])
-        mask = sim_dict['ssfr_median'] > quench
+        mask = sim_dict['ssfr_median'] < quench
         l2 = ax[i].errorbar(sim_dict['median_dist'][mask], sim_dict['ew_'+lines[i]+'_median'][mask], 
                             yerr=[sim_dict['ew_err_'+lines[i]][0][mask], sim_dict['ew_err_'+lines[i]][1][mask]],
                             ms=3.5, marker='s', capsize=4, ls='', c=sim_colors[1])
