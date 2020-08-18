@@ -23,6 +23,8 @@ if __name__ == '__main__':
     ylim = 0.5
     r200_scaled = True
 
+    sim_colors, cos_colors = get_tol_colors()
+
     plot_dir = 'plots/'
     plot_name = model+'_winds_rho_ew'
     if r200_scaled:
@@ -63,10 +65,10 @@ if __name__ == '__main__':
 
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'], 
                                 yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_sf'], 
-                                capsize=4, c='b', markersize=6, marker=markers[j], linestyle=ls[j], label='Simba SF')
+                                capsize=4, c=sim_colors[0], markersize=6, marker=markers[j], linestyle=ls[j], label='Simba SF')
             l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], sim_plot_dict['EW_'+lines[i]+'_med_q'], 
                                 yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'], 
-                                capsize=4, c='r', markersize=6, marker=markers[j], linestyle=ls[j], label='Simba Q')
+                                capsize=4, c=sim_colors[1], markersize=6, marker=markers[j], linestyle=ls[j], label='Simba Q')
             if j == 0:
                 if i == 0:
                     leg3 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=10.5, loc=3)

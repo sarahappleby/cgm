@@ -4,7 +4,7 @@ import h5py
 import sys
 import numpy as np
 from plot_cos_data import plot_dwarfs_civ, plot_dwarfs_lya, plot_halos
-from analysis_methods import median_ew_cos_groups, read_simulation_sample
+from analysis_methods import get_tol_colors, median_ew_cos_groups, read_simulation_sample
 
 sys.path.append('../cos_samples/')
 from get_cos_info import get_cos_halos, get_cos_dwarfs, make_cos_dict
@@ -29,6 +29,8 @@ if __name__ == '__main__':
     r200_scaled = True
     norients = 8
     ngals_each = 5
+
+    sim_colors, cos_colors = get_tol_colors()
 
     # adjust the filename
     plot_name = model+'_'+wind +'_rho_ew'
@@ -86,11 +88,13 @@ if __name__ == '__main__':
 
         # plot the simulation equivalent widths
         mask = sim_dict['ssfr_median'] < quench
-        l1 = ax[i].errorbar(sim_dict['median_dist'][mask], sim_dict['ew_'+lines[i]+'_median'][mask], yerr=[sim_dict['ew_err_'+lines[i]][0][mask], sim_dict['ew_err_'+lines[i]][1][mask]], \
-                            ms=3.5, marker='s', capsize=4, ls='', c='r')
+        l1 = ax[i].errorbar(sim_dict['median_dist'][mask], sim_dict['ew_'+lines[i]+'_median'][mask], 
+                            yerr=[sim_dict['ew_err_'+lines[i]][0][mask], sim_dict['ew_err_'+lines[i]][1][mask]],
+                            ms=3.5, marker='s', capsize=4, ls='', c=sim_colors[0])
         mask = sim_dict['ssfr_median'] > quench
-        l2 = ax[i].errorbar(sim_dict['median_dist'][mask], sim_dict['ew_'+lines[i]+'_median'][mask], yerr=[sim_dict['ew_err_'+lines[i]][0][mask], sim_dict['ew_err_'+lines[i]][1][mask]], \
-                ms=3.5, marker='s', capsize=4, ls='', c='b')
+        l2 = ax[i].errorbar(sim_dict['median_dist'][mask], sim_dict['ew_'+lines[i]+'_median'][mask], 
+                            yerr=[sim_dict['ew_err_'+lines[i]][0][mask], sim_dict['ew_err_'+lines[i]][1][mask]],
+                            ms=3.5, marker='s', capsize=4, ls='', c=sim_colors[1])
         if i == 0:
             leg1 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=10.5, loc=4)
 

@@ -24,6 +24,8 @@ if __name__ == '__main__':
     plot_dir = 'plots/'
     r200_scaled = True
 
+    sim_colors, cos_colors = get_tol_colors()
+
     plot_name = model+'_'+wind +'_rho_cfrac'
     if r200_scaled:
         plot_name += '_scaled'
@@ -62,17 +64,17 @@ if __name__ == '__main__':
 
         c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['cfrac_'+lines[i]+'_sf'], 
                             yerr=cos_plot_dict['cfrac_'+lines[i]+'_poisson_sf'], xerr=cos_plot_dict['xerr_sf'], 
-                            capsize=4, c='c', marker='', ls='', label=label+' SF')
+                            capsize=4, c=cos_colors[0], marker='', ls='', label=label+' SF')
         c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['cfrac_'+lines[i]+'_q'], 
                             yerr=cos_plot_dict['cfrac_'+lines[i]+'_poisson_q'], xerr=cos_plot_dict['xerr_q'], 
-                            capsize=4, c='m', marker='', ls='', label=label+' Q')
+                            capsize=4, c=cos_colors[1], marker='', ls='', label=label+' Q')
         leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
         
         l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['cfrac_'+lines[i]+'_sf'], 
-                            yerr=sim_plot_dict['cfrac_'+lines[i]+'_poisson_sf'], capsize=4, c='b', 
+                            yerr=sim_plot_dict['cfrac_'+lines[i]+'_poisson_sf'], capsize=4, c=sim_colors[0], 
                             marker='o', ls='--')
         l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], sim_plot_dict['cfrac_'+lines[i]+'_q'], 
-                            yerr=sim_plot_dict['cfrac_'+lines[i]+'_poisson_q'], capsize=4, c='r', 
+                            yerr=sim_plot_dict['cfrac_'+lines[i]+'_poisson_q'], capsize=4, c=sim_colors[1], 
                             marker='o', ls='--')
         if i == 0:
             leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=10.5)

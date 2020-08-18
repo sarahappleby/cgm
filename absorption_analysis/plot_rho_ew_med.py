@@ -24,6 +24,8 @@ if __name__ == '__main__':
     r200_scaled = True
     ylim = 0.7
 
+    sim_colors, cos_colors = get_tol_colors()
+
     # set plot name according to parameters
     plot_name = model+'_'+wind +'_rho_ew_med'
     if r200_scaled:
@@ -65,15 +67,19 @@ if __name__ == '__main__':
 
         c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['EW_'+lines[i]+'_med_sf'], xerr=cos_plot_dict['xerr_sf'], 
                             yerr=[cos_plot_dict['EW_'+lines[i]+'_per25_sf'], cos_plot_dict['EW_'+lines[i]+'_per75_sf']], 
-                            capsize=4, c='c', marker='', ls='', label=label+' SF')
+                            capsize=4, c=cos_colors[0], marker='', ls='', label=label+' SF')
         c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['EW_'+lines[i]+'_med_q'], xerr=cos_plot_dict['xerr_q'], 
                             yerr=[cos_plot_dict['EW_'+lines[i]+'_per25_q'], cos_plot_dict['EW_'+lines[i]+'_per75_q']], 
-                            capsize=4, c='m', marker='', ls='', label=label+' Q')
+                            capsize=4, c=cos_colors[1], marker='', ls='', label=label+' Q')
         leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
 
         # plot the Simba data as lines
-        l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'], yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_sf'], capsize=4, c='b', marker='o', ls='--')
-        l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], sim_plot_dict['EW_'+lines[i]+'_med_q'], yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'], capsize=4, c='r', marker='o', ls='--')
+        l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'], 
+                            yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_sf'], 
+                            capsize=4, c=sim_colors[0], marker='o', ls='--')
+        l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], sim_plot_dict['EW_'+lines[i]+'_med_q'], 
+                            yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'], 
+                            capsize=4, c=sim_colors[1], marker='o', ls='--')
         if i == 0:
             leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=10.5)
 

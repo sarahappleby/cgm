@@ -3,6 +3,13 @@ import h5py
 from cosmic_variance import *
 from physics import *
 
+def get_tol_colors():
+    # from Paul Tol colorpalette, slightly modified for dark blue:
+    # https://davidmathlogic.com/colorblind/#%23332288-%23117733-%2344AA99-%2388CCEE-%23DDCC77-%23CC6677-%23AA4499
+    sim_colors = ['#88CCEE', '#DE798A']
+    cos_colors = ['#2F10CC', '#AA4499']
+    return sim_colors, cos_colors
+
 def write_dict_to_h5(data_dict, h5_file):
     with h5py.File(h5_file, 'a') as f:
         for k in data_dict.keys():
