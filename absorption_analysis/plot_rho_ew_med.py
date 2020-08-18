@@ -82,6 +82,7 @@ if __name__ == '__main__':
                             capsize=4, c=sim_colors[1], marker='o', ls='--')
         if i == 0:
             leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=10.5)
+            
 
         ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
         ax[i].set_xlabel(xlabel)
@@ -91,5 +92,8 @@ if __name__ == '__main__':
             ax[i].set_xlim(0, 1.5)
         else:
             ax[i].set_xlim(25, 145)
+
+        if i==0:
+            ax[i].add_artist(leg1)
 
     plt.savefig(plot_dir+plot_name)
