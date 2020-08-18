@@ -37,10 +37,10 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(3, 2, figsize=(12, 14))
     ax = ax.flatten()
 
-    line_sim = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='k')
-    line_jet = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='k')
-    line_x = Line2D([0,1],[0,1],ls=ls[2], marker=markers[2], color='k')
-    line_agn = Line2D([0,1],[0,1],ls=ls[3], marker=markers[3], color='k')
+    line_sim = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey')
+    line_jet = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='grey')
+    line_x = Line2D([0,1],[0,1],ls=ls[2], marker=markers[2], color='grey')
+    line_agn = Line2D([0,1],[0,1],ls=ls[3], marker=markers[3], color='grey')
 
     leg = ax[0].legend([line_sim, line_jet, line_x, line_agn],winds, loc=1, fontsize=12)
     ax[0].add_artist(leg)

@@ -7,7 +7,7 @@ def get_tol_colors():
     # from Paul Tol colorpalette, slightly modified for dark blue:
     # https://davidmathlogic.com/colorblind/#%23332288-%23117733-%2344AA99-%2388CCEE-%23DDCC77-%23CC6677-%23AA4499
     sim_colors = ['#70BBE0', '#DE798A']
-    cos_colors = ['#2F10CC', '#AA4499']
+    cos_colors = ['#2F10CC', '#B51F9C']
     return sim_colors, cos_colors
 
 def write_dict_to_h5(data_dict, h5_file):
