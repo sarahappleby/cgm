@@ -224,7 +224,6 @@ def cos_binned_path_abs(cos_dict, ssfr_mask, rho_bins, thresh):
     ew_mask = cos_dict['EW'] > thresh
     mask = ew_mask * ssfr_mask
     binned_ew = bin_data(cos_dict['dist'][mask], cos_dict['EW'][mask], rho_bins)
-    binned_ew_err = bin_data(cos_dict['dist'][mask], cos_dict['EWerr'][mask], rho_bins)
     binned_pl = bin_data(cos_dict['dist'][mask], cos_dict['path_length'][mask], rho_bins)
 
     path_abs = np.zeros(len(binned_ew))
@@ -232,9 +231,15 @@ def cos_binned_path_abs(cos_dict, ssfr_mask, rho_bins, thresh):
 
     for i in range(len(binned_ew)):
         path_abs[i] = compute_path_abs(binned_ew[i], binned_pl[i])
-        path_abs_err[i] = compute_path_abs_err(binned_ew[i], binned_ew_err[i], binned_pl[i])
+        path_abs_err[i] = compute_path_abs_err(binned_ew[i], binned_pl[i])
 
     path_abs[path_abs == 0.] = 10**1.6
 
     return convert_to_log(path_abs, path_abs_err)
 
+def compute_path_abs_err(ew, pl):
+    path_abs = np.zeros(len(ew))
+    for i in range(len(ew)):
+        path_abs[i] = compute_path_abs(ew[i], pl[i])
+
+    return np.std(path_abs)
