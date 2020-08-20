@@ -23,7 +23,7 @@ def read_dict_from_h5(h5_file):
             data_dict[k] = f[k][:]
     return data_dict
 
-def read_simulation_sample(model, wind, snap, survey, norients, lines, r200_scaled):
+def read_simulation_sample(model, wind, snap, survey, background, norients, lines, r200_scaled):
 
     data_dict = {}
     cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_cos_'+survey+'_sample.h5'
@@ -37,7 +37,7 @@ def read_simulation_sample(model, wind, snap, survey, norients, lines, r200_scal
 
     for i, line in enumerate(lines):
         # Read in the equivalent widths of the simulation galaxies spectra
-        ew_file = 'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_ew_data_lsf.h5'
+        ew_file = 'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_ew_data_lsf.h5'
         with h5py.File(ew_file, 'r') as f:
             data_dict['ew_'+line] = f[line+'_wave_ew'][:]
 

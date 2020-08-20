@@ -23,10 +23,11 @@ if __name__ == '__main__':
 
     plot_dir = 'plots/'
     r200_scaled = True
+    background = 'uvb_hm12'
 
     sim_colors, cos_colors = get_tol_colors()
 
-    plot_name = model+'_'+wind +'_rho_cfrac'
+    plot_name = model+'_'+wind +'_'+background+'_rho_cfrac'
     if r200_scaled:
         plot_name += '_scaled'
     if plot_name[-1] == '_': plot_name = plot_name[:-1]
@@ -38,13 +39,13 @@ if __name__ == '__main__':
     else:
         xlabel = r'$\rho (\textrm{kpc})$'
 
-    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_obs_cfrac_data.h5'
+    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_cfrac_data.h5'
     cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
-    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_obs_cfrac_data.h5'
+    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_cfrac_data.h5'
     cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
-    sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_sim_cfrac_data.h5'
+    sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_cfrac_data.h5'
     sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-    sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_sim_cfrac_data.h5'
+    sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_cfrac_data.h5'
     sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
     fig, ax = plt.subplots(3, 2, figsize=(12, 14))

@@ -31,14 +31,15 @@ if __name__ == '__main__':
     bin_size = 6. # km/s 
     c = 2.98e8 # km/s
     ngals_each = 5
+    background = 'uvb_fg20'
 
     if cos_survey == 'dwarfs':
         snap = '151'
     elif cos_survey == 'halos':
         snap = '137'
     
-    ew_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+cos_survey+'_'+model + '_'+wind+'_'+snap+'_ew_data_lsf.h5'
-    spectra_folder = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+cos_survey+'/'+wind+'/'+'spectra/'
+    ew_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+cos_survey+'_'+model + '_'+wind+'_'+snap+'_'+background+'_ew_data_lsf.h5'
+    spectra_folder = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+cos_survey+'/'+wind+'/'+background+'/spectra/'
     cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+cos_survey+'/samples/'+model+'_'+wind+'_cos_'+cos_survey+'_sample.h5'
     with h5py.File(cos_sample_file, 'r') as f:
         gal_ids = f['gal_ids'][:]

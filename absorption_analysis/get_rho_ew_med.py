@@ -19,6 +19,7 @@ if __name__ == '__main__':
     ngals_each = 5
     mlim = np.log10(5.8e8) # lower limit of M*
     r200_scaled = True
+    background = 'uvb_hm12'
 
     if model == 'm100n1024':
         boxsize = 100000.
@@ -51,21 +52,21 @@ if __name__ == '__main__':
     else:
         ignore_simba_gals = []
 
-    cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_obs_ew_med_data.h5'
-    sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_sim_ew_med_data.h5'
+    cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_obs_ew_med_data.h5'
+    sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_ew_med_data.h5'
+
+    if survey == 'halos':
+        cos_dict_orig, cos_mmask = make_cos_dict('halos', mlim, r200_scaled)
+    elif survey == 'dwarfs':
+        cos_dict_orig, cos_mmask = make_cos_dict('dwarfs', mlim, r200_scaled)
+
+    # rescaled the x axis by r200
+    if r200_scaled:
+        cos_dict_orig['dist'] = cos_dict_orig['rho'] / cos_dict_orig['r200']
+    else:
+        cos_dict_orig['dist'] = cos_dict_orig['rho'].copy()
 
     if not os.path.isfile(cos_file):
-       
-        if survey == 'halos':
-            cos_dict_orig, cos_mmask = make_cos_dict('halos', mlim, r200_scaled)
-        elif survey == 'dwarfs':
-            cos_dict_orig, cos_mmask = make_cos_dict('dwarfs', mlim, r200_scaled)
-
-        # rescaled the x axis by r200
-        if r200_scaled:
-            cos_dict_orig['dist'] = cos_dict_orig['rho'] / cos_dict_orig['r200']
-        else:
-            cos_dict_orig['dist'] = cos_dict_orig['rho'].copy()
 
         # get the bins for the COS data - these nbins ensure there are roughly ~8 galaxies in each bin
         cos_plot_dict = {}
@@ -124,10 +125,13 @@ if __name__ == '__main__':
 
         write_dict_to_h5(cos_plot_dict, cos_file)
 
+    else:
+        cos_plot_dict = read_dict_from_h5(cos_file)
+
     if not os.path.isfile(sim_file):
 
         # create the dicts to hold the simulation sample data
-        sim_dict = read_simulation_sample(model, wind, snap, survey, norients, lines, r200_scaled)
+        sim_dict = read_simulation_sample(model, wind, snap, survey, background, norients, lines, r200_scaled)
         sim_dict['rho'] = np.repeat(cos_dict_orig['rho'], norients*ngals_each)
 
         # rescaled the x axis by r200

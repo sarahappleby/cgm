@@ -24,11 +24,12 @@ if __name__ == '__main__':
     ylim = 0.5
     xoffset = 0.035
     r200_scaled = True
+    background = 'uvb_hm12'
 
     sim_colors, cos_colors = get_tol_colors()
 
     plot_dir = 'plots/'
-    plot_name = model+'_winds_rho_ew'
+    plot_name = model+'_'+background+'_winds_rho_ew'
     if r200_scaled:
         plot_name += '_scaled'
         xlabel = r'$\rho / r_{200}$'
@@ -54,9 +55,9 @@ if __name__ == '__main__':
 
     for j, wind in enumerate(winds):
 
-        sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_sim_ew_med_data.h5'
+        sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_ew_med_data.h5'
         sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_sim_ew_med_data.h5'
+        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_ew_med_data.h5'
         sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
         if j == 0:
