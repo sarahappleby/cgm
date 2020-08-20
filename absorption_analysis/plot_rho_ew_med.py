@@ -46,7 +46,7 @@ if __name__ == '__main__':
     cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
     sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_ew_med_data.h5'
     sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-    sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_sim_ew_med_data.h5'
+    sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_ew_med_data.h5'
     sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
     fig, ax = plt.subplots(3, 2, figsize=(12, 14))
