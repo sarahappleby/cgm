@@ -72,16 +72,16 @@ if __name__ == '__main__':
 
         l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['path_abs_'+lines[i]+'_sf'], 
                             yerr=sim_plot_dict['path_abs_'+lines[i]+'_cv_std_sf'], 
-                            c=sim_colors[0], marker='o', ls='--')
+                            c=sim_colors[0], capsize=4, marker='o', ls='--')
         l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], sim_plot_dict['path_abs_'+lines[i]+'_q'], 
                             yerr=sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q'],
-                            c=sim_colors[1], marker='o', ls='--')
+                            c=sim_colors[1], capsize=4, marker='o', ls='--')
         if i == 0:
             leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=10.5)
 
         ax[i].set_xlabel(xlabel)
         ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z),\ $' + plot_lines[i])       
-        ax[i].set_ylim(1.5, 2.9)
+        ax[i].set_ylim(0.7, 3.)
         if r200_scaled:
             ax[i].set_xlim(0, 1.5)
         else:

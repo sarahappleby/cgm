@@ -26,7 +26,7 @@ if __name__ == '__main__':
     linestyles = ['-', '--']
     markers = ['o', 'D']
     ylim = 0.5
-    xoffset = 0.02
+    xoffset = 0.025
     r200_scaled = True
     backgrounds = ['uvb_fg20', 'uvb_hm12']
 
@@ -116,7 +116,7 @@ if __name__ == '__main__':
             #                    bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
             ax[i].set_xlabel(xlabel)
             ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z)\ $' + plot_lines[i])
-            ax[i].set_ylim(1.5, 3.0)
+            ax[i].set_ylim(0.7, 3.0)
             if r200_scaled:
                 ax[i].set_xlim(0, 1.5)
             else:

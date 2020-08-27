@@ -4,13 +4,6 @@
 # give it an ion name 
 # separate equivalent width function
 
-# plots:
-#   for each galaxy, each direction - do overlaid spectrum showing decrements of different ions
-#   for each ion, 
-#       equivalent width as a function of impact parameter
-#       M* against SFR with coloured by EW of different ions
-
-
 import h5py
 import numpy as np
 import sys

@@ -100,7 +100,7 @@ if __name__ == '__main__':
                             bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey')) 
             ax[i].set_xlabel(xlabel)
             ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z)\ $' + plot_lines[i])
-            ax[i].set_ylim(1.5, 3.0)
+            ax[i].set_ylim(.7, 3.0)
             if r200_scaled:
                 ax[i].set_xlim(0, 1.5)
             else:

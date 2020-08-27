@@ -41,9 +41,10 @@ def compute_path_length(vgal, vel_window, lambda_rest, z, ):
 
     return np.abs(z_high - z_low)
 
-def compute_path_abs(ew, pl):
+def compute_path_abs(ew, pl, thresh):
 
-    total_ew = np.nansum(ew)
+    mask = ew > thresh
+    total_ew = np.nansum(ew[mask])
     total_pl = np.nansum(pl)
 
     return np.divide(total_ew, total_pl, out=np.zeros_like(total_ew), where=total_pl!=0)

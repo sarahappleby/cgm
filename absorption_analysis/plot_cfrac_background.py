@@ -24,7 +24,7 @@ if __name__ == '__main__':
     linestyles = ['-', '--']
     markers = ['o', 'D']
     ylim = 0.5
-    xoffset = 0.02
+    xoffset = 0.025
     r200_scaled = True
     backgrounds = ['uvb_fg20', 'uvb_hm12']
 
