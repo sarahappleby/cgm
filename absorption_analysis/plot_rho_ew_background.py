@@ -93,10 +93,13 @@ if __name__ == '__main__':
             if b == 0:
                 c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['EW_'+lines[i]+'_med_sf'], xerr=cos_plot_dict['xerr_sf'],
                             yerr=[cos_plot_dict['EW_'+lines[i]+'_per25_sf'], cos_plot_dict['EW_'+lines[i]+'_per75_sf']],
-                            capsize=4, c=cos_colors[0], marker='', ls='', label=label+' SF')
+                            capsize=4, c=cos_colors[0], marker='s', markersize=4, ls='', label=label+' SF')
                 c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['EW_'+lines[i]+'_med_q'], xerr=cos_plot_dict['xerr_q'],
                             yerr=[cos_plot_dict['EW_'+lines[i]+'_per25_q'], cos_plot_dict['EW_'+lines[i]+'_per75_q']],
-                            capsize=4, c=cos_colors[1], marker='', ls='', label=label+' Q')
+                            capsize=4, c=cos_colors[1], marker='s', markersize=4, ls='', label=label+' Q')
+                for c in range(2):
+                    c1[-1][c].set_alpha(alpha=0.5)
+                    c2[-1][c].set_alpha(alpha=0.5)
                 leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
 
 
