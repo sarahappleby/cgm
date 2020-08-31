@@ -25,7 +25,7 @@ snap = '151'
 winds = ['s50nox', 's50nojet', 's50noagn']
 model = 'm50n512'
 boxsize = 50000.
-wind_labels = [r'$\textbf{No-Xray}$', r'$\textbf{No-jet}$', r'$\textbf{No-AGN}$']
+wind_labels = [r'$\textrm{No-Xray}$', r'$\textrm{No-jet}$', r'$\textrm{No-AGN}$']
 savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
