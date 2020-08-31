@@ -29,8 +29,8 @@ def get_markers_errorbars(ssfr):
     return quench_markers, quench_errors
 
 
-cmap = plt.get_cmap('plasma')
-cmap = truncate_colormap(cmap, 0., 0.95)
+cmap = plt.get_cmap('plasma_r')
+cmap = truncate_colormap(cmap, 0.1, .9)
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
