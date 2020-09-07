@@ -13,7 +13,6 @@ plt.rc('font', family='serif', size=14)
 palette_name = 'tol'
 
 solar_z = 0.0134
-alpha = 1.
 min_mass = 9.
 max_mass = 12.
 dm = 0.25 # dex
@@ -25,7 +24,7 @@ snap = '151'
 winds = ['s50nox', 's50nojet', 's50noagn']
 model = 'm50n512'
 boxsize = 50000.
-wind_labels = [r'$\textrm{No-Xray}$', r'$\textrm{No-jet}$', r'$\textrm{No-AGN}$']
+wind_labels = [r'$\textrm{No-Xray - Simba}$', r'$\textrm{No-jet - Simba}$', r'$\textrm{No-AGN - Simba}$']
 savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
@@ -47,9 +46,9 @@ stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 fig, ax = plt.subplots(2, 2, figsize=(13, 13))
 ax = ax.flatten()
 
-line_x = Line2D([0,1],[0,1],ls=linestyles[0], color=colours[0])
-line_jet = Line2D([0,1],[0,1],ls=linestyles[1], color=colours[1])
-line_agn = Line2D([0,1],[0,1],ls=linestyles[2], color=colours[2])
+line_x = Line2D([0,1],[0,1],ls=linestyles[0], marker='s', markersize=3, color=colours[0])
+line_jet = Line2D([0,1],[0,1],ls=linestyles[1], marker='s', markersize=3, color=colours[1])
+line_agn = Line2D([0,1],[0,1],ls=linestyles[2], marker='s', markersize=3, color=colours[2])
 leg_winds = ax[0].legend([line_x, line_jet, line_agn],wind_labels, loc=0, fontsize=12)
 ax[0].add_artist(leg_winds)
 
@@ -77,18 +76,21 @@ for w, wind in enumerate(winds):
     mask = simba_mask * wind_mask
 
     for i, phase in enumerate(plot_phases):
-        diff = simba_z_stats['all'][phase]['median'] - z_stats['all'][phase]['median']
+
+        if w == 0:
+            ax[i].axhline(0, c='k', ls=':', lw=1)
+        diff = z_stats['all'][phase]['median'] - simba_z_stats['all'][phase]['median']
         err = np.sqrt(simba_z_stats['all'][phase]['percentile_25_75']**2. + z_stats['all'][phase]['percentile_25_75']**2.)
         l1 = ax[i].errorbar(z_stats['smass_bins'][mask], diff[mask], yerr=[err[0][mask], err[1][mask]], 
-                           capsize=3, color=colours[w], ls=linestyles[w])
+                           capsize=3, color=colours[w], marker='s', markersize=3, ls=linestyles[w])
 
         l1[-1][0].set_linestyle(linestyles[w])
         
         if w == 0:
             ax[i].set_xlim(min_mass, z_stats['smass_bins'][mask][-1]+0.5*dm)
-            ax[i].set_ylim(-.5, 1.5)
+            ax[i].set_ylim(-1., .8)
             ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-            ax[i].set_ylabel(r'$\textrm{log} (Z_{\rm Simba} / Z)$')
+            ax[i].set_ylabel(r'$\textrm{log} Z - \textrm{log} Z_{\rm Simba}$')
             ax[i].set_title(plot_phases_labels[i])
 
 plt.savefig(savedir+model+'_'+snap+'_metallcities_difference.png', bbox_inches = 'tight')

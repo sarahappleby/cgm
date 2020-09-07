@@ -28,8 +28,8 @@ plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm pho
 colours = get_cb_colours(palette_name)[::-1]
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
-metal_stats_file = data_dir+model+'_'+wind+'_'+snap+'_metal_budget_stats.h5'
-frac_stats_file = data_dir+model+'_'+wind+'_'+snap+'_avail_metal_frac_stats.h5'
+mass_stats_file = data_dir+model+'_'+wind+'_'+snap+'_mass_budget_stats.h5'
+frac_stats_file = data_dir+model+'_'+wind+'_'+snap+'_avail_frac_stats.h5'
 
 if os.path.isfile(frac_stats_file):
     frac_stats = read_phase_stats(frac_stats_file, plot_phases, stats)
@@ -37,8 +37,8 @@ else:
 	print('Run plot_mass_frac_available first!')
 	quit()
 
-if os.path.isfile(metal_stats_file):
-    metal_stats = read_phase_stats(metal_stats_file, plot_phases, stats)
+if os.path.isfile(mass_stats_file):
+    mass_stats = read_phase_stats(mass_stats_file, plot_phases, stats)
 else:
 	print('Run plot_mass_actual first!')
 	quit()
@@ -46,28 +46,28 @@ else:
 fig, ax = plt.subplots(2, 3, figsize=(15, 12.5))
 ax = ax.flatten()
 
-# Plot actual metal masses:
+# Plot absolute masses
 
 for i, phase in enumerate(plot_phases):
-    ax[0].errorbar(metal_stats['smass_bins'], metal_stats['all'][phase]['median'], yerr=metal_stats['all'][phase]['percentile_25_75'], 
+    ax[0].errorbar(mass_stats['smass_bins'], mass_stats['all'][phase]['median'], yerr=mass_stats['all'][phase]['percentile_25_75'], 
                 capsize=3, color=colours[i], label=plot_phases_labels[i])
 for i, phase in enumerate(plot_phases):
-    ax[1].errorbar(metal_stats['smass_bins'], metal_stats['star_forming'][phase]['median'], yerr=metal_stats['star_forming'][phase]['percentile_25_75'], 
+    ax[1].errorbar(mass_stats['smass_bins'], mass_stats['star_forming'][phase]['median'], yerr=mass_stats['star_forming'][phase]['percentile_25_75'], 
                 capsize=3, color=colours[i], label=plot_phases_labels[i])
 for i, phase in enumerate(plot_phases):
-    ax[2].errorbar(metal_stats['smass_bins'], metal_stats['quenched'][phase]['median'], yerr=metal_stats['quenched'][phase]['percentile_25_75'], 
+    ax[2].errorbar(mass_stats['smass_bins'], mass_stats['quenched'][phase]['median'], yerr=mass_stats['quenched'][phase]['percentile_25_75'], 
                 capsize=3, color=colours[i], label=plot_phases_labels[i])
 ax[0].set_title('All')
 ax[1].set_title('Star forming')
 ax[2].set_title('Quenched')
 for i in range(3):
-    ax[i].set_xlim(min_mass, metal_stats['smass_bins'][-1]+0.5*dm)
-    ax[i].set_ylim(5.5, 11.5)
+    ax[i].set_xlim(min_mass, mass_stats['smass_bins'][-1]+0.5*dm)
+    ax[i].set_ylim(6.5, 14)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-    ax[i].set_ylabel(r'$\textrm{log} (M_Z / \textrm{M}_{\odot})$')
+    ax[i].set_ylabel(r'$\textrm{log} (M / \textrm{M}_{\odot})$')
 ax[0].legend(loc=2, fontsize=11, framealpha=0.)
 
-# Plot metal mass fractions:
+# Plot mass fractions
 
 total = np.zeros(len(frac_stats['smass_bins']))
 for phase in plot_phases:
@@ -75,6 +75,8 @@ for phase in plot_phases:
     
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue
     ax[3].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['all'][phase]['median'] / total), 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['all'][phase]['median'] / total
@@ -85,6 +87,8 @@ for phase in plot_phases:
 
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue
     ax[4].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['star_forming'][phase]['median'] / total), 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['star_forming'][phase]['median'] / total
@@ -95,6 +99,8 @@ for phase in plot_phases:
 
 running_total = np.zeros(len(frac_stats['smass_bins']))
 for i, phase in enumerate(plot_phases):
+    if phase == 'Dust':
+        continue    
     ax[5].fill_between(frac_stats['smass_bins'], running_total, running_total + (frac_stats['quenched'][phase]['median'] / total), 
                         color=colours[i], label=plot_phases_labels[i], alpha=alpha)
     running_total += frac_stats['quenched'][phase]['median'] / total
@@ -103,8 +109,8 @@ for i in range(3, 6):
     ax[i].set_xlim(frac_stats['smass_bins'][0], frac_stats['smass_bins'][-1])
     ax[i].set_ylim(0, 1)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-    ax[i].set_ylabel(r'$f_{Z\ {\rm Total}}$')
-ax[3].legend(loc=1, fontsize=11)
+    ax[i].set_ylabel(r'$f_{\rm Total}$')
+ax[5].legend(loc=2, fontsize=11)
 
-plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metal_budget.png', bbox_inches = 'tight')
+plt.savefig(savedir+model+'_'+wind+'_'+snap+'_mass_budget_avail.png', bbox_inches = 'tight')
 plt.clf()

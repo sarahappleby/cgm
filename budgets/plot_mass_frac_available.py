@@ -9,7 +9,7 @@ from plotting_methods import *
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 
-alpha = 1.
+alpha = .9
 palette_name = 'tol'
 min_mass = 9.
 max_mass = 12.
@@ -24,13 +24,8 @@ if model == 'm100n1024':
 elif model == 'm50n512':
     boxsize = 50000.
 
-system = sys.argv[3]
-if system == 'laptop':
-    fracdata_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
-    savedir = '/home/sarah/cgm/budgets/plots/'
-elif system == 'ursa':
-    fracdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
-    savedir = '/home/sapple/cgm/budgets/plots/'
+fracdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
               'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',

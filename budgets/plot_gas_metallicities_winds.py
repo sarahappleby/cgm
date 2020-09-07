@@ -12,7 +12,6 @@ plt.rc('font', family='serif', size=14)
 palette_name = 'tol'
 
 solar_z = 0.0134
-alpha = 1.
 min_mass = 9.
 max_mass = 12.
 dm = 0.25 # dex
@@ -25,13 +24,7 @@ winds = ['s50', 's50nox', 's50nojet', 's50noagn']
 model = 'm50n512'
 boxsize = 50000.
 wind_labels = [r'$\textbf{Simba}$', r'$\textbf{No-Xray}$', r'$\textbf{No-jet}$', r'$\textbf{No-AGN}$']
-
-system = sys.argv[1]
-if system == 'laptop':
-        savedir = '/home/sarah/cgm/budgets/plots/'
-elif system == 'ursa':
-        savedir = '/home/sapple/cgm/budgets/plots/'
-
+savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
                           'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
