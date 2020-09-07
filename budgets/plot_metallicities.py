@@ -47,9 +47,6 @@ if os.path.isfile(z_stats_file):
 
 else:
 
-    # get the galaxy data:
-    #caesarfile = '/home/sarah/data/caesar_snap_m12.5n128_135.hdf5'
-    #sim = caesar.load(caesarfile)
     caesarfile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
     sim = caesar.quick_load(caesarfile)
     quench = -1.8  + 0.3*sim.simulation.redshift

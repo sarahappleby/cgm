@@ -39,10 +39,7 @@ ax = ax.flatten()
 
 for w, wind in enumerate(winds):
 
-    if system == 'laptop':
-        data_dir = '/home/sarah/cgm/budgets/data/'+model+'_'+wind+'/'
-    elif system == 'ursa':
-        data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+    data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
     frac_stats_file = data_dir+model+'_'+wind+'_'+snap+'_omega_frac_stats.h5'
 
     if os.path.isfile(frac_stats_file):
@@ -51,9 +48,6 @@ for w, wind in enumerate(winds):
 
     else:
 
-        # get the galaxy data:
-        #caesarfile = '/home/sarah/data/caesar_snap_m12.5n128_135.hdf5'
-        #sim = caesar.load(caesarfile)
         caesarfile = '/home/rad/data/'+model+'/'+wind+'/Groups/'+model+'_'+snap+'.hdf5'
         sim = caesar.quick_load(caesarfile)
         quench = -1.8  + 0.3*sim.simulation.redshift
