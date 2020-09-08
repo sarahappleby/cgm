@@ -13,15 +13,17 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     survey = sys.argv[3]
 
-    halos_lines = ['H1215', 'MgII2796', 'SiIII1206', 'OVI1031', ]
-    dwarfs_lines = ['H1215', 'CIV1548']
-    halos_det_thresh = [0.2, 0.1, 0.1, 0.1]
-    dwarfs_det_thresh = [0.2, 0.1]
+    sim_lines = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
+    cos_dwarfs_lines = ['H1215', 'CIV1548']
+    cos_halos_lines = ['H1215', 'MgII2796', 'SiIII1206', 'OVI1031']
+    sim_det_thresh = [0.2, 0.1, 0.1, 0.1, 0.1, 0.1]
+    cos_halos_det_thresh = [0.2, 0.1, 0.1, 0.1]
+    cos_dwarfs_det_thresh = [0.2, 0.1]
     norients = 8
     ngals_each = 5
     mlim = np.log10(5.8e8) # lower limit of M*
     r200_scaled = True
-    background = 'uvb_hm12'
+    background = 'uvb_fg20'
 
     if model == 'm100n1024':
         boxsize = 100000.
@@ -33,15 +35,15 @@ if __name__ == '__main__':
         snap = '137'
         nbins_q = 2
         nbins_sf = 3
-        lines = halos_lines
-        det_thresh = halos_det_thresh
+        cos_lines = cos_halos_lines
+        cos_det_thresh = cos_halos_det_thresh
     elif survey == 'dwarfs':
         z = 0.
         snap = '151'
         nbins_q = 1
         nbins_sf = 3
-        lines = dwarfs_lines
-        det_thresh = dwarfs_det_thresh
+        cos_lines = cos_dwarfs_lines
+        cos_det_thresh = cos_dwarfs_det_thresh
 
     quench = quench_thresh(z)
     
@@ -80,7 +82,7 @@ if __name__ == '__main__':
         cos_plot_dict['xerr_sf'] = get_xerr_from_bins(cos_plot_dict['dist_bins_sf'], cos_plot_dict['plot_bins_sf'])
         cos_plot_dict['xerr_q'] = get_xerr_from_bins(cos_plot_dict['dist_bins_q'], cos_plot_dict['plot_bins_q'])
 
-        for i, line in enumerate(lines):
+        for i, line in enumerate(cos_lines):
 
             cos_dict = cos_dict_orig.copy()
             mass_mask = cos_mmask.copy()
@@ -123,19 +125,16 @@ if __name__ == '__main__':
                     cos_dict[k] = cos_dict[k][ew_mask]
 
             cos_plot_dict['cfrac_'+line+'_sf'], cos_plot_dict['cfrac_'+line+'_poisson_sf'] = \
-                    cos_binned_cfrac(cos_dict, (cos_dict['ssfr'] > quench), cos_plot_dict['dist_bins_sf'], det_thresh[i])
+                    cos_binned_cfrac(cos_dict, (cos_dict['ssfr'] > quench), cos_plot_dict['dist_bins_sf'], cos_det_thresh[i])
             cos_plot_dict['cfrac_'+line+'_q'], cos_plot_dict['cfrac_'+line+'_poisson_q'] = \
-                    cos_binned_cfrac(cos_dict, (cos_dict['ssfr'] < quench), cos_plot_dict['dist_bins_q'], det_thresh[i])
+                    cos_binned_cfrac(cos_dict, (cos_dict['ssfr'] < quench), cos_plot_dict['dist_bins_q'], cos_det_thresh[i])
 
         write_dict_to_h5(cos_plot_dict, cos_file)
-
-    else:
-        cos_plot_dict = read_dict_from_h5(cos_file)
 
     if not os.path.isfile(sim_file):
 
         # create the dicts to hold the simulation sample data
-        sim_dict = read_simulation_sample(model, wind, snap, survey, background, norients, lines, r200_scaled)
+        sim_dict = read_simulation_sample(model, wind, snap, survey, background, norients, sim_lines, r200_scaled)
         sim_dict['rho'] = np.repeat(cos_dict_orig['rho'], norients*ngals_each)
 
         # rescaled the x axis by r200
@@ -150,7 +149,7 @@ if __name__ == '__main__':
 
         sim_plot_dict = get_equal_bins(model, survey, r200_scaled)
 
-        for i, line in enumerate(lines):
+        for i, line in enumerate(sim_lines):
 
             # removing COS-Dwarfs galaxy 3 for the Lya stuff
             if (survey == 'dwarfs') & (line == 'H1215'):
@@ -161,9 +160,9 @@ if __name__ == '__main__':
             mask = (sim_dict['ssfr'] > quench)
             sim_plot_dict['ngals_'+line+'_sf'] = get_ngals(sim_dict['dist'][mask], sim_plot_dict['dist_bins_sf'])
             sim_plot_dict['cfrac_'+line+'_sf'], sim_plot_dict['cfrac_'+line+'_cv_std_sf'], sim_plot_dict['cfrac_'+line+'_poisson_sf'] = \
-                    sim_binned_cfrac(sim_dict, mask, sim_plot_dict['dist_bins_sf'], det_thresh[i], line, boxsize)
+                    sim_binned_cfrac(sim_dict, mask, sim_plot_dict['dist_bins_sf'], sim_det_thresh[i], line, boxsize)
             sim_plot_dict['ngals_'+line+'_q'] = get_ngals(sim_dict['dist'][~mask], sim_plot_dict['dist_bins_q'])
             sim_plot_dict['cfrac_'+line+'_q'], sim_plot_dict['cfrac_'+line+'_cv_std_q'], sim_plot_dict['cfrac_'+line+'_poisson_q'] = \
-                    sim_binned_cfrac(sim_dict, ~mask, sim_plot_dict['dist_bins_q'], det_thresh[i], line, boxsize)
+                    sim_binned_cfrac(sim_dict, ~mask, sim_plot_dict['dist_bins_q'], sim_det_thresh[i], line, boxsize)
 
         write_dict_to_h5(sim_plot_dict, sim_file)

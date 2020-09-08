@@ -17,16 +17,16 @@ if __name__ == '__main__':
     plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
     det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
-    uvb_labels = [r'$\textrm{FG20}$', r'$\textrm{HM12}$']
+    uvb_labels = [r'$\textrm{FG20}$', r'$\textrm{HM12-new}$', r'$\textrm{HM12-orig}$']
 
     model = sys.argv[1]
     wind = sys.argv[2]
-    linestyles = ['-', '--']
-    markers = ['o', 'D']
+    linestyles = ['-', '--', ':']
+    markers = ['o', 'D', 'v']
     ylim = 0.5
     xoffset = 0.025
     r200_scaled = True
-    backgrounds = ['uvb_fg20', 'uvb_hm12']
+    backgrounds = ['uvb_fg20', 'uvb_hm12_new', 'uvb_hm12_orig']
 
     sim_colors, cos_colors = get_tol_colors()
 
@@ -43,9 +43,10 @@ if __name__ == '__main__':
     ax = ax.flatten()
 
     line_fg20 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
-    line_hm12 = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey')
+    line_hm12_new = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey')
+    line_hm12_orig = Line2D([0,1],[0,1],ls=linestyles[2], marker=markers[2], color='grey')
 
-    leg_uvb = ax[0].legend([line_fg20, line_hm12],uvb_labels, loc=4, fontsize=12)
+    leg_uvb = ax[0].legend([line_fg20, line_hm12_new, line_hm12_orig],uvb_labels, loc=4, fontsize=12)
     ax[0].add_artist(leg_uvb)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
@@ -92,7 +93,7 @@ if __name__ == '__main__':
                 label = 'COS-Halos'
                 x = 0.77
             
-            if b == 0:
+            if b == 2:
                 c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['cfrac_'+lines[i]+'_sf'],
                             yerr=cos_plot_dict['cfrac_'+lines[i]+'_poisson_sf'], xerr=cos_plot_dict['xerr_sf'],
                             capsize=4, c=cos_colors[0], marker='s', markersize=4, ls='', label=label+' SF')

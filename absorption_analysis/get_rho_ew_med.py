@@ -13,13 +13,14 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     survey = sys.argv[3]
 
-    halos_lines = ['H1215', 'MgII2796', 'SiIII1206', 'OVI1031', ]
-    dwarfs_lines = ['H1215', 'CIV1548']
+    sim_lines = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
+    cos_dwarfs_lines = ['H1215', 'CIV1548']
+    cos_halos_lines = ['H1215', 'MgII2796', 'SiIII1206', 'OVI1031']
     norients = 8
     ngals_each = 5
     mlim = np.log10(5.8e8) # lower limit of M*
     r200_scaled = True
-    background = 'uvb_hm12'
+    background = 'uvb_hm12_new'
 
     if model == 'm100n1024':
         boxsize = 100000.
@@ -31,13 +32,13 @@ if __name__ == '__main__':
         snap = '137'
         nbins_q = 2
         nbins_sf = 3
-        lines = halos_lines
+        cos_lines = cos_halos_lines
     elif survey == 'dwarfs':
         z = 0.
         snap = '151'
         nbins_q = 1
         nbins_sf = 3
-        lines = dwarfs_lines
+        cos_lines = cos_dwarfs_lines
 
     quench = quench_thresh(z)
 
@@ -65,7 +66,7 @@ if __name__ == '__main__':
         cos_dict_orig['dist'] = cos_dict_orig['rho'] / cos_dict_orig['r200']
     else:
         cos_dict_orig['dist'] = cos_dict_orig['rho'].copy()
-
+    
     if not os.path.isfile(cos_file):
 
         # get the bins for the COS data - these nbins ensure there are roughly ~8 galaxies in each bin
@@ -76,7 +77,7 @@ if __name__ == '__main__':
         cos_plot_dict['xerr_sf'] = get_xerr_from_bins(cos_plot_dict['dist_bins_sf'], cos_plot_dict['plot_bins_sf'])
         cos_plot_dict['xerr_q'] = get_xerr_from_bins(cos_plot_dict['dist_bins_q'], cos_plot_dict['plot_bins_q'])
 
-        for i, line in enumerate(lines):
+        for i, line in enumerate(cos_lines):
 
             cos_dict = cos_dict_orig.copy()
             mass_mask = cos_mmask.copy()
@@ -118,20 +119,17 @@ if __name__ == '__main__':
                 for k in cos_dict.keys():
                     cos_dict[k] = cos_dict[k][ew_mask]
 
-            cos_plot_dict['EW_'+lines[i]+'_med_sf'], cos_plot_dict['EW_'+lines[i]+'_std_sf'], cos_plot_dict['EW_'+lines[i]+'_per25_sf'], cos_plot_dict['EW_'+lines[i]+'_per75_sf'] = \
+            cos_plot_dict['EW_'+line+'_med_sf'], cos_plot_dict['EW_'+line+'_std_sf'], cos_plot_dict['EW_'+line+'_per25_sf'], cos_plot_dict['EW_'+line+'_per75_sf'] = \
                     cos_binned_ew(cos_dict, (cos_dict['ssfr'] > quench), cos_plot_dict['dist_bins_sf'])
-            cos_plot_dict['EW_'+lines[i]+'_med_q'], cos_plot_dict['EW_'+lines[i]+'_std_q'], cos_plot_dict['EW_'+lines[i]+'_per25_q'], cos_plot_dict['EW_'+lines[i]+'_per75_q']  = \
+            cos_plot_dict['EW_'+line+'_med_q'], cos_plot_dict['EW_'+line+'_std_q'], cos_plot_dict['EW_'+line+'_per25_q'], cos_plot_dict['EW_'+line+'_per75_q']  = \
                     cos_binned_ew(cos_dict, (cos_dict['ssfr'] < quench), cos_plot_dict['dist_bins_q'])
 
         write_dict_to_h5(cos_plot_dict, cos_file)
 
-    else:
-        cos_plot_dict = read_dict_from_h5(cos_file)
-
     if not os.path.isfile(sim_file):
 
         # create the dicts to hold the simulation sample data
-        sim_dict = read_simulation_sample(model, wind, snap, survey, background, norients, lines, r200_scaled)
+        sim_dict = read_simulation_sample(model, wind, snap, survey, background, norients, sim_lines, r200_scaled)
         sim_dict['rho'] = np.repeat(cos_dict_orig['rho'], norients*ngals_each)
 
         # rescaled the x axis by r200
@@ -146,7 +144,7 @@ if __name__ == '__main__':
 
         sim_plot_dict = get_equal_bins(model, survey, r200_scaled)
 
-        for i, line in enumerate(lines):
+        for i, line in enumerate(sim_lines):
 
             # removing COS-Dwarfs galaxy 3 for the Lya stuff
             if (survey == 'dwarfs') & (line == 'H1215'):

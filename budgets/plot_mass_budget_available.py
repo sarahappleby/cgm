@@ -9,7 +9,7 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 palette_name = 'tol'
 
-alpha = .9
+alpha = .8
 min_mass = 9.
 max_mass = 12.
 dm = 0.25 # dex

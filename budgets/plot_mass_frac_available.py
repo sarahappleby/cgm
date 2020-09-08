@@ -9,7 +9,7 @@ from plotting_methods import *
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 
-alpha = .9
+alpha = .8
 palette_name = 'tol'
 min_mass = 9.
 max_mass = 12.

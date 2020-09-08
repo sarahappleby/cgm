@@ -13,7 +13,10 @@ def get_tol_colors():
 def write_dict_to_h5(data_dict, h5_file):
     with h5py.File(h5_file, 'a') as f:
         for k in data_dict.keys():
-            f.create_dataset(k, data=np.array(data_dict[k]))
+            if k in list(f.keys()):
+                continue
+            else:
+                f.create_dataset(k, data=np.array(data_dict[k]))
     return 
 
 def read_dict_from_h5(h5_file):
