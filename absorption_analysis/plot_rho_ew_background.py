@@ -10,11 +10,19 @@ plt.rc('font', family='serif', size=14)
 
 if __name__ == '__main__':
 
-    cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
-    lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
-    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$',r'$\textrm{MgII}2796$',
-                    r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
-    det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
+    #cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
+    #lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
+    #plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$',r'$\textrm{MgII}2796$',
+    #                r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
+    #det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
+
+    # for doing one survey only:
+    #cos_survey = ['halos'] * 6
+    #cos_survey = ['dwarfs'] * 6
+    #lines = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770' ]
+    #plot_lines = [r'$\textrm{H}1215$', r'$\textrm{MgII}2796$', r'$\textrm{SiIII}1206$', 
+    #              r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$', r'$\textrm{NeVIII}770$']
+    #det_thresh = np.log10([0.2, 0.1, 0.1, 0.1, 0.1, 0.1])
 
     uvb_labels = [r'$\textrm{FG20}$', r'$\textrm{HM12-new}$', r'$\textrm{HM12-orig}$']
 
@@ -31,6 +39,7 @@ if __name__ == '__main__':
 
     plot_dir = 'plots/'
     plot_name = model+'_'+wind+'_background_rho_ew'
+    #plot_name += '_'+cos_survey[0] +'_only' 
     if r200_scaled:
         plot_name += '_scaled'
         xlabel = r'$\rho / r_{200}$'
@@ -91,7 +100,7 @@ if __name__ == '__main__':
                 label = 'COS-Halos'
                 x = 0.77
 
-            if b == 2:
+            if (b == 2) & ('EW_'+lines[i]+'_med_sf' in list(cos_plot_dict.keys())):
                 c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['EW_'+lines[i]+'_med_sf'], xerr=cos_plot_dict['xerr_sf'],
                             yerr=[cos_plot_dict['EW_'+lines[i]+'_per25_sf'], cos_plot_dict['EW_'+lines[i]+'_per75_sf']],
                             capsize=4, c=cos_colors[0], marker='s', markersize=4, ls='', label=label+' SF')
