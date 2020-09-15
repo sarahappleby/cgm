@@ -17,7 +17,7 @@ if __name__ == '__main__':
     plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
     det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
-    uvb_labels = [r'$\textrm{FG20}$', r'$\textrm{HM12-new}$', r'$\textrm{HM12-orig}$']
+    uvb_labels = [r'$\textrm{FG20}$', r'$\textrm{HM12}$', r'$\textrm{HM01}$']
 
     # for doing one survey only:
     #cos_survey = ['halos'] * 6
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     ylim = 0.5
     xoffset = 0.025
     r200_scaled = True
-    backgrounds = ['uvb_fg20', 'uvb_hm12_new', 'uvb_hm12_orig']
+    backgrounds = ['uvb_fg20', 'uvb_hm12', 'uvb_hm01']
 
     sim_colors, cos_colors = get_tol_colors()
 

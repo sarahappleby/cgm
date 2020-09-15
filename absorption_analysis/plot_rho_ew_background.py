@@ -10,11 +10,11 @@ plt.rc('font', family='serif', size=14)
 
 if __name__ == '__main__':
 
-    #cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
-    #lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
-    #plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$',r'$\textrm{MgII}2796$',
-    #                r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
-    #det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
+    cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
+    lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
+    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$',r'$\textrm{MgII}2796$',
+                    r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
+    det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
 
     # for doing one survey only:
     #cos_survey = ['halos'] * 6
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     #              r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$', r'$\textrm{NeVIII}770$']
     #det_thresh = np.log10([0.2, 0.1, 0.1, 0.1, 0.1, 0.1])
 
-    uvb_labels = [r'$\textrm{FG20}$', r'$\textrm{HM12-new}$', r'$\textrm{HM12-orig}$']
+    uvb_labels = [r'$\textrm{FG20}$', r'$\textrm{HM12}$', r'$\textrm{HM01}$']
 
     model = sys.argv[1]
     wind = sys.argv[2]
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     ylim = 0.5
     xoffset = 0.025
     r200_scaled = True
-    backgrounds = ['uvb_fg20', 'uvb_hm12_new', 'uvb_hm12_orig']
+    backgrounds = ['uvb_fg20', 'uvb_hm12', 'uvb_hm01']
 
     sim_colors, cos_colors = get_tol_colors()
 

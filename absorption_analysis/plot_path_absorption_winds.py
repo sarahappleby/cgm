@@ -27,7 +27,7 @@ if __name__ == '__main__':
     ylim = 0.5
     xoffset = 0.035
     r200_scaled = True
-    background = 'uvb_hm12'
+    background = 'uvb_fg20'
 
     sim_colors, cos_colors = get_tol_colors()
 
@@ -44,10 +44,10 @@ if __name__ == '__main__':
     ax = ax.flatten()
 
     line_sim = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey')
-    line_jet = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='grey')
-    line_x = Line2D([0,1],[0,1],ls=ls[2], marker=markers[2], color='grey')
+    line_x = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='grey')
+    line_jet = Line2D([0,1],[0,1],ls=ls[2], marker=markers[2], color='grey')
 
-    leg_winds = ax[0].legend([line_sim, line_jet, line_x],wind_labels, loc=4, fontsize=12)
+    leg_winds = ax[0].legend([line_sim, line_x, line_jet],wind_labels, loc=4, fontsize=12)
     ax[0].add_artist(leg_winds)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
