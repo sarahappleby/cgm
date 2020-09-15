@@ -106,7 +106,6 @@ for i in range(3, 6):
     ax[i].set_ylim(0, 1)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
     ax[i].set_ylabel(r'$f_{\rm \Omega}$')
-ax[5].legend(loc=2, fontsize=11)
-
+ax[3].legend(loc=2, fontsize=11, framealpha=0.)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_mass_budget_omega.png', bbox_inches = 'tight')
 plt.clf()
