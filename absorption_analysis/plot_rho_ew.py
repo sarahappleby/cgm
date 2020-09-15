@@ -22,6 +22,7 @@ if __name__ == '__main__':
 
     model = 'm100n1024'
     wind = 's50'
+    background = 'uvb_fg20'
     mlim = np.log10(5.8e8) # lower limit of M*
     ylim = 0.7
     plot_dir = 'plots/'
@@ -33,7 +34,7 @@ if __name__ == '__main__':
     sim_colors, cos_colors = get_tol_colors()
 
     # adjust the filename
-    plot_name = model+'_'+wind +'_rho_ew'
+    plot_name = model+'_'+wind +'_'+background+'_rho_ew'
     if r200_scaled:
         plot_name += '_scaled'
     plot_name += '.png'
@@ -42,10 +43,10 @@ if __name__ == '__main__':
     cos_halos_dict, _ = make_cos_dict('halos', mlim, r200_scaled)
     cos_dwarfs_dict, _ = make_cos_dict('dwarfs', mlim, r200_scaled)    
 
-    sim_halos_dict = read_simulation_sample(model, wind, '137', 'halos', norients, lines, r200_scaled)
+    sim_halos_dict = read_simulation_sample(model, wind, '137', 'halos', background, norients, lines, r200_scaled)
     sim_halos_dict['rho'] = np.repeat(cos_halos_dict['rho'], norients*ngals_each)
 
-    sim_dwarfs_dict = read_simulation_sample(model, wind, '151', 'dwarfs', norients, lines, r200_scaled)
+    sim_dwarfs_dict = read_simulation_sample(model, wind, '151', 'dwarfs', background, norients, lines, r200_scaled)
     sim_dwarfs_dict['rho'] = np.repeat(cos_dwarfs_dict['rho'], norients*ngals_each)
     
     if r200_scaled:
