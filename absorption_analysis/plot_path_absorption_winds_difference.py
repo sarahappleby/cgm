@@ -22,8 +22,8 @@ if __name__ == '__main__':
     model = 'm50n512'
     winds = ['s50nox', 's50nojet']
     wind_labels = [r'$\textrm{No-Xray - Simba}$', r'$\textrm{No-jet - Simba}$']
-    ls = [':', '--', '-']
-    markers = ['o', 'D', 's']
+    ls = ['--', ':']
+    markers = ['D', 's']
     ylim = 0.5
     xoffset = 0.035
     r200_scaled = True
@@ -43,8 +43,8 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(3, 2, figsize=(12, 14))
     ax = ax.flatten()
 
-    line_x = Line2D([0,1],[0,1],ls=ls[0], marker=markers[1], color='grey')
-    line_jet = Line2D([0,1],[0,1],ls=ls[1], marker=markers[2], color='grey')
+    line_x = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey')
+    line_jet = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='grey')
 
     leg_winds = ax[0].legend([line_x, line_jet],wind_labels, loc=4, fontsize=12)
     ax[0].add_artist(leg_winds)

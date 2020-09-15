@@ -19,8 +19,8 @@ if __name__ == '__main__':
     model = 'm50n512'
     winds = ['s50nox', 's50nojet']
     wind_labels = [r'$\textrm{No-Xray - Simba}$', r'$\textrm{No-jet - Simba}$']
-    ls = [':', '--', '-']
-    markers = ['o', 'D']
+    ls = ['--', ':']
+    markers = ['D', 's']
     ylim = 0.5
     xoffset = 0.035
     r200_scaled = True
