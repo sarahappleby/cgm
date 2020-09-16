@@ -28,6 +28,7 @@ if __name__ == '__main__':
     xoffset = 0.035
     r200_scaled = True
     background = 'uvb_fg20'
+    lower_lim = 0.6
 
     sim_colors, cos_colors = get_tol_colors()
 
@@ -80,29 +81,38 @@ if __name__ == '__main__':
             if survey == 'dwarfs':
                 sim_plot_dict = sim_dwarfs_plot_dict
                 label = 'COS-Dwarfs'
-                x = 0.7
+                x = 0.75
             elif survey == 'halos':
                 sim_plot_dict = sim_halos_plot_dict
                 label = 'COS-Halos'
-                x = 0.73
+                x = 0.78
 
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['path_abs_'+lines[i]+'_sf'],
                             yerr=sim_plot_dict['path_abs_'+lines[i]+'_cv_std_sf'],
                             c=sim_colors[0], markersize=6, marker=markers[j], ls=ls[j], capsize=4)
             l1[-1][0].set_linestyle(ls[j])
+            
             empty_mask = ~np.isnan(sim_plot_dict['path_abs_'+lines[i]+'_q'])
-            l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['path_abs_'+lines[i]+'_q'][empty_mask],
-                            yerr=sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q'][empty_mask],
-                            c=sim_colors[1], markersize=6, marker=markers[j], ls=ls[j], capsize=4)
+            lower_lim_array = np.array([lower_lim] * len(empty_mask))
+
+            ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['path_abs_'+lines[i]+'_q'][empty_mask],
+                            c=sim_colors[1], markersize=6, marker=markers[j], ls='')
+            ax[i].plot(sim_plot_dict['plot_bins_q'][~empty_mask], lower_lim_array[~empty_mask],
+                            c=sim_colors[1], markersize=15, marker='$\downarrow$', ls='')
+            sim_plot_dict['path_abs_'+lines[i]+'_q'][~empty_mask] = lower_lim
+            sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q'][~empty_mask] = np.nan
+            l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], sim_plot_dict['path_abs_'+lines[i]+'_q'],
+                            yerr=sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q'], capsize=4, c=sim_colors[1],
+                            marker='', ls=ls[j])
             l2[-1][0].set_linestyle(ls[j])
 
             ax[i].annotate(label, xy=(x, 0.93), xycoords='axes fraction',size=12, 
                             bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey')) 
             ax[i].set_xlabel(xlabel)
             ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z)\ $' + plot_lines[i])
-            ax[i].set_ylim(.7, 3.0)
+            ax[i].set_ylim(0.5, 3.0)
             if r200_scaled:
-                ax[i].set_xlim(0, 1.5)
+                ax[i].set_xlim(0., 1.5)
             else:
                 ax[i].set_xlim(25, 120)
 

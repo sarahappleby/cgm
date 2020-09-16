@@ -25,6 +25,7 @@ if __name__ == '__main__':
     xoffset = 0.035
     r200_scaled = True
     background = 'uvb_fg20'
+    lower_lim = -2.
 
     sim_colors, cos_colors = get_tol_colors()
 
@@ -77,20 +78,29 @@ if __name__ == '__main__':
             if survey == 'dwarfs':
                 sim_plot_dict = sim_dwarfs_plot_dict
                 label = 'COS-Dwarfs'
-                x = 0.7
+                x = 0.75
             elif survey == 'halos':
                 sim_plot_dict = sim_halos_plot_dict
                 label = 'COS-Halos'
-                x = 0.73
+                x = 0.78
 
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'], 
                                 yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_sf'], 
                                 capsize=4, c=sim_colors[0], markersize=6, marker=markers[j], linestyle=ls[j], label='Simba SF')
             l1[-1][0].set_linestyle(ls[j])
+            
             empty_mask = ~np.isnan(sim_plot_dict['EW_'+lines[i]+'_med_q'])
-            l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['EW_'+lines[i]+'_med_q'][empty_mask], 
-                                yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'][empty_mask], 
-                                capsize=4, c=sim_colors[1], markersize=6, marker=markers[j], linestyle=ls[j], label='Simba Q')
+            lower_lim_array = np.array([lower_lim] * len(empty_mask))
+
+            ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['EW_'+lines[i]+'_med_q'][empty_mask],
+                            c=sim_colors[1], markersize=6, marker=markers[j], ls='')
+            ax[i].plot(sim_plot_dict['plot_bins_q'][~empty_mask], lower_lim_array[~empty_mask],
+                            c=sim_colors[1], markersize=15, marker='$\downarrow$', ls='')
+            sim_plot_dict['EW_'+lines[i]+'_med_q'][~empty_mask] = lower_lim
+            sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'][~empty_mask] = np.nan
+            l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], sim_plot_dict['EW_'+lines[i]+'_med_q'],
+                            yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'], capsize=4, c=sim_colors[1],
+                            marker='', ls=ls[j])
             l2[-1][0].set_linestyle(ls[j])
 
             if j == 0:
@@ -99,7 +109,7 @@ if __name__ == '__main__':
                 ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
                 ax[i].set_xlabel(xlabel)
                 ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
-                ax[i].set_ylim(-2.,ylim)
+                ax[i].set_ylim(-2.1,ylim)
                 if r200_scaled:
                     ax[i].set_xlim(0, 1.5)
                 else:
