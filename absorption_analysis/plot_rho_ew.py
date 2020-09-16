@@ -58,7 +58,7 @@ if __name__ == '__main__':
         sim_dwarfs_dict['dist'] = sim_dwarfs_dict['rho'].copy()
         xlabel = r'$\rho (\textrm{kpc})$'
 
-    fig, ax = plt.subplots(2, 3, figsize=(15, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(17.5, 12.5))
     ax = ax.flatten()
 
     for i, survey in enumerate(cos_survey):
@@ -122,6 +122,6 @@ if __name__ == '__main__':
         if i == 0:
             ax[i].add_artist(leg1)
 
-    plt.savefig(plot_dir+plot_name)
+    plt.savefig(plot_dir+plot_name, bbox_inches = 'tight')
 
 

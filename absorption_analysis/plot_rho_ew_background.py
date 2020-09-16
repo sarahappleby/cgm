@@ -47,7 +47,7 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    fig, ax = plt.subplots(2, 3, figsize=(15, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(17.5, 12.5))
     ax = ax.flatten()
 
     line_fg20 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
@@ -135,4 +135,4 @@ if __name__ == '__main__':
                 else:
                     ax[i].set_xlim(25, 145)
 
-    plt.savefig(plot_dir+plot_name)
+    plt.savefig(plot_dir+plot_name, bbox_inches = 'tight')

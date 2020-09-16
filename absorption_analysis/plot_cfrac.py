@@ -48,7 +48,7 @@ if __name__ == '__main__':
     sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_cfrac_data.h5'
     sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
-    fig, ax = plt.subplots(2, 3, figsize=(15, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(17.5, 12.5))
     ax = ax.flatten()
 
     for i, survey in enumerate(cos_survey):
@@ -94,5 +94,5 @@ if __name__ == '__main__':
         if i==0:
             ax[i].add_artist(leg1)
 
-    plt.savefig(plot_dir+plot_name)
+    plt.savefig(plot_dir+plot_name, bbox_inches = 'tight')
 

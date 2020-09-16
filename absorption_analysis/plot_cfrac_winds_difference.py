@@ -27,6 +27,7 @@ if __name__ == '__main__':
     xoffset = 0.035
     r200_scaled = True
     background = 'uvb_fg20'
+    lower_lim = -1.0
 
     sim_colors, cos_colors = get_tol_colors()
 
@@ -39,19 +40,19 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    fig, ax = plt.subplots(2, 3, figsize=(15, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(18.5, 12.5))
     ax = ax.flatten()
 
     line_x = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey')
     line_jet = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='grey')
 
-    leg_winds = ax[0].legend([line_x, line_jet],wind_labels, loc=4, fontsize=12)
+    leg_winds = ax[0].legend([line_x, line_jet],wind_labels, loc=1, fontsize=12)
     ax[0].add_artist(leg_winds)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
     
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=12)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=2, fontsize=12)
     ax[0].add_artist(leg_color)
 
     simba_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_s50j7k_137_'+background+'_sim_cfrac_data.h5'
@@ -89,7 +90,7 @@ if __name__ == '__main__':
                 sim_plot_dict = sim_halos_plot_dict.copy()
                 simba_plot_dict = simba_halos_plot_dict
                 label = 'COS-Halos'
-                x = 0.77
+                x = 0.78
    
             if j == 0:
                 ax[i].axhline(0, c='k', ls=':', lw=1)
@@ -100,24 +101,33 @@ if __name__ == '__main__':
                             yerr=err, capsize=4, c=sim_colors[0],
                             markersize=6, marker=markers[j], ls=ls[j])
             l1[-1][0].set_linestyle(ls[j])
+            
             empty_mask = ~np.isnan(sim_plot_dict['cfrac_'+lines[i]+'_q'])
+            lower_lim_array = np.array([lower_lim] * len(empty_mask))
             diff = sim_plot_dict['cfrac_'+lines[i]+'_q'] - simba_plot_dict['cfrac_'+lines[i]+'_q']
             err = np.sqrt(sim_plot_dict['cfrac_'+lines[i]+'_poisson_q']**2 + simba_plot_dict['cfrac_'+lines[i]+'_poisson_q']**2)
-            l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'][empty_mask], diff[empty_mask],
-                            yerr=err[empty_mask], capsize=4, c=sim_colors[1],
-                            markersize=6, marker=markers[j], ls=ls[j])
+            
+            ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], diff[empty_mask], 
+                            c=sim_colors[1], markersize=6, marker=markers[j], ls='')
+            ax[i].plot(sim_plot_dict['plot_bins_q'][~empty_mask], lower_lim_array[~empty_mask], 
+                            c=sim_colors[1], markersize=15, marker='$\downarrow$', ls='')
+            diff[~empty_mask] = lower_lim
+            err[~empty_mask] = np.nan
+            l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], diff,
+                            yerr=err, capsize=4, c=sim_colors[1],
+                            marker='', ls=ls[j])
             l2[-1][0].set_linestyle(ls[j])
-
+            
             if j == 0:
-                ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=12,
+                ax[i].annotate(label, xy=(x, 0.04), xycoords='axes fraction',size=12,
                                 bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
                 ax[i].set_xlabel(xlabel)
-                ax[i].set_ylabel(r'$f_\textrm{cov},\ $' + plot_lines[i] + r'$ - f_\textrm{cov}\_\textrm{Simba}$')
-                ax[i].set_ylim(-1, 1.2)
+                ax[i].set_ylabel(r'$f_{\rm cov} - f_{\rm cov}\_{\rm Simba},\ $' + plot_lines[i], labelpad=0)
+                ax[i].set_ylim(-1.1, 1.2)
 
                 if r200_scaled:
                     ax[i].set_xlim(0, 1.5)
                 else:
                     ax[i].set_xlim(25, 145)
 
-    plt.savefig(plot_dir+plot_name) 
+    plt.savefig(plot_dir+plot_name, bbox_inches = 'tight') 

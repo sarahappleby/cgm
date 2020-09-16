@@ -39,7 +39,7 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    fig, ax = plt.subplots(2, 3, figsize=(15, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(17.5, 12.5))
     ax = ax.flatten()
 
     line_sim = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey')
@@ -79,11 +79,11 @@ if __name__ == '__main__':
             if survey == 'dwarfs':
                 sim_plot_dict = sim_dwarfs_plot_dict.copy()
                 label = 'COS-Dwarfs'
-                x = 0.75
+                x = 0.7
             elif survey == 'halos':
                 sim_plot_dict = sim_halos_plot_dict.copy()
                 label = 'COS-Halos'
-                x = 0.77
+                x = 0.73
     
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['cfrac_'+lines[i]+'_sf'],
                             yerr=sim_plot_dict['cfrac_'+lines[i]+'_poisson_sf'], capsize=4, c=sim_colors[0],
@@ -96,7 +96,7 @@ if __name__ == '__main__':
             l2[-1][0].set_linestyle(ls[j])
 
             if j == 0:
-                ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=12,
+                ax[i].annotate(label, xy=(x, 0.93), xycoords='axes fraction',size=12,
                                 bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
                 ax[i].set_xlabel(xlabel)
                 ax[i].set_ylabel(r'$f_\textrm{cov},\ $' + plot_lines[i])
@@ -107,4 +107,4 @@ if __name__ == '__main__':
                 else:
                     ax[i].set_xlim(25, 145)
 
-    plt.savefig(plot_dir+plot_name) 
+    plt.savefig(plot_dir+plot_name, bbox_inches = 'tight') 
