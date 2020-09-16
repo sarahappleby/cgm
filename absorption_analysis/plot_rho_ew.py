@@ -58,7 +58,7 @@ if __name__ == '__main__':
         sim_dwarfs_dict['dist'] = sim_dwarfs_dict['rho'].copy()
         xlabel = r'$\rho (\textrm{kpc})$'
 
-    fig, ax = plt.subplots(3, 2, figsize=(12, 14))
+    fig, ax = plt.subplots(2, 3, figsize=(15, 12.5))
     ax = ax.flatten()
 
     for i, survey in enumerate(cos_survey):

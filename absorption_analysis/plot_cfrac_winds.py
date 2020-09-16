@@ -39,7 +39,7 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    fig, ax = plt.subplots(3, 2, figsize=(12, 14))
+    fig, ax = plt.subplots(2, 3, figsize=(15, 12.5))
     ax = ax.flatten()
 
     line_sim = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey')
@@ -99,7 +99,7 @@ if __name__ == '__main__':
                 ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=12,
                                 bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
                 ax[i].set_xlabel(xlabel)
-                ax[i].set_ylabel(r'$\textrm{Covering fraction},\ $' + plot_lines[i])
+                ax[i].set_ylabel(r'$f_\textrm{cov},\ $' + plot_lines[i])
                 ax[i].set_ylim(0, 1.1)
 
                 if r200_scaled:

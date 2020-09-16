@@ -47,7 +47,7 @@ if __name__ == '__main__':
     sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_data.h5'
     sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
     
-    fig, ax = plt.subplots(3, 2, figsize=(12, 14))
+    fig, ax = plt.subplots(2, 3, figsize=(15, 12.5))
     ax = ax.flatten()
 
     for i, survey in enumerate(cos_survey):

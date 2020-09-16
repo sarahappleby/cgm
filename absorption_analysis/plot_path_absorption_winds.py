@@ -40,7 +40,7 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    fig, ax = plt.subplots(3, 2, figsize=(12, 14))
+    fig, ax = plt.subplots(2, 3, figsize=(15, 12.5))
     ax = ax.flatten()
 
     line_sim = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey')
