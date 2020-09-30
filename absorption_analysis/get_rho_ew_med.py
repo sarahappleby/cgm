@@ -20,12 +20,14 @@ if __name__ == '__main__':
     ngals_each = 5
     mlim = np.log10(5.8e8) # lower limit of M*
     r200_scaled = True
-    background = 'uvb_hm12_new'
+    background = 'uvb_fg20'
 
     if model == 'm100n1024':
         boxsize = 100000.
     elif model == 'm50n512':
         boxsize = 50000.
+    elif model == 'm25n512':
+        boxsize = 25000.
 
     if survey == 'halos':
         z = 0.25

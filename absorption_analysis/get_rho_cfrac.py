@@ -29,6 +29,8 @@ if __name__ == '__main__':
         boxsize = 100000.
     elif model == 'm50n512':
         boxsize = 50000.
+    elif model == 'm25n512':
+        boxsize = 25000.
 
     if survey == 'halos':
         z = 0.25

@@ -164,14 +164,14 @@ if __name__ == '__main__':
     choose_mask = np.array([True] * len(sim.galaxies))
 
     # empty arrays to store 5 simba galaxies per cos galaxy
-    gal_ids = np.zeros(numgals*ngals_each)
-    mass = np.zeros(numgals*ngals_each)
-    ssfr = np.zeros(numgals*ngals_each)
-    gas_frac = np.zeros(numgals*ngals_each)
-    pos = np.zeros((numgals*ngals_each, 3))
-    vgal_pos = np.zeros((numgals*ngals_each, 3))
-    halo_pos = np.zeros((numgals*ngals_each, 3))
-    halo_r200 = np.zeros((numgals*ngals_each))
+    gal_ids = np.ones(numgals*ngals_each) * np.nan
+    mass = np.ones(numgals*ngals_each) * np.nan
+    ssfr = np.ones(numgals*ngals_each) * np.nan
+    gas_frac = np.ones(numgals*ngals_each) * np.nan
+    pos = np.ones((numgals*ngals_each, 3)) * np.nan
+    vgal_pos = np.ones((numgals*ngals_each, 3)) * np.nan
+    halo_pos = np.ones((numgals*ngals_each, 3)) * np.nan
+    halo_r200 = np.ones((numgals*ngals_each)) * np.nan
 
     for cos_id in np.arange(len(cos_M)):
             ids = range(cos_id*ngals_each, (cos_id+1)*ngals_each)
@@ -244,7 +244,7 @@ if __name__ == '__main__':
 
             # in case we have fewer galaxies than required, lets fill gaps with nans:
             if ngals_each - len(indices[choose]) > 0.:
-                empty = np.array([np.nan] * (ngals_each - len(indices)))
+                empty = np.ones(ngals_each - len(indices)) * np.nan
 
                 gal_ids[ids] = np.concatenate((indices[choose], empty))
                 mass[ids] = np.concatenate((gal_sm[indices[choose]], empty))

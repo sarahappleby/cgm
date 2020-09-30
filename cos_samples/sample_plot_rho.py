@@ -33,7 +33,7 @@ cmap = plt.get_cmap('plasma')
 cmap = truncate_colormap(cmap, 0., 0.95)
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=15)
 
 mlim = np.log10(5.8e8)
 ngals_each = 5
@@ -83,19 +83,19 @@ all_dist = np.concatenate((dwarfs_dist, halos_dist))
 
 fig, ax = plt.subplots(figsize=(7, 5))
 
-im = plt.scatter(all_mass[all_ssfr > -11.5], all_ssfr[all_ssfr > -11.5], c=all_dist[all_ssfr > -11.5], s=4, marker='o', cmap=cmap)
+im = plt.scatter(all_mass[all_ssfr > -11.5], all_ssfr[all_ssfr > -11.5], c=all_dist[all_ssfr > -11.5], s=5, marker='o', cmap=cmap)
 plt.colorbar(im, label=r'$\rho / r_{200}$')
 plt.clim(0., 1.5)
-plt.scatter(all_mass[all_ssfr == -11.5], all_ssfr[all_ssfr == -11.5], c=all_dist[all_ssfr == -11.5], s=35, marker='$\downarrow$', cmap=cmap)
+plt.scatter(all_mass[all_ssfr == -11.5], all_ssfr[all_ssfr == -11.5], c=all_dist[all_ssfr == -11.5], s=45, marker='$\downarrow$', cmap=cmap)
 
-plt.scatter(cos_halos_mass[cos_halos_ssfr > -11.5], cos_halos_ssfr[cos_halos_ssfr > -11.5], 
-            marker='x', c='dimgray', s=25, label='COS-Halos')
-plt.scatter(cos_halos_mass[cos_halos_ssfr == -11.5], cos_halos_ssfr[cos_halos_ssfr == -11.5], 
-            marker='$\downarrow$', c='dimgray', s=50)
-plt.scatter(cos_dwarfs_mass[np.invert(cos_dwarfs_less_than)], cos_dwarfs_ssfr[np.invert(cos_dwarfs_less_than)], 
-            marker='+', c='darkgray', s=30, label='COS-Dwarfs')
-plt.scatter(cos_dwarfs_mass[cos_dwarfs_less_than], cos_dwarfs_ssfr[cos_dwarfs_less_than], 
-            marker='$\downarrow$', c='darkgray', s=50)
+plt.scatter(cos_halos_mass[cos_halos_ssfr > -11.5], cos_halos_ssfr[cos_halos_ssfr > -11.5],
+            marker='x', c='dimgray', s=50, label='COS-Halos')
+plt.scatter(cos_halos_mass[cos_halos_ssfr == -11.5], cos_halos_ssfr[cos_halos_ssfr == -11.5],
+            marker='$\downarrow$', c='dimgray', s=55)
+plt.scatter(cos_dwarfs_mass[np.invert(cos_dwarfs_less_than)], cos_dwarfs_ssfr[np.invert(cos_dwarfs_less_than)],
+            marker='+', c='darkgray', s=70, label='COS-Dwarfs')
+plt.scatter(cos_dwarfs_mass[cos_dwarfs_less_than], cos_dwarfs_ssfr[cos_dwarfs_less_than],
+            marker='$\downarrow$', c='darkgray', s=55)
 
 plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 plt.ylabel(r'$\textrm{log} (sSFR  / \textrm{yr}^{-1})$')

@@ -53,7 +53,7 @@ def get_equal_bins(model, survey, r200_scaled=False):
             r_end = 1.
         elif survey == 'dwarfs':
             r_end = 1.4
-        if model == 'm100n1024':
+        if (model == 'm100n1024') or (model == 'm25n512'):
             dr = .2
         elif model == 'm50n512':
             dr = 0.25
