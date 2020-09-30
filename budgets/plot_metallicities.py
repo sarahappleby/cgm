@@ -23,6 +23,8 @@ if model == 'm100n1024':
     boxsize = 100000.
 elif model == 'm50n512':
     boxsize = 50000.
+elif model == 'm25n512':
+    boxsize = 25000.
 
 zdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
 savedir = '/home/sapple/cgm/budgets/plots/'
