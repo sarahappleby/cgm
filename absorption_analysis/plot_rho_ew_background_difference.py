@@ -24,16 +24,16 @@ if __name__ == '__main__':
     #              r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$', r'$\textrm{NeVIII}770$']
     #det_thresh = np.log10([0.2, 0.1, 0.1, 0.1, 0.1, 0.1])
 
-    uvb_labels = [r'$\textrm{HM12} - \textrm{FG20}$', r'$\textrm{HM01} - \textrm{FG20}$']
+    uvb_labels = [r'$\textrm{FG11} - \textrm{FG20}$', r'$\textrm{HM12 x2} - \textrm{FG20}$', r'$\textrm{HM01} - \textrm{FG20}$']
 
     model = sys.argv[1]
     wind = sys.argv[2]
-    linestyles = ['--', ':']
-    markers = ['D', 'v']
+    linestyles = ['-.', '--', ':']
+    markers = ['o', 'D', 'v']
     ylim = 0.5
     xoffset = 0.025
     r200_scaled = True
-    backgrounds = ['uvb_hm12', 'uvb_hm01']
+    backgrounds = ['uvb_fg11', 'uvb_hm12_x2', 'uvb_hm01']
 
     sim_colors, cos_colors = get_tol_colors()
 
@@ -50,10 +50,11 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(2, 3, figsize=(17.5, 12.5))
     ax = ax.flatten()
 
-    line_hm12 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
-    line_hm01 = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey')
+    line_fg11 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
+    line_hm12_x2 = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey')
+    line_hm01 = Line2D([0,1],[0,1],ls=linestyles[2], marker=markers[2], color='grey')
 
-    leg_uvb = ax[0].legend([line_hm12, line_hm01],uvb_labels, loc=4, fontsize=12)
+    leg_uvb = ax[0].legend([line_fg11, line_hm12_x2, line_hm01],uvb_labels, loc=4, fontsize=12)
     ax[0].add_artist(leg_uvb)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])

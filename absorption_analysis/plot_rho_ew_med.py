@@ -17,7 +17,7 @@ if __name__ == '__main__':
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
     det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
 
-    # for doing one survey only:
+    #for doing one survey only:
     #cos_survey = ['halos'] * 6
     #cos_survey = ['dwarfs'] * 6
     #lines = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770' ]
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     plot_dir = 'plots/'
     r200_scaled = True
     ylim = 0.7
-    background = 'uvb_fg20'
+    background = 'uvb_hm12_x2'
 
     sim_colors, cos_colors = get_tol_colors()
 
