@@ -21,20 +21,28 @@ background = sys.argv[5]
 num = int(sys.argv[6])
 line = sys.argv[7]
 lambda_rest = float(re.findall(r'\d+', line)[0])
-
-ids = list(range(num*5, (num+1)*5))
+ngals_each = 5
 
 if (model == 'm50n512') & (survey == 'halos'):
     ignore_cos_gals = [18, 29]
+    ngals_each = 5
 if (model == 'm25n512') & (survey == 'dwarfs'):
     ignore_cos_gals = [10, 17, 36]
+    ngals_each = 5
 if (model == 'm25n512') & (survey == 'halos'):
     ignore_cos_gals = [1,  3, 10, 14, 15, 17, 18, 20, 23, 24, 26, 30, 33, 34, 35, 36, 37, 38, 40, 41, 42]
+    ngals_each = 3
 if (model == 'm25n256') & (survey == 'dwarfs'):
-    ignore_cos_gals = [3, 14, 19, 28, 29, 31, 32, 33, 35, 36, 37]
+    ignore_cos_gals = [3,  4,  5,  8, 14, 19, 31, 32, 33, 35, 36, 37]
+    ngals_each = 4
+if (model == 'm25n256') & (survey == 'halos'):
+    ignore_cos_gals = [0,  1,  2,  5, 10, 13, 14, 15, 17, 18, 24, 26, 29, 30, 31, 32, 33, 34, 37, 39, 40, 41, 42]
+    ngals_each = 4
+
+ids = list(range(num*ngals_each, (num+1)*ngals_each))
 
 if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
-    ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
+    ignore_simba_gals = [list(range(num*ngals_each, (num+1)*ngals_each)) for num in ignore_cos_gals]
     ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
     if num in ignore_cos_gals:
         print('Ignoring certain m50n512 COS-Halos galaxies')
@@ -78,8 +86,6 @@ else:
 	v_limits = [0., vbox]
 total_v = np.sum(np.abs(v_limits))
 Nbins = int(np.rint(total_v / pixel_size))
-
-
 
 # Load in data for the sample galaxies corresponding to this COS-Halos galaxy
 with h5py.File(sample_dir+model+'_'+wind+'_cos_'+survey+'_sample.h5', 'r') as cos_sample:

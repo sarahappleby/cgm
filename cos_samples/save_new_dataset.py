@@ -61,10 +61,11 @@ def prepare_out_file(snapfile, output_file, numpart):
 
 if __name__ == '__main__':
 
-    model = 'm25n512'
+    model = 'm25n256'
     wind = 's50'
     survey = 'dwarfs'
     verbose = 2
+    ngals_each = 5
 
     if survey == 'dwarfs':
         snap = '151'
@@ -73,10 +74,21 @@ if __name__ == '__main__':
 
     if (model == 'm50n512') & (survey == 'halos'):
         ignore_cos_gals = [18, 29]
+        ngals_each = 5
     if (model == 'm25n512') & (survey == 'dwarfs'):
         ignore_cos_gals = [10, 17, 36]
-    if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
-        ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
+        ngals_each = 5
+    if (model == 'm25n512') & (survey == 'halos'):
+        ignore_cos_gals = [1,  3, 10, 14, 15, 17, 18, 20, 23, 24, 26, 30, 33, 34, 35, 36, 37, 38, 40, 41, 42]
+        ngals_each = 3
+    if (model == 'm25n256') & (survey == 'dwarfs'):
+        ignore_cos_gals = [3,  4,  5,  8, 14, 19, 31, 32, 33, 35, 36, 37]
+        ngals_each = 4
+    if (model == 'm25n256') & (survey == 'halos'):
+        ignore_cos_gals = [0,  1,  2,  5, 10, 13, 14, 15, 17, 18, 24, 26, 29, 30, 31, 32, 33, 34, 37, 39, 40, 41, 42]
+        ngals_each = 4
+    if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
+        ignore_simba_gals = [list(range(num*ngals_each, (num+1)*ngals_each)) for num in ignore_cos_gals]
         ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
 
     data_dir = '/home/rad/data/'+model+'/'+wind+'/'
@@ -95,8 +107,11 @@ if __name__ == '__main__':
             if (model == 'm50n512') & (survey == 'halos') & (i in ignore_simba_gals):
                 print('Ignoring certain m50n512 COS-Halos galaxies')
                 continue
-            elif (model == 'm25n512') & (survey == 'dwarfs') & (i in ignore_simba_gals):
-                print('Ignoring certain m25n512 COS-Dwarfs galaxies')
+            elif (model == 'm25n512') & (i in ignore_simba_gals):
+                print('Ignoring certain m25n512 galaxies')
+                continue
+            elif (model == 'm25n256') & (i in ignore_simba_gals):
+                print('Ignoring certain m25n256 galaxies')
                 continue
             else:
                 print('Reading in galaxy '+str(i))
