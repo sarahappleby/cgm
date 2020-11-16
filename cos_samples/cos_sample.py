@@ -97,7 +97,7 @@ if __name__ == '__main__':
     ssfr_range_lim = 0.25 # limit of how far away in ssfr dex we can look (excludes quenched galaxies)
     pos_range = 1000. # kpc/h
     mlim = np.log10(5.8e8) # lower limit of M*
-    ngals_each = 5
+    ngals_each = 3
     
     # set to True if we want to have the isolation criteria
     do_isolation = False
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     halo_pos = np.ones((numgals*ngals_each, 3)) * np.nan
     halo_r200 = np.ones((numgals*ngals_each)) * np.nan
 
-    for cos_id in np.arange(len(cos_M)):
+    for cos_id in np.flip(np.argsort(cos_M)):
             ids = range(cos_id*ngals_each, (cos_id+1)*ngals_each)
             print('\nFinding the caesar galaxies in the mass and ssfr range of COS Halos galaxy ' + str(cos_id))
             
