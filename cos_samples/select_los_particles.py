@@ -14,6 +14,7 @@ wind = sys.argv[2]
 sample_gal = int(sys.argv[3]) # supply the gal id that we want from command line
 survey = sys.argv[4]
 mlim = np.log10(5.8e8)
+ngals_each = 3
 
 # new: for the m50n512 samples, ignore certain COS-Halos galaxies for which there are insufficient Simba analogs.
 # Also, for certain COS-Dwarf galaxies in the m25n512 sample.
@@ -21,8 +22,12 @@ if (model == 'm50n512') & (survey == 'halos'):
     ignore_cos_gals = [18, 29]
 if (model == 'm25n512') & (survey == 'dwarfs'):
     ignore_cos_gals = [10, 17, 36]
-if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
-    ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
+if (model == 'm25n512') & (survey == 'halos'):
+    ignore_cos_gals = [1,  3, 10, 14, 15, 17, 18, 20, 23, 24, 26, 30, 33, 34, 35, 36, 37, 38, 40, 41, 42]
+if (model == 'm25n256') & (survey == 'dwarfs'):
+    ignore_cos_gals = [3, 14, 19, 28, 29, 31, 32, 33, 35, 36, 37]
+if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
+    ignore_simba_gals = [list(range(num*ngals_each, (num+1)*ngals_each)) for num in ignore_cos_gals]
     ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
     if sample_gal in ignore_simba_gals:
         print('Ignoring certain m50n512 COS-Halos galaxies')
@@ -57,7 +62,7 @@ with h5py.File(sample_file, 'r') as f:
     pos = f['position'][:][sample_gal] * (1.+redshift) # already in kpc/h, factor of 1+z for comoving
 
 cos_rho = cos_rho[cos_M > mlim]
-cos_rho = (np.repeat(cos_rho, 5) * h ) * (1+redshift)
+cos_rho = (np.repeat(cos_rho, ngals_each) * h ) * (1+redshift)
 
 los = np.array([pos[:2].copy(), ]*8)
 los[0][0] += cos_rho[sample_gal]

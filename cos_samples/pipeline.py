@@ -13,13 +13,13 @@ from generate_spectra import generate_pygad_spectrum
 mlim = np.log10(5.8e8)
 sqrt2 = np.sqrt(2.)
 
-
 model = sys.argv[1]
 snap = sys.argv[2]
 wind = sys.argv[3]
 survey = sys.argv[4]
-num = int(sys.argv[5])
-line = sys.argv[6]
+background = sys.argv[5]
+num = int(sys.argv[6])
+line = sys.argv[7]
 lambda_rest = float(re.findall(r'\d+', line)[0])
 
 ids = list(range(num*5, (num+1)*5))
@@ -28,7 +28,12 @@ if (model == 'm50n512') & (survey == 'halos'):
     ignore_cos_gals = [18, 29]
 if (model == 'm25n512') & (survey == 'dwarfs'):
     ignore_cos_gals = [10, 17, 36]
-if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
+if (model == 'm25n512') & (survey == 'halos'):
+    ignore_cos_gals = [1,  3, 10, 14, 15, 17, 18, 20, 23, 24, 26, 30, 33, 34, 35, 36, 37, 38, 40, 41, 42]
+if (model == 'm25n256') & (survey == 'dwarfs'):
+    ignore_cos_gals = [3, 14, 19, 28, 29, 31, 32, 33, 35, 36, 37]
+
+if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
     ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
     ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
     if num in ignore_cos_gals:
@@ -40,7 +45,7 @@ snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
 snapfile = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_'+snap+'.hdf5'
 
 sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
-save_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/'+wind+'/'
+save_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/'+wind+'/'+background+'/'
 
 if not os.path.exists(save_dir):
 	os.makedirs(save_dir)
