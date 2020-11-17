@@ -7,6 +7,8 @@
 import h5py
 import numpy as np
 import sys
+sys.path.append('/home/sapple/cgm/cos_samples/')
+from ignore_gals import *
 
 from physics import vel_to_wave, equivalent_width
 
@@ -19,7 +21,6 @@ if __name__ == '__main__':
     # possible ions to choose:
     ions = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg']
-    #orients = ['45_deg', '135_deg', '225_deg', '315_deg']
     velocity_width = 300. #km/s
     bin_size = 6. # km/s 
     c = 2.98e8 # km/s
@@ -39,13 +40,8 @@ if __name__ == '__main__':
         vgal_position = f['vgal_position'][:][:, 2]
 
     # ignore the galaxies that dont have counterparts in the m50n512 boxes
-    if (model == 'm50n512') & (cos_survey == 'halos'):
-        ignore_cos_gals = [18, 29]
-    if (model == 'm25n512') & (cos_survey == 'dwarfs'):
-        ignore_cos_gals = [10, 17, 36]
-    if ((model == 'm50n512') & (cos_survey == 'halos')) or ((model == 'm25n512') & (cos_survey == 'dwarfs')):
-        ignore_simba_gals = [list(range(num*ngals_each, (num+1)*ngals_each)) for num in ignore_cos_gals]
-        ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
+    if ((model == 'm50n512') & (cos_survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
+        ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
     else:
         ignore_simba_gals = []
 
