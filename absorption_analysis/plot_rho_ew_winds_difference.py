@@ -117,10 +117,11 @@ if __name__ == '__main__':
             l2[-1][0].set_linestyle(ls[j])
 
             if j == 0:
-                ax[i].annotate(label, xy=(x, 0.04), xycoords='axes fraction',size=16,
+                ax[i].annotate(label, xy=(x, 0.93), xycoords='axes fraction',size=16,
                                 bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
                 ax[i].set_xlabel(xlabel)
-                ax[i].set_ylabel(r'${\rm log (EW)}\ - {\rm log (EW)}_{\rm Simba},\ $' + plot_lines[i], labelpad=0)
+                ax[i].set_ylabel(r'$\Delta {\rm log (EW)},\ $'+ plot_lines[i], labelpad=0)
+                #ax[i].set_ylabel(r'${\rm log (EW)}\ - {\rm log (EW)}_{\rm Simba},\ $' + plot_lines[i], labelpad=0)
                 ax[i].set_ylim(-1.1,1.5)
                 if r200_scaled:
                     ax[i].set_xlim(0, 1.5)

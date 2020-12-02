@@ -122,7 +122,8 @@ if __name__ == '__main__':
                 ax[i].annotate(label, xy=(x, 0.04), xycoords='axes fraction',size=16,
                                 bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
                 ax[i].set_xlabel(xlabel)
-                ax[i].set_ylabel(r'$f_{\rm cov} - f_{\rm cov}\_{\rm Simba},\ $' + plot_lines[i], labelpad=0)
+                ax[i].set_ylabel(r'$\Delta f_{\rm cov},\ $'+ plot_lines[i], labelpad=0)
+                #ax[i].set_ylabel(r'$f_{\rm cov} - f_{\rm cov}\_{\rm Simba},\ $' + plot_lines[i], labelpad=0)
                 ax[i].set_ylim(-1.1, 1.2)
 
                 if r200_scaled:

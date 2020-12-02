@@ -7,7 +7,7 @@ import numpy as np
 from plotting_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=16)
 palette_name = 'tol'
 
 alpha = 1.
@@ -20,7 +20,7 @@ snap = '151'
 winds = ['s50', 's50nox', 's50nojet', 's50noagn']
 model = 'm50n512'
 boxsize = 50000.
-wind_title = [r'$\textbf{Simba}$', r'$\textbf{No-Xray}$', r'$\textbf{No-jet}$', r'$\textbf{No-AGN}$']
+wind_title = [r'$\textrm{Simba}$', r'$\textrm{No-Xray}$', r'$\textrm{No-jet}$', r'$\textrm{No-AGN}$']
 savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
@@ -89,6 +89,6 @@ for w, wind in enumerate(winds):
 	ax[w].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 	ax[w].set_ylabel(r'$\textrm{log} (M / \textrm{M}_{\odot})$')
 
-ax[0].legend(loc=2, fontsize=11, framealpha=0.)
+ax[0].legend(loc=2, fontsize=14, framealpha=0.)
 plt.savefig(savedir+model+'_'+snap+'_mass_actual_winds.png', bbox_inches = 'tight')
 plt.clf()

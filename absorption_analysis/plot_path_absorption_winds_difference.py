@@ -53,7 +53,7 @@ if __name__ == '__main__':
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=4, fontsize=16)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=2, fontsize=16)
     ax[0].add_artist(leg_color)
 
     simba_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_s50j7k_137_'+background+'_sim_path_abs_data.h5'
@@ -122,7 +122,8 @@ if __name__ == '__main__':
             ax[i].annotate(label, xy=(x, 0.04), xycoords='axes fraction',size=16, 
                             bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey')) 
             ax[i].set_xlabel(xlabel)
-            ax[i].set_ylabel(r'${\rm log}\ ({\rm dEW}/ {\rm d} z)\ - {\rm log}\ ({\rm dEW}/ {\rm d} z)_{\rm Simba},\ $' + plot_lines[i], labelpad=0)
+            ax[i].set_ylabel(r'$\Delta {\rm log}\ ({\rm dEW}/ {\rm d} z),\ $'+plot_lines[i], labelpad=0)
+            #ax[i].set_ylabel(r'${\rm log}\ ({\rm dEW}/ {\rm d} z)\ - {\rm log}\ ({\rm dEW}/ {\rm d} z)_{\rm Simba},\ $' + plot_lines[i], labelpad=0)
             ax[i].set_ylim(-1.1, 2.)
             if r200_scaled:
                 ax[i].set_xlim(0, 1.5)

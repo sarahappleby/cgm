@@ -65,7 +65,7 @@ for i in range(3):
     ax[i].set_ylim(5.5, 11.5)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
     ax[i].set_ylabel(r'$\textrm{log} (M_Z / \textrm{M}_{\odot})$')
-ax[0].legend(loc=2, fontsize=11, framealpha=0.)
+ax[0].legend(loc=2, fontsize=12, framealpha=0.)
 
 # Plot metal mass fractions:
 
@@ -104,7 +104,7 @@ for i in range(3, 6):
     ax[i].set_ylim(0, 1)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
     ax[i].set_ylabel(r'$f_{Z\ {\rm Total}}$')
-ax[3].legend(loc=1, fontsize=11)
+ax[3].legend(loc=1, fontsize=12)
 
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metal_budget.png', bbox_inches = 'tight')
 plt.clf()

@@ -94,6 +94,6 @@ for i in range(3):
     ax[i].set_ylim(5.5, 11.5)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
     ax[i].set_ylabel(r'$\textrm{log} (M_Z / \textrm{M}_{\odot})$')
-ax[0].legend(loc=2, fontsize=11, framealpha=0.)
+ax[0].legend(loc=2, fontsize=12, framealpha=0.)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metal_actual.png', bbox_inches = 'tight')
 plt.clf()

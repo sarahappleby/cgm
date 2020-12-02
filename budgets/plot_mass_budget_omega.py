@@ -62,10 +62,10 @@ ax[1].set_title('Star forming')
 ax[2].set_title('Quenched')
 for i in range(3):
     ax[i].set_xlim(min_mass, mass_stats['smass_bins'][-1]+0.5*dm)
-    ax[i].set_ylim(6.5, 14)
+    ax[i].set_ylim(6.5, 14.5)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
     ax[i].set_ylabel(r'$\textrm{log} (M / \textrm{M}_{\odot})$')
-ax[0].legend(loc=2, fontsize=11, framealpha=0.)
+ax[0].legend(loc=2, fontsize=12, framealpha=0.)
 
 # Plot mass fractions
 
@@ -106,6 +106,6 @@ for i in range(3, 6):
     ax[i].set_ylim(0, 1)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
     ax[i].set_ylabel(r'$f_{\rm \Omega}$')
-ax[3].legend(loc=2, fontsize=11, framealpha=0.)
+ax[3].legend(loc=2, fontsize=12, framealpha=0.)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_mass_budget_omega.png', bbox_inches = 'tight')
 plt.clf()

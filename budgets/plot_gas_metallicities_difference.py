@@ -9,7 +9,7 @@ import numpy as np
 from plotting_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=16)
 palette_name = 'tol'
 
 solar_z = 0.0134
@@ -49,7 +49,7 @@ ax = ax.flatten()
 line_x = Line2D([0,1],[0,1],ls=linestyles[0], marker='s', markersize=3, color=colours[0])
 line_jet = Line2D([0,1],[0,1],ls=linestyles[1], marker='s', markersize=3, color=colours[1])
 line_agn = Line2D([0,1],[0,1],ls=linestyles[2], marker='s', markersize=3, color=colours[2])
-leg_winds = ax[0].legend([line_x, line_jet, line_agn],wind_labels, loc=0, fontsize=12)
+leg_winds = ax[0].legend([line_x, line_jet, line_agn],wind_labels, loc=0, fontsize=14)
 ax[0].add_artist(leg_winds)
 
 simba_data_dir = '/home/sapple/cgm/budgets/data/'+model+'_s50/'
