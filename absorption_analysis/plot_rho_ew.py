@@ -10,7 +10,7 @@ sys.path.append('../cos_samples/')
 from get_cos_info import get_cos_halos, get_cos_dwarfs, make_cos_dict
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=16)
 
 if __name__ == '__main__':
 
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         sim_dwarfs_dict['dist'] = sim_dwarfs_dict['rho'].copy()
         xlabel = r'$\rho (\textrm{kpc})$'
 
-    fig, ax = plt.subplots(2, 3, figsize=(17.5, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
     ax = ax.flatten()
 
     for i, survey in enumerate(cos_survey):
@@ -98,7 +98,7 @@ if __name__ == '__main__':
                             yerr=[sim_dict['ew_err_'+lines[i]][0][mask], sim_dict['ew_err_'+lines[i]][1][mask]],
                             ms=3.5, marker='s', capsize=4, ls='', c=sim_colors[1])
         if i == 0:
-            leg1 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=10.5, loc=4)
+            leg1 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=16, loc=4)
 
         ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
         ax[i].set_xlabel(xlabel)
@@ -117,7 +117,7 @@ if __name__ == '__main__':
         elif (survey == 'halos'):
             c1, c2 = plot_halos(ax[i], lines[i], quench, r200_scaled)
 
-        leg2 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], loc=3, fontsize=10.5)
+        leg2 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], loc=3, fontsize=16)
 
         if i == 0:
             ax[i].add_artist(leg1)

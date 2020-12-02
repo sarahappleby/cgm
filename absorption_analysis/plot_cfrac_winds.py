@@ -7,7 +7,7 @@ import numpy as np
 from analysis_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=16)
 
 if __name__ == '__main__':
 
@@ -40,20 +40,20 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    fig, ax = plt.subplots(2, 3, figsize=(17.5, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
     ax = ax.flatten()
 
     line_sim = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey')
     line_x = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='grey')
     line_jet = Line2D([0,1],[0,1],ls=ls[2], marker=markers[2], color='grey')
 
-    leg_winds = ax[0].legend([line_sim, line_x, line_jet],wind_labels, loc=4, fontsize=12)
+    leg_winds = ax[0].legend([line_sim, line_x, line_jet],wind_labels, loc=4, fontsize=16)
     ax[0].add_artist(leg_winds)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
     
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=12)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16)
     ax[0].add_artist(leg_color)
 
     for j, wind in enumerate(winds):
@@ -80,11 +80,11 @@ if __name__ == '__main__':
             if survey == 'dwarfs':
                 sim_plot_dict = sim_dwarfs_plot_dict.copy()
                 label = 'COS-Dwarfs'
-                x = 0.75
+                x = 0.72
             elif survey == 'halos':
                 sim_plot_dict = sim_halos_plot_dict.copy()
                 label = 'COS-Halos'
-                x = 0.78
+                x = 0.75
     
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['cfrac_'+lines[i]+'_sf'],
                             yerr=sim_plot_dict['cfrac_'+lines[i]+'_poisson_sf'], capsize=4, c=sim_colors[0],
@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
 
             if j == 0:
-                ax[i].annotate(label, xy=(x, 0.93), xycoords='axes fraction',size=12,
+                ax[i].annotate(label, xy=(x, 0.93), xycoords='axes fraction',size=16,
                                 bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
                 ax[i].set_xlabel(xlabel)
                 ax[i].set_ylabel(r'$f_\textrm{cov},\ $' + plot_lines[i])

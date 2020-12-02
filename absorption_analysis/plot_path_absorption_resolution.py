@@ -7,7 +7,7 @@ import numpy as np
 from analysis_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=16)
 
 if __name__ == '__main__':
 
@@ -40,19 +40,19 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    fig, ax = plt.subplots(2, 3, figsize=(17.5, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
     ax = ax.flatten()
 
     line_m100 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
     line_m25 = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey')
 
-    leg_res = ax[0].legend([line_m100, line_m25], res_labels, loc=4, fontsize=12)
+    leg_res = ax[0].legend([line_m100, line_m25], res_labels, loc=4, fontsize=16)
     ax[0].add_artist(leg_res)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=12)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16)
     ax[0].add_artist(leg_color)
 
     cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_path_abs_data.h5'
@@ -77,12 +77,12 @@ if __name__ == '__main__':
                 sim_plot_dict = sim_dwarfs_plot_dict
                 cos_plot_dict = cos_dwarfs_plot_dict
                 label = 'COS-Dwarfs'
-                x = 0.75
+                x = 0.72
             elif survey == 'halos':
                 sim_plot_dict = sim_halos_plot_dict
                 cos_plot_dict = cos_halos_plot_dict
                 label = 'COS-Halos'
-                x = 0.77
+                x = 0.75
 
             """
             if (b == 2) & ('path_abs_'+lines[i]+'_sf' in list(cos_plot_dict.keys())):
@@ -95,7 +95,7 @@ if __name__ == '__main__':
                 for c in range(2):
                     c1[-1][c].set_alpha(alpha=0.5)
                     c2[-1][c].set_alpha(alpha=0.5)
-                leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
+                leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1)
             """
 
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['path_abs_'+lines[i]+'_sf'],
@@ -107,8 +107,8 @@ if __name__ == '__main__':
                             yerr=sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q'][empty_mask],
                             c=sim_colors[1], markersize=6, marker=markers[m], ls=linestyles[m], capsize=4)
             l2[-1][0].set_linestyle(linestyles[m])
-            #ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=12,
-            #                    bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
+            ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=16,
+                                bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
             ax[i].set_xlabel(xlabel)
             ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z)\ $' + plot_lines[i])
             ax[i].set_ylim(0.7, 3.0)

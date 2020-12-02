@@ -6,7 +6,7 @@ import numpy as np
 from analysis_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=16)
 
 if __name__ == '__main__':
 
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    fig, ax = plt.subplots(2, 3, figsize=(17.5, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
     ax = ax.flatten()
 
     line_fg20 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
@@ -55,13 +55,13 @@ if __name__ == '__main__':
     line_hm12_x2 = Line2D([0,1],[0,1],ls=linestyles[2], marker=markers[2], color='grey')
     line_hm01 = Line2D([0,1],[0,1],ls=linestyles[3], marker=markers[3], color='grey')
 
-    leg_uvb = ax[0].legend([line_fg20, line_fg11, line_hm12_x2, line_hm01],uvb_labels, loc=4, fontsize=12)
+    leg_uvb = ax[0].legend([line_fg20, line_fg11, line_hm12_x2, line_hm01],uvb_labels, loc=4, fontsize=14)
     ax[0].add_artist(leg_uvb)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=12)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=14)
     ax[0].add_artist(leg_color)
 
     cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_ew_med_data.h5'
@@ -94,12 +94,12 @@ if __name__ == '__main__':
                 sim_plot_dict = sim_dwarfs_plot_dict
                 cos_plot_dict = cos_dwarfs_plot_dict
                 label = 'COS-Dwarfs'
-                x = 0.75
+                x = 0.72
             elif survey == 'halos':
                 sim_plot_dict = sim_halos_plot_dict
                 cos_plot_dict = cos_halos_plot_dict
                 label = 'COS-Halos'
-                x = 0.77
+                x = 0.75
 
             if (b == 2) & ('EW_'+lines[i]+'_med_sf' in list(cos_plot_dict.keys())):
                 c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['EW_'+lines[i]+'_med_sf'], xerr=cos_plot_dict['xerr_sf'],
@@ -111,7 +111,7 @@ if __name__ == '__main__':
                 for c in range(2):
                     c1[-1][c].set_alpha(alpha=0.5)
                     c2[-1][c].set_alpha(alpha=0.5)
-                leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=10.5, loc=1)
+                leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=14, loc=1)
 
 
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'],
@@ -125,7 +125,7 @@ if __name__ == '__main__':
             l2[-1][0].set_linestyle(linestyles[b])
 
             if b == 0:
-                #ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=12,
+                #ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=14,
                 #                bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
                 ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
                 ax[i].set_xlabel(xlabel)
