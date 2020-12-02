@@ -7,7 +7,7 @@ import numpy as np
 from analysis_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=16)
 
 if __name__ == '__main__':
 
@@ -17,7 +17,7 @@ if __name__ == '__main__':
     plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
     det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
-    uvb_labels = [r'$\textrm{FG11} - \textrm{FG20}$', r'$\textrm{HM12 x2} - \textrm{FG20}$', r'$\textrm{HM01} - \textrm{FG20}$']
+    uvb_labels = [r'$\textrm{HM12 x2} - \textrm{FG20}$', r'$\textrm{HM01} - \textrm{FG20}$']
 
     # for doing one survey only:
     #cos_survey = ['halos'] * 6
@@ -29,12 +29,12 @@ if __name__ == '__main__':
 
     model = sys.argv[1]
     wind = sys.argv[2]
-    linestyles = ['-.', '--', ':']
-    markers = ['o', 'D', 'v']
+    linestyles = ['--', ':']
+    markers = ['D', 'v']
     ylim = 0.5
     xoffset = 0.025
     r200_scaled = True
-    backgrounds = ['uvb_fg11', 'uvb_hm12_x2', 'uvb_hm01']
+    backgrounds = ['uvb_hm12_x2', 'uvb_hm01']
 
     sim_colors, cos_colors = get_tol_colors()
 
@@ -48,20 +48,19 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    fig, ax = plt.subplots(2, 3, figsize=(17.5, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
     ax = ax.flatten()
 
-    line_fg11 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
-    line_hm12_x2 = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey')
-    line_hm01 = Line2D([0,1],[0,1],ls=linestyles[2], marker=markers[2], color='grey')
+    line_hm12_x2 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
+    line_hm01 = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey')
 
-    leg_uvb = ax[0].legend([line_fg11, line_hm12_x2, line_hm01],uvb_labels, loc=4, fontsize=12)
+    leg_uvb = ax[0].legend([line_hm12_x2, line_hm01],uvb_labels, loc=4, fontsize=16)
     ax[0].add_artist(leg_uvb)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=12)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16)
     ax[0].add_artist(leg_color)
 
     cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_cfrac_data.h5'
@@ -101,13 +100,13 @@ if __name__ == '__main__':
                 cos_plot_dict = cos_dwarfs_plot_dict.copy()
                 fg20_plot_dict = fg20_dwarfs_plot_dict
                 label = 'COS-Dwarfs'
-                x = 0.75
+                x = 0.72
             elif survey == 'halos':
                 sim_plot_dict = sim_halos_plot_dict.copy()
                 cos_plot_dict = cos_halos_plot_dict.copy()
                 fg20_plot_dict = fg20_halos_plot_dict
                 label = 'COS-Halos'
-                x = 0.77
+                x = 0.75
            
             if b == 0:
                 ax[i].axhline(0, c='k', ls=':', lw=1)
@@ -141,10 +140,11 @@ if __name__ == '__main__':
             l2[-1][0].set_linestyle(linestyles[b])
 
             if b == 0:
-                #ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=12,
-                #                bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
+                ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=16,
+                                bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
                 ax[i].set_xlabel(xlabel)
-                ax[i].set_ylabel(r'$f_{\rm cov} - f_{\rm cov}\_{\rm FG20},\ $' + plot_lines[i], labelpad=0)
+                ax[i].set_ylabel(r'$\Delta f_{\rm cov},\ $'+ plot_lines[i], labelpad=0)
+                #ax[i].set_ylabel(r'$f_{\rm cov} - f_{\rm cov}\_{\rm FG20},\ $' + plot_lines[i], labelpad=0)
                 ax[i].set_ylim(-0.4, 0.6)
 
                 if r200_scaled:

@@ -31,7 +31,7 @@ if __name__ == '__main__':
     plot_dir = 'plots/'
     r200_scaled = True
     ylim = 0.7
-    background = 'uvb_hm12_x2'
+    background = 'uvb_fg20'
 
     sim_colors, cos_colors = get_tol_colors()
 

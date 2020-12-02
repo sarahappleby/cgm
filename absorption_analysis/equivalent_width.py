@@ -1,9 +1,3 @@
-# script to compute equivalent widths - lets keep it general
-
-# take in list of .h5 files
-# give it an ion name 
-# separate equivalent width function
-
 import h5py
 import numpy as np
 import sys

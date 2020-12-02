@@ -6,6 +6,7 @@ from analysis_methods import *
 
 sys.path.append('../cos_samples/')
 from get_cos_info import make_cos_dict, read_halos_data, get_cos_dwarfs_lya, get_cos_dwarfs_civ
+from ignore_gals import *
 
 if __name__ == '__main__':
 
@@ -32,6 +33,8 @@ if __name__ == '__main__':
         boxsize = 50000.
     elif model == 'm25n512':
         boxsize = 25000.
+    elif model == 'm25n256':
+        boxsize = 25000.
 
     if survey == 'halos':
         z = 0.25
@@ -49,15 +52,11 @@ if __name__ == '__main__':
     quench = quench_thresh(z)
 
     # ignore the galaxies that dont have counterparts in the m50n512 boxes
-    if (model == 'm50n512') & (survey == 'halos'):
-        ignore_cos_gals = [18, 29]
-    if (model == 'm25n512') & (survey == 'dwarfs'):
-        ignore_cos_gals = [10, 17, 36]
-    if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
-        ignore_simba_gals = [list(range(num*norients*ngals_each, (num+1)*norients*ngals_each)) for num in ignore_cos_gals]
-        ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
+    if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
+        ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
+        ignore_cos_gals, ngals_each = get_ignore_cos_gals(model, survey)
     else:
-        ignore_simba_gals = []
+        ignore_simba_gals = []; ignore_cos_gals = []
 
     cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_obs_path_abs_data.h5'
     sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_data.h5'
