@@ -10,19 +10,19 @@ plt.rc('font', family='serif', size=16)
 
 if __name__ == '__main__':
 
-    cos_survey = ['dwarfs'] * 6
-    lines = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770' ]
-    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{MgII}2796$', r'$\textrm{SiIII}1206$', 
-                  r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$', r'$\textrm{NeVIII}770$']
-    det_thresh = np.log10([0.2, 0.1, 0.1, 0.1, 0.1, 0.1])
+    cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
+    lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
+    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
+                    r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
+    det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1])
 
-    models = ['m100n1024', 'm25n512']
+    models = ['m100n1024', 'm50n512', 'm25n256', 'm25n512']
     wind = 's50'
     background = 'uvb_fg20'
 
-    res_labels = [r'$\textrm{Simba}$', r'$\textrm{High-res}$']
-    linestyles = ['--', ':']
-    markers = ['D', 'v']
+    res_labels = [r'$\textrm{Simba-100}$', r'$\textrm{Simba-50}$', r'$\textrm{Simba-25}$', r'$\textrm{High-res}$']
+    linestyles = ['-', '--', ':', '-.']
+    markers = ['o', 'D', 'v', 's']
     ylim = 0.5
     xoffset = 0.025
     r200_scaled = True
@@ -41,33 +41,34 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
     ax = ax.flatten()
 
-    line_m100 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
-    line_m25 = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey')
-
-    leg_res = ax[0].legend([line_m100, line_m25],res_labels, loc=4, fontsize=16)
+    res_lines = []
+    for m in range(len(models)):
+        res_lines.append(Line2D([0,1],[0,1],ls=linestyles[m], marker=markers[m], color='grey'))
+    leg_res = ax[0].legend(res_lines,res_labels, loc=4, fontsize=16)
     ax[0].add_artist(leg_res)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
-
     leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16)
     ax[0].add_artist(leg_color)
 
     cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_ew_med_data.h5'
     cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
+    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_ew_med_data.h5'
+    cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
 
     for m, model in enumerate(models):
 
+        if model == 'm50n512':
+            wind = 's50j7k'
+        else:
+            wind = 's50'
+
         sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_ew_med_data.h5'
         sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
-
-        if m == 0:
-            sim_dwarfs_plot_dict['plot_bins_sf'] -= xoffset
-            sim_dwarfs_plot_dict['plot_bins_q'] -= xoffset
-        elif m == 1:
-            sim_dwarfs_plot_dict['plot_bins_sf'] += xoffset
-            sim_dwarfs_plot_dict['plot_bins_q'] += xoffset
-
+        sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_ew_med_data.h5'
+        sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
+    
         for i, survey in enumerate(cos_survey):
 
             # choose the survey and some params
@@ -76,6 +77,12 @@ if __name__ == '__main__':
                 cos_plot_dict = cos_dwarfs_plot_dict
                 label = 'COS-Dwarfs'
                 x = 0.72
+            elif survey == 'halos':
+                sim_plot_dict = sim_halos_plot_dict
+                cos_plot_dict = cos_halos_plot_dict
+                label = 'COS-Halos'
+                x = 0.75
+
 
             """
             if (m == 1) & ('EW_'+lines[i]+'_med_sf' in list(cos_plot_dict.keys())):
@@ -112,5 +119,7 @@ if __name__ == '__main__':
                     ax[i].set_xlim(0, 1.5)
                 else:
                     ax[i].set_xlim(25, 145)
+            if i==0:
+                ax[i].add_artist(leg_res)
 
     plt.savefig(plot_dir+plot_name, bbox_inches = 'tight')
