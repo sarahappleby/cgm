@@ -58,13 +58,13 @@ if __name__ == '__main__':
     line_hm12_x2 = Line2D([0,1],[0,1],ls=linestyles[2], marker=markers[2], color='grey')
     line_hm01 = Line2D([0,1],[0,1],ls=linestyles[3], marker=markers[3], color='grey')
 
-    leg_uvb = ax[0].legend([line_fg20, line_fg11, line_hm12_x2, line_hm01],uvb_labels, loc=4, fontsize=14)
+    leg_uvb = ax[0].legend([line_fg20, line_fg11, line_hm12_x2, line_hm01],uvb_labels, loc=4, fontsize=14, framealpha=0.)
     ax[0].add_artist(leg_uvb)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=14)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=14, framealpha=0.)
     ax[0].add_artist(leg_color)
 
     cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_data.h5'
@@ -114,7 +114,7 @@ if __name__ == '__main__':
                 for c in range(2):
                     c1[-1][c].set_alpha(alpha=0.5)
                     c2[-1][c].set_alpha(alpha=0.5)
-                leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=14, loc=1)
+                leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=14, loc=1, framealpha=0.)
 
 
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['path_abs_'+lines[i]+'_sf'],

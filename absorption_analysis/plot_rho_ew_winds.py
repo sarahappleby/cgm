@@ -45,13 +45,13 @@ if __name__ == '__main__':
     line_x = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='grey')
     line_jet = Line2D([0,1],[0,1],ls=ls[2], marker=markers[2], color='grey')
 
-    leg_winds = ax[0].legend([line_sim, line_x, line_jet],wind_labels, loc=4, fontsize=16)
+    leg_winds = ax[0].legend([line_sim, line_x, line_jet],wind_labels, loc=4, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_winds)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
     for j, wind in enumerate(winds):
@@ -105,7 +105,7 @@ if __name__ == '__main__':
 
             if j == 0:
                 ax[i].annotate(label, xy=(x, 0.93), xycoords='axes fraction',size=16,
-                                bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
+                                bbox=dict(boxstyle='round', fc='none', edgecolor='none'))
                 ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
                 ax[i].set_xlabel(xlabel)
                 ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')

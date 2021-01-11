@@ -80,7 +80,7 @@ if __name__ == '__main__':
                            color=sim_colors[1], alpha=0.25)
 
         if i == 0:
-            leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=16)
+            leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=16, framealpha=0.)
 
 
         c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['path_abs_'+lines[i]+'_sf'], 
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         for c in range(2):
             c1[-1][c].set_alpha(alpha=0.5)
             c2[-1][c].set_alpha(alpha=0.5)
-        leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1)
+        leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1, framealpha=0.)
 
         ax[i].set_xlabel(xlabel)
         ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z),\ $' + plot_lines[i])       

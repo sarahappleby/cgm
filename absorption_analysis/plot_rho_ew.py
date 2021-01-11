@@ -98,7 +98,7 @@ if __name__ == '__main__':
                             yerr=[sim_dict['ew_err_'+lines[i]][0][mask], sim_dict['ew_err_'+lines[i]][1][mask]],
                             ms=3.5, marker='s', capsize=4, ls='', c=sim_colors[1])
         if i == 0:
-            leg1 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=16, loc=4)
+            leg1 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], fontsize=16, loc=4, framealpha=0.)
 
         ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
         ax[i].set_xlabel(xlabel)
@@ -117,7 +117,7 @@ if __name__ == '__main__':
         elif (survey == 'halos'):
             c1, c2 = plot_halos(ax[i], lines[i], quench, r200_scaled)
 
-        leg2 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], loc=3, fontsize=16)
+        leg2 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], loc=3, fontsize=16, framealpha=0.)
 
         if i == 0:
             ax[i].add_artist(leg1)

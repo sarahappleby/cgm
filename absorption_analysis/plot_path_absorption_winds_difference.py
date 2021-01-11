@@ -22,8 +22,8 @@ if __name__ == '__main__':
     model = 'm50n512'
     winds = ['s50nox', 's50nojet']
     wind_labels = [r'$\textrm{No-Xray - Simba}$', r'$\textrm{No-jet - Simba}$']
-    ls = ['--', ':']
-    markers = ['D', 's']
+    ls = ['--', '-']
+    markers = ['v', 'o']
     ylim = 0.5
     xoffset = 0.035
     r200_scaled = True
@@ -44,16 +44,16 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
     ax = ax.flatten()
 
-    line_x = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey')
-    line_jet = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='grey')
+    line_x = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey', mec='grey', mfc='white', markersize=8)
+    line_jet = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='grey', mec='grey', mfc='white', markersize=8)
 
-    leg_winds = ax[0].legend([line_x, line_jet],wind_labels, loc=1, fontsize=16)
+    leg_winds = ax[0].legend([line_x, line_jet],wind_labels, loc=1, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_winds)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=2, fontsize=16)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=2, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
     simba_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_s50j7k_137_'+background+'_sim_path_abs_data.h5'
@@ -100,30 +100,30 @@ if __name__ == '__main__':
             err = np.sqrt(sim_plot_dict['path_abs_'+lines[i]+'_cv_std_sf']**2 + simba_plot_dict['path_abs_'+lines[i]+'_cv_std_sf']**2)
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], diff,
                             yerr=err,
-                            c=sim_colors[0], markersize=6, marker=markers[j], ls=ls[j], capsize=4)
+                            c=sim_colors[0], mec=sim_colors[0], mfc='white', markersize=8, marker=markers[j], 
+                            ls=ls[j], capsize=4)
             l1[-1][0].set_linestyle(ls[j])
 
             empty_mask = ~np.isnan(sim_plot_dict['path_abs_'+lines[i]+'_q'])
             lower_lim_array = np.array([lower_lim] * len(empty_mask))
             diff = sim_plot_dict['path_abs_'+lines[i]+'_q'] - simba_plot_dict['path_abs_'+lines[i]+'_q']
-            err = np.sqrt(sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q']**2 + simba_plot_dict['path_abs_'+lines[i]+'_cv_std_q']**2)
-            
-            ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], diff[empty_mask],
-                            c=sim_colors[1], markersize=6, marker=markers[j], ls='')
-            ax[i].plot(sim_plot_dict['plot_bins_q'][~empty_mask], lower_lim_array[~empty_mask],
-                            c=sim_colors[1], markersize=15, marker='$\downarrow$', ls='')
+            err = np.sqrt(sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q']**2 + simba_plot_dict['path_abs_'+lines[i]+'_cv_std_q']**2) 
             diff[~empty_mask] = lower_lim
             err[~empty_mask] = np.nan
+
             l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], diff,
                             yerr=err, capsize=4, c=sim_colors[1],
                             marker='', ls=ls[j])
             l2[-1][0].set_linestyle(ls[j])
+            ax[i].plot(sim_plot_dict['plot_bins_q'][~empty_mask], diff[~empty_mask],
+                            c=sim_colors[1], markersize=15, marker='$\downarrow$', ls='')
+            ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], diff[empty_mask],
+                            c=sim_colors[1], mec=sim_colors[1], mfc='white', markersize=8, marker=markers[j], ls='')
 
             ax[i].annotate(label, xy=(x, 0.04), xycoords='axes fraction',size=16, 
-                            bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey')) 
+                            bbox=dict(boxstyle='round', fc='none', edgecolor='none')) 
             ax[i].set_xlabel(xlabel)
             ax[i].set_ylabel(r'$\Delta {\rm log}\ ({\rm dEW}/ {\rm d} z),\ $'+plot_lines[i], labelpad=0)
-            #ax[i].set_ylabel(r'${\rm log}\ ({\rm dEW}/ {\rm d} z)\ - {\rm log}\ ({\rm dEW}/ {\rm d} z)_{\rm Simba},\ $' + plot_lines[i], labelpad=0)
             ax[i].set_ylim(-1.1, 2.)
             if r200_scaled:
                 ax[i].set_xlim(0, 1.5)

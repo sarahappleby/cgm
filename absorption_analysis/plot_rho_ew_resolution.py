@@ -44,12 +44,12 @@ if __name__ == '__main__':
     res_lines = []
     for m in range(len(models)):
         res_lines.append(Line2D([0,1],[0,1],ls=linestyles[m], marker=markers[m], color='grey'))
-    leg_res = ax[0].legend(res_lines,res_labels, loc=4, fontsize=16)
+    leg_res = ax[0].legend(res_lines,res_labels, loc=4, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_res)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
     cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_ew_med_data.h5'
@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
             if m == 0:
                 ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=16,
-                                bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
+                                bbox=dict(boxstyle='round', fc='none', edgecolor='none'))
                 ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
                 ax[i].set_xlabel(xlabel)
                 ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')

@@ -31,8 +31,8 @@ if __name__ == '__main__':
 
     model = sys.argv[1]
     wind = sys.argv[2]
-    linestyles = ['--', ':']
-    markers = ['D', 'v']
+    linestyles = ['--', '-']
+    markers = ['v', 'o']
     ylim = 0.5
     xoffset = 0.025
     r200_scaled = True
@@ -53,16 +53,18 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
     ax = ax.flatten()
 
-    line_hm12_x2 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
-    line_hm01 = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey')
+    line_hm12_x2 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey', mec='grey', mfc='white', 
+                        markersize=8)
+    line_hm01 = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey', mec='grey', mfc='white', 
+                        markersize=8)
 
-    leg_uvb = ax[0].legend([line_hm12_x2, line_hm01],uvb_labels, loc=4, fontsize=16)
+    leg_uvb = ax[0].legend([line_hm12_x2, line_hm01],uvb_labels, loc=2, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_uvb)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
     cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_data.h5'
@@ -130,7 +132,8 @@ if __name__ == '__main__':
             err = np.sqrt(sim_plot_dict['path_abs_'+lines[i]+'_cv_std_sf']**2 + fg20_plot_dict['path_abs_'+lines[i]+'_cv_std_sf']**2)
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], diff,
                             yerr=err,
-                            c=sim_colors[0], markersize=6, marker=markers[b], ls=linestyles[b], capsize=4)
+                            c=sim_colors[0], mec=sim_colors[0], mfc='white', markersize=8, marker=markers[b],
+                            ls=linestyles[b], capsize=4)
             l1[-1][0].set_linestyle(linestyles[b])
 
             empty_mask = ~np.isnan(sim_plot_dict['path_abs_'+lines[i]+'_q'])
@@ -138,11 +141,12 @@ if __name__ == '__main__':
             err = np.sqrt(sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q']**2 + fg20_plot_dict['path_abs_'+lines[i]+'_cv_std_q']**2)
             l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'][empty_mask], diff[empty_mask],
                             yerr=err[empty_mask],
-                            c=sim_colors[1], markersize=6, marker=markers[b], ls=linestyles[b], capsize=4)
+                            c=sim_colors[1], mec=sim_colors[1], mfc='white', markersize=8, marker=markers[b],
+                            ls=linestyles[b], capsize=4)
             l2[-1][0].set_linestyle(linestyles[b])
            
             ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=16,
-                                bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
+                                bbox=dict(boxstyle='round', fc='none', edgecolor='none'))
             ax[i].set_xlabel(xlabel)
             ax[i].set_ylabel(r'$\Delta {\rm log}\ ({\rm dEW}/ {\rm d} z),\ $' + plot_lines[i], labelpad=0)
             #ax[i].set_ylabel(r'${\rm log}\ ({\rm dEW}/ {\rm d} z)\ - {\rm log}\ ({\rm dEW}/ {\rm d} z)_{\rm FG20},\ $' + plot_lines[i], labelpad=0)

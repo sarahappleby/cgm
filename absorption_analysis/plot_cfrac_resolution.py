@@ -46,13 +46,13 @@ if __name__ == '__main__':
     line_m100 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
     line_m25 = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey')
 
-    leg_res = ax[0].legend([line_m100, line_m25],res_labels, loc=4, fontsize=16)
+    leg_res = ax[0].legend([line_m100, line_m25],res_labels, loc=4, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_res)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
     cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_cfrac_data.h5'
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
             if m == 0:
                 ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=16,
-                                bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
+                                bbox=dict(boxstyle='round', fc='none', edgecolor='none'))
                 ax[i].set_xlabel(xlabel)
                 ax[i].set_ylabel(r'$f_\textrm{cov},\ $' + plot_lines[i])
                 ax[i].set_ylim(0, 1.1)

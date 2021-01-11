@@ -91,7 +91,7 @@ if __name__ == '__main__':
                            sim_plot_dict['EW_'+lines[i]+'_med_q'] + sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'],
                            color=sim_colors[1], alpha=0.25)
         if i == 0:
-            leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc=3, fontsize=16)
+            leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc=3, fontsize=16, framealpha=0.)
             
         if 'EW_'+lines[i]+'_med_sf' in list(cos_plot_dict.keys()):
             c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['EW_'+lines[i]+'_med_sf'], xerr=cos_plot_dict['xerr_sf'],
@@ -103,7 +103,7 @@ if __name__ == '__main__':
             for c in range(2):
                 c1[-1][c].set_alpha(alpha=0.5)
                 c2[-1][c].set_alpha(alpha=0.5)
-            leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1)
+            leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1, framealpha=0.)
 
         ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
         ax[i].set_xlabel(xlabel)

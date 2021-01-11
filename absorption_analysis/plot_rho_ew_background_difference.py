@@ -53,13 +53,13 @@ if __name__ == '__main__':
     line_hm12_x2 = Line2D([0,1],[0,1],ls=linestyles[0], marker=markers[0], color='grey')
     line_hm01 = Line2D([0,1],[0,1],ls=linestyles[1], marker=markers[1], color='grey')
 
-    leg_uvb = ax[0].legend([line_hm12_x2, line_hm01],uvb_labels, loc=4, fontsize=16)
+    leg_uvb = ax[0].legend([line_hm12_x2, line_hm01],uvb_labels, loc=2, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_uvb)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
     cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_ew_med_data.h5'
@@ -141,7 +141,7 @@ if __name__ == '__main__':
                     
             if b == 0:
                 ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=16,
-                                bbox=dict(boxstyle='round', fc='white', edgecolor='lightgrey'))
+                                bbox=dict(boxstyle='round', fc='none', edgecolor='none'))
                 ax[i].set_xlabel(xlabel)
                 ax[i].set_ylabel(r'$\Delta {\rm log (EW)},\ $'+ plot_lines[i], labelpad=0)
                 #ax[i].set_ylabel(r'${\rm log (EW)}\ - {\rm log (EW)}_{\rm FG20},\ $' + plot_lines[i], labelpad=0)
