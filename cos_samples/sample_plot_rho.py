@@ -89,11 +89,11 @@ plt.clim(0., 1.5)
 plt.scatter(all_mass[all_ssfr == -11.5], all_ssfr[all_ssfr == -11.5], c=all_dist[all_ssfr == -11.5], s=45, marker='$\downarrow$', cmap=cmap)
 
 plt.scatter(cos_halos_mass[cos_halos_ssfr > -11.5], cos_halos_ssfr[cos_halos_ssfr > -11.5],
-            marker='x', c='dimgray', s=50, label='COS-Halos')
+            marker='o', edgecolors='dimgrey', facecolors='none', s=50, label='COS-Halos')
 plt.scatter(cos_halos_mass[cos_halos_ssfr == -11.5], cos_halos_ssfr[cos_halos_ssfr == -11.5],
-            marker='$\downarrow$', c='dimgray', s=55)
+            marker='$\downarrow$', c='dimgrey', s=55)
 plt.scatter(cos_dwarfs_mass[np.invert(cos_dwarfs_less_than)], cos_dwarfs_ssfr[np.invert(cos_dwarfs_less_than)],
-            marker='+', c='darkgray', s=70, label='COS-Dwarfs')
+            marker='^', edgecolors='darkgray', facecolors='none', s=50, label='COS-Dwarfs')
 plt.scatter(cos_dwarfs_mass[cos_dwarfs_less_than], cos_dwarfs_ssfr[cos_dwarfs_less_than],
             marker='$\downarrow$', c='darkgray', s=55)
 
@@ -101,5 +101,5 @@ plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 plt.ylabel(r'$\textrm{log} (sSFR  / \textrm{yr}^{-1})$')
 plt.ylim(-11.7, -8.8)
 plt.legend(loc=1)
-plt.savefig('/home/sapple/cgm/cos_samples/plots/'+model+'_'+wind+'_cos_sample_rho.png')
+plt.savefig('/home/sapple/cgm/cos_samples/plots/'+model+'_'+wind+'_cos_sample_rho.png', bbox_inches = 'tight')
 plt.clf()
