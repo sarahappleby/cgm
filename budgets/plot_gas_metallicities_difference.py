@@ -49,7 +49,7 @@ ax = ax.flatten()
 line_x = Line2D([0,1],[0,1],ls=linestyles[0], marker='o', color=colours[0])
 line_jet = Line2D([0,1],[0,1],ls=linestyles[1], marker='o', color=colours[1])
 line_agn = Line2D([0,1],[0,1],ls=linestyles[2], marker='o', color=colours[2])
-leg_winds = ax[0].legend([line_x, line_jet, line_agn],wind_labels, loc=0)
+leg_winds = ax[0].legend([line_x, line_jet, line_agn],wind_labels, loc=0, framealpha=0.)
 ax[0].add_artist(leg_winds)
 
 simba_data_dir = '/home/sapple/cgm/budgets/data/'+model+'_s50/'

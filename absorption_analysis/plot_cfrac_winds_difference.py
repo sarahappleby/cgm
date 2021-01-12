@@ -34,9 +34,11 @@ if __name__ == '__main__':
     plot_dir = 'plots/'
     plot_name = model+'_'+background+'_winds_rho_cfrac_difference'
     if r200_scaled:
-        plot_name += '_scaled'
+        scale_str = '_scaled'
+        plot_name += scale_str
         xlabel = r'$\rho / r_{200}$'
     else:
+        scale_str = ''
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
@@ -55,9 +57,9 @@ if __name__ == '__main__':
     leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=2, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
-    simba_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_s50j7k_137_'+background+'_sim_cfrac_data.h5'
+    simba_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_s50j7k_137_'+background+'_sim_cfrac_data'+scale_str+'.h5'
     simba_halos_plot_dict = read_dict_from_h5(simba_halos_file)
-    simba_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_s50j7k_151_'+background+'_sim_cfrac_data.h5'
+    simba_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_s50j7k_151_'+background+'_sim_cfrac_data'+scale_str+'.h5'
     simba_dwarfs_plot_dict = read_dict_from_h5(simba_dwarfs_file)
 
     for j, wind in enumerate(winds):

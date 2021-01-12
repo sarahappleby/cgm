@@ -39,23 +39,22 @@ if __name__ == '__main__':
     plot_name = model+'_'+wind +'_'+background+'_rho_ew_med'
     #plot_name += '_'+cos_survey[0] +'_only'
     if r200_scaled:
-        plot_name += '_scaled'
+        scale_str = '_scaled'
+        plot_name += scale_str
+        xlabel = r'$\rho / r_{200}$'
+    else:
+        scale_str = ''
+        xlabel = r'$\rho (\textrm{kpc})$'
     if plot_name[-1] == '_': plot_name = plot_name[:-1]
     plot_name += '.png'
 
-    # rescaled the x axis by r200
-    if r200_scaled:        
-        xlabel = r'$\rho / r_{200}$'
-    else:
-        xlabel = r'$\rho (\textrm{kpc})$'
-
-    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_ew_med_data.h5'
+    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_ew_med_data'+scale_str+'.h5'
     cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
-    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_ew_med_data.h5'
+    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_ew_med_data'+scale_str+'.h5'
     cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
-    sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_ew_med_data.h5'
+    sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_ew_med_data'+scale_str+'.h5'
     sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-    sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_ew_med_data.h5'
+    sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_ew_med_data'+scale_str+'.h5'
     sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
     fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
@@ -68,10 +67,12 @@ if __name__ == '__main__':
             cos_plot_dict = cos_dwarfs_plot_dict
             sim_plot_dict = sim_dwarfs_plot_dict
             label = 'COS-Dwarfs'
+            cos_marker = '^'
         elif survey == 'halos':
             cos_plot_dict = cos_halos_plot_dict
             sim_plot_dict = sim_halos_plot_dict
             label = 'COS-Halos'
+            cos_marker = 'o'
 
         # plot the Simba data as lines
         #l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'], 
@@ -96,10 +97,10 @@ if __name__ == '__main__':
         if 'EW_'+lines[i]+'_med_sf' in list(cos_plot_dict.keys()):
             c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['EW_'+lines[i]+'_med_sf'], xerr=cos_plot_dict['xerr_sf'],
                             yerr=[cos_plot_dict['EW_'+lines[i]+'_per25_sf'], cos_plot_dict['EW_'+lines[i]+'_per75_sf']],
-                            capsize=4, c=cos_colors[0], marker='s', markersize=6, ls='', label=label+' SF')
+                            capsize=4, c=cos_colors[0], mec=cos_colors[0], mfc='white', marker=cos_marker, markersize=8, ls='', label=label+' SF')
             c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['EW_'+lines[i]+'_med_q'], xerr=cos_plot_dict['xerr_q'],
                             yerr=[cos_plot_dict['EW_'+lines[i]+'_per25_q'], cos_plot_dict['EW_'+lines[i]+'_per75_q']],
-                            capsize=4, c=cos_colors[1], marker='s', markersize=6, ls='', label=label+' Q')
+                            capsize=4, c=cos_colors[1], mec=cos_colors[1], mfc='white', marker=cos_marker, markersize=8, ls='', label=label+' Q')
             for c in range(2):
                 c1[-1][c].set_alpha(alpha=0.5)
                 c2[-1][c].set_alpha(alpha=0.5)

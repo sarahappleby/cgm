@@ -34,9 +34,11 @@ if __name__ == '__main__':
     plot_name = 'resolution_cfrac'
     #plot_name += '_'+cos_survey[0] +'_only'
     if r200_scaled:
-        plot_name += '_scaled'
+        scale_str = '_scaled'
+        plot_name += scale_str
         xlabel = r'$\rho / r_{200}$'
     else:
+        scale_str = ''
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
@@ -55,12 +57,12 @@ if __name__ == '__main__':
     leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
-    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_cfrac_data.h5'
+    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_cfrac_data'+scale_str+'.h5'
     cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
 
     for m, model in enumerate(models):
 
-        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_cfrac_data.h5'
+        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_cfrac_data'+scale_str+'.h5'
         sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
         if m == 0:

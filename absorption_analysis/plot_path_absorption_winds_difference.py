@@ -35,9 +35,11 @@ if __name__ == '__main__':
     plot_dir = 'plots/'
     plot_name = model+'_'+background+'_winds_rho_path_abs_difference'
     if r200_scaled:
-        plot_name += '_scaled'
+        scale_str = '_scaled'
+        plot_name += scale_str
         xlabel = r'$\rho / r_{200}$'
     else:
+        scale_str = ''
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
@@ -47,25 +49,25 @@ if __name__ == '__main__':
     line_x = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey', mec='grey', mfc='white', markersize=8)
     line_jet = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='grey', mec='grey', mfc='white', markersize=8)
 
-    leg_winds = ax[0].legend([line_x, line_jet],wind_labels, loc=1, fontsize=16, framealpha=0.)
+    leg_winds = ax[0].legend([line_x, line_jet],wind_labels, loc=2, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_winds)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=2, fontsize=16, framealpha=0.)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=4, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
-    simba_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_s50j7k_137_'+background+'_sim_path_abs_data.h5'
+    simba_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_s50j7k_137_'+background+'_sim_path_abs_data'+scale_str+'.h5'
     simba_halos_plot_dict = read_dict_from_h5(simba_halos_file)
-    simba_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_s50j7k_151_'+background+'_sim_path_abs_data.h5'
+    simba_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_s50j7k_151_'+background+'_sim_path_abs_data'+scale_str+'.h5'
     simba_dwarfs_plot_dict = read_dict_from_h5(simba_dwarfs_file)
 
     for j, wind in enumerate(winds):
 
-        sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_path_abs_data.h5'
+        sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_path_abs_data'+scale_str+'.h5'
         sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_data.h5'
+        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_data'+scale_str+'.h5'
         sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
         if j == 0:
@@ -111,16 +113,17 @@ if __name__ == '__main__':
             diff[~empty_mask] = lower_lim
             err[~empty_mask] = np.nan
 
-            l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], diff,
-                            yerr=err, capsize=4, c=sim_colors[1],
-                            marker='', ls=ls[j])
-            l2[-1][0].set_linestyle(ls[j])
+            ax[i].plot(sim_plot_dict['plot_bins_q'], diff,
+                            c=sim_colors[1], marker='', ls=ls[j])
             ax[i].plot(sim_plot_dict['plot_bins_q'][~empty_mask], diff[~empty_mask],
                             c=sim_colors[1], markersize=15, marker='$\downarrow$', ls='')
-            ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], diff[empty_mask],
-                            c=sim_colors[1], mec=sim_colors[1], mfc='white', markersize=8, marker=markers[j], ls='')
+            l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'][empty_mask], diff[empty_mask],
+                            yerr=err[empty_mask],
+                            c=sim_colors[1], mec=sim_colors[1], mfc='white', markersize=8, marker=markers[j], 
+                            ls='', capsize=4)
+            l2[-1][0].set_linestyle(ls[j])
 
-            ax[i].annotate(label, xy=(x, 0.04), xycoords='axes fraction',size=16, 
+            ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=16, 
                             bbox=dict(boxstyle='round', fc='none', edgecolor='none')) 
             ax[i].set_xlabel(xlabel)
             ax[i].set_ylabel(r'$\Delta {\rm log}\ ({\rm dEW}/ {\rm d} z),\ $'+plot_lines[i], labelpad=0)

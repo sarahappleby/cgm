@@ -30,21 +30,20 @@ if __name__ == '__main__':
 
     plot_name = model+'_'+wind +'_'+background+'_rho_path_abs'
     if r200_scaled:
-        plot_name += '_scaled'
-    plot_name += '.png'
-
-    if r200_scaled:
+        scale_str = '_scaled'
+        plot_name += scale_str
         xlabel = r'$\rho / r_{200}$'
     else:
         xlabel = r'$\rho (\textrm{kpc})$'
-    
-    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_data.h5'
+    plot_name += '.png'
+
+    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_data'+scale_str+'.h5'
     cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
-    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_path_abs_data.h5'
+    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_path_abs_data'+scale_str+'.h5'
     cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
-    sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_path_abs_data.h5'
+    sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_path_abs_data'+scale_str+'.h5'
     sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-    sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_data.h5'
+    sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_data'+scale_str+'.h5'
     sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
     
     fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
@@ -57,10 +56,12 @@ if __name__ == '__main__':
             cos_plot_dict = cos_dwarfs_plot_dict.copy()
             sim_plot_dict = sim_dwarfs_plot_dict.copy()
             label = 'COS-Dwarfs'
+            cos_marker = '^'
         elif survey == 'halos':
             cos_plot_dict = cos_halos_plot_dict.copy()
             sim_plot_dict = sim_halos_plot_dict.copy()
             label = 'COS-Halos'
+            cos_marker = 'o'
 
         #l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['path_abs_'+lines[i]+'_sf'],
         #                    yerr=sim_plot_dict['path_abs_'+lines[i]+'_cv_std_sf'],
@@ -85,10 +86,10 @@ if __name__ == '__main__':
 
         c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['path_abs_'+lines[i]+'_sf'], 
                             yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_sf'], xerr=cos_plot_dict['xerr_sf'], 
-                            capsize=4, c=cos_colors[0], marker='s', markersize=4, ls='')
+                            capsize=4, c=cos_colors[0], mec=cos_colors[0], mfc='white', marker=cos_marker, markersize=8, ls='')
         c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['path_abs_'+lines[i]+'_q'], 
                             yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_q'], xerr=cos_plot_dict['xerr_q'],
-                            capsize=4, c=cos_colors[1], marker='s', markersize=4, ls='')
+                            capsize=4, c=cos_colors[1], mec=cos_colors[1], mfc='white', marker=cos_marker, markersize=8, ls='')
         for c in range(2):
             c1[-1][c].set_alpha(alpha=0.5)
             c2[-1][c].set_alpha(alpha=0.5)

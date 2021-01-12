@@ -59,9 +59,6 @@ if __name__ == '__main__':
     else:
         ignore_simba_gals = []; ignore_cos_gals = []
 
-    cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_obs_cfrac_data.h5'
-    sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_cfrac_data.h5'
-
     if survey == 'halos':
         cos_dict_orig, cos_mmask = make_cos_dict('halos', mlim, r200_scaled)
     elif survey == 'dwarfs':
@@ -70,8 +67,12 @@ if __name__ == '__main__':
     # rescaled the x axis by r200
     if r200_scaled:
         cos_dict_orig['dist'] = cos_dict_orig['rho'] / cos_dict_orig['r200']
+        cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_obs_cfrac_data_scaled.h5'
+        sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_cfrac_data_scaled.h5'
     else:
         cos_dict_orig['dist'] = cos_dict_orig['rho'].copy()
+        cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_obs_cfrac_data.h5'
+        sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_cfrac_data.h5'
 
     if not os.path.isfile(cos_file):
 

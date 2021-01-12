@@ -34,9 +34,11 @@ if __name__ == '__main__':
     plot_dir = 'plots/'
     plot_name = model+'_'+background+'_winds_rho_cfrac'
     if r200_scaled:
-        plot_name += '_scaled'
+        scale_str = '_scaled'
+        plot_name += scale_str
         xlabel = r'$\rho / r_{200}$'
     else:
+        scale_str = ''
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
@@ -58,9 +60,9 @@ if __name__ == '__main__':
 
     for j, wind in enumerate(winds):
 
-        sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_cfrac_data.h5'
+        sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_cfrac_data'+scale_str+'.h5'
         sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_cfrac_data.h5'
+        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_cfrac_data'+scale_str+'.h5'
         sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
         if j == 0:
