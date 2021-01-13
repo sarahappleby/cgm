@@ -29,7 +29,7 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     
     plot_dir = 'plots/'
-    r200_scaled = True
+    r200_scaled = False
     ylim = 0.7
     background = 'uvb_fg20'
 
@@ -74,13 +74,6 @@ if __name__ == '__main__':
             label = 'COS-Halos'
             cos_marker = 'o'
 
-        # plot the Simba data as lines
-        #l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'], 
-        #                    yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_sf'], 
-        #                    capsize=4, c=sim_colors[0], marker='o', ls='--')
-        #l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], sim_plot_dict['EW_'+lines[i]+'_med_q'], 
-        #                    yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'], 
-        #                    capsize=4, c=sim_colors[1], marker='o', ls='--')
         l1, = ax[i].plot(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'], c=sim_colors[0], ls='-', marker='', lw=2)
         ax[i].fill_between(sim_plot_dict['plot_bins_sf'], 
                            sim_plot_dict['EW_'+lines[i]+'_med_sf'] - sim_plot_dict['EW_'+lines[i]+'_cosmic_std_sf'], 
@@ -113,7 +106,7 @@ if __name__ == '__main__':
         if r200_scaled:
             ax[i].set_xlim(0, 1.5)
         else:
-            ax[i].set_xlim(25, 145)
+            ax[i].set_xlim(10, 150)
 
         if i==0:
             ax[i].add_artist(leg2)
