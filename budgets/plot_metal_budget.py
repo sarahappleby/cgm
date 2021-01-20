@@ -6,7 +6,7 @@ import numpy as np
 from plotting_methods import get_cb_colours, read_phase_stats
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=16)
 palette_name = 'tol'
 
 alpha = .8
@@ -43,7 +43,7 @@ else:
 	print('Run plot_mass_actual first!')
 	quit()
 
-fig, ax = plt.subplots(2, 3, figsize=(15, 12.5), sharey='row', sharex='col')
+fig, ax = plt.subplots(2, 3, figsize=(15, 10), sharey='row', sharex='col')
 ax = ax.flatten()
 
 # Plot actual metal masses:
@@ -57,15 +57,19 @@ for i, phase in enumerate(plot_phases):
 for i, phase in enumerate(plot_phases):
     ax[2].errorbar(metal_stats['smass_bins'], metal_stats['quenched'][phase]['median'], yerr=metal_stats['quenched'][phase]['percentile_25_75'], 
                 capsize=3, color=colours[i], label=plot_phases_labels[i])
-ax[0].set_title('All')
-ax[1].set_title('Star forming')
-ax[2].set_title('Quenched')
+
+ann_labels = ['All', 'Star forming', 'Quenched']
+ann_x = [0.88, 0.63, 0.7]
+for i in range(3):
+    ax[i].annotate(ann_labels[i], xy=(ann_x[i], 0.05), xycoords='axes fraction',size=18,
+            bbox=dict(boxstyle='round', fc='white'))
+
 for i in range(3):
     ax[i].set_xlim(min_mass, metal_stats['smass_bins'][-1]+0.5*dm)
     ax[i].set_ylim(5.5, 11.5)
     #ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 ax[0].set_ylabel(r'$\textrm{log} (M_Z / \textrm{M}_{\odot})$')
-ax[0].legend(loc=2, fontsize=12, framealpha=0.)
+ax[0].legend(loc=2, fontsize=13, framealpha=0.)
 
 # Plot metal mass fractions:
 
@@ -104,7 +108,7 @@ for i in range(3, 6):
     ax[i].set_ylim(0, 1)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 ax[3].set_ylabel(r'$f_{Z\ {\rm Total}}$')
-ax[3].legend(loc=1, fontsize=12)
+ax[3].legend(loc=1, fontsize=13)
 fig.subplots_adjust(wspace=0., hspace=0.)
 
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metal_budget.png', bbox_inches = 'tight')

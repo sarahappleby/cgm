@@ -7,7 +7,7 @@ import sys
 from plotting_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=18)
 palette_name = 'tol'
 min_mass = 9.
 max_mass = 12.
@@ -86,15 +86,19 @@ for i, phase in enumerate(plot_phases):
 for i, phase in enumerate(plot_phases):
     ax[2].errorbar(mass_stats['smass_bins'], mass_stats['quenched'][phase]['median'], yerr=mass_stats['quenched'][phase]['percentile_25_75'], 
                 capsize=3, color=colours[i], label=plot_phases_labels[i])
-ax[0].set_title('All')
-ax[1].set_title('Star forming')
-ax[2].set_title('Quenched')
+
+ann_labels = ['All', 'Star forming', 'Quenched']
+ann_x = [0.88, 0.63, 0.7]
+for i in range(3):
+    ax[i].annotate(ann_labels[i], xy=(ann_x[i], 0.05), xycoords='axes fraction',size=18, 
+            bbox=dict(boxstyle='round', fc='white'))
+
 for i in range(3):
     ax[i].set_xlim(min_mass, mass_stats['smass_bins'][-1]+0.5*dm)
     ax[i].set_ylim(6.5, 14.5)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 ax[0].set_ylabel(r'$\textrm{log} (M / \textrm{M}_{\odot})$')
-ax[0].legend(loc=2, fontsize=12, framealpha=0.)
+ax[0].legend(loc=2, fontsize=14, framealpha=0.)
 fig.subplots_adjust(wspace=0.)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_mass_actual.png', bbox_inches = 'tight')
 plt.clf()
