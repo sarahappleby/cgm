@@ -7,7 +7,7 @@ import numpy as np
 from plotting_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
+plt.rc('font', family='serif', size=18)
 palette_name = 'tol'
 
 alpha = 1.
@@ -28,13 +28,13 @@ all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot C
 			  'ISM', 'Wind', 'Dust', 'Stars', 'Dark matter', 'Total baryons']
 plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool CGM (T < Tphoto)',
 				'Wind', 'Dust', 'ISM', 'Stars']
-plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
+plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', 'Warm CGM\n'+ r'$(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
 					  r'Cool CGM $(T < T_{\rm photo})$', 'Wind', 'Dust', 'ISM', 'Stars']
 colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
 colours = get_cb_colours(palette_name)[::-1]
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
-fig, ax = plt.subplots(2, 2, figsize=(13, 13))
+fig, ax = plt.subplots(1, 4, figsize=(15, 6), sharey='row')
 ax = ax.flatten()
 
 for w, wind in enumerate(winds):
@@ -85,13 +85,18 @@ for w, wind in enumerate(winds):
 		ax[w].errorbar(mass_stats['smass_bins'][mask], mass_stats['all'][phase]['median'][mask], 
 					yerr=[mass_stats['all'][phase]['percentile_25_75'][0][mask], mass_stats['all'][phase]['percentile_25_75'][1][mask]], 
 					capsize=3, color=colours[i], label=plot_phases_labels[i])
-	ax[w].set_title(wind_title[w])
 
 	ax[w].set_xlim(min_mass, mass_stats['smass_bins'][-1]+0.5*dm)
 	ax[w].set_ylim(6.5, 14)
 	ax[w].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-	ax[w].set_ylabel(r'$\textrm{log} (M / \textrm{M}_{\odot})$')
 
-ax[0].legend(loc=2, fontsize=14, framealpha=0.)
+x = [0.7, 0.62, 0.7, 0.5]
+for i in range(4):
+    ax[i].annotate(wind_title[i], xy=(x[i], 0.05), xycoords='axes fraction',size=18,
+            bbox=dict(boxstyle='round', fc='white'))
+
+ax[0].set_ylabel(r'$\textrm{log} (M / \textrm{M}_{\odot})$')
+ax[0].legend(loc=2, fontsize=12, framealpha=0.)
+fig.subplots_adjust(wspace=0.)
 plt.savefig(savedir+model+'_'+snap+'_mass_actual_winds.png', bbox_inches = 'tight')
 plt.clf()
