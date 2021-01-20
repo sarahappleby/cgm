@@ -25,7 +25,7 @@ elif model == 'm50n512':
 elif model == 'm25n512':
     boxsize = 25000.
 
-metaldata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+metaldata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
 savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
@@ -74,7 +74,7 @@ else:
 
     write_phase_stats(metal_stats_file, metal_stats, all_phases, stats)
 
-fig, ax = plt.subplots(1, 3, figsize=(15, 6))
+fig, ax = plt.subplots(1, 3, figsize=(15, 6), sharey='row')
 ax = ax.flatten()
 
 for i, phase in enumerate(plot_phases):
@@ -93,7 +93,8 @@ for i in range(3):
     ax[i].set_xlim(min_mass, metal_stats['smass_bins'][-1]+0.5*dm)
     ax[i].set_ylim(5.5, 11.5)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-    ax[i].set_ylabel(r'$\textrm{log} (M_Z / \textrm{M}_{\odot})$')
+ax[0].set_ylabel(r'$\textrm{log} (M_Z / \textrm{M}_{\odot})$')
 ax[0].legend(loc=2, fontsize=12, framealpha=0.)
+fig.subplots_adjust(wspace=0.)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metal_actual.png', bbox_inches = 'tight')
 plt.clf()

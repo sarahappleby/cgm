@@ -18,7 +18,7 @@ snap = '151'
 model = sys.argv[1]
 wind = sys.argv[2]
 
-data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
 savedir = '/home/sapple/cgm/budgets/plots/'
 
 plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool CGM (T < Tphoto)',
@@ -43,7 +43,7 @@ else:
 	print('Run plot_mass_actual first!')
 	quit()
 
-fig, ax = plt.subplots(2, 3, figsize=(15, 12.5))
+fig, ax = plt.subplots(2, 3, figsize=(15, 12.5), sharey='row', sharex='col')
 ax = ax.flatten()
 
 # Plot actual metal masses:
@@ -63,8 +63,8 @@ ax[2].set_title('Quenched')
 for i in range(3):
     ax[i].set_xlim(min_mass, metal_stats['smass_bins'][-1]+0.5*dm)
     ax[i].set_ylim(5.5, 11.5)
-    ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-    ax[i].set_ylabel(r'$\textrm{log} (M_Z / \textrm{M}_{\odot})$')
+    #ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
+ax[0].set_ylabel(r'$\textrm{log} (M_Z / \textrm{M}_{\odot})$')
 ax[0].legend(loc=2, fontsize=12, framealpha=0.)
 
 # Plot metal mass fractions:
@@ -103,8 +103,9 @@ for i in range(3, 6):
     ax[i].set_xlim(frac_stats['smass_bins'][0], frac_stats['smass_bins'][-1])
     ax[i].set_ylim(0, 1)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-    ax[i].set_ylabel(r'$f_{Z\ {\rm Total}}$')
+ax[3].set_ylabel(r'$f_{Z\ {\rm Total}}$')
 ax[3].legend(loc=1, fontsize=12)
+fig.subplots_adjust(wspace=0., hspace=0.)
 
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metal_budget.png', bbox_inches = 'tight')
 plt.clf()

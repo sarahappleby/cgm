@@ -23,3 +23,9 @@ def get_ignore_simba_gals(model, survey):
     ignore_simba_gals = [list(range(num*ngals_each, (num+1)*ngals_each)) for num in ignore_cos_gals]
     ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
     return ignore_simba_gals, ngals_each
+
+def get_ignore_los(ignore_simba_gals):
+    nlos = 8
+    ignore_los = [list(range(num*nlos, (num+1)*nlos)) for num in ignore_simba_gals]
+    ignore_los = np.array([item for sublist in ignore_los for item in sublist])
+    return ignore_los

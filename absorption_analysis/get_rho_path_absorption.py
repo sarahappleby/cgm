@@ -55,8 +55,9 @@ if __name__ == '__main__':
     if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
         ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
         ignore_cos_gals, ngals_each = get_ignore_cos_gals(model, survey)
+        ignore_los = get_ignore_los(ignore_simba_gals)
     else:
-        ignore_simba_gals = []; ignore_cos_gals = []
+        ignore_simba_gals = []; ignore_cos_gals = []; ignore_los
 
     if survey == 'halos':
         cos_dict_orig, cos_mmask = make_cos_dict('halos', mlim, r200_scaled)
@@ -91,7 +92,17 @@ if __name__ == '__main__':
     else:
         sim_dict['dist'] = sim_dict['rho'].copy()
 
-    sim_plot_dict = get_equal_bins(model, survey, r200_scaled)
+    if model in ['m100n1024', 'm50n512']:
+        sim_plot_dict = get_equal_bins(model, survey, r200_scaled)
+    elif model in ['m25n512', 'm25n256']:
+        mask = (sim_dict['ssfr'] > quench)
+        sim_plot_dict = {}
+        sim_nbins_sf = 5
+        sim_nbins_q = 4
+        trimmed_dist = np.delete(sim_dict['dist'], ignore_los, axis=0)
+        mask = np.delete(mask, ignore_los, axis=0)
+        sim_plot_dict['dist_bins_sf'], sim_plot_dict['plot_bins_sf'] = do_bins(trimmed_dist[mask], sim_nbins_sf)
+        sim_plot_dict['dist_bins_q'], sim_plot_dict['plot_bins_q'] = do_bins(trimmed_dist[~mask], sim_nbins_q)
 
     for i, line in enumerate(sim_lines):
         
@@ -143,9 +154,9 @@ if __name__ == '__main__':
         if line in cos_lines:
             cos_dict['path_length'] = np.repeat(sim_dict['path_length_'+line][0], len(cos_dict['EW']))
 
-        if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
+        if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
             for k in sim_dict.keys():
-                sim_dict[k] = np.delete(sim_dict[k], ignore_simba_gals, axis=0)
+                sim_dict[k] = np.delete(sim_dict[k], ignore_los, axis=0)
 
         # get binned medians for the simulation sample
         mask = (sim_dict['ssfr'] > quench)

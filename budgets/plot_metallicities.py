@@ -26,7 +26,7 @@ elif model == 'm50n512':
 elif model == 'm25n512':
     boxsize = 25000.
 
-zdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+zdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
 savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
@@ -81,7 +81,7 @@ else:
 
 
 
-fig, ax = plt.subplots(1, 3, figsize=(20, 6.5))
+fig, ax = plt.subplots(1, 3, figsize=(20, 6.5), sharey='row')
 ax = ax.flatten()
 
 for i, phase in enumerate(plot_phases):
@@ -100,7 +100,8 @@ for i in range(3):
     ax[i].set_xlim(min_mass, z_stats['smass_bins'][-1]+0.5*dm)
     ax[i].set_ylim(-1.65, 0.35)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-    ax[i].set_ylabel(r'$\textrm{log} (Z / Z_{\odot})$')
+ax[0].set_ylabel(r'$\textrm{log} (Z / Z_{\odot})$')
 ax[0].legend(loc=4, fontsize=13, framealpha=0.)
+fig.subplots_adjust(wspace=0.)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metallcities.png', bbox_inches = 'tight')
 plt.clf()

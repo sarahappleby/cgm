@@ -16,13 +16,12 @@ if __name__ == '__main__':
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
     det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1])
 
-    models = ['m100n1024', 'm50n512', 'm25n256', 'm25n512']
+    models = ['m100n1024', 'm25n256', 'm25n512']
     wind = 's50'
     background = 'uvb_fg20'
 
-    res_labels = [r'$\textrm{Simba-100}$', r'$\textrm{Simba-50}$', r'$\textrm{Simba-25}$', r'$\textrm{High-res}$']
-    linestyles = ['-', '--', ':', '-.']
-    markers = ['o', 'D', 'v', 's']
+    res_labels = [r'$\textrm{Simba-100}$', r'$\textrm{Simba-25/256}$', r'$\textrm{Simba-25/512}$']
+    linestyles = ['-', '--', ':',]
     ylim = 0.5
     xoffset = 0.025
     r200_scaled = True
@@ -45,7 +44,7 @@ if __name__ == '__main__':
 
     res_lines = []
     for m in range(len(models)):
-        res_lines.append(Line2D([0,1],[0,1],ls=linestyles[m], marker=markers[m], color='grey'))
+        res_lines.append(Line2D([0,1],[0,1],ls=linestyles[m], color='grey'))
     leg_res = ax[0].legend(res_lines,res_labels, loc=4, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_res)
 
@@ -85,9 +84,7 @@ if __name__ == '__main__':
                 label = 'COS-Halos'
                 x = 0.75
 
-
-            """
-            if (m == 1) & ('EW_'+lines[i]+'_med_sf' in list(cos_plot_dict.keys())):
+            if m == 0:
                 c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['EW_'+lines[i]+'_med_sf'], xerr=cos_plot_dict['xerr_sf'],
                             yerr=[cos_plot_dict['EW_'+lines[i]+'_per25_sf'], cos_plot_dict['EW_'+lines[i]+'_per75_sf']],
                             capsize=4, c=cos_colors[0], marker='s', markersize=4, ls='', label=label+' SF')
@@ -98,21 +95,18 @@ if __name__ == '__main__':
                     c1[-1][c].set_alpha(alpha=0.5)
                     c2[-1][c].set_alpha(alpha=0.5)
                 leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1)
-            """
 
-            l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'],
-                                yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_sf'],
-                                capsize=4, c=sim_colors[0], markersize=6, marker=markers[m], linestyle=linestyles[m], label='Simba SF')
-            l1[-1][0].set_linestyle(linestyles[m])
-            empty_mask = ~np.isnan(sim_plot_dict['EW_'+lines[i]+'_med_q'])
-            l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['EW_'+lines[i]+'_med_q'][empty_mask],
-                                yerr=sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'][empty_mask],
-                                capsize=4, c=sim_colors[1], markersize=6, marker=markers[m], linestyle=linestyles[m], label='Simba Q')
-            l2[-1][0].set_linestyle(linestyles[m])
+                l1, = ax[i].plot(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'], c=sim_colors[0], ls='-', marker='', lw=2)
+                ax[i].fill_between(sim_plot_dict['plot_bins_sf'],
+                                   sim_plot_dict['EW_'+lines[i]+'_med_sf'] - sim_plot_dict['EW_'+lines[i]+'_cosmic_std_sf'],
+                                   sim_plot_dict['EW_'+lines[i]+'_med_sf'] + sim_plot_dict['EW_'+lines[i]+'_cosmic_std_sf'],
+                                   color=sim_colors[0], alpha=0.25)
+                l2, = ax[i].plot(sim_plot_dict['plot_bins_q'], sim_plot_dict['EW_'+lines[i]+'_med_q'], c=sim_colors[1], ls='-', marker='', lw=2)
+                ax[i].fill_between(sim_plot_dict['plot_bins_q'],
+                                   sim_plot_dict['EW_'+lines[i]+'_med_q'] - sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'],
+                                   sim_plot_dict['EW_'+lines[i]+'_med_q'] + sim_plot_dict['EW_'+lines[i]+'_cosmic_std_q'],
+                                   color=sim_colors[1], alpha=0.25)
 
-            if m == 0:
-                ax[i].annotate(label, xy=(x, 0.91), xycoords='axes fraction',size=16,
-                                bbox=dict(boxstyle='round', fc='none', edgecolor='none'))
                 ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
                 ax[i].set_xlabel(xlabel)
                 ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
@@ -121,6 +115,14 @@ if __name__ == '__main__':
                     ax[i].set_xlim(0, 1.5)
                 else:
                     ax[i].set_xlim(25, 145)
+
+            else:
+                ax[i].plot(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'],
+                            c=sim_colors[0], linestyle=linestyles[m], label='Simba SF')
+                empty_mask = ~np.isnan(sim_plot_dict['EW_'+lines[i]+'_med_q'])
+                ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['EW_'+lines[i]+'_med_q'][empty_mask],
+                            c=sim_colors[1], linestyle=linestyles[m], label='Simba Q')
+
             if i==0:
                 ax[i].add_artist(leg_res)
 

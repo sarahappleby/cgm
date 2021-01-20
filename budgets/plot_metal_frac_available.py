@@ -26,7 +26,7 @@ elif model == 'm50n512':
 elif model == 'm25n512':
     boxsize = 25000.
 
-fracdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+fracdata_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
 savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
@@ -75,7 +75,7 @@ else:
 
     write_phase_stats(frac_stats_file, frac_stats, all_phases, stats)
 
-fig, ax = plt.subplots(1, 3, figsize=(15, 6))
+fig, ax = plt.subplots(1, 3, figsize=(15, 6), sharey='row')
 ax = ax.flatten()
 
 total = np.zeros(len(frac_stats['smass_bins']))
@@ -115,7 +115,8 @@ for i in range(3):
     ax[i].set_xlim(frac_stats['smass_bins'][0], frac_stats['smass_bins'][-1])
     ax[i].set_ylim(0, 1)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-    ax[i].set_ylabel(r'$f_{Z\ {\rm Total}}$')
+ax[0].set_ylabel(r'$f_{Z\ {\rm Total}}$')
 ax[0].legend(loc=1, fontsize=12)
+fig.subplots_adjust(wspace=0.)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_avail_metal_fracs_peeples.png', bbox_inches = 'tight')
 plt.clf()

@@ -203,7 +203,7 @@ def cos_binned_cfrac(cos_dict, mask, rho_bins, thresh):
 
     return cfrac, poisson
 
-def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, line, boxsize, lower_lim=0.8):
+def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, line, boxsize, lower_lim=0.5):
     binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew_'+line][mask], rho_bins)
     binned_pl = bin_data(data_dict['dist'][mask], data_dict['path_length_'+line][mask], rho_bins)
     binned_pos = bin_data(data_dict['dist'][mask], data_dict['pos'][mask], rho_bins)
@@ -222,7 +222,7 @@ def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, line, boxsize, lower_
 
     return convert_to_log(path_abs, path_abs_err)
 
-def cos_binned_path_abs(cos_dict, mask, rho_bins, thresh, lower_lim=0.8):
+def cos_binned_path_abs(cos_dict, mask, rho_bins, thresh, lower_lim=0.5):
     binned_ew = bin_data(cos_dict['dist'][mask], cos_dict['EW'][mask], rho_bins)
     binned_pl = bin_data(cos_dict['dist'][mask], cos_dict['path_length'][mask], rho_bins)
 

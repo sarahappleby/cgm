@@ -33,7 +33,7 @@ snap = sys.argv[3]
 datadir = '/home/rad/data/'+model+'/'+wind+'/'
 snapfile = datadir + 'snap_'+model+'_'+snap+ '.hdf5'
 caesarfile = datadir + '/Groups/'+model+'_'+snap+'.hdf5'
-savedir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+savedir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
 sim = caesar.quick_load(caesarfile)
 
 #datadir = '/home/sarah/data/'
@@ -47,6 +47,7 @@ h = sim.simulation.hubble_constant
 central = np.array([i.central for i in sim.galaxies])
 gal_sm = np.array([i.masses['stellar'].in_units('Msun') for i in sim.galaxies])
 gal_sfr = np.array([i.sfr.in_units('Msun/yr') for i in sim.galaxies])
+# Don't panic everyone, these are K units - see Mo & White 2002
 gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('km**2/s**2') for i in sim.galaxies])
 #gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('K') for i in sim.galaxies])
 gal_ssfr = gal_sfr / gal_sm

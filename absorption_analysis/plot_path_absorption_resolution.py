@@ -59,6 +59,8 @@ if __name__ == '__main__':
 
     cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_path_abs_data'+scale_str+'.h5'
     cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
+    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_data'+scale_str+'.h5'
+    cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
 
     for m, model in enumerate(models):
 
@@ -86,8 +88,7 @@ if __name__ == '__main__':
                 label = 'COS-Halos'
                 x = 0.75
 
-            """
-            if (b == 2) & ('path_abs_'+lines[i]+'_sf' in list(cos_plot_dict.keys())):
+            if (m == 0) & ('path_abs_'+lines[i]+'_sf' in list(cos_plot_dict.keys())):
                 c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['path_abs_'+lines[i]+'_sf'],
                                 yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_sf'], xerr=cos_plot_dict['xerr_sf'],
                                 capsize=4, c=cos_colors[0], marker='s', markersize=4, ls='')
@@ -98,7 +99,6 @@ if __name__ == '__main__':
                     c1[-1][c].set_alpha(alpha=0.5)
                     c2[-1][c].set_alpha(alpha=0.5)
                 leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1)
-            """
 
             l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['path_abs_'+lines[i]+'_sf'],
                             yerr=sim_plot_dict['path_abs_'+lines[i]+'_cv_std_sf'],

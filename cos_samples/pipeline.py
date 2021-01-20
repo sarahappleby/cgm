@@ -9,6 +9,7 @@ import pygad as pg
 from astropy.io import ascii
 
 from generate_spectra import generate_pygad_spectrum
+from ignore_gals import *
 
 mlim = np.log10(5.8e8)
 sqrt2 = np.sqrt(2.)

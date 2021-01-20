@@ -20,15 +20,15 @@ if __name__ == '__main__':
     det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
 
     model = 'm50n512'
-    winds = ['s50j7k', 's50nox', 's50nojet']
-    wind_labels = [r'$\textrm{Simba}$', r'$\textrm{No-Xray}$', r'$\textrm{No-jet}$']
-    ls = ['-', '--', ':']
-    markers = ['o', 'D', 's']
+    winds = ['s50j7k', 's50nox', 's50nojet', 's50nofb']
+    wind_labels = [r'$\textrm{Simba}$', r'$\textrm{No-Xray}$', r'$\textrm{No-jet}$', r'$\textrm{No-feedback}$']
+    ls = ['-', '--', ':', '-.']
+    markers = ['o', 'D', 's', '^']
     ylim = 0.5
     xoffset = 0.035
     r200_scaled = True
     background = 'uvb_fg20'
-    lower_lim = 0.6
+    lower_lim = 0.5
 
     sim_colors, cos_colors = get_tol_colors()
 
@@ -46,11 +46,10 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
     ax = ax.flatten()
 
-    line_sim = Line2D([0,1],[0,1],ls=ls[0], marker=markers[0], color='grey')
-    line_x = Line2D([0,1],[0,1],ls=ls[1], marker=markers[1], color='grey')
-    line_jet = Line2D([0,1],[0,1],ls=ls[2], marker=markers[2], color='grey')
-
-    leg_winds = ax[0].legend([line_sim, line_x, line_jet],wind_labels, loc=4, fontsize=16, framealpha=0.)
+    wind_lines = []
+    for w in range(len(winds)):
+        wind_lines.append(Line2D([0,1],[0,1],ls=ls[w], color='grey'))
+    leg_winds = ax[0].legend(wind_lines,wind_labels, loc=4, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_winds)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
@@ -59,12 +58,18 @@ if __name__ == '__main__':
     leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
+    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_data'+scale_str+'.h5'
+    cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
+    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_path_abs_data'+scale_str+'.h5'
+    cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
+
     for j, wind in enumerate(winds):
 
         sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_path_abs_data'+scale_str+'.h5'
         sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_data'+scale_str+'.h5'
-        sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
+        if not wind == 's50nofb':
+            sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_data'+scale_str+'.h5'
+            sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
         if j == 0:
             sim_halos_plot_dict['plot_bins_sf'] -= xoffset
@@ -79,40 +84,64 @@ if __name__ == '__main__':
 
         for i, survey in enumerate(cos_survey):
 
+            if (wind == 's50nofb') & (survey == 'dwarfs'):
+                continue
+
             # choose the survey and some params
             if survey == 'dwarfs':
                 sim_plot_dict = sim_dwarfs_plot_dict
+                cos_plot_dict = cos_dwarfs_plot_dict
                 label = 'COS-Dwarfs'
                 x = 0.72
+                cos_marker = '^'
             elif survey == 'halos':
                 sim_plot_dict = sim_halos_plot_dict
+                cos_plot_dict = cos_halos_plot_dict
                 label = 'COS-Halos'
                 x = 0.75
+                cos_marker = 'o'
 
-            l1 = ax[i].errorbar(sim_plot_dict['plot_bins_sf'], sim_plot_dict['path_abs_'+lines[i]+'_sf'],
-                            yerr=sim_plot_dict['path_abs_'+lines[i]+'_cv_std_sf'],
-                            c=sim_colors[0], markersize=6, marker=markers[j], ls=ls[j], capsize=4)
-            l1[-1][0].set_linestyle(ls[j])
-            
-            empty_mask = ~np.isnan(sim_plot_dict['path_abs_'+lines[i]+'_q'])
-            lower_lim_array = np.array([lower_lim] * len(empty_mask))
+            if j == 0:
 
-            ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['path_abs_'+lines[i]+'_q'][empty_mask],
-                            c=sim_colors[1], markersize=6, marker=markers[j], ls='')
-            ax[i].plot(sim_plot_dict['plot_bins_q'][~empty_mask], lower_lim_array[~empty_mask],
-                            c=sim_colors[1], markersize=15, marker='$\downarrow$', ls='')
-            sim_plot_dict['path_abs_'+lines[i]+'_q'][~empty_mask] = lower_lim
-            sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q'][~empty_mask] = np.nan
-            l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'], sim_plot_dict['path_abs_'+lines[i]+'_q'],
-                            yerr=sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q'], capsize=4, c=sim_colors[1],
-                            marker='', ls=ls[j])
-            l2[-1][0].set_linestyle(ls[j])
+                l1, = ax[i].plot(sim_plot_dict['plot_bins_sf'], sim_plot_dict['path_abs_'+lines[i]+'_sf'], c=sim_colors[0], ls='-', marker='', lw=2)
+                ax[i].fill_between(sim_plot_dict['plot_bins_sf'],
+                                   sim_plot_dict['path_abs_'+lines[i]+'_sf'] - sim_plot_dict['path_abs_'+lines[i]+'_cv_std_sf'],
+                                   sim_plot_dict['path_abs_'+lines[i]+'_sf'] + sim_plot_dict['path_abs_'+lines[i]+'_cv_std_sf'],
+                                   color=sim_colors[0], alpha=0.25)
+                l2, = ax[i].plot(sim_plot_dict['plot_bins_q'], sim_plot_dict['path_abs_'+lines[i]+'_q'], c=sim_colors[1], ls='-', marker='', lw=2)
+                ax[i].fill_between(sim_plot_dict['plot_bins_q'],
+                                   sim_plot_dict['path_abs_'+lines[i]+'_q'] - sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q'],
+                                   sim_plot_dict['path_abs_'+lines[i]+'_q'] + sim_plot_dict['path_abs_'+lines[i]+'_cv_std_q'],
+                                   color=sim_colors[1], alpha=0.25)
 
-            ax[i].annotate(label, xy=(x, 0.93), xycoords='axes fraction',size=16, 
-                            bbox=dict(boxstyle='round', fc='none', edgecolor='none')) 
+                lower_lim_mask = (sim_plot_dict['path_abs_'+lines[i]+'_q'] <= lower_lim)
+                lower_lim_array = np.array([lower_lim] * len(lower_lim_mask))
+                ax[i].plot(sim_plot_dict['plot_bins_q'][lower_lim_mask], lower_lim_array[lower_lim_mask],
+                                        c=sim_colors[1], markersize=15, marker='$\downarrow$', ls='')
+
+            else:
+
+                ax[i].plot(sim_plot_dict['plot_bins_sf'], sim_plot_dict['path_abs_'+lines[i]+'_sf'],
+                            c=sim_colors[0], ls=ls[j], lw=2.)
+                if not wind == 's50nojet':
+                    ax[i].plot(sim_plot_dict['plot_bins_q'], sim_plot_dict['path_abs_'+lines[i]+'_q'],
+                                c=sim_colors[1], ls=ls[j], lw=2.)
+
+            # just added in the data points
+            c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['path_abs_'+lines[i]+'_sf'],
+                            yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_sf'], xerr=cos_plot_dict['xerr_sf'],
+                            capsize=4, c=cos_colors[0], mec=cos_colors[0], mfc='white', marker=cos_marker, markersize=8, ls='')
+            c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['path_abs_'+lines[i]+'_q'],
+                            yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_q'], xerr=cos_plot_dict['xerr_q'],
+                            capsize=4, c=cos_colors[1], mec=cos_colors[1], mfc='white', marker=cos_marker, markersize=8, ls='')
+            for c in range(2):
+                c1[-1][c].set_alpha(alpha=0.5)
+                c2[-1][c].set_alpha(alpha=0.5)
+            leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1, framealpha=0.)
+
             ax[i].set_xlabel(xlabel)
             ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z)\ $' + plot_lines[i])
-            ax[i].set_ylim(0.5, 3.0)
+            ax[i].set_ylim(0.4, 3.0)
             if r200_scaled:
                 ax[i].set_xlim(0., 1.5)
             else:

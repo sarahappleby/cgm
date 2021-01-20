@@ -17,10 +17,10 @@ dm = 0.25 # dex
 ngals_min = 10
 
 snap = '151'
-winds = ['s50', 's50nox', 's50nojet', 's50noagn']
+winds = ['s50', 's50nox', 's50nojet', 's50nofb']
 model = 'm50n512'
 boxsize = 50000.
-wind_title = [r'$\textrm{Simba}$', r'$\textrm{No-Xray}$', r'$\textrm{No-jet}$', r'$\textrm{No-AGN}$']
+wind_title = [r'$\textrm{Simba}$', r'$\textrm{No-Xray}$', r'$\textrm{No-jet}$', r'$\textrm{No-feedback}$']
 savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
@@ -39,7 +39,10 @@ ax = ax.flatten()
 
 for w, wind in enumerate(winds):
 
-	data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+	if wind == 's50nofb': snap = '150'
+	else: snap = '151'
+
+	data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
 	metal_stats_file = data_dir+model+'_'+wind+'_'+snap+'_metal_budget_stats.h5'
 
 	if os.path.isfile(metal_stats_file):
