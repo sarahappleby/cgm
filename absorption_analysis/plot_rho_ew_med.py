@@ -13,7 +13,7 @@ if __name__ == '__main__':
     # set some parameters
     cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
     lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
-    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
+    plot_lines = [r'$\textrm{HI}1215$', r'$\textrm{HI}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
     det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_ew_med_data'+scale_str+'.h5'
     sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
-    fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(15, 10), sharey='row', sharex='col')
     ax = ax.flatten()
 
     for i, survey in enumerate(cos_survey):
@@ -101,14 +101,17 @@ if __name__ == '__main__':
 
         ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
         ax[i].set_xlabel(xlabel)
-        ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
         ax[i].set_ylim(-2, ylim)
         if r200_scaled:
             ax[i].set_xlim(0, 1.5)
         else:
             ax[i].set_xlim(10, 150)
-
+        ax[i].annotate(plot_lines[i], xy=(0.05, 0.91), xycoords='axes fraction',
+                        bbox=dict(boxstyle='round', fc='white'))
         if i==0:
             ax[i].add_artist(leg2)
+        if i in [0, 3]:
+            ax[i].set_ylabel(r'$\textrm{log (EW}/\AA)$')
 
+    fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(plot_dir+plot_name, bbox_inches = 'tight')

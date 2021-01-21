@@ -16,6 +16,7 @@ if __name__ == '__main__':
     lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
     plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
+    plot_line_x = [0.8, 0.8, 0.72, 0.73, 0.74, 0.74]
     det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
 
     model = sys.argv[1]
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_cfrac_data'+scale_str+'.h5'
     sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
-    fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(15, 10), sharey='row', sharex='col')
     ax = ax.flatten()
 
     for i, survey in enumerate(cos_survey):
@@ -82,7 +83,7 @@ if __name__ == '__main__':
                            color=sim_colors[1], alpha=0.25)
 
         if i == 0:
-            leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=16, framealpha=0.)
+            leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=14, framealpha=0.)
 
 
         c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['cfrac_'+lines[i]+'_sf'], 
@@ -94,10 +95,11 @@ if __name__ == '__main__':
         for c in range(2):
             c1[-1][c].set_alpha(alpha=0.5)
             c2[-1][c].set_alpha(alpha=0.5)
-        leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1, framealpha=0.)
+        leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=14, loc=1, framealpha=0.)
         
+        ax[i].annotate(plot_lines[i], xy=(plot_line_x[i], 0.73), xycoords='axes fraction',
+                        bbox=dict(boxstyle='round', fc='white'))
         ax[i].set_xlabel(xlabel)
-        ax[i].set_ylabel(r'$f_{\textrm{cov}},\ $' + plot_lines[i])
         ax[i].set_ylim(-0.1, 1.2)
         if r200_scaled:
             ax[i].set_xlim(0, 1.5)
@@ -106,6 +108,9 @@ if __name__ == '__main__':
 
         if i==0:
             ax[i].add_artist(leg2)
+        if i in [0, 3]:
+            ax[i].set_ylabel(r'$f_{\textrm{cov}}$')
 
+    fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(plot_dir+plot_name, bbox_inches = 'tight')
 

@@ -59,9 +59,9 @@ for i, phase in enumerate(plot_phases):
                 capsize=3, color=colours[i], label=plot_phases_labels[i])
 
 ann_labels = ['All', 'Star forming', 'Quenched']
-ann_x = [0.88, 0.63, 0.7]
+ann_x = [0.88, 0.64, 0.71]
 for i in range(3):
-    ax[i].annotate(ann_labels[i], xy=(ann_x[i], 0.05), xycoords='axes fraction',size=18,
+    ax[i].annotate(ann_labels[i], xy=(ann_x[i], 0.05), xycoords='axes fraction',size=16,
             bbox=dict(boxstyle='round', fc='white'))
 
 for i in range(3):

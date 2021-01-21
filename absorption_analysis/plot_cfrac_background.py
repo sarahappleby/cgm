@@ -7,15 +7,16 @@ import numpy as np
 from analysis_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
+plt.rc('font', family='serif', size=17)
 
 if __name__ == '__main__':
 
 
     cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
     lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031',]
-    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
+    plot_lines = [r'$\textrm{HI}1215$', r'$\textrm{HI}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
+    plot_line_x = [0.8, 0.8, 0.72, 0.73, 0.74, 0.74]
     det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
     uvb_labels = [r'$\textrm{FG20}$', r'$\textrm{HM12 x2}$', r'$\textrm{HM01}$']
 
@@ -49,20 +50,20 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(15, 10), sharey='row', sharex='col')
     ax = ax.flatten()
 
     line_fg20 = Line2D([0,1],[0,1],ls=linestyles[0], color='grey')
     line_hm12_x2 = Line2D([0,1],[0,1],ls=linestyles[1], color='grey')
     line_hm01 = Line2D([0,1],[0,1],ls=linestyles[2], color='grey')
 
-    leg_uvb = ax[0].legend([line_fg20, line_hm12_x2, line_hm01],uvb_labels, loc=4, fontsize=14, framealpha=0.)
+    leg_uvb = ax[0].legend([line_fg20, line_hm12_x2, line_hm01],uvb_labels, loc=4, fontsize=15, framealpha=0.)
     ax[0].add_artist(leg_uvb)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=14, framealpha=0.)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=15, framealpha=0.)
     ax[0].add_artist(leg_color)
 
     cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_cfrac_data'+scale_str+'.h5'
@@ -108,7 +109,10 @@ if __name__ == '__main__':
             if b == 0:
 
                 ax[i].set_xlabel(xlabel)
-                ax[i].set_ylabel(r'$f_\textrm{cov},\ $' + plot_lines[i])
+                ax[i].annotate(plot_lines[i], xy=(plot_line_x[i], 0.73), xycoords='axes fraction',size=15,
+                        bbox=dict(boxstyle='round', fc='white'))
+                if i in [0, 3]:
+                    ax[i].set_ylabel(r'$f_\textrm{cov}$')
                 ax[i].set_ylim(0, 1.1)
                 if r200_scaled:
                     ax[i].set_xlim(0, 1.5)
@@ -134,4 +138,15 @@ if __name__ == '__main__':
                 l2 = ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['cfrac_'+lines[i]+'_q'][empty_mask],
                                 color=sim_colors[1], lw=2, ls=linestyles[b])
 
+    labsy3 = ax[3].get_yticklabels()
+    labsy3[-1] = ''
+    ax[3].set_yticklabels(labsy3)
+    labsx4 = ax[4].get_xticklabels()
+    labsx4[0] = ''
+    ax[4].set_xticklabels(labsx4)
+    labsx5 = ax[5].get_xticklabels()
+    labsx5[0] = ''
+    ax[5].set_xticklabels(labsx5)
+
+    fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(plot_dir+plot_name, bbox_inches = 'tight')

@@ -7,7 +7,7 @@ import sys
 from plotting_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=18)
+plt.rc('font', family='serif', size=16)
 
 solar_z = 0.0134
 palette_name = 'tol'
@@ -34,7 +34,7 @@ all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot C
               'ISM', 'Wind', 'Dust', 'Stars', 'Total baryons']
 plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool CGM (T < Tphoto)',
                 'Wind', 'ISM', 'Stars']
-plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
+plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', 'Warm CGM\n'+r'$(T_{\rm photo} < T < 0.5T_{\rm vir})$', 
                       r'Cool CGM $(T < T_{\rm photo})$', 'Wind', 'ISM', 'Stars']
 colours = ['m', 'b', 'c', 'g', 'tab:pink', 'r']
 colours = get_cb_colours(palette_name)[::-1]
@@ -81,7 +81,7 @@ else:
 
 
 
-fig, ax = plt.subplots(1, 3, figsize=(20, 6.5), sharey='row')
+fig, ax = plt.subplots(1, 3, figsize=(15, 5.5), sharey='row')
 ax = ax.flatten()
 
 for i, phase in enumerate(plot_phases):
@@ -95,9 +95,9 @@ for i, phase in enumerate(plot_phases):
                 capsize=3, color=colours[i], label=plot_phases_labels[i])
 
 ann_labels = ['All', 'Star forming', 'Quenched']
-ann_x = [0.88, 0.63, 0.7]
+ann_x = [0.88, 0.64, 0.71]
 for i in range(3):
-    ax[i].annotate(ann_labels[i], xy=(ann_x[i], 0.05), xycoords='axes fraction',size=18,
+    ax[i].annotate(ann_labels[i], xy=(ann_x[i], 0.05), xycoords='axes fraction',size=16,
             bbox=dict(boxstyle='round', fc='white'))
 
 for i in range(3):
@@ -105,7 +105,7 @@ for i in range(3):
     ax[i].set_ylim(-1.65, 0.35)
     ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 ax[0].set_ylabel(r'$\textrm{log} (Z / Z_{\odot})$')
-ax[0].legend(loc=4, fontsize=14, framealpha=0.)
+ax[0].legend(loc=4, fontsize=11, framealpha=0.)
 fig.subplots_adjust(wspace=0.)
 plt.savefig(savedir+model+'_'+wind+'_'+snap+'_metallcities.png', bbox_inches = 'tight')
 plt.clf()

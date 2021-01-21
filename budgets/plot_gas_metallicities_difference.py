@@ -9,7 +9,7 @@ import numpy as np
 from plotting_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
+plt.rc('font', family='serif', size=17)
 palette_name = 'tol'
 
 solar_z = 0.0134
@@ -21,17 +21,17 @@ xoffset = 0.03
 linestyles=[':', '--', '-']
 
 snap = '151'
-winds = ['s50nox', 's50nojet', 's50noagn']
+winds = ['s50nox', 's50nojet', 's50nofb']
 model = 'm50n512'
 boxsize = 50000.
-wind_labels = [r'$\textrm{No-Xray - Simba}$', r'$\textrm{No-jet - Simba}$', r'$\textrm{No-AGN - Simba}$']
+wind_labels = [r'$\textrm{No-Xray - Simba}$', r'$\textrm{No-jet - Simba}$', r'$\textrm{No-feedback - Simba}$']
 savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
                           'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
                           'ISM', 'Wind', 'Dust', 'Stars', 'Total baryons']
 plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool CGM (T < Tphoto)','ISM']
-plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', r'Warm CGM $(T_{\rm photo} < T < 0.5T_{\rm vir})$',
+plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', 'Warm CGM\n'+r'$(T_{\rm photo} < T < 0.5T_{\rm vir})$',
                                           r'Cool CGM $(T < T_{\rm photo})$', 'ISM']
 
 #cmap = cm.get_cmap('plasma')
@@ -43,23 +43,26 @@ colours = np.delete(colours, [3, 4, 5, 6])
 
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
-fig, ax = plt.subplots(2, 2, figsize=(13, 13))
+fig, ax = plt.subplots(1, 4, figsize=(15, 5.5), sharey='row')
 ax = ax.flatten()
 
 line_x = Line2D([0,1],[0,1],ls=linestyles[0], marker='o', color=colours[0])
 line_jet = Line2D([0,1],[0,1],ls=linestyles[1], marker='o', color=colours[1])
-line_agn = Line2D([0,1],[0,1],ls=linestyles[2], marker='o', color=colours[2])
-leg_winds = ax[0].legend([line_x, line_jet, line_agn],wind_labels, loc=0, framealpha=0.)
-ax[0].add_artist(leg_winds)
+line_fb = Line2D([0,1],[0,1],ls=linestyles[2], marker='o', color=colours[2])
+leg_winds = ax[3].legend([line_x, line_jet, line_fb],wind_labels, loc=4, framealpha=0., fontsize=16)
+ax[3].add_artist(leg_winds)
 
-simba_data_dir = '/home/sapple/cgm/budgets/data/'+model+'_s50/'
+simba_data_dir = '/home/sapple/cgm/budgets/data/'+model+'_s50_151/'
 simba_z_stats_file = simba_data_dir+model+'_s50_'+snap+'_metallicities_stats.h5' 
 simba_z_stats = read_phase_stats(simba_z_stats_file, plot_phases, stats)
 simba_mask = simba_z_stats['all']['ngals'][:] > ngals_min
 
 for w, wind in enumerate(winds):
 
-    data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+    if wind == 's50nofb': snap = '150'
+    else: snap = '151'
+
+    data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
     z_stats_file = data_dir+model+'_'+wind+'_'+snap+'_metallicities_stats.h5'
 
     if os.path.isfile(z_stats_file):
@@ -89,11 +92,21 @@ for w, wind in enumerate(winds):
 
         if w == 0:
             ax[i].set_xlim(min_mass, z_stats['smass_bins'][mask][-1]+0.5*dm)
-            ax[i].set_ylim(-0.85, .7)
+            ax[i].set_ylim(-1.5, .7)
             ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
-            ax[i].set_ylabel(r'$\Delta {\rm log} Z$')
-            ax[i].set_title(plot_phases_labels[i])
 
+x = [0.21, 0.28, 0.21, 0.81]
+ax[0].annotate(plot_phases_labels[0], xy=(x[0], 0.92), xycoords='axes fraction',size=15,
+        bbox=dict(boxstyle='round', fc='white'))
+ax[1].annotate(plot_phases_labels[1], xy=(x[1], 0.87), xycoords='axes fraction',size=15,
+        bbox=dict(boxstyle='round', fc='white'))
+ax[2].annotate(plot_phases_labels[2], xy=(x[2], 0.92), xycoords='axes fraction',size=15,
+        bbox=dict(boxstyle='round', fc='white'))
+ax[3].annotate(plot_phases_labels[3], xy=(x[3], 0.92), xycoords='axes fraction',size=15,
+        bbox=dict(boxstyle='round', fc='white'))
+
+ax[0].set_ylabel(r'$\Delta {\rm log} Z$')
+fig.subplots_adjust(wspace=0.)
 plt.savefig(savedir+model+'_'+snap+'_metallcities_difference.png', bbox_inches = 'tight')
 plt.clf()
 

@@ -7,7 +7,7 @@ import numpy as np
 from plotting_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=18)
+plt.rc('font', family='serif', size=17)
 palette_name = 'tol'
 
 alpha = .8
@@ -34,7 +34,7 @@ colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
 colours = get_cb_colours(palette_name)[::-1]
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
-fig, ax = plt.subplots(1, 4, figsize=(15, 6), sharey=True)
+fig, ax = plt.subplots(1, 4, figsize=(15, 5.5), sharey=True)
 ax = ax.flatten()
 
 for w, wind in enumerate(winds):
@@ -92,13 +92,13 @@ for w, wind in enumerate(winds):
     ax[w].set_ylim(0, 1)
     ax[w].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 
-x = [0.7, 0.62, 0.7, 0.5]
+x = [0.72, 0.64, 0.72, 0.53]
 for i in range(4):
-    ax[i].annotate(wind_title[i], xy=(x[i], 0.05), xycoords='axes fraction',size=18,
+    ax[i].annotate(wind_title[i], xy=(x[i], 0.05), xycoords='axes fraction',size=17,
             bbox=dict(boxstyle='round', fc='white'))
 
 ax[0].set_ylabel(r'$f_{\rm \Omega}$')
-ax[0].legend(loc=2, fontsize=14, framealpha=0.)
+ax[0].legend(loc=2, fontsize=13, framealpha=0.)
 fig.subplots_adjust(wspace=0.)
 plt.savefig(savedir+model+'_'+snap+'_omega_fracs_peeples_winds.png', bbox_inches = 'tight')
 plt.clf()

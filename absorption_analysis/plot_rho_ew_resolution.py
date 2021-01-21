@@ -6,14 +6,15 @@ import numpy as np
 from analysis_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
+plt.rc('font', family='serif', size=17)
 
 if __name__ == '__main__':
 
     cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
     lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
-    plot_lines = [r'$\textrm{H}1215$', r'$\textrm{H}1215$', r'$\textrm{MgII}2796$',
+    plot_lines = [r'$\textrm{HI}1215$', r'$\textrm{HI}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
+    plot_line_x = [0.8, 0.8, 0.72, 0.73, 0.74, 0.74]
     det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1])
 
     models = ['m100n1024', 'm25n256', 'm25n512']
@@ -21,7 +22,7 @@ if __name__ == '__main__':
     background = 'uvb_fg20'
 
     res_labels = [r'$\textrm{Simba-100}$', r'$\textrm{Simba-25/256}$', r'$\textrm{Simba-25/512}$']
-    linestyles = ['-', '--', ':',]
+    linestyles = ['-', ':', '--',]
     ylim = 0.5
     xoffset = 0.025
     r200_scaled = True
@@ -39,18 +40,18 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
+    fig, ax = plt.subplots(2, 3, figsize=(15, 10), sharey='row', sharex='col')
     ax = ax.flatten()
 
     res_lines = []
     for m in range(len(models)):
         res_lines.append(Line2D([0,1],[0,1],ls=linestyles[m], color='grey'))
-    leg_res = ax[0].legend(res_lines,res_labels, loc=4, fontsize=16, framealpha=0.)
+    leg_res = ax[0].legend(res_lines,res_labels, loc=4, fontsize=15, framealpha=0.)
     ax[0].add_artist(leg_res)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16, framealpha=0.)
+    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=15, framealpha=0.)
     ax[0].add_artist(leg_color)
 
     cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_ew_med_data'+scale_str+'.h5'
@@ -59,11 +60,6 @@ if __name__ == '__main__':
     cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
 
     for m, model in enumerate(models):
-
-        if model == 'm50n512':
-            wind = 's50j7k'
-        else:
-            wind = 's50'
 
         sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_ew_med_data'+scale_str+'.h5'
         sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
@@ -94,7 +90,7 @@ if __name__ == '__main__':
                 for c in range(2):
                     c1[-1][c].set_alpha(alpha=0.5)
                     c2[-1][c].set_alpha(alpha=0.5)
-                leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1)
+                leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=15, loc=1, framealpha=0.)
 
                 l1, = ax[i].plot(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'], c=sim_colors[0], ls='-', marker='', lw=2)
                 ax[i].fill_between(sim_plot_dict['plot_bins_sf'],
@@ -108,8 +104,11 @@ if __name__ == '__main__':
                                    color=sim_colors[1], alpha=0.25)
 
                 ax[i].axhline(det_thresh[i], ls='--', c='k', lw=1)
+                ax[i].annotate(plot_lines[i], xy=(plot_line_x[i], 0.73), xycoords='axes fraction',size=15,
+                                bbox=dict(boxstyle='round', fc='white'))
                 ax[i].set_xlabel(xlabel)
-                ax[i].set_ylabel(r'$\textrm{log (EW}\  $' + plot_lines[i] + r'$/ \AA  )$')
+                if i in [0, 3]:
+                    ax[i].set_ylabel(r'$\textrm{log (EW}/ \AA  )$')
                 ax[i].set_ylim(-2.,ylim)
                 if r200_scaled:
                     ax[i].set_xlim(0, 1.5)
@@ -120,10 +119,12 @@ if __name__ == '__main__':
                 ax[i].plot(sim_plot_dict['plot_bins_sf'], sim_plot_dict['EW_'+lines[i]+'_med_sf'],
                             c=sim_colors[0], linestyle=linestyles[m], label='Simba SF')
                 empty_mask = ~np.isnan(sim_plot_dict['EW_'+lines[i]+'_med_q'])
-                ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['EW_'+lines[i]+'_med_q'][empty_mask],
-                            c=sim_colors[1], linestyle=linestyles[m], label='Simba Q')
+                if not model == 'm25n256':
+                    ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['EW_'+lines[i]+'_med_q'][empty_mask],
+                                c=sim_colors[1], linestyle=linestyles[m], label='Simba Q')
 
             if i==0:
                 ax[i].add_artist(leg_res)
 
+    fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(plot_dir+plot_name, bbox_inches = 'tight')
