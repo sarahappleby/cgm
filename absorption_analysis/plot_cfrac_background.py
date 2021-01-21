@@ -16,7 +16,7 @@ if __name__ == '__main__':
     lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031',]
     plot_lines = [r'$\textrm{HI}1215$', r'$\textrm{HI}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
-    plot_line_x = [0.8, 0.8, 0.72, 0.73, 0.74, 0.74]
+    plot_line_x = [0.78, 0.78, 0.72, 0.73, 0.74, 0.74]
     det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
     uvb_labels = [r'$\textrm{FG20}$', r'$\textrm{HM12 x2}$', r'$\textrm{HM01}$']
 
@@ -138,15 +138,8 @@ if __name__ == '__main__':
                 l2 = ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['cfrac_'+lines[i]+'_q'][empty_mask],
                                 color=sim_colors[1], lw=2, ls=linestyles[b])
 
-    labsy3 = ax[3].get_yticklabels()
-    labsy3[-1] = ''
-    ax[3].set_yticklabels(labsy3)
-    labsx4 = ax[4].get_xticklabels()
-    labsx4[0] = ''
-    ax[4].set_xticklabels(labsx4)
-    labsx5 = ax[5].get_xticklabels()
-    labsx5[0] = ''
-    ax[5].set_xticklabels(labsx5)
-
+    plt.setp(ax[3].get_yticklabels()[-1], visible=False)
+    plt.setp(ax[3].get_xticklabels()[-1], visible=False)
+    plt.setp(ax[4].get_xticklabels()[-1], visible=False)
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(plot_dir+plot_name, bbox_inches = 'tight')

@@ -14,7 +14,7 @@ if __name__ == '__main__':
     lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
     plot_lines = [r'$\textrm{HI}1215$', r'$\textrm{HI}1215$',r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
-    plot_line_x = [0.8, 0.8, 0.72, 0.73, 0.74, 0.74]
+    plot_line_x = [0.78, 0.78, 0.72, 0.73, 0.74, 0.74]
     det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1]) # check CIV with Rongmon, check NeVIII with Jessica?
 
     # for doing one survey only:
@@ -141,5 +141,9 @@ if __name__ == '__main__':
                 l2 = ax[i].plot(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['EW_'+lines[i]+'_med_q'][empty_mask],
                                 c=sim_colors[1], lw=2, linestyle=linestyles[b], label='Simba Q')
 
+    plt.setp(ax[3].get_yticklabels()[-1], visible=False)
+    if r200_scaled:
+        plt.setp(ax[3].get_xticklabels()[-1], visible=False)
+        plt.setp(ax[4].get_xticklabels()[-1], visible=False)
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(plot_dir+plot_name, bbox_inches = 'tight')

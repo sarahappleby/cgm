@@ -15,7 +15,7 @@ if __name__ == '__main__':
     cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
     lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
     wave_rest = [1215., 1215., 2796., 1206., 1548., 1031.]
-    plot_line_x = [0.8, 0.8, 0.72, 0.73, 0.74, 0.74]
+    plot_line_x = [0.78, 0.78, 0.72, 0.73, 0.74, 0.74]
     plot_lines = [r'$\textrm{HI}1215$', r'$\textrm{HI}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
     det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
@@ -139,6 +139,9 @@ if __name__ == '__main__':
                 ax[i].set_xlim(25, 120)
             if i in [0, 3]:
                 ax[i].set_ylabel(r'$\textrm{log}\ \textrm{dEW}/ \textrm{d} z$')
-
+    
+    plt.setp(ax[3].get_yticklabels()[-1], visible=False)
+    plt.setp(ax[3].get_xticklabels()[-1], visible=False)
+    plt.setp(ax[4].get_xticklabels()[-1], visible=False)
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(plot_dir+plot_name, bbox_inches = 'tight') 

@@ -17,7 +17,7 @@ if __name__ == '__main__':
     wave_rest = [1215., 1215., 2796., 1206., 1548., 1031.]
     plot_lines = [r'$\textrm{HI}1215$', r'$\textrm{HI}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
-    plot_line_x = [0.8, 0.8, 0.72, 0.73, 0.74, 0.74]
+    plot_line_x = [0.78, 0.78, 0.72, 0.73, 0.74, 0.74]
     det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
 
     # for doing one survey only:
@@ -140,5 +140,7 @@ if __name__ == '__main__':
                 l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['path_abs_'+lines[i]+'_q'][empty_mask],
                                     c=sim_colors[1], lw=2, ls=linestyles[b])
 
+    plt.setp(ax[3].get_xticklabels()[-1], visible=False)
+    plt.setp(ax[4].get_xticklabels()[-1], visible=False)
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(plot_dir+plot_name, bbox_inches = 'tight')
