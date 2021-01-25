@@ -39,9 +39,6 @@ ax = ax.flatten()
 
 for w, wind in enumerate(winds):
 
-	if wind == 's50nofb': snap = '150'
-	else: snap = '151'
-
 	data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
 	frac_stats_file = data_dir+model+'_'+wind+'_'+snap+'_avail_metal_frac_stats.h5'
 
