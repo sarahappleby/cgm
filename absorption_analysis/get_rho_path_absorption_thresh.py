@@ -67,12 +67,12 @@ if __name__ == '__main__':
     # rescaled the x axis by r200
     if r200_scaled:
         cos_dict_orig['dist'] = cos_dict_orig['rho'] / cos_dict_orig['r200']
-        cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_obs_path_abs_data_scaled.h5'
-        sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_data_scaled.h5'
+        cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_obs_path_abs_thresh_data_scaled.h5'
+        sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_thresh_data_scaled.h5'
     else:
         cos_dict_orig['dist'] = cos_dict_orig['rho'].copy()
-        cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_obs_path_abs_data.h5'
-        sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_data.h5'
+        cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_obs_path_abs_thresh_data.h5'
+        sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_thresh_data.h5'
 
     # get the bins for the COS data - these nbins ensure there are roughly ~8 galaxies in each bin
     cos_plot_dict = {}
@@ -162,21 +162,21 @@ if __name__ == '__main__':
         mask = (sim_dict['ssfr'] > quench)
         sim_plot_dict['ngals_'+line+'_sf'] = get_ngals(sim_dict['dist'][mask], sim_plot_dict['dist_bins_sf'])
         sim_plot_dict['path_abs_'+line+'_sf'], sim_plot_dict['path_abs_'+line+'_cv_std_sf'] = \
-                sim_binned_path_abs(sim_dict, mask, sim_plot_dict['dist_bins_sf'], line, boxsize)
+                sim_binned_path_abs_thresh(sim_dict, mask, sim_plot_dict['dist_bins_sf'], sim_det_thresh[i], line, boxsize)
         sim_plot_dict['ngals_'+line+'_q'] = get_ngals(sim_dict['dist'][~mask], sim_plot_dict['dist_bins_q'])
         sim_plot_dict['path_abs_'+line+'_q'], sim_plot_dict['path_abs_'+line+'_cv_std_q'] = \
-                sim_binned_path_abs(sim_dict, ~mask, sim_plot_dict['dist_bins_q'], line, boxsize)
+                sim_binned_path_abs_thresh(sim_dict, ~mask, sim_plot_dict['dist_bins_q'], sim_det_thresh[i], line, boxsize)
 
-        #if line in cos_lines:
-        #    cos_plot_dict['path_abs_'+line+'_sf'], cos_plot_dict['path_abs_'+line+'_std_sf'] = \
-        #            cos_binned_path_abs(cos_dict, (cos_dict['ssfr'] > quench), cos_plot_dict['dist_bins_sf'], sim_det_thresh[i])
-        #    cos_plot_dict['path_abs_'+line+'_q'], cos_plot_dict['path_abs_'+line+'_std_q'] = \
-        #            cos_binned_path_abs(cos_dict, (cos_dict['ssfr'] < quench), cos_plot_dict['dist_bins_q'], sim_det_thresh[i])
-        #
-        #    cos_plot_dict['path_abs_'+line+'_sf'][cos_plot_dict['path_abs_'+line+'_sf'] == 0.] = 10**1.6
-        #    cos_plot_dict['path_abs_'+line+'_q'][cos_plot_dict['path_abs_'+line+'_q'] == 0.] = 10**1.6
+        if line in cos_lines:
+            cos_plot_dict['path_abs_'+line+'_sf'], cos_plot_dict['path_abs_'+line+'_std_sf'] = \
+                    cos_binned_path_abs_thresh(cos_dict, (cos_dict['ssfr'] > quench), cos_plot_dict['dist_bins_sf'], sim_det_thresh[i])
+            cos_plot_dict['path_abs_'+line+'_q'], cos_plot_dict['path_abs_'+line+'_std_q'] = \
+                    cos_binned_path_abs_thresh(cos_dict, (cos_dict['ssfr'] < quench), cos_plot_dict['dist_bins_q'], sim_det_thresh[i])
 
-    #if not os.path.isfile(cos_file):
-    #    write_dict_to_h5(cos_plot_dict, cos_file)
+            cos_plot_dict['path_abs_'+line+'_sf'][cos_plot_dict['path_abs_'+line+'_sf'] == 0.] = 10**1.6
+            cos_plot_dict['path_abs_'+line+'_q'][cos_plot_dict['path_abs_'+line+'_q'] == 0.] = 10**1.6
+
+    if not os.path.isfile(cos_file):
+        write_dict_to_h5(cos_plot_dict, cos_file)
     if not os.path.isfile(sim_file):
         write_dict_to_h5(sim_plot_dict, sim_file)

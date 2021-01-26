@@ -33,7 +33,7 @@ if __name__ == '__main__':
     sim_colors, cos_colors = get_tol_colors()
 
     plot_dir = 'plots/'
-    plot_name = model+'_'+background+'_winds_rho_path_abs_difference'
+    plot_name = model+'_'+background+'_winds_rho_path_abs_thresh_difference'
     if r200_scaled:
         scale_str = '_scaled'
         plot_name += scale_str
@@ -58,16 +58,16 @@ if __name__ == '__main__':
     leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=4, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
-    simba_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_s50j7k_137_'+background+'_sim_path_abs_data'+scale_str+'.h5'
+    simba_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_s50j7k_137_'+background+'_sim_path_abs_thresh_data'+scale_str+'.h5'
     simba_halos_plot_dict = read_dict_from_h5(simba_halos_file)
-    simba_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_s50j7k_151_'+background+'_sim_path_abs_data'+scale_str+'.h5'
+    simba_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_s50j7k_151_'+background+'_sim_path_abs_thresh_data'+scale_str+'.h5'
     simba_dwarfs_plot_dict = read_dict_from_h5(simba_dwarfs_file)
 
     for j, wind in enumerate(winds):
 
-        sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_path_abs_data'+scale_str+'.h5'
+        sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_path_abs_thresh_data'+scale_str+'.h5'
         sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_data'+scale_str+'.h5'
+        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_thresh_data'+scale_str+'.h5'
         sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
         if j == 0:

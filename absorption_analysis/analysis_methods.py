@@ -203,7 +203,7 @@ def cos_binned_cfrac(cos_dict, mask, rho_bins, thresh):
 
     return cfrac, poisson
 
-def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, line, boxsize, lower_lim=0.5):
+def sim_binned_path_abs_thresh(data_dict, mask, rho_bins, thresh, line, boxsize, lower_lim=0.5):
     binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew_'+line][mask], rho_bins)
     binned_pl = bin_data(data_dict['dist'][mask], data_dict['path_length_'+line][mask], rho_bins)
     binned_pos = bin_data(data_dict['dist'][mask], data_dict['pos'][mask], rho_bins)
@@ -214,7 +214,7 @@ def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, line, boxsize, lower_
     for i in range(len(binned_ew)):
         data = binned_ew[i]
         if len(data) > 0.:
-            path_abs[i], path_abs_err[i] = get_cosmic_variance(binned_ew[i], binned_pos[i], boxsize, 'path_abs', thresh=thresh, pl=binned_pl[i])
+            path_abs[i], path_abs_err[i] = get_cosmic_variance(binned_ew[i], binned_pos[i], boxsize, 'path_abs_thresh', thresh=thresh, pl=binned_pl[i])
         else:
             path_abs[i], path_abs_err[i] = np.nan, np.nan
 
@@ -222,7 +222,26 @@ def sim_binned_path_abs(data_dict, mask, rho_bins, thresh, line, boxsize, lower_
 
     return convert_to_log(path_abs, path_abs_err)
 
-def cos_binned_path_abs(cos_dict, mask, rho_bins, thresh, lower_lim=0.5):
+def sim_binned_path_abs(data_dict, mask, rho_bins, line, boxsize, lower_lim=0.5):
+    binned_ew = bin_data(data_dict['dist'][mask], data_dict['ew_'+line][mask], rho_bins)
+    binned_pl = bin_data(data_dict['dist'][mask], data_dict['path_length_'+line][mask], rho_bins)
+    binned_pos = bin_data(data_dict['dist'][mask], data_dict['pos'][mask], rho_bins)
+
+    path_abs = np.array([np.nan]* len(binned_ew))
+    path_abs_err = np.array([np.nan]* len(binned_ew))
+
+    for i in range(len(binned_ew)):
+        data = binned_ew[i]
+        if len(data) > 0.:
+            path_abs[i], path_abs_err[i] = get_cosmic_variance(binned_ew[i], binned_pos[i], boxsize, 'path_abs', pl=binned_pl[i])
+        else:
+            path_abs[i], path_abs_err[i] = np.nan, np.nan
+
+    path_abs[path_abs < 10**lower_lim] = 10**lower_lim
+
+    return convert_to_log(path_abs, path_abs_err)
+
+def cos_binned_path_abs_thresh(cos_dict, mask, rho_bins, thresh, lower_lim=0.5):
     binned_ew = bin_data(cos_dict['dist'][mask], cos_dict['EW'][mask], rho_bins)
     binned_pl = bin_data(cos_dict['dist'][mask], cos_dict['path_length'][mask], rho_bins)
 
@@ -230,16 +249,16 @@ def cos_binned_path_abs(cos_dict, mask, rho_bins, thresh, lower_lim=0.5):
     path_abs_err = np.zeros(len(binned_ew))
 
     for i in range(len(binned_ew)):
-        path_abs[i] = compute_path_abs(binned_ew[i], binned_pl[i], thresh)
-        path_abs_err[i] = compute_path_abs_err(binned_ew[i], binned_pl[i], thresh)
+        path_abs[i] = compute_path_abs_thresh(binned_ew[i], binned_pl[i], thresh)
+        path_abs_err[i] = compute_path_abs_thresh_err(binned_ew[i], binned_pl[i], thresh)
 
     path_abs[path_abs < 10**lower_lim] = 10**lower_lim
 
     return convert_to_log(path_abs, path_abs_err)
 
-def compute_path_abs_err(ew, pl, thresh):
+def compute_path_abs_thresh_err(ew, pl, thresh):
     path_abs = np.zeros(len(ew))
     for i in range(len(ew)):
-        path_abs[i] = compute_path_abs(ew[i], pl[i], thresh)
+        path_abs[i] = compute_path_abs_thresh(ew[i], pl[i], thresh)
 
     return np.std(path_abs)

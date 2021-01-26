@@ -50,7 +50,7 @@ ax[0].add_artist(leg_winds)
 
 for w, wind in enumerate(winds):
 
-        data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'/'
+        data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
         z_stats_file = data_dir+model+'_'+wind+'_'+snap+'_metallicities_stats.h5'
 
         if os.path.isfile(z_stats_file):

@@ -1,4 +1,5 @@
 import numpy as np
+from physics import *
 
 def get_cosmic_variance(ew, pos, boxsize, quantity, thresh=None, pl=None):
     octant_ids = octants_2d(pos, boxsize)
@@ -10,7 +11,10 @@ def get_cosmic_variance(ew, pos, boxsize, quantity, thresh=None, pl=None):
             measure[i], _ = compute_cfrac(ew[i_using.astype('int')], thresh)
         elif quantity == 'path_abs':
             from physics import compute_path_abs
-            measure[i] = compute_path_abs(ew[i_using.astype('int')], pl[i_using.astype('int')], thresh)
+            measure[i] = compute_path_abs(ew[i_using.astype('int')], pl[i_using.astype('int')])
+        elif quantity == 'path_abs_thresh':
+            from physics import compute_path_abs
+            measure[i] = compute_path_abs_thresh(ew[i_using.astype('int')], pl[i_using.astype('int')], thresh)
         elif quantity == 'ew':
             measure[i] = np.nanmedian(ew[i_using.astype('int')])
     mean_m = np.nansum(measure) / 8.

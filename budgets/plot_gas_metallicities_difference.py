@@ -18,13 +18,13 @@ max_mass = 12.
 dm = 0.25 # dex
 ngals_min = 10
 xoffset = 0.03
-linestyles=[':', '--', '-']
+linestyles = ['--', '-', ':', '-.']
 
 snap = '151'
-winds = ['s50nox', 's50nojet', 's50nofb']
+winds = ['s50nox', 's50nojet', 's50noagn', 's50nofb']
 model = 'm50n512'
 boxsize = 50000.
-wind_labels = [r'$\textrm{No-Xray - Simba}$', r'$\textrm{No-jet - Simba}$', r'$\textrm{No-feedback - Simba}$']
+wind_labels = [r'$\textrm{No-Xray - Simba}$', r'$\textrm{No-jet - Simba}$', r'$\textrm{No-AGN - Simba}$', r'$\textrm{No-feedback - Simba}$']
 savedir = '/home/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
@@ -36,21 +36,22 @@ plot_phases_labels = [r'Hot CGM $(T > 0.5T_{\rm vir})$', 'Warm CGM\n'+r'$(T_{\rm
 
 #cmap = cm.get_cmap('plasma')
 #colours = [cmap(0.25), cmap(0.5), cmap(0.75)]
-#dc = 0.7 / (len(winds) - 1)
-#colours = [cmap(0.15 + i*dc) for i in range(len(winds))]
+#dc = 0.8 / (len(winds) - 1)
+#colours = [cmap(0.1 + i*dc) for i in range(len(winds))][::-1]
 colours = get_cb_colours(palette_name)[::-1]
-colours = np.delete(colours, [3, 4, 5, 6])
+colours = np.delete(colours, [3, 4, 5, ])
+colours = np.roll(colours, 1)[::-1]
 
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
 fig, ax = plt.subplots(1, 4, figsize=(15, 5.5), sharey='row')
 ax = ax.flatten()
 
-line_x = Line2D([0,1],[0,1],ls=linestyles[0], marker='o', color=colours[0])
-line_jet = Line2D([0,1],[0,1],ls=linestyles[1], marker='o', color=colours[1])
-line_fb = Line2D([0,1],[0,1],ls=linestyles[2], marker='o', color=colours[2])
-leg_winds = ax[3].legend([line_x, line_jet, line_fb],wind_labels, loc=4, framealpha=0., fontsize=16)
-ax[3].add_artist(leg_winds)
+wind_lines = []
+for w in range(len(winds)):
+    wind_lines.append(Line2D([0,1],[0,1],ls=linestyles[w], color=colours[w]))
+leg_wind = ax[3].legend(wind_lines,wind_labels, loc=4, fontsize=16, framealpha=0.)
+ax[3].add_artist(leg_wind)
 
 simba_data_dir = '/home/sapple/cgm/budgets/data/'+model+'_s50_151/'
 simba_z_stats_file = simba_data_dir+model+'_s50_'+snap+'_metallicities_stats.h5' 
@@ -85,7 +86,7 @@ for w, wind in enumerate(winds):
         l1 = ax[i].errorbar(z_stats['smass_bins'][mask][0], diff[mask][0], yerr=[[err[0][mask][0]], [err[1][mask][0]]], 
                            capsize=3, color=colours[w], marker='')
         #l1[-1][0].set_linestyle(linestyles[w])
-        ax[i].plot(z_stats['smass_bins'][mask], diff[mask], color=colours[w], marker='o', ls=linestyles[w])
+        ax[i].plot(z_stats['smass_bins'][mask], diff[mask], color=colours[w], ls=linestyles[w])
 
         if w == 0:
             ax[i].set_xlim(min_mass, z_stats['smass_bins'][mask][-1]+0.5*dm)

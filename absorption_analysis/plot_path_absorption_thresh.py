@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     sim_colors, cos_colors = get_tol_colors()
 
-    plot_name = model+'_'+wind +'_'+background+'_rho_path_abs'
+    plot_name = model+'_'+wind +'_'+background+'_rho_path_abs_thresh'
     if r200_scaled:
         scale_str = '_scaled'
         plot_name += scale_str
@@ -37,13 +37,13 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    #cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_data'+scale_str+'.h5'
-    #cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
-    #cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_path_abs_data'+scale_str+'.h5'
-    #cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
-    sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_path_abs_data'+scale_str+'.h5'
+    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_thresh_data'+scale_str+'.h5'
+    cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
+    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_path_abs_thresh_data'+scale_str+'.h5'
+    cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
+    sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_path_abs_thresh_data'+scale_str+'.h5'
     sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-    sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_data'+scale_str+'.h5'
+    sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_thresh_data'+scale_str+'.h5'
     sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
     
     fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))
@@ -53,12 +53,12 @@ if __name__ == '__main__':
 
         # choose the survey and some params
         if survey == 'dwarfs':
-        #    cos_plot_dict = cos_dwarfs_plot_dict.copy()
+            cos_plot_dict = cos_dwarfs_plot_dict.copy()
             sim_plot_dict = sim_dwarfs_plot_dict.copy()
             label = 'COS-Dwarfs'
             cos_marker = '^'
         elif survey == 'halos':
-        #    cos_plot_dict = cos_halos_plot_dict.copy()
+            cos_plot_dict = cos_halos_plot_dict.copy()
             sim_plot_dict = sim_halos_plot_dict.copy()
             label = 'COS-Halos'
             cos_marker = 'o'
@@ -84,16 +84,16 @@ if __name__ == '__main__':
             leg2 = ax[i].legend([l1, l2], ['Simba SF', 'Simba Q'], loc='lower left', fontsize=16, framealpha=0.)
 
 
-        #c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['path_abs_'+lines[i]+'_sf'], 
-        #                    yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_sf'], xerr=cos_plot_dict['xerr_sf'], 
-        #                    capsize=4, c=cos_colors[0], mec=cos_colors[0], mfc='white', marker=cos_marker, markersize=8, ls='')
-        #c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['path_abs_'+lines[i]+'_q'], 
-        #                    yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_q'], xerr=cos_plot_dict['xerr_q'],
-        #                    capsize=4, c=cos_colors[1], mec=cos_colors[1], mfc='white', marker=cos_marker, markersize=8, ls='')
-        #for c in range(2):
-        #    c1[-1][c].set_alpha(alpha=0.5)
-        #    c2[-1][c].set_alpha(alpha=0.5)
-        #leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1, framealpha=0.)
+        c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['path_abs_'+lines[i]+'_sf'], 
+                            yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_sf'], xerr=cos_plot_dict['xerr_sf'], 
+                            capsize=4, c=cos_colors[0], mec=cos_colors[0], mfc='white', marker=cos_marker, markersize=8, ls='')
+        c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['path_abs_'+lines[i]+'_q'], 
+                            yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_q'], xerr=cos_plot_dict['xerr_q'],
+                            capsize=4, c=cos_colors[1], mec=cos_colors[1], mfc='white', marker=cos_marker, markersize=8, ls='')
+        for c in range(2):
+            c1[-1][c].set_alpha(alpha=0.5)
+            c2[-1][c].set_alpha(alpha=0.5)
+        leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=16, loc=1, framealpha=0.)
 
         ax[i].set_xlabel(xlabel)
         ax[i].set_ylabel(r'$\textrm{log}\ (\textrm{dEW}/ \textrm{d} z),\ $' + plot_lines[i])       

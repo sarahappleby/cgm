@@ -68,10 +68,10 @@ if __name__ == '__main__':
     leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=15, framealpha=0.)
     ax[0].add_artist(leg_color)
 
-    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_data'+scale_str+'.h5'
-    cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
-    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_path_abs_data'+scale_str+'.h5'
-    cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
+    #cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_data'+scale_str+'.h5'
+    #cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
+    #cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_path_abs_data'+scale_str+'.h5'
+    #cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
 
     for b, background in enumerate(backgrounds):
 
@@ -85,35 +85,35 @@ if __name__ == '__main__':
             # choose the survey and some params
             if survey == 'dwarfs':
                 sim_plot_dict = sim_dwarfs_plot_dict
-                cos_plot_dict = cos_dwarfs_plot_dict
+                #cos_plot_dict = cos_dwarfs_plot_dict
                 label = 'COS-Dwarfs'
                 x = 0.75
                 cos_marker = '^'
             elif survey == 'halos':
                 sim_plot_dict = sim_halos_plot_dict
-                cos_plot_dict = cos_halos_plot_dict
+                #cos_plot_dict = cos_halos_plot_dict
                 label = 'COS-Halos'
                 x = 0.77
                 cos_marker = 'o'
 
-            if (b == 2) & ('path_abs_'+lines[i]+'_sf' in list(cos_plot_dict.keys())):
-                c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['path_abs_'+lines[i]+'_sf'],
-                                yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_sf'], xerr=cos_plot_dict['xerr_sf'],
-                                capsize=4, c=cos_colors[0], mec=cos_colors[0], mfc='white', marker=cos_marker, markersize=8, ls='')
-                c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['path_abs_'+lines[i]+'_q'],
-                                yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_q'], xerr=cos_plot_dict['xerr_q'],
-                                capsize=4, c=cos_colors[1], mec=cos_colors[1], mfc='white', marker=cos_marker, markersize=8, ls='')
-                for c in range(2):
-                    c1[-1][c].set_alpha(alpha=0.5)
-                    c2[-1][c].set_alpha(alpha=0.5)
-                leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=15, loc=1, framealpha=0.)
+            #if (b == 2) & ('path_abs_'+lines[i]+'_sf' in list(cos_plot_dict.keys())):
+            #    c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['path_abs_'+lines[i]+'_sf'],
+            #                    yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_sf'], xerr=cos_plot_dict['xerr_sf'],
+            #                    capsize=4, c=cos_colors[0], mec=cos_colors[0], mfc='white', marker=cos_marker, markersize=8, ls='')
+            #    c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['path_abs_'+lines[i]+'_q'],
+            #                    yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_q'], xerr=cos_plot_dict['xerr_q'],
+            #                    capsize=4, c=cos_colors[1], mec=cos_colors[1], mfc='white', marker=cos_marker, markersize=8, ls='')
+            #    for c in range(2):
+            #        c1[-1][c].set_alpha(alpha=0.5)
+            #        c2[-1][c].set_alpha(alpha=0.5)
+            #    leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=15, loc=1, framealpha=0.)
 
             if b == 0:
     
                 ax[i].set_xlabel(xlabel)
-                ax[i].annotate(plot_lines[i], xy=(plot_line_x[i], 0.73), xycoords='axes fraction',
+                ax[i].annotate(plot_lines[i], xy=(plot_line_x[i], 0.9), xycoords='axes fraction',
                         bbox=dict(boxstyle='round', fc='white'))
-                ax[i].set_ylim(0.7, 3.0)
+                ax[i].set_ylim(1., 3.0)
                 if r200_scaled:
                     ax[i].set_xlim(0, 1.5)
                 else:
@@ -140,6 +140,7 @@ if __name__ == '__main__':
                 l2 = ax[i].errorbar(sim_plot_dict['plot_bins_q'][empty_mask], sim_plot_dict['path_abs_'+lines[i]+'_q'][empty_mask],
                                     c=sim_colors[1], lw=2, ls=linestyles[b])
 
+    plt.setp(ax[3].get_yticklabels()[-1], visible=False)
     plt.setp(ax[3].get_xticklabels()[-1], visible=False)
     plt.setp(ax[4].get_xticklabels()[-1], visible=False)
     fig.subplots_adjust(wspace=0., hspace=0.)
