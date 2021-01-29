@@ -71,7 +71,7 @@ def get_phase_stats(sm, pos, mass_budget, mask, phases, mass_bins, boxsize, logr
         else:
             stat_dict[phase]['cosmic_median'], stat_dict[phase]['cosmic_std'] = medians, cosmic_stds
 
-        std = np.array([np.std(j) for j in binned_data])
+        std = np.array([np.nanstd(j) for j in binned_data])
         medians = np.array([np.nanpercentile(j, 50.) for j in binned_data])
         per25 = np.array([np.nanpercentile(j, 25.) for j in binned_data])
         per75 = np.array([np.nanpercentile(j, 75.) for j in binned_data])

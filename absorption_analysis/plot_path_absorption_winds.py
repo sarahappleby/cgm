@@ -127,7 +127,7 @@ if __name__ == '__main__':
             ax[i].set_xlabel(xlabel)
             ax[i].annotate(plot_lines[i], xy=(plot_line_x[i], 0.07), xycoords='axes fraction',size=15,
                         bbox=dict(boxstyle='round', fc='white'))
-            ax[i].set_ylim(1.2, 3.0)
+            ax[i].set_ylim(1.25, 3.0)
             if r200_scaled:
                 ax[i].set_xlim(0., 1.5)
             else:
@@ -135,7 +135,7 @@ if __name__ == '__main__':
             if i in [0, 3]:
                 ax[i].set_ylabel(r'$\textrm{log}\ \textrm{dEW}/ \textrm{d} z$')
     
-    #plt.setp(ax[3].get_yticklabels()[-1], visible=False)
+    plt.setp(ax[3].get_yticklabels()[-1], visible=False)
     plt.setp(ax[3].get_xticklabels()[-1], visible=False)
     plt.setp(ax[4].get_xticklabels()[-1], visible=False)
     fig.subplots_adjust(wspace=0., hspace=0.)

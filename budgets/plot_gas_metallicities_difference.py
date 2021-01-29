@@ -23,7 +23,6 @@ linestyles = ['--', '-', ':', '-.']
 snap = '151'
 winds = ['s50nox', 's50nojet', 's50noagn', 's50nofb']
 model = 'm50n512'
-boxsize = 50000.
 wind_labels = [r'$\textrm{No-Xray - Simba}$', r'$\textrm{No-jet - Simba}$', r'$\textrm{No-AGN - Simba}$', r'$\textrm{No-feedback - Simba}$']
 savedir = '/home/sapple/cgm/budgets/plots/'
 
@@ -83,14 +82,20 @@ for w, wind in enumerate(winds):
         # do the error bar point
         diff = z_stats['all'][phase]['median'] - simba_z_stats['all'][phase]['median']
         err = np.sqrt(simba_z_stats['all'][phase]['percentile_25_75']**2. + z_stats['all'][phase]['percentile_25_75']**2.)
-        l1 = ax[i].errorbar(z_stats['smass_bins'][mask][0], diff[mask][0], yerr=[[err[0][mask][0]], [err[1][mask][0]]], 
-                           capsize=3, color=colours[w], marker='')
-        #l1[-1][0].set_linestyle(linestyles[w])
+        if (wind == 's50nofb') and (i < 2) :
+            diff[diff < -2.] = -2.
+            l1 = ax[i].errorbar(z_stats['smass_bins'][mask][0], diff[mask][0], 
+                               yerr=[[err[0][mask][4]], [err[1][mask][4]]], 
+                               capsize=3, color=colours[w], marker='')
+        else:
+            l1 = ax[i].errorbar(z_stats['smass_bins'][mask][0], diff[mask][0], 
+                               yerr=[[err[0][mask][0]], [err[1][mask][0]]], 
+                               capsize=3, color=colours[w], marker='') 
         ax[i].plot(z_stats['smass_bins'][mask], diff[mask], color=colours[w], ls=linestyles[w])
 
         if w == 0:
             ax[i].set_xlim(min_mass, z_stats['smass_bins'][mask][-1]+0.5*dm)
-            ax[i].set_ylim(-1.5, .7)
+            ax[i].set_ylim(-2.1, .7)
             ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
 
 x = [0.21, 0.28, 0.21, 0.81]
