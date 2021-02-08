@@ -17,12 +17,12 @@ if __name__ == '__main__':
     plot_line_x = [0.78, 0.78, 0.72, 0.73, 0.74, 0.74]
     det_thresh = np.log10([0.2, 0.2, 0.1, 0.1, 0.1, 0.1])
 
-    models = ['m100n1024', 'm25n256', 'm25n512']
+    models = ['m100n1024', 'm50n512', 'm25n256', 'm25n512']
     wind = 's50'
     background = 'uvb_fg20'
 
-    res_labels = [r'$\textrm{Simba-100}$', r'$\textrm{Simba-25/256}$', r'$\textrm{Simba-25/512}$']
-    linestyles = ['-', ':', '--',]
+    res_labels = [r'$\textrm{Simba-100}$', r'$\textrm{Simba-50/512}$', r'$\textrm{Simba-25/256}$', r'$\textrm{Simba-25/512}$']
+    linestyles = ['-', '-.', ':', '--',]
     ylim = 0.5
     xoffset = 0.025
     r200_scaled = True
@@ -60,6 +60,9 @@ if __name__ == '__main__':
     cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
 
     for m, model in enumerate(models):
+
+        if model == 'm50n512': wind = 's50j7k'
+        else: wind = 's50'
 
         sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_ew_med_data'+scale_str+'.h5'
         sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
