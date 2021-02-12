@@ -15,7 +15,7 @@ if __name__ == '__main__':
     cos_survey = ['halos', 'dwarfs', 'halos', 'halos', 'dwarfs', 'halos']
     lines = ['H1215', 'H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031']
     wave_rest = [1215., 1215., 2796., 1206., 1548., 1031.]
-    plot_line_x = [0.78, 0.78, 0.72, 0.73, 0.74, 0.74]
+    plot_line_x = [0.5, 0.47, 0.45, 0.46, 0.43, 0.46]
     plot_lines = [r'$\textrm{HI}1215$', r'$\textrm{HI}1215$', r'$\textrm{MgII}2796$',
                     r'$\textrm{SiIII}1206$', r'$\textrm{CIV}1548$', r'$\textrm{OVI}1031$']
     det_thresh = [0.2, 0.2, 0.1, 0.1, 0.1, 0.1] # check CIV with Rongmon, check NeVIII with Jessica?
@@ -23,6 +23,7 @@ if __name__ == '__main__':
     model = 'm50n512'
     winds = ['s50j7k', 's50nox', 's50nojet', 's50nofb']
     wind_labels = [r'$\textrm{Simba}$', r'$\textrm{No-Xray}$', r'$\textrm{No-jet}$', r'$\textrm{No-feedback}$']
+    ssfr_labels = [r'$\textrm{Simba SF}$', r'$\textrm{Simba Q}$']
     ls = ['-', '--', ':', '-.']
     markers = ['o', 'D', 's', '^']
     ylim = 0.5
@@ -50,13 +51,13 @@ if __name__ == '__main__':
     wind_lines = []
     for w in range(len(winds)):
         wind_lines.append(Line2D([0,1],[0,1],ls=ls[w], color='grey'))
-    leg_winds = ax[2].legend(wind_lines,wind_labels, loc=1, fontsize=15, framealpha=0.)
-    ax[2].add_artist(leg_winds)
+    leg_winds = ax[0].legend(wind_lines,wind_labels, loc=4, fontsize=15, framealpha=0.)
+    ax[0].add_artist(leg_winds)
 
     line_sf = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[0])
     line_q = Line2D([0,1],[0,1],ls='-', marker=None, color=sim_colors[1])
 
-    leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=1, fontsize=15, framealpha=0.)
+    leg_color = ax[0].legend([line_sf, line_q],ssfr_labels, loc=3, fontsize=15, framealpha=0.)
     ax[0].add_artist(leg_color)
 
     #cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_data'+scale_str+'.h5'
@@ -77,14 +78,14 @@ if __name__ == '__main__':
             if survey == 'dwarfs':
                 sim_plot_dict = sim_dwarfs_plot_dict
                 #cos_plot_dict = cos_dwarfs_plot_dict
-                label = 'COS-Dwarfs'
-                x = 0.72
+                label = 'COS-Dwarfs, '
+                x = 0.75
                 cos_marker = '^'
             elif survey == 'halos':
                 sim_plot_dict = sim_halos_plot_dict
                 #cos_plot_dict = cos_halos_plot_dict
-                label = 'COS-Halos'
-                x = 0.75
+                label = 'COS-Halos, '
+                x = 0.78
                 cos_marker = 'o'
 
             if j == 0:
@@ -125,7 +126,7 @@ if __name__ == '__main__':
             #leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=13.5, loc=1, framealpha=0.)
 
             ax[i].set_xlabel(xlabel)
-            ax[i].annotate(plot_lines[i], xy=(plot_line_x[i], 0.07), xycoords='axes fraction',size=15,
+            ax[i].annotate(label+plot_lines[i], xy=(plot_line_x[i], 0.91), xycoords='axes fraction',size=15,
                         bbox=dict(boxstyle='round', fc='white'))
             ax[i].set_ylim(1.25, 3.0)
             if r200_scaled:
