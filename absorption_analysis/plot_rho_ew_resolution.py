@@ -21,7 +21,7 @@ if __name__ == '__main__':
     wind = 's50'
     background = 'uvb_fg20'
 
-    res_labels = [r'$\textrm{Simba-100}$', r'$\textrm{Simba-50/512}$', r'$\textrm{Simba-25/256}$', r'$\textrm{Simba-25/512}$']
+    res_labels = [r'$\textrm{Simba-100/1024}$', r'$\textrm{Simba-50/512}$', r'$\textrm{Simba-25/256}$', r'$\textrm{Simba-25/512}$']
     linestyles = ['-', '-.', ':', '--',]
     ylim = 0.5
     xoffset = 0.025

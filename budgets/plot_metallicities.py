@@ -103,7 +103,7 @@ for i in range(3):
 for i in range(3):
     ax[i].set_xlim(min_mass, z_stats['smass_bins'][-1]+0.5*dm)
     ax[i].set_ylim(-1.65, 0.35)
-    ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
+    ax[i].set_xlabel(r'$\textrm{log} (M_{\star} / \textrm{M}_{\odot})$')
 ax[0].set_ylabel(r'$\textrm{log} (Z / Z_{\odot})$')
 ax[0].legend(loc=4, fontsize=11, framealpha=0.)
 fig.subplots_adjust(wspace=0.)

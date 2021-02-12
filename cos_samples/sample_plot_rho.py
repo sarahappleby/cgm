@@ -97,7 +97,7 @@ plt.scatter(cos_dwarfs_mass[np.invert(cos_dwarfs_less_than)], cos_dwarfs_ssfr[np
 plt.scatter(cos_dwarfs_mass[cos_dwarfs_less_than], cos_dwarfs_ssfr[cos_dwarfs_less_than],
             marker='$\downarrow$', c='darkgray', s=55)
 
-plt.xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
+plt.xlabel(r'$\textrm{log} (M_{\star} / \textrm{M}_{\odot})$')
 plt.ylabel(r'$\textrm{log} (sSFR  / \textrm{yr}^{-1})$')
 plt.ylim(-11.7, -8.8)
 plt.legend(loc=1)

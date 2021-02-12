@@ -106,7 +106,7 @@ for i, phase in enumerate(plot_phases):
 for i in range(3, 6):
     ax[i].set_xlim(frac_stats['smass_bins'][0], frac_stats['smass_bins'][-1])
     ax[i].set_ylim(0, 1)
-    ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
+    ax[i].set_xlabel(r'$\textrm{log} (M_{\star} / \textrm{M}_{\odot})$')
 ax[3].set_ylabel(r'$f_{Z\ {\rm Total}}$')
 ax[3].legend(loc=1, fontsize=13)
 fig.subplots_adjust(wspace=0., hspace=0.)

@@ -96,7 +96,7 @@ for w, wind in enumerate(winds):
         if w == 0:
             ax[i].set_xlim(min_mass, z_stats['smass_bins'][mask][-1]+0.5*dm)
             ax[i].set_ylim(-2.1, .7)
-            ax[i].set_xlabel(r'$\textrm{log} (M_* / \textrm{M}_{\odot})$')
+            ax[i].set_xlabel(r'$\textrm{log} (M_{\star} / \textrm{M}_{\odot})$')
 
 x = [0.21, 0.28, 0.21, 0.81]
 ax[0].annotate(plot_phases_labels[0], xy=(x[0], 0.92), xycoords='axes fraction',size=15,
@@ -110,6 +110,7 @@ ax[3].annotate(plot_phases_labels[3], xy=(x[3], 0.92), xycoords='axes fraction',
 
 ax[0].set_ylabel(r'$\Delta {\rm log} Z$')
 fig.subplots_adjust(wspace=0.)
-plt.savefig(savedir+model+'_'+snap+'_metallcities_difference.png', bbox_inches = 'tight')
+plt.savefig(savedir+model+'_'+snap+'_metallcities_difference.png', bbox_inches = 'tight',
+            metadata={'creator': 'plot_gas_metallicities_difference.py'})
 plt.clf()
 
