@@ -1,3 +1,6 @@
+# This script selects galaxies from Simba that match conditions in either the COS-Dwarfs or COS-Halos survey.
+
+
 import sys
 import os
 import numpy as np
@@ -86,8 +89,8 @@ def isolation_check(gal_pos, pos_range, gal_cent, indices):
 
 if __name__ == '__main__':
 
-    model = 'm25n512'
-    wind = 's50'
+    model = 'm50n512'
+    wind = 's50nofb'
     survey = sys.argv[1]
 
     sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
@@ -97,7 +100,7 @@ if __name__ == '__main__':
     ssfr_range_lim = 0.25 # limit of how far away in ssfr dex we can look (excludes quenched galaxies)
     pos_range = 1000. # kpc/h
     mlim = np.log10(5.8e8) # lower limit of M*
-    ngals_each = 3
+    ngals_each = 4
     
     # set to True if we want to have the isolation criteria
     do_isolation = False

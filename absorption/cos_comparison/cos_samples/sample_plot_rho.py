@@ -1,3 +1,5 @@
+# Plot the galaxy sample with rho/r200 as the colorbar
+
 import numpy as np
 from astropy.io import ascii
 import h5py

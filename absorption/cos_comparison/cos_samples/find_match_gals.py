@@ -1,3 +1,6 @@
+# Given some galaxy selection in the main m50n512 Simba box, this script will find these matching galaxies in the other wind boxes.
+
+
 import h5py
 import numpy as np
 import caesar
@@ -14,8 +17,9 @@ if __name__ == '__main__':
     model = 'm50n512'
     wind1 = 's50j7k'
     wind_options = ['s50nox', 's50nojet', 's50noagn']
-    snap = '137'
-    survey = 'halos'
+    wind_options = ['s50nofb']
+    snap = '151'
+    survey = 'dwarfs'
 
     # ignore these as the main s50 sample has insufficient galaxies
     if survey == 'halos':

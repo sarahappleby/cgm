@@ -60,9 +60,9 @@ def prepare_out_file(snapfile, output_file, numpart):
 
 if __name__ == '__main__':
 
-    model = 'm25n256'
-    wind = 's50'
-    survey = 'halos'
+    model = 'm50n512'
+    wind = 's50nofb'
+    survey = 'dwarfs'
     verbose = 2
     ngals_each = 5
 
@@ -73,6 +73,8 @@ if __name__ == '__main__':
 
     if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
         ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
+    else:
+        ignore_simba_gals = []
 
     data_dir = '/home/rad/data/'+model+'/'+wind+'/'
     snapfile = data_dir+'snap_'+model+'_'+snap+'.hdf5'

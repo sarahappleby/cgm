@@ -2,15 +2,15 @@
 
 line=$1
 pipeline_path=/home/sapple/cgm/cos_samples/
-model=m25n512
-wind=s50
-snap=137
-survey=halos
+model=m50n512
+wind=s50nofb
+snap=151
+survey=dwarfs
 background=uvb_fg20
 output_file=/home/sapple/cgm/cos_samples/$model/cos_$survey/$wind/$background/output/
 
 
-for ii in {0..43}
+for ii in {0..38}
 do
    echo Submitting job $ii
    job=$ii'_'$line'.txt'

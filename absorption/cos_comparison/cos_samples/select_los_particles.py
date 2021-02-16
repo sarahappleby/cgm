@@ -1,3 +1,6 @@
+# Script to identify LOS particles for a given selected galaxy, for LOS parallel to the z axis of the simulation
+# Run using sub_los_particles.sh
+
 from pygadgetreader import readsnap
 import numpy as np
 import h5py

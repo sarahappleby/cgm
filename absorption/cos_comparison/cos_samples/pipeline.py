@@ -1,3 +1,7 @@
+# Our main pipeline script to run pygad on each LOS
+# Run using sub_line_pipeline.sh and sub_pipeline.sh
+
+
 import sys
 import os
 import numpy as np

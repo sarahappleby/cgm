@@ -1,0 +1,36 @@
+Scripts beginning 'get_' compute absorption statistics and save these to file.
+Scripts beginning 'plot_' produce plots.
+
+Scripts ending '_winds' compare the wind models.
+scripts ending '_background' compare the ionising background models.
+Scripts with '_difference' plot the difference between wind/background models.
+Scripts ending '_resolution' compare simulation boxes with different volumes and resolutions.
+
+- equivalent_width.py
+Shockingly, computes the equivalent width and saves to file. Run this first.
+
+- get_rho_ew_med.py
+Computes the median EW in bins, either of physical kpc or rho/r200.
+
+- get_rho_cfrac.py
+As above for covering fraction.
+
+- get_rho_path_absorption.py
+As above for total path absorption, dEW/dz
+
+- get_rho_path_absorption_thresh.py
+As above for total path absorption above the detection threshold.
+
+- physics.py
+Contains methods for the physical quantities.
+
+- analysis_methods.py
+Binning, uncertainties, etc.
+
+- cosmic_variance.py
+Computes cosmic variance uncertainties.
+
+- plot_cos_data.py
+Plotting methods for the raw COS-Dwarfs and COS-Halos data.
+
+- 

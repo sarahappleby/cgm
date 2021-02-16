@@ -1,3 +1,5 @@
+# Methods to read in the COS survey data
+
 # from Rongmon Bordoloi -
 #   a data file with the HI measurements as in Bordoloi+2018 
 #   42 entries as one galaxy has an intervening LLS system

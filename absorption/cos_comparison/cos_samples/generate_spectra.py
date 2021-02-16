@@ -1,3 +1,6 @@
+# A collection of methods to call either pygad or trident and generate synthetic spectra.
+
+
 import matplotlib.pyplot as plt
 
 import numpy as np 
