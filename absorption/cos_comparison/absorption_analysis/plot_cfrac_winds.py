@@ -61,9 +61,8 @@ if __name__ == '__main__':
 
         sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_cfrac_data'+scale_str+'.h5'
         sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-        if not wind == 's50nofb':
-            sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_cfrac_data'+scale_str+'.h5'
-            sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
+        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_cfrac_data'+scale_str+'.h5'
+        sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
         if j == 0:
             sim_halos_plot_dict['plot_bins_sf'] -= xoffset
@@ -77,9 +76,6 @@ if __name__ == '__main__':
             sim_dwarfs_plot_dict['plot_bins_q'] += xoffset
 
         for i, survey in enumerate(cos_survey):
-
-            if (wind == 's50nofb') & (survey == 'dwarfs'):
-                continue
 
             # choose the survey and some params
             if survey == 'dwarfs':

@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     # ignore the galaxies that dont have counterparts in the m50n512 boxes
     if ((model == 'm50n512') & (cos_survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
-        ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
+        ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, cos_survey)
     else:
         ignore_simba_gals = []
 
