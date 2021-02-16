@@ -48,8 +48,8 @@ central = np.array([i.central for i in sim.galaxies])
 gal_sm = np.array([i.masses['stellar'].in_units('Msun') for i in sim.galaxies])
 gal_sfr = np.array([i.sfr.in_units('Msun/yr') for i in sim.galaxies])
 # Don't panic everyone, these are K units - see Mo & White 2002
-gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('km**2/s**2') for i in sim.galaxies])
-#gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('K') for i in sim.galaxies])
+#gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('km**2/s**2') for i in sim.galaxies])
+gal_tvir = np.array([i.halo.virial_quantities['temperature'].in_units('K') for i in sim.galaxies])
 gal_ssfr = gal_sfr / gal_sm
 gal_sm = np.log10(gal_sm)
 gal_ssfr = np.log10(gal_ssfr)
@@ -65,6 +65,7 @@ dust_mass = readsnap(snapfile, 'Dust_Masses', 'gas', suppress=1, units=1) * dust
 #dust_mass = np.zeros(len(gas_mass))
 star_mass = readsnap(snapfile, 'mass', 'star', suppress=1, units=1) / h # in Mo
 star_z = readsnap(snapfile, 'z', 'star', suppress=1, units=1)
+bh_mass = readsnap(snapfile, 'mass', 'bndry', suppress=1, units=1) / h # in Mo
 
 phases = ['Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
           'Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)', 

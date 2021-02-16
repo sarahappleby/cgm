@@ -1,33 +1,43 @@
 Scripts starting with 'get_' are for computing masses and fractions from the Simba snapshots.
 Scripts starting with 'plot_' are for computing stats (medians etc.) and producing plots.
+Scripts ending in '_winds.py' compare the different wind models.
 
-1) get_mass_actual:
+- get_mass_budget:
 Computes the total masses and metal masses of the specified phases, as well as fractions wrt the total available baryon
 mass and wrt the cosmic fraction of baryons.
 
-2) plotting_methods:
+- plotting_methods:
 Binning, get stats for different phases, get cosmic variance errors, reading and writing data to file.
 
-3) plot_mass_budget:
+- plot_mass_actual:
 Masses of different phases as a function of stellar mass, separated into star forming and quenched.
 
-4) plot_mass_frac_available:
+- plot_mass_frac_available:
 Mass fractions of different phases as a function of stellar mass, separated into star forming and quenched.
 
-5) plot_mass_budget:
-Makes joint figure of 3 and 4
+- plot_mass_budget_available:
+Makes joint figure of mass budgets and available fractions.
 
-6) plot_mass_frac_omega:
+- plot_mass_frac_omega:
 Mass fractions of different phases wrt cosmic baryon fractions, as a function of stellar mass, separated into star forming and quenched.
 
-7) plot_metal_actual:
+- plot_mass_budget_omega:
+Makes joint figure of mass budgets and fractions wrt omega.
+
+- plot_metal_actual:
 Metal masses of different phases as a function of stellar mass, separated into star forming and quenched.
 
-8) plot_metal_frac_available:
+- plot_metal_frac_available:
 Metal mass fractions of different phases as a function of stellar mass, separated into star forming and quenched.
 
-9) plot_metal_budget:
-Makes joint figure of 7 and 8.
+- plot_metal_budget:
+Makes joint figure metal budget and available metal fractions.
 
-10) plot_metallicities:
+- plot_metallicities:
 Metallicities of different phases as a function of stellar mass, separated into star forming and quenched.
+
+- plot_gas_metallicities_winds:
+Makes plot of metallicities of specific gas phases across wind models.
+
+- plot_gas_metallicities_difference:
+As above but plots the difference between Simba and each wind model.
