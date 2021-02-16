@@ -1,0 +1,10 @@
+In the cos_samples directory:
+- scripts to find a sample of Simba galaxies matching the COS-Halos and COS-Dwarfs criteria
+- scripts to match galaxies selected in one wind box with galaxies in another wind box
+- script to select the particles in our LOS and save these particle IDs to a new file
+- script to save a new h5 dataset with only these particles
+- scripts to call pygad and generate spectra of these LOS and save the output spectra
+
+In the absorption_analysis directory:
+- scripts to compute the equivalent width, covering fraction, path absorption, cosmic variance, etc.
+- plotting scripts
