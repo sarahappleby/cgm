@@ -23,5 +23,4 @@ r200_sample[np.isnan(gal_ids)] = np.nan
 r200_sample[~np.isnan(gal_ids)] = halo_r200[gal_ids[~np.isnan(gal_ids)].astype(np.int64)]
 
 with h5py.File(sample_dir+model+'_'+wind+'_cos_'+survey+'_sample.h5', 'a') as f:
-    del f['r200']
     f.create_dataset('halo_r200', data=np.array(r200_sample))

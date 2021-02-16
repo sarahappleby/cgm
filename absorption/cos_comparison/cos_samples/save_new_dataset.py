@@ -79,7 +79,7 @@ if __name__ == '__main__':
     data_dir = '/home/rad/data/'+model+'/'+wind+'/'
     snapfile = data_dir+'snap_'+model+'_'+snap+'.hdf5'
 
-    output_dir = '/disk01/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
+    output_dir = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/'+model+'/cos_'+survey+'/samples/'
     output_file = output_dir + model+'_'+wind+'_'+snap+'.hdf5'
 
     sample_file = model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_cos_'+survey+'_sample.h5'

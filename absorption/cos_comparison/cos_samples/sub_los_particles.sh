@@ -1,10 +1,10 @@
 #!/bin/bash
 
-pipeline_path=/disk01/sapple/cgm/cos_samples/
+pipeline_path=/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/
 survey=dwarfs
 model=m50n512
 wind=s50nofb
-output_file=/disk01/sapple/cgm/cos_samples/$model/cos_$survey/$wind/output/
+output_file=/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/$model/cos_$survey/$wind/output/
 
 
 for ii in {0..189}

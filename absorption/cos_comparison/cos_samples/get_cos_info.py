@@ -38,7 +38,7 @@ def make_cos_dict(survey, mlim, r200_scaled=False, h=0.68):
 
 def get_cos_dwarfs(return_less_than=False):
     h = 0.68
-    table_file = '/disk01/sapple/cgm/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
+    table_file = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
     table = ascii.read(table_file, format='latex')
     cos_rho = table['Rho']
     cos_M = table['logM_stellar']
@@ -63,7 +63,7 @@ def get_cos_dwarfs(return_less_than=False):
         return np.array(cos_rho), np.array(cos_M), np.array(cos_r200), cos_ssfr
 
 def get_cos_dwarfs_civ():
-    table_file = '/disk01/sapple/cgm/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
+    table_file = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
     table = ascii.read(table_file, format='latex')
     ew_civ = np.array(table['EW_CIV'])
     ew_civ_err = np.zeros(len(ew_civ))
@@ -132,7 +132,7 @@ def get_cos_halos_lines(pg_line, save_file):
 
 def read_halos_data(line):
 
-    lines_file = '/disk01/sapple/cgm/cos_samples/obs_data/cos_halos/lines_data.h5'
+    lines_file = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/obs_data/cos_halos/lines_data.h5'
     if not os.path.isfile(lines_file):
         get_cos_halos_lines(line, lines_file)
     else:
@@ -151,7 +151,7 @@ def read_halos_data(line):
 def get_cos_dwarfs_lya():
     # remember to mask out item 3, which is not present for the Lya data.
     
-    data_file = '/disk01/sapple/cgm/cos_samples/obs_data/cos_dwarfs/lya_data_civ_order.h5'
+    data_file = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/obs_data/cos_dwarfs/lya_data_civ_order.h5'
     with h5py.File(data_file, 'r') as f:
         EW = f['EW'][:]
         EWerr = f['EWERR'][:]
@@ -159,7 +159,7 @@ def get_cos_dwarfs_lya():
     return EW, EWerr
 
 def get_cos_dwarfs_lya_orig():
-    data_file = fits.open('/disk01/sapple/cgm/cos_samples/obs_data/cos_dwarfs/COS-Dwarfs_Lya.fits')
+    data_file = fits.open('/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/obs_data/cos_dwarfs/COS-Dwarfs_Lya.fits')
 
     data = data_file[1].data
 

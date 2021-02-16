@@ -54,7 +54,7 @@ cos_dwarfs_ssfr[cos_dwarfs_ssfr < -11.5] = -11.5
 cos_halos_dist = cos_halos_rho / cos_halos_r200
 cos_dwarfs_dist = cos_dwarfs_rho / cos_dwarfs_r200
 
-basic_dir = '/disk01/sapple/cgm/cos_samples/'+model+'/'
+basic_dir = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/'+model+'/'
 
 halos_sample_file = basic_dir + 'cos_halos/samples/'+model+'_'+wind+'_cos_halos_sample.h5'
 with h5py.File(halos_sample_file, 'r') as f:
