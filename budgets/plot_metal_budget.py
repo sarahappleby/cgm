@@ -18,8 +18,8 @@ snap = '151'
 model = sys.argv[1]
 wind = sys.argv[2]
 
-data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
-savedir = '/home/sapple/cgm/budgets/plots/'
+data_dir = '/disk01/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
+savedir = '/disk01/sapple/cgm/budgets/plots/'
 
 plot_phases = ['Hot CGM (T > 0.5Tvir)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Cool CGM (T < Tphoto)',
                 'Wind', 'Dust', 'ISM', 'Stars']

@@ -39,10 +39,10 @@ if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (mode
         sys.exit() 
 
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
-snapfile = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_'+snap+'.hdf5'
+snapfile = '/disk01/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_'+snap+'.hdf5'
 
-sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
-save_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/'+wind+'/'+background+'/'
+sample_dir = '/disk01/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
+save_dir = '/disk01/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/'+wind+'/'+background+'/'
 
 if not os.path.exists(save_dir):
 	os.makedirs(save_dir)

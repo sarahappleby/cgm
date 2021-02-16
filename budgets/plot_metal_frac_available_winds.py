@@ -21,7 +21,7 @@ winds = ['s50', 's50nox', 's50nojet', 's50nofb']
 model = 'm50n512'
 boxsize = 50000.
 wind_title = [r'$\textrm{Simba}$', r'$\textrm{No-Xray}$', r'$\textrm{No-jet}$', r'$\textrm{No-feedback}$']
-savedir = '/home/sapple/cgm/budgets/plots/'
+savedir = '/disk01/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
 			  'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
@@ -39,7 +39,7 @@ ax = ax.flatten()
 
 for w, wind in enumerate(winds):
 
-	data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
+	data_dir = '/disk01/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
 	frac_stats_file = data_dir+model+'_'+wind+'_'+snap+'_avail_metal_frac_stats.h5'
 
 	if os.path.isfile(frac_stats_file):

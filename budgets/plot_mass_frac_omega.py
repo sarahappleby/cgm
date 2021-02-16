@@ -26,8 +26,8 @@ elif model == 'm50n512':
 elif model == 'm25n512':
     boxsize = 25000.
 
-fracdata_dir = '/home/sapple/cgm/budgets/data/' +model+'_'+wind+'_'+snap+'/'
-savedir = '/home/sapple/cgm/budgets/plots/'
+fracdata_dir = '/disk01/sapple/cgm/budgets/data/' +model+'_'+wind+'_'+snap+'/'
+savedir = '/disk01/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
               'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',

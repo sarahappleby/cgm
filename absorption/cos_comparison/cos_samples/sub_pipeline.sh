@@ -1,13 +1,13 @@
 #!/bin/bash
 
 line=$1
-pipeline_path=/home/sapple/cgm/cos_samples/
+pipeline_path=/disk01/sapple/cgm/cos_samples/
 model=m50n512
 wind=s50nofb
 snap=151
 survey=dwarfs
 background=uvb_fg20
-output_file=/home/sapple/cgm/cos_samples/$model/cos_$survey/$wind/$background/output/
+output_file=/disk01/sapple/cgm/cos_samples/$model/cos_$survey/$wind/$background/output/
 
 
 for ii in {0..38}

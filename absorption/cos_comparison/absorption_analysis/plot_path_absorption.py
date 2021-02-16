@@ -37,13 +37,14 @@ if __name__ == '__main__':
         xlabel = r'$\rho (\textrm{kpc})$'
     plot_name += '.png'
 
-    #cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_path_abs_data'+scale_str+'.h5'
+    basic_dir = '/disk01/sapple/cgm/absorption/cos_comparison/absorption_analysis/'
+    #cos_halos_file = basic_dir+'data/cos_halos_obs_path_abs_data'+scale_str+'.h5'
     #cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
-    #cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_path_abs_data'+scale_str+'.h5'
+    #cos_dwarfs_file = basic_dir+'data/cos_dwarfs_obs_path_abs_data'+scale_str+'.h5'
     #cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
-    sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_path_abs_data'+scale_str+'.h5'
+    sim_halos_file = basic_dir+'data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_path_abs_data'+scale_str+'.h5'
     sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-    sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_data'+scale_str+'.h5'
+    sim_dwarfs_file = basic_dir+'data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_path_abs_data'+scale_str+'.h5'
     sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
     
     fig, ax = plt.subplots(2, 3, figsize=(21, 12.5))

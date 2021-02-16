@@ -93,7 +93,7 @@ if __name__ == '__main__':
     wind = 's50nofb'
     survey = sys.argv[1]
 
-    sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
+    sample_dir = '/disk01/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
     mass_range = 0.1 # dex
     mass_range_lim = 0.15 # limit of how far away in mass dex we can look
     ssfr_range = 0.1 # dex
@@ -155,7 +155,7 @@ if __name__ == '__main__':
         objs = []
         prog_index = []
         match_file = './m50n512/match_halos_'+snap+'.hdf5'
-        r200_file = '/home/sapple/cgm/cos_samples/m50n512/m50n512_'+snap+'_r200_info.h5'
+        r200_file = '/disk01/sapple/cgm/cos_samples/m50n512/m50n512_'+snap+'_r200_info.h5'
         print('Loading other wind snaps for halo check')
         for w in wind_options:
             infile_new = '/home/rad/data/'+model+'/'+w+'/Groups/'+model+'_'+snap+'.hdf5'

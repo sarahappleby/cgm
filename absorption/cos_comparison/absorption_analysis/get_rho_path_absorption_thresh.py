@@ -64,15 +64,16 @@ if __name__ == '__main__':
     elif survey == 'dwarfs':
         cos_dict_orig, cos_mmask = make_cos_dict('dwarfs', mlim, r200_scaled)
 
+    basic_dir = '/disk01/sapple/cgm/absorption/cos_comparison/absorption_analysis/'
     # rescaled the x axis by r200
     if r200_scaled:
         cos_dict_orig['dist'] = cos_dict_orig['rho'] / cos_dict_orig['r200']
-        cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_obs_path_abs_thresh_data_scaled.h5'
-        sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_thresh_data_scaled.h5'
+        cos_file = basic_dir+'data/cos_'+survey+'_obs_path_abs_thresh_data_scaled.h5'
+        sim_file = basic_dir+'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_thresh_data_scaled.h5'
     else:
         cos_dict_orig['dist'] = cos_dict_orig['rho'].copy()
-        cos_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_obs_path_abs_thresh_data.h5'
-        sim_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_thresh_data.h5'
+        cos_file = basic_dir+'data/cos_'+survey+'_obs_path_abs_thresh_data.h5'
+        sim_file = basic_dir+'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_thresh_data.h5'
 
     # get the bins for the COS data - these nbins ensure there are roughly ~8 galaxies in each bin
     cos_plot_dict = {}

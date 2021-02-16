@@ -65,21 +65,22 @@ if __name__ == '__main__':
     leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=16, framealpha=0.)
     ax[0].add_artist(leg_color)
 
-    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_cfrac_data'+scale_str+'.h5'
+    basic_dir = '/disk01/sapple/cgm/absorption/cos_comparison/absorption_analysis/'
+    cos_halos_file = basic_dir+'data/cos_halos_obs_cfrac_data'+scale_str+'.h5'
     cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
-    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_cfrac_data'+scale_str+'.h5'
+    cos_dwarfs_file = basic_dir+'data/cos_dwarfs_obs_cfrac_data'+scale_str+'.h5'
     cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
 
-    fg20_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_uvb_fg20_sim_cfrac_data'+scale_str+'.h5'
+    fg20_halos_file = basic_dir+'data/cos_halos_'+model+'_'+wind+'_137_uvb_fg20_sim_cfrac_data'+scale_str+'.h5'
     fg20_halos_plot_dict = read_dict_from_h5(fg20_halos_file)
-    fg20_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_uvb_fg20_sim_cfrac_data'+scale_str+'.h5'
+    fg20_dwarfs_file = basic_dir+'data/cos_dwarfs_'+model+'_'+wind+'_151_uvb_fg20_sim_cfrac_data'+scale_str+'.h5'
     fg20_dwarfs_plot_dict = read_dict_from_h5(fg20_dwarfs_file)
 
     for b, background in enumerate(backgrounds):
 
-        sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_cfrac_data'+scale_str+'.h5'
+        sim_halos_file = basic_dir+'data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_cfrac_data'+scale_str+'.h5'
         sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
-        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_cfrac_data'+scale_str+'.h5'
+        sim_dwarfs_file = basic_dir+'data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_cfrac_data'+scale_str+'.h5'
         sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
 
         if b == 0:

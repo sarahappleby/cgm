@@ -29,7 +29,7 @@ def read_dict_from_h5(h5_file):
 def read_simulation_sample(model, wind, snap, survey, background, norients, lines, r200_scaled):
 
     data_dict = {}
-    cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_cos_'+survey+'_sample.h5'
+    cos_sample_file = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_cos_'+survey+'_sample.h5'
     with h5py.File(cos_sample_file, 'r') as f:
         data_dict['mass'] = np.repeat(f['mass'][:], norients)
         data_dict['ssfr'] = np.repeat(f['ssfr'][:], norients)

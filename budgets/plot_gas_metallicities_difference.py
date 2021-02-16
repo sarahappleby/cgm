@@ -24,7 +24,7 @@ snap = '151'
 winds = ['s50nox', 's50nojet', 's50noagn', 's50nofb']
 model = 'm50n512'
 wind_labels = [r'$\textrm{No-Xray - Simba}$', r'$\textrm{No-jet - Simba}$', r'$\textrm{No-AGN - Simba}$', r'$\textrm{No-feedback - Simba}$']
-savedir = '/home/sapple/cgm/budgets/plots/'
+savedir = '/disk01/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
                           'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
@@ -52,14 +52,14 @@ for w in range(len(winds)):
 leg_wind = ax[3].legend(wind_lines,wind_labels, loc=4, fontsize=16, framealpha=0.)
 ax[3].add_artist(leg_wind)
 
-simba_data_dir = '/home/sapple/cgm/budgets/data/'+model+'_s50_151/'
+simba_data_dir = '/disk01/sapple/cgm/budgets/data/'+model+'_s50_151/'
 simba_z_stats_file = simba_data_dir+model+'_s50_'+snap+'_metallicities_stats.h5' 
 simba_z_stats = read_phase_stats(simba_z_stats_file, plot_phases, stats)
 simba_mask = simba_z_stats['all']['ngals'][:] > ngals_min
 
 for w, wind in enumerate(winds):
 
-    data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
+    data_dir = '/disk01/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
     z_stats_file = data_dir+model+'_'+wind+'_'+snap+'_metallicities_stats.h5'
 
     if os.path.isfile(z_stats_file):

@@ -50,7 +50,7 @@ snapfile = data_dir + 'snap_'+model+'_'+snap +'.hdf5'
 hsml = readsnap(snapfile, 'SmoothingLength', 'gas', suppress=1, units=1)  # in kpc/h, comoving
 gas_pos = readsnap(snapfile, 'pos', 'gas', suppress=1, units=1) # in kpc/h, comoving
 
-sample_dir = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
+sample_dir = '/disk01/sapple/cgm/cos_samples/'+model+'/cos_'+survey+'/samples/'
 sample_file = sample_dir+model+'_'+wind+'_cos_'+survey+'_sample.h5'
 with h5py.File(sample_file, 'r') as f:
     gal_id = f['gal_ids'][:].astype('int')[sample_gal]

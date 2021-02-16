@@ -24,7 +24,7 @@ winds = ['s50', 's50nox', 's50nojet', 's50noagn']
 model = 'm50n512'
 boxsize = 50000.
 wind_labels = [r'$\textbf{Simba}$', r'$\textbf{No-Xray}$', r'$\textbf{No-jet}$', r'$\textbf{No-AGN}$']
-savedir = '/home/sapple/cgm/budgets/plots/'
+savedir = '/disk01/sapple/cgm/budgets/plots/'
 
 all_phases = ['Cool CGM (T < Tphoto)', 'Warm CGM (Tphoto < T < 0.5Tvir)', 'Hot CGM (T > 0.5Tvir)',
                           'Cool CGM (T < 10^5)', 'Warm CGM (10^5 < T < 10^6)', 'Hot CGM (T > 10^6)',
@@ -50,7 +50,7 @@ ax[0].add_artist(leg_winds)
 
 for w, wind in enumerate(winds):
 
-        data_dir = '/home/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
+        data_dir = '/disk01/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
         z_stats_file = data_dir+model+'_'+wind+'_'+snap+'_metallicities_stats.h5'
 
         if os.path.isfile(z_stats_file):

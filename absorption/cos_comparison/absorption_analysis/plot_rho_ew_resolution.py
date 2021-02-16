@@ -54,9 +54,10 @@ if __name__ == '__main__':
     leg_color = ax[0].legend([line_sf, line_q],['Simba SF', 'Simba Q'], loc=3, fontsize=15, framealpha=0.)
     ax[0].add_artist(leg_color)
 
-    cos_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_obs_ew_med_data'+scale_str+'.h5'
+    basic_dir = '/disk01/sapple/cgm/absorption/cos_comparison/absorption_analysis/'
+    cos_dwarfs_file = basic_dir+'data/cos_dwarfs_obs_ew_med_data'+scale_str+'.h5'
     cos_dwarfs_plot_dict = read_dict_from_h5(cos_dwarfs_file)
-    cos_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_obs_ew_med_data'+scale_str+'.h5'
+    cos_halos_file = basic_dir+'data/cos_halos_obs_ew_med_data'+scale_str+'.h5'
     cos_halos_plot_dict = read_dict_from_h5(cos_halos_file)
 
     for m, model in enumerate(models):
@@ -64,9 +65,9 @@ if __name__ == '__main__':
         if model == 'm50n512': wind = 's50j7k'
         else: wind = 's50'
 
-        sim_dwarfs_file = '/home/sapple/cgm/absorption_analysis/data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_ew_med_data'+scale_str+'.h5'
+        sim_dwarfs_file = basic_dir+'data/cos_dwarfs_'+model+'_'+wind+'_151_'+background+'_sim_ew_med_data'+scale_str+'.h5'
         sim_dwarfs_plot_dict = read_dict_from_h5(sim_dwarfs_file)
-        sim_halos_file = '/home/sapple/cgm/absorption_analysis/data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_ew_med_data'+scale_str+'.h5'
+        sim_halos_file = basic_dir+'data/cos_halos_'+model+'_'+wind+'_137_'+background+'_sim_ew_med_data'+scale_str+'.h5'
         sim_halos_plot_dict = read_dict_from_h5(sim_halos_file)
     
         for i, survey in enumerate(cos_survey):

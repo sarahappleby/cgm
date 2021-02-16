@@ -25,10 +25,11 @@ if __name__ == '__main__':
         snap = '151'
     elif cos_survey == 'halos':
         snap = '137'
-    
-    ew_file = '/home/sapple/cgm/absorption_analysis/data/cos_'+cos_survey+'_'+model + '_'+wind+'_'+snap+'_'+background+'_ew_data_lsf.h5'
-    spectra_folder = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+cos_survey+'/'+wind+'/'+background+'/spectra/'
-    cos_sample_file = '/home/sapple/cgm/cos_samples/'+model+'/cos_'+cos_survey+'/samples/'+model+'_'+wind+'_cos_'+cos_survey+'_sample.h5'
+   
+    basic_dir = '/disk01/sapple/cgm/absorption/cos_comparison/'
+    ew_file = basic_dir+'absorption_analysis/data/cos_'+cos_survey+'_'+model + '_'+wind+'_'+snap+'_'+background+'_ew_data_lsf.h5'
+    spectra_folder = basic_dir+'cos_samples/'+model+'/cos_'+cos_survey+'/'+wind+'/'+background+'/spectra/'
+    cos_sample_file = basic_dir+'cos_samples/'+model+'/cos_'+cos_survey+'/samples/'+model+'_'+wind+'_cos_'+cos_survey+'_sample.h5'
     with h5py.File(cos_sample_file, 'r') as f:
         gal_ids = f['gal_ids'][:]
         vgal_position = f['vgal_position'][:][:, 2]
