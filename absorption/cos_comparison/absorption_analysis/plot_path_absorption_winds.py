@@ -8,6 +8,8 @@ from analysis_methods import *
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=17)
+#plt.style.use('dark_background')
+
 
 if __name__ == '__main__':
 

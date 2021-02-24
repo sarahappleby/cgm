@@ -7,6 +7,7 @@ from analysis_methods import *
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=17)
+#plt.style.use('dark_background')
 
 if __name__ == '__main__':
 
@@ -32,7 +33,7 @@ if __name__ == '__main__':
     linestyles = ['-', '--', ':']
     ylim = 0.5
     xoffset = 0.025
-    r200_scaled = False
+    r200_scaled = True
     backgrounds = ['uvb_fg20', 'uvb_hm12_x2', 'uvb_hm01']
 
     sim_colors, cos_colors = get_tol_colors()

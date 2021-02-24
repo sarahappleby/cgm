@@ -7,7 +7,8 @@ import sys
 from plotting_methods import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=18)
+plt.rc('font', family='serif', size=16)
+#plt.style.use('dark_background')
 
 alpha = .8
 palette_name = 'tol'
