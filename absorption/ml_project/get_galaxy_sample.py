@@ -67,7 +67,7 @@ mass_bins = np.arange(min_m, min_m+nbins_m*delta_m, delta_m)
 ngals_each = 12
 nbins_ssfr = 3
 
-save_dir = f'/disk01/sapple/cgm/absorption/ml_project/'
+sample_dir = f'/disk01/sapple/cgm/absorption/ml_project/samples/'
 data_dir = f'/home/rad/data/{model}/{wind}/'
 sim =  caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5')
 co = yt.utilities.cosmology.Cosmology()
@@ -85,7 +85,6 @@ gal_sm = np.log10(gal_sm)
 gal_recession = gal_pos.in_units('kpc')*hubble
 gal_vgal_pos = gal_vels + gal_recession
 gal_gas_frac = np.array([i.masses['gas'].in_units('Msun') /i.masses['stellar'].in_units('Msun') for i in sim.galaxies ])
-halo_r200 = np.array([sim.galaxies[int(i)].halo.virial_quantities['r200c'].in_units('kpc/h') for i in gal_ids]
 
 # empty arrays to store ngals_each simba galaxies per ssfr-mstar bin
 gal_ids = np.ones(nbins_m*nbins_ssfr*ngals_each) * np.nan
@@ -115,10 +114,11 @@ gal_ids = gal_ids.astype('int')
 halo_r200 = np.array([sim.galaxies[i].halo.virial_quantities['r200c'].in_units('kpc/h') for i in gal_ids])
 halo_pos = np.array([sim.galaxies[i].halo.pos.in_units('kpc/h') for i in gal_ids])
 
-with h5py.File(f'{save_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'a') as hf:
+with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'a') as hf:
     hf.create_dataset('gal_ids', data=np.array(gal_ids))
     hf.create_dataset('mass', data=np.array(gal_sm[gal_ids]))
     hf.create_dataset('ssfr', data=np.array(gal_ssfr[gal_ids]))
+    hf.create_dataset('sfr', data=np.array(gal_sfr[gal_ids]))
     hf.create_dataset('gas_frac', data=np.array(gal_gas_frac[gal_ids]))
     hf.create_dataset('position', data=np.array(gal_pos[gal_ids]))
     hf.create_dataset('vgal_position', data=np.array(gal_vgal_pos[gal_ids]))
