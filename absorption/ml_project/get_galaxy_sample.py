@@ -67,7 +67,7 @@ mass_bins = np.arange(min_m, min_m+nbins_m*delta_m, delta_m)
 ngals_each = 12
 nbins_ssfr = 3
 
-sample_dir = f'/disk01/sapple/cgm/absorption/ml_project/samples/'
+sample_dir = f'/disk01/sapple/cgm/absorption/ml_project/data/samples/'
 data_dir = f'/home/rad/data/{model}/{wind}/'
 sim =  caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5')
 co = yt.utilities.cosmology.Cosmology()
@@ -125,8 +125,8 @@ with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'a') as hf
     hf.create_dataset('halo_r200', data=np.array(halo_r200))
     hf.create_dataset('halo_pos', data=np.array(halo_pos))
     hf.attrs['pos_units'] = 'kpc/h'
-    hf.attrs['mass_units'] = 'Msun'
-    hf.attrs['ssfr_units'] = 'yr^-1'
-    hf.attrs['sfr_units'] = 'Msun/yr'
+    hf.attrs['mass_units'] = 'log Msun'
+    hf.attrs['ssfr_units'] = 'log yr^-1'
+    hf.attrs['sfr_units'] = 'log Msun/yr'
     hf.attrs['vel_units'] = 'km/s'
 

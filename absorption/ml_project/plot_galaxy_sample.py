@@ -29,7 +29,7 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
 
-    sample_dir = f'/disk01/sapple/cgm/absorption/ml_project/samples/'
+    sample_dir = f'/disk01/sapple/cgm/absorption/ml_project/data/samples/'
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_sm = sf['mass'][:]
         gal_sfr = sf['sfr'][:]
