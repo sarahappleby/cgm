@@ -101,11 +101,11 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_lim
         f_conv, n_conv = pg.analysis.absorption_spectra.apply_LSF(wavelengths, fluxes, noise_vector, grating='COS_G130M')
     else:
         f_conv = fluxes.copy()
-    f_conv_noise += noise
-    contin = pg.analysis.absorption_spectra.fit_continuum(wavelengths, f_conv, noise_vector, order=1, sigma_lim=1.5)
+    f_conv_noise = f_conv + noise
+    contin = pg.analysis.absorption_spectra.fit_continuum(wavelengths, f_conv_noise, noise_vector, order=1, sigma_lim=1.5)
     f_conv_noise_contin = f_conv_noise / contin
 
-    with h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'a') as hf:
+    with h5py.File(f'{save_dir}{spec_name}.h5', 'a') as hf:
         if periodic_vel:
             hf.create_dataset(line+'_flux_nonperiodic', data=np.array(fluxes_orig))
             hf.create_dataset(line+'_tau_nonperiodic', data=np.array(taus_orig))
