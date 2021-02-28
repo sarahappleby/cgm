@@ -6,7 +6,7 @@ wind=s50
 snap=151
 output_path=/disk01/sapple/cgm/absorption/ml_project/output/
 
-for ii in {0..107}
+for ii in {108..215}
 do
    echo Submitting job $ii
    job='gal_'$ii'.txt'

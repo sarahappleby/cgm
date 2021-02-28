@@ -26,7 +26,7 @@ if __name__ == '__main__':
     model = sys.argv[1]
     wind = sys.argv[2]
     snap = sys.argv[3]
-    sample_gal = int(sys.argv[3]) # supply the gal id that we want from command lin
+    sample_gal = int(sys.argv[4]) # supply the gal id that we want from command lin
 
     sqrt2 = np.sqrt(2.)
     ngals_each = 12
