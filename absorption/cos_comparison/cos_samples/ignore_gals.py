@@ -2,7 +2,7 @@
 
 import numpy as np
 
-ignore_gals_dict = {'m50n512_halos': {'ignore_cos_gals':np.array([18, 29]), 
+ignore_gals_dict_wrong_imf = {'m50n512_halos': {'ignore_cos_gals':np.array([18, 29]), 
                                         'ngals_each' : 5},
                     'm25n512_dwarfs': {'ignore_cos_gals':np.array([10, 17, 36]), 
                                         'ngals_each':5},

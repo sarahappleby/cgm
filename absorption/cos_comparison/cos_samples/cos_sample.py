@@ -89,8 +89,8 @@ def isolation_check(gal_pos, pos_range, gal_cent, indices):
 
 if __name__ == '__main__':
 
-    model = 'm50n512'
-    wind = 's50nofb'
+    model = 'm100n1024'
+    wind = 's50'
     survey = sys.argv[1]
 
     sample_dir = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/'+model+'/cos_'+survey+'/samples/'
@@ -100,10 +100,10 @@ if __name__ == '__main__':
     ssfr_range_lim = 0.25 # limit of how far away in ssfr dex we can look (excludes quenched galaxies)
     pos_range = 1000. # kpc/h
     mlim = np.log10(5.8e8) # lower limit of M*
-    ngals_each = 4
+    ngals_each = 5
     
     # set to True if we want to have the isolation criteria
-    do_isolation = False
+    do_isolation = True
     # set to True if we want to check for halos in other wind boxes
     do_halo_check = False
     if do_halo_check: wind_options = ['s50nojet', 's50nox', 's50noagn']
