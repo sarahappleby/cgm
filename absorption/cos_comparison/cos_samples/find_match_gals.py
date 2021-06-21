@@ -5,6 +5,7 @@ import h5py
 import numpy as np
 import caesar
 import yt
+from ignore_gals import * 
 
 def check_halo_sample(prog_index, obj1, obj2, gal_id):
     gal = obj1.galaxies[gal_id]
@@ -16,18 +17,12 @@ if __name__ == '__main__':
 
     model = 'm50n512'
     wind1 = 's50j7k'
-    wind_options = ['s50nox', 's50nojet', 's50noagn']
-    wind_options = ['s50nofb']
+    wind_options = ['s50nox', 's50nojet', 's50nofb']
     snap = '151'
-    survey = 'dwarfs'
+    survey = 'halos'
 
     # ignore these as the main s50 sample has insufficient galaxies
-    if survey == 'halos':
-        ignore_cos_gals = [18, 29]
-    elif survey == 'dwarfs':
-        ignore_cos_gals = []
-    ignore_simba_gals = [list(range(num*5, (num+1)*5)) for num in ignore_cos_gals]
-    ignore_simba_gals = [item for sublist in ignore_simba_gals for item in sublist]
+    ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
 
     sample_file = './m50n512/cos_' + survey+'/samples/'+model+'_'+wind1+'_cos_'+survey+'_sample.h5'
     with h5py.File(sample_file, 'r') as f:

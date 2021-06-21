@@ -61,20 +61,17 @@ def prepare_out_file(snapfile, output_file, numpart):
 if __name__ == '__main__':
 
     model = 'm50n512'
-    wind = 's50nofb'
+    wind = 's50nox'
     survey = 'dwarfs'
     verbose = 2
-    ngals_each = 5
+    ngals_each = 4
 
     if survey == 'dwarfs':
         snap = '151'
     elif survey == 'halos':
         snap = '137'
 
-    if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
-        ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
-    else:
-        ignore_simba_gals = []
+    ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
 
     data_dir = '/home/rad/data/'+model+'/'+wind+'/'
     snapfile = data_dir+'snap_'+model+'_'+snap+'.hdf5'
@@ -89,14 +86,8 @@ if __name__ == '__main__':
     plist = np.array([])
     with h5py.File(output_dir+wind+'_particle_selection.h5', 'r') as f:
         for i, gal in enumerate(gal_ids):
-            if (model == 'm50n512') & (survey == 'halos') & (i in ignore_simba_gals):
-                print('Ignoring certain m50n512 COS-Halos galaxies')
-                continue
-            elif (model == 'm25n512') & (i in ignore_simba_gals):
-                print('Ignoring certain m25n512 galaxies')
-                continue
-            elif (model == 'm25n256') & (i in ignore_simba_gals):
-                print('Ignoring certain m25n256 galaxies')
+            if (i in ignore_simba_gals):
+                print('Ignoring certain COS galaxies')
                 continue
             else:
                 print('Reading in galaxy '+str(i))

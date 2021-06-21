@@ -13,9 +13,24 @@ ignore_gals_dict_wrong_imf = {'m50n512_halos': {'ignore_cos_gals':np.array([18, 
                     'm25n256_halos': {'ignore_cos_gals':np.array([0,  1,  2,  5, 10, 13, 14, 15, 17, 18, 24, 26, 29, 30, 31, 32, 33, 34, 37, 39, 40, 41, 42]), 
                                         'ngals_each': 4}}
 
+ignore_gals_dict = {'m100n1024_halos': {'ignore_cos_gals':np.array([33, 40, 18]),
+                                        'ngals_each' : 5},
+                    'm100n1024_dwarfs': {'ignore_cos_gals':np.array([37]),
+                                        'ngals_each' : 5},
+                    'm50n512_halos': {'ignore_cos_gals':np.array([33, 40, 42, 18, 23]),
+                                        'ngals_each' : 4},
+                    'm50n512_dwarfs': {'ignore_cos_gals':np.array([37]),
+                                        'ngals_each' : 4},
+                    'm25n512_dwarfs': {'ignore_cos_gals':np.array([1, 8, 9, 20, 37]),
+                                        'ngals_each':4}}
+
 def get_ignore_cos_gals(model, survey):
-    ignore_cos_gals = ignore_gals_dict[model+'_'+survey]['ignore_cos_gals']
-    ngals_each = ignore_gals_dict[model+'_'+survey]['ngals_each']
+    if model+'_'+survey in list(ignore_gals_dict.keys()):
+        ignore_cos_gals = ignore_gals_dict[model+'_'+survey]['ignore_cos_gals']
+        ngals_each = ignore_gals_dict[model+'_'+survey]['ngals_each']
+    else:
+        ignore_cos_gals = []
+        ngals_each = 5
     return ignore_cos_gals, ngals_each
 
 def get_ignore_simba_gals(model, survey):

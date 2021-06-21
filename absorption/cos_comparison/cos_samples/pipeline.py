@@ -26,17 +26,15 @@ background = sys.argv[5]
 num = int(sys.argv[6])
 line = sys.argv[7]
 lambda_rest = float(re.findall(r'\d+', line)[0])
-ngals_each = 5
-
+ngals_each = 4
 
 ids = list(range(num*ngals_each, (num+1)*ngals_each))
 
-if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
-    ignore_cos_gals, ngals_each = get_ignore_cos_gals(model, survey)
-    if num in ignore_cos_gals:
-        print('Ignoring certain m50n512 COS-Halos galaxies')
-        import sys
-        sys.exit() 
+ignore_cos_gals, ngals_each = get_ignore_cos_gals(model, survey)
+if num in ignore_cos_gals:
+    print('Ignoring certain COS galaxies')
+    import sys
+    sys.exit() 
 
 snapfile = '/home/rad/data/'+model+'/'+wind+'/snap_'+model+'_'+snap+'.hdf5'
 snapfile = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/'+model+'/cos_'+survey+'/samples/'+model+'_'+wind+'_'+snap+'.hdf5'

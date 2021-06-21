@@ -89,8 +89,8 @@ def isolation_check(gal_pos, pos_range, gal_cent, indices):
 
 if __name__ == '__main__':
 
-    model = 'm100n1024'
-    wind = 's50'
+    model = 'm50n512'
+    wind = 's50j7k'
     survey = sys.argv[1]
 
     sample_dir = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/'+model+'/cos_'+survey+'/samples/'
@@ -100,13 +100,13 @@ if __name__ == '__main__':
     ssfr_range_lim = 0.25 # limit of how far away in ssfr dex we can look (excludes quenched galaxies)
     pos_range = 1000. # kpc/h
     mlim = np.log10(5.8e8) # lower limit of M*
-    ngals_each = 5
+    ngals_each = 4 # 5 for m100n1024 and m50n512, otherwise see ignore_gals
     
     # set to True if we want to have the isolation criteria
-    do_isolation = True
+    do_isolation = False
     # set to True if we want to check for halos in other wind boxes
-    do_halo_check = False
-    if do_halo_check: wind_options = ['s50nojet', 's50nox', 's50noagn']
+    do_halo_check = True
+    if do_halo_check: wind_options = ['s50nojet', 's50nox']
 
     if not os.path.exists(sample_dir):
     	os.makedirs(sample_dir)
@@ -155,7 +155,6 @@ if __name__ == '__main__':
         objs = []
         prog_index = []
         match_file = './m50n512/match_halos_'+snap+'.hdf5'
-        E
         r200_file = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/m50n512/m50n512_'+snap+'_r200_info.h5'
         print('Loading other wind snaps for halo check')
         for w in wind_options:
@@ -219,7 +218,7 @@ if __name__ == '__main__':
                     stop = True
                     continue
 
-            if len(indices) < 1.:
+            if len(indices) < ngals_each:
                 print ('No galaxies selected')
                 continue
 

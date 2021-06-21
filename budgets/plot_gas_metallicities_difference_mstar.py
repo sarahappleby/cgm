@@ -7,6 +7,7 @@ import sys
 import caesar
 import numpy as np 
 from plotting_methods import *
+from get_mhalo_mstar import get_mhalo_axis_values
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=17)
@@ -42,6 +43,8 @@ colours = np.delete(colours, [3, 4, 5, ])
 colours = np.roll(colours, 1)[::-1]
 
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
+
+mhalo_axis, mstar_axis = get_mhalo_axis_values(min_mhalo=11., max_mhalo=14., model=model, wind='s50')
 
 fig, ax = plt.subplots(1, 4, figsize=(15, 5.5), sharey='row')
 ax = ax.flatten()
@@ -98,6 +101,14 @@ for w, wind in enumerate(winds):
             ax[i].set_ylim(-2.1, .7)
             ax[i].set_xlabel(r'$\textrm{log} (M_{\star} / \textrm{M}_{\odot})$')
 
+for w in range(len(wind_labels)):
+    new_ax = ax[w].twiny()
+    new_ax.set_xlim(ax[w].get_xlim())
+    new_ax.set_xticks(mstar_axis)
+    new_ax.set_xticklabels(mhalo_axis.astype('int'))
+    new_ax.set_xlabel(r'$\textrm{log} (M_{\rm halo} / \textrm{M}_{\odot})$')
+
+
 x = [0.21, 0.28, 0.21, 0.81]
 ax[0].annotate(plot_phases_labels[0], xy=(x[0], 0.92), xycoords='axes fraction',size=15,
         bbox=dict(boxstyle='round', fc='white'))
@@ -110,7 +121,7 @@ ax[3].annotate(plot_phases_labels[3], xy=(x[3], 0.92), xycoords='axes fraction',
 
 ax[0].set_ylabel(r'$\Delta {\rm log} Z$')
 fig.subplots_adjust(wspace=0.)
-plt.savefig(savedir+model+'_'+snap+'_metallcities_difference.png', bbox_inches = 'tight',
+plt.savefig(savedir+model+'_'+snap+'_metallcities_difference_axis.png', bbox_inches = 'tight',
             metadata={'creator': 'plot_gas_metallicities_difference.py'})
 plt.clf()
 

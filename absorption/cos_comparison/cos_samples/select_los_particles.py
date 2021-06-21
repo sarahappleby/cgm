@@ -20,14 +20,12 @@ survey = sys.argv[4]
 mlim = np.log10(5.8e8)
 ngals_each = 5
 
-# new: for the m50n512 samples, ignore certain COS-Halos galaxies for which there are insufficient Simba analogs.
-# Also, for certain COS-Dwarf galaxies in the m25n512 sample.
-if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
-    ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
-    if sample_gal in ignore_simba_gals:
-        print('Ignoring certain m50n512 COS-Halos galaxies')
-        import sys
-        sys.exit()
+# Ignore certain COS-Halos galaxies for which there are insufficient Simba analogs.
+ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
+if sample_gal in ignore_simba_gals:
+    print('Ignoring certain COS galaxies')
+    import sys
+    sys.exit()
 
 if survey == 'dwarfs':
     from get_cos_info import get_cos_dwarfs
@@ -40,7 +38,7 @@ elif survey == 'halos':
 
 data_dir = '/home/rad/data/'+model+'/'+wind+'/'
 
-sim = caesar.quick_load(data_dir+'Groups/'+model+'_'+snap+'.hdf5')
+sim = caesar.load(data_dir+'Groups/'+model+'_'+snap+'.hdf5')
 gal_pos = np.array([i.pos.in_units('kpc/h') for i in sim.galaxies]) # in kpc/h
 h = sim.simulation.hubble_constant
 redshift = sim.simulation.redshift
