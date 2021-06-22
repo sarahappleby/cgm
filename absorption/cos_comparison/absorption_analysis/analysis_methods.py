@@ -78,7 +78,7 @@ def get_bin_edges(x, nbins):
     edges = np.zeros(nbins + 1)
     for i in range(nbins):
         edges[i] = np.nanpercentile(x, i*dx_bin)
-    edges[-1] = np.max(x)
+    edges[-1] = np.nanmax(x)
     return edges
 
 def get_bin_middle(xbins):

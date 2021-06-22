@@ -89,8 +89,8 @@ def isolation_check(gal_pos, pos_range, gal_cent, indices):
 
 if __name__ == '__main__':
 
-    model = 'm50n512'
-    wind = 's50j7k'
+    model = 'm25n256'
+    wind = 's50'
     survey = sys.argv[1]
 
     sample_dir = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/'+model+'/cos_'+survey+'/samples/'
@@ -100,12 +100,14 @@ if __name__ == '__main__':
     ssfr_range_lim = 0.25 # limit of how far away in ssfr dex we can look (excludes quenched galaxies)
     pos_range = 1000. # kpc/h
     mlim = np.log10(5.8e8) # lower limit of M*
-    ngals_each = 4 # 5 for m100n1024 and m50n512, otherwise see ignore_gals
-    
+    ngals_each = 3 # 5 for m100n1024 and m50n512, otherwise see ignore_gals
+
+    # set to True if we want only star forming galaxies
+    do_only_sf = True
     # set to True if we want to have the isolation criteria
     do_isolation = False
     # set to True if we want to check for halos in other wind boxes
-    do_halo_check = True
+    do_halo_check = False
     if do_halo_check: wind_options = ['s50nojet', 's50nox']
 
     if not os.path.exists(sample_dir):
@@ -189,6 +191,10 @@ if __name__ == '__main__':
                 mass_mask = (gal_sm >= (cos_M[cos_id] - mass_range_init)) & (gal_sm <= (cos_M[cos_id] + mass_range_init)) & (gal_sm > mlim)
                 # if cos galaxy is near quenching, we want to match it to galaxies with low sSFR
                 if cos_ssfr[cos_id] <= quench:
+                    if do_only_sf:
+                        print('Excluding galaxies below star forming threshold')
+                        stop = True
+                        continue
                     ssfr_mask = (gal_ssfr <= (cos_ssfr[cos_id] + ssfr_range_init))
                 else:
                     ssfr_mask = (gal_ssfr >= (cos_ssfr[cos_id] - ssfr_range_init)) & (gal_ssfr <= (cos_ssfr[cos_id] + ssfr_range_init))

@@ -52,13 +52,10 @@ if __name__ == '__main__':
 
     quench = quench_thresh(z)
     
-    # ignore the galaxies that dont have counterparts in the m50n512 boxes
-    if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
-        ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
-        ignore_cos_gals, ngals_each = get_ignore_cos_gals(model, survey)
-        ignore_los = get_ignore_los(ignore_simba_gals)
-    else:
-        ignore_simba_gals = []; ignore_cos_gals = []; ignore_los = []
+    # ignore the galaxies that dont have counterparts in Simba
+    ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
+    ignore_cos_gals, ngals_each = get_ignore_cos_gals(model, survey)
+    ignore_los = get_ignore_los(ignore_simba_gals)
 
     if survey == 'halos':
         cos_dict_orig, cos_mmask = make_cos_dict('halos', mlim, r200_scaled)

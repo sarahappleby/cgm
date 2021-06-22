@@ -51,13 +51,10 @@ if __name__ == '__main__':
 
     quench = quench_thresh(z)
 
-    # ignore the galaxies that dont have counterparts in the m50n512 boxes
-    if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
-        ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
-        ignore_cos_gals, ngals_each = get_ignore_cos_gals(model, survey)
-        ignore_los = get_ignore_los(ignore_simba_gals)
-    else:
-        ignore_simba_gals = []; ignore_cos_gals = []; ignore_los = []
+    # ignore the galaxies that dont have counterparts in Simba
+    ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
+    ignore_cos_gals, ngals_each = get_ignore_cos_gals(model, survey)
+    ignore_los = get_ignore_los(ignore_simba_gals)
 
     if survey == 'halos':
         cos_dict_orig, cos_mmask = make_cos_dict('halos', mlim, r200_scaled)
@@ -168,16 +165,16 @@ if __name__ == '__main__':
         sim_plot_dict['path_abs_'+line+'_q'], sim_plot_dict['path_abs_'+line+'_cv_std_q'] = \
                 sim_binned_path_abs(sim_dict, ~mask, sim_plot_dict['dist_bins_q'], line, boxsize)
 
-        #if line in cos_lines:
-        #    cos_plot_dict['path_abs_'+line+'_sf'], cos_plot_dict['path_abs_'+line+'_std_sf'] = \
-        #            cos_binned_path_abs(cos_dict, (cos_dict['ssfr'] > quench), cos_plot_dict['dist_bins_sf'], sim_det_thresh[i])
-        #    cos_plot_dict['path_abs_'+line+'_q'], cos_plot_dict['path_abs_'+line+'_std_q'] = \
-        #            cos_binned_path_abs(cos_dict, (cos_dict['ssfr'] < quench), cos_plot_dict['dist_bins_q'], sim_det_thresh[i])
-        #
-        #    cos_plot_dict['path_abs_'+line+'_sf'][cos_plot_dict['path_abs_'+line+'_sf'] == 0.] = 10**1.6
-        #    cos_plot_dict['path_abs_'+line+'_q'][cos_plot_dict['path_abs_'+line+'_q'] == 0.] = 10**1.6
+        if line in cos_lines:
+            cos_plot_dict['path_abs_'+line+'_sf'], cos_plot_dict['path_abs_'+line+'_std_sf'] = \
+                    cos_binned_path_abs_thresh(cos_dict, (cos_dict['ssfr'] > quench), cos_plot_dict['dist_bins_sf'], sim_det_thresh[i])
+            cos_plot_dict['path_abs_'+line+'_q'], cos_plot_dict['path_abs_'+line+'_std_q'] = \
+                    cos_binned_path_abs_thresh(cos_dict, (cos_dict['ssfr'] < quench), cos_plot_dict['dist_bins_q'], sim_det_thresh[i])
+        
+            cos_plot_dict['path_abs_'+line+'_sf'][cos_plot_dict['path_abs_'+line+'_sf'] == 0.] = 10**1.6
+            cos_plot_dict['path_abs_'+line+'_q'][cos_plot_dict['path_abs_'+line+'_q'] == 0.] = 10**1.6
 
-    #if not os.path.isfile(cos_file):
-    #    write_dict_to_h5(cos_plot_dict, cos_file)
+    if not os.path.isfile(cos_file):
+        write_dict_to_h5(cos_plot_dict, cos_file)
     if not os.path.isfile(sim_file):
         write_dict_to_h5(sim_plot_dict, sim_file)

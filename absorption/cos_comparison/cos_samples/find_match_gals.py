@@ -17,8 +17,8 @@ if __name__ == '__main__':
 
     model = 'm50n512'
     wind1 = 's50j7k'
-    wind_options = ['s50nox', 's50nojet', 's50nofb']
-    snap = '151'
+    wind_options = ['s50nojet', 's50nofb']
+    snap = '137'
     survey = 'halos'
 
     # ignore these as the main s50 sample has insufficient galaxies

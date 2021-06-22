@@ -21,8 +21,14 @@ ignore_gals_dict = {'m100n1024_halos': {'ignore_cos_gals':np.array([33, 40, 18])
                                         'ngals_each' : 4},
                     'm50n512_dwarfs': {'ignore_cos_gals':np.array([37]),
                                         'ngals_each' : 4},
-                    'm25n512_dwarfs': {'ignore_cos_gals':np.array([1, 8, 9, 20, 37]),
-                                        'ngals_each':4}}
+                    'm25n512_halos': {'ignore_cos_gals':np.array([0, 2, 3, 4, 5, 6, 10, 12, 13, 14, 15, 17, 18, 20, 22, 23, 25, 27, 29, 30, 31, 32, 33, 34, 35, 37, 38, 39, 40, 41, 42]),
+                                        'ngals_each':3},
+                    'm25n512_dwarfs': {'ignore_cos_gals':np.array([8, 14, 15, 20, 32, 33, 34, 35, 36, 37, 38]),
+                                        'ngals_each':3},
+                    'm25n256_halos': {'ignore_cos_gals':np.array([2, 4, 5, 8, 10, 13, 14, 15, 17, 18, 23, 24, 25, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43]),
+                                        'ngals_each':3},
+                    'm25n256_dwarfs': {'ignore_cos_gals':np.array([4, 14, 15, 19, 24, 30, 32, 33, 34, 35, 36, 37, 38]),
+                                        'ngals_each':3}}
 
 def get_ignore_cos_gals(model, survey):
     if model+'_'+survey in list(ignore_gals_dict.keys()):

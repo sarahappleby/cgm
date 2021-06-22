@@ -1,7 +1,7 @@
 import h5py
 import numpy as np
 import sys
-sys.path.append('/home/sapple/cgm/cos_samples/')
+sys.path.append('/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/')
 from ignore_gals import *
 
 from physics import vel_to_wave, equivalent_width
@@ -34,11 +34,8 @@ if __name__ == '__main__':
         gal_ids = f['gal_ids'][:]
         vgal_position = f['vgal_position'][:][:, 2]
 
-    # ignore the galaxies that dont have counterparts in the m50n512 boxes
-    if ((model == 'm50n512') & (cos_survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
-        ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, cos_survey)
-    else:
-        ignore_simba_gals = []
+    # ignore the galaxies that dont have Simba counterparts
+    ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, cos_survey)
 
     for ion in ions:
         
