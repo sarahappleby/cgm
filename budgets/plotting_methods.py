@@ -54,7 +54,7 @@ def get_phase_stats(sm, pos, mass_budget, mask, phases, mass_bins, boxsize, logr
     stat_dict = {phase: {} for phase in phases}
 
     binned_pos = bin_data(sm[mask], pos[mask], 10.**mass_bins, find_higher=True)
-    stat_dict['ngals'] = [len(j) for j in binned_pos]
+    stat_dict['ngals'] = np.array([len(j) for j in binned_pos])
 
     for phase in phases:
         binned_data = bin_data(sm[mask], mass_budget[phase][mask], 10.**mass_bins, find_higher=True)
@@ -96,7 +96,10 @@ def read_phase_stats(stats_file, phases, stats):
                 for stat in stats:
                     stats_dict[cut][phase][stat] = sf[cut][phase][stat][:]
 
-        stats_dict['smass_bins'] = sf['smass_bins'][:]
+        if 'smass_bins' in sf.keys():
+            stats_dict['smass_bins'] = sf['smass_bins'][:]
+        if 'mhalo_bins' in sf.keys():
+            stats_dict['mhalo_bins'] = sf['mhalo_bins'][:]
     return stats_dict
 
 def write_phase_stats(stats_file, stats_dict, phases, stats, ):
@@ -108,7 +111,10 @@ def write_phase_stats(stats_file, stats_dict, phases, stats, ):
                 phase_grp = cut_grp.create_group(phase)
                 for stat in stats:
                     phase_grp.create_dataset(stat, data=np.array(stats_dict[cut][phase][stat]))
-        hf.create_dataset('smass_bins', data=np.array(stats_dict['smass_bins']))
+        if 'smass_bins' in stats_dict.keys():
+            hf.create_dataset('smass_bins', data=np.array(stats_dict['smass_bins']))
+        if 'mhalo_bins' in stats_dict.keys():
+            hf.create_dataset('mhalo_bins', data=np.array(stats_dict['mhalo_bins']))
     return
 
 def variance_jk(samples, mean):
