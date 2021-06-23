@@ -122,6 +122,4 @@ ax[3].annotate(plot_phases_labels[3], xy=(x[3], 0.92), xycoords='axes fraction',
 ax[0].set_ylabel(r'$\Delta {\rm log} Z$')
 fig.subplots_adjust(wspace=0.)
 plt.savefig(savedir+model+'_'+snap+'_metallcities_difference_axis.png', bbox_inches = 'tight',
-            metadata={'creator': 'plot_gas_metallicities_difference.py'})
 plt.clf()
-

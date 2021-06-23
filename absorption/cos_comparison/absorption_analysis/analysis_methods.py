@@ -10,6 +10,10 @@ def get_tol_colors():
     cos_colors = ['#2F10CC', '#B51F9C']
     return sim_colors, cos_colors
 
+def get_resolution_colors():
+    # derived from the light blue in the tol color palette (see above)
+    return ['#B8DDEF', '#70BBE0', '#4A98BF', '#23759E']
+
 def write_dict_to_h5(data_dict, h5_file):
     with h5py.File(h5_file, 'a') as f:
         for k in data_dict.keys():
