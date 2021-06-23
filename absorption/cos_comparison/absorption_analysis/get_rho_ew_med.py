@@ -21,7 +21,7 @@ if __name__ == '__main__':
     ngals_each = 5
     mlim = np.log10(5.8e8) # lower limit of M*
     r200_scaled = True
-    background = 'uvb_fg20'
+    background = 'uvb_hm12_x2'
 
     if model == 'm100n1024':
         boxsize = 100000.
@@ -83,10 +83,9 @@ if __name__ == '__main__':
             cos_dict = cos_dict_orig.copy()
             mass_mask = cos_mmask.copy()
 
-            if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
-                mass_mask = np.delete(mass_mask, ignore_cos_gals)
-                for k in cos_dict.keys():
-                    cos_dict[k] = np.delete(cos_dict[k], ignore_cos_gals)
+            mass_mask = np.delete(mass_mask, ignore_cos_gals)
+            for k in cos_dict.keys():
+                cos_dict[k] = np.delete(cos_dict[k], ignore_cos_gals)
 
             # removing COS-Dwarfs galaxy 3 for the Lya stuff
             if (survey == 'dwarfs') & (line == 'H1215'):
@@ -109,9 +108,8 @@ if __name__ == '__main__':
                 cos_dict['EW'], cos_dict['EWerr'] = read_halos_data(line)
                 cos_dict['EW'] = np.abs(cos_dict['EW'])
 
-            if ((model == 'm50n512') & (survey == 'halos')) or ((model == 'm25n512') & (survey == 'dwarfs')):
-                cos_dict['EW'] = np.delete(cos_dict['EW'], ignore_cos_gals)
-                cos_dict['EWerr'] = np.delete(cos_dict['EWerr'], ignore_cos_gals)
+            cos_dict['EW'] = np.delete(cos_dict['EW'], ignore_cos_gals)
+            cos_dict['EWerr'] = np.delete(cos_dict['EWerr'], ignore_cos_gals)
             cos_dict['EW'] = cos_dict['EW'][mass_mask]
             cos_dict['EWerr'] = cos_dict['EWerr'][mass_mask]
 
@@ -139,9 +137,8 @@ if __name__ == '__main__':
         else:
             sim_dict['dist'] = sim_dict['rho'].copy()
 
-        if ((model == 'm50n512') & (survey == 'halos')) or (model == 'm25n512') or (model == 'm25n256'):
-            for k in sim_dict.keys():
-                sim_dict[k] = np.delete(sim_dict[k], ignore_los, axis=0)
+        for k in sim_dict.keys():
+            sim_dict[k] = np.delete(sim_dict[k], ignore_los, axis=0)
 
         if model in ['m100n1024', 'm50n512']:
             sim_plot_dict = get_equal_bins(model, survey, r200_scaled)
