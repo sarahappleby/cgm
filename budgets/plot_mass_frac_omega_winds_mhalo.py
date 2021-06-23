@@ -87,7 +87,7 @@ for w, wind in enumerate(winds):
 
     ax[w].set_xlim(min_mass, max_mass)
     ax[w].set_ylim(0, 1)
-    ax[w].set_xlabel(r'$\textrm{log} (M_{halo} / \textrm{M}_{\odot})$')
+    ax[w].set_xlabel(r'$\textrm{log} (M_{\rm halo} / \textrm{M}_{\odot})$')
 
 x = [0.72, 0.64, 0.72, 0.53]
 for i in range(4):

@@ -1,5 +1,7 @@
 # Plot the galaxy sample with rho/r200 as the colorbar
 
+# To do: add in ignore_gals
+
 import numpy as np
 from astropy.io import ascii
 import h5py
@@ -7,7 +9,7 @@ import sys
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from pyigm.cgm import cos_halos as pch
-
+from ignore_gals import get_ignore_cos_mask, get_ignore_simba_gals, make_ignore_mask
 from get_cos_info import *
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
@@ -43,37 +45,58 @@ ngals_each = 5
 model = sys.argv[1]
 wind = sys.argv[2]
 
+ignore_simba_halo_gals, ngals_each = get_ignore_simba_gals(model, 'halos')
+ignore_simba_halo_mask = make_ignore_mask(ngals_each*44, ignore_simba_halo_gals)
+ignore_simba_dwarfs_gals, ngals_each = get_ignore_simba_gals(model, 'dwarfs')
+ignore_simba_dwarfs_mask = make_ignore_mask(ngals_each*39, ignore_simba_dwarfs_gals)
+ignore_halo_mask = get_ignore_cos_mask(model, 'halos')
+ignore_dwarfs_mask = get_ignore_cos_mask(model, 'dwarfs')
+
 cos_halos_rho, cos_halos_mass, cos_halos_r200, cos_halos_ssfr = get_cos_halos()
 cos_dwarfs_rho, cos_dwarfs_mass, cos_dwarfs_r200, cos_dwarfs_ssfr, cos_dwarfs_less_than = get_cos_dwarfs(return_less_than=True)
+
 cos_dwarfs_ssfr = cos_dwarfs_ssfr[cos_dwarfs_mass > mlim]
 cos_dwarfs_rho = cos_dwarfs_rho[cos_dwarfs_mass > mlim]
 cos_dwarfs_r200 = cos_dwarfs_r200[cos_dwarfs_mass > mlim]
 cos_dwarfs_less_than = cos_dwarfs_less_than[cos_dwarfs_mass > mlim]
 cos_dwarfs_mass = cos_dwarfs_mass[cos_dwarfs_mass > mlim]
-cos_halos_ssfr[cos_halos_ssfr < -11.5] = -11.5
+
+cos_dwarfs_ssfr = cos_dwarfs_ssfr[ignore_dwarfs_mask]
+cos_dwarfs_rho = cos_dwarfs_rho[ignore_dwarfs_mask]
+cos_dwarfs_r200 = cos_dwarfs_r200[ignore_dwarfs_mask]
+cos_dwarfs_less_than = cos_dwarfs_less_than[ignore_dwarfs_mask]
+cos_dwarfs_mass = cos_dwarfs_mass[ignore_dwarfs_mask]
+
+cos_halos_rho = cos_halos_rho[ignore_halo_mask]
+cos_halos_mass = cos_halos_mass[ignore_halo_mask]
+cos_halos_r200 = cos_halos_r200[ignore_halo_mask]
+cos_halos_ssfr = cos_halos_ssfr[ignore_halo_mask]
+
 cos_dwarfs_ssfr[cos_dwarfs_ssfr < -11.5] = -11.5
-cos_halos_dist = cos_halos_rho / cos_halos_r200
 cos_dwarfs_dist = cos_dwarfs_rho / cos_dwarfs_r200
+
+cos_halos_ssfr[cos_halos_ssfr < -11.5] = -11.5
+cos_halos_dist = cos_halos_rho / cos_halos_r200
 
 basic_dir = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/'+model+'/'
 
 halos_sample_file = basic_dir + 'cos_halos/samples/'+model+'_'+wind+'_cos_halos_sample.h5'
 with h5py.File(halos_sample_file, 'r') as f:
-    halos_mass = f['mass'][:]
-    halos_ssfr = f['ssfr'][:]
-    halos_r200 = f['halo_r200'][:]
-    halos_ids = np.array(f['gal_ids'][:], dtype=int)
-    halos_gas_frac = np.log10(f['gas_frac'][:] + 1.e-3)
+    halos_mass = f['mass'][:][ignore_simba_halo_mask]
+    halos_ssfr = f['ssfr'][:][ignore_simba_halo_mask]
+    halos_r200 = f['halo_r200'][:][ignore_simba_halo_mask]
+    halos_ids = np.array(f['gal_ids'][:], dtype=int)[ignore_simba_halo_mask]
+    halos_gas_frac = np.log10(f['gas_frac'][:] + 1.e-3)[ignore_simba_halo_mask]
 halos_rho = np.repeat(cos_halos_rho, ngals_each)
 halos_dist = halos_rho / halos_r200
 
 dwarfs_sample_file = basic_dir + 'cos_dwarfs/samples/'+model+'_'+wind+'_cos_dwarfs_sample.h5'
 with h5py.File(dwarfs_sample_file, 'r') as f:
-    dwarfs_mass = f['mass'][:]
-    dwarfs_ssfr = f['ssfr'][:]
-    dwarfs_r200 = f['halo_r200'][:]
-    dwarfs_ids = np.array(f['gal_ids'][:], dtype=int)
-    dwarfs_gas_frac = np.log10(f['gas_frac'][:] + 1.e-3)
+    dwarfs_mass = f['mass'][:][ignore_simba_dwarfs_mask]
+    dwarfs_ssfr = f['ssfr'][:][ignore_simba_dwarfs_mask]
+    dwarfs_r200 = f['halo_r200'][:][ignore_simba_dwarfs_mask]
+    dwarfs_ids = np.array(f['gal_ids'][:], dtype=int)[ignore_simba_dwarfs_mask]
+    dwarfs_gas_frac = np.log10(f['gas_frac'][:] + 1.e-3)[ignore_simba_dwarfs_mask]
 dwarfs_rho = np.repeat(cos_dwarfs_rho, ngals_each)
 dwarfs_dist = dwarfs_rho / dwarfs_r200
 
