@@ -14,6 +14,11 @@ def get_resolution_colors():
     # derived from the light blue in the tol color palette (see above)
     return ['#B8DDEF', '#70BBE0', '#4A98BF', '#23759E']
 
+def get_equal_colormap_colors(n, cmap):
+    dc = 0.8 / (n -1)
+    locs = np.arange(0.1, 0.9+dc, dc)
+    return [cmap(loc) for loc in locs]
+
 def write_dict_to_h5(data_dict, h5_file):
     with h5py.File(h5_file, 'a') as f:
         for k in data_dict.keys():
@@ -70,6 +75,24 @@ def get_equal_bins(model, survey, r200_scaled=False):
     plot_dict['dist_bins_sf'] = np.arange(0., r_end+dr, dr)
     plot_dict['plot_bins_q'] = plot_dict['dist_bins_q'][:-1] + 0.5*dr
     plot_dict['plot_bins_sf'] = plot_dict['dist_bins_sf'][:-1] + 0.5*dr
+
+    return plot_dict
+
+def get_equal_bins_mass(survey, r200_scaled=False):
+
+    if r200_scaled:
+        if survey == 'halos':
+            r_end = 1.
+        elif survey == 'dwarfs':
+            r_end = 1.5
+        dr = 0.5
+    else:
+        r_end = 200.
+        dr = 40.
+
+    plot_dict = {}
+    plot_dict['dist_bins'] = np.arange(0., r_end+dr, dr)
+    plot_dict['plot_bins'] = plot_dict['dist_bins'][:-1] + 0.5*dr
 
     return plot_dict
 

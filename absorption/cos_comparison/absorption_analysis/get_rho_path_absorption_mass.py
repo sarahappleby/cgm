@@ -42,12 +42,16 @@ if __name__ == '__main__':
         nbins_q = 2
         nbins_sf = 3
         cos_lines = cos_halos_lines
+        mass_bins = [10., 10.5, 11.0]
+        mass_bin_labels = ['10.0-10.5', '10.5-11.0', '>11.0']
     elif survey == 'dwarfs':
         z = 0.
         snap = '151'
         nbins_q = 1
         nbins_sf = 3
         cos_lines = cos_dwarfs_lines
+        mass_bins = [9.0, 9.5, 10., 10.5]
+        mass_bin_labels = ['9.0-9.5', '9.5-10.0', '10.0-10.5']
 
     quench = quench_thresh(z)
 
@@ -65,46 +69,33 @@ if __name__ == '__main__':
     basic_dir = '/disk01/sapple/cgm/absorption/cos_comparison/absorption_analysis/'
     if r200_scaled:
         cos_dict_orig['dist'] = cos_dict_orig['rho'] / cos_dict_orig['r200']
-        cos_file = basic_dir+'data/cos_'+survey+'_obs_path_abs_data_scaled.h5'
-        sim_file = basic_dir+'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_data_scaled.h5'
+        cos_file = basic_dir+'data/cos_'+survey+'_obs_path_abs_data_mass_scaled.h5'
+        sim_file = basic_dir+'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_data_mass_scaled.h5'
     else:
         cos_dict_orig['dist'] = cos_dict_orig['rho'].copy()
-        cos_file = basic_dir+'data/cos_'+survey+'_obs_path_abs_data.h5'
-        sim_file = basic_dir+'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_data.h5'
+        cos_file = basic_dir+'data/cos_'+survey+'_obs_path_abs_mass_data.h5'
+        sim_file = basic_dir+'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_mass_data.h5'
 
     # get the bins for the COS data - these nbins ensure there are roughly ~8 galaxies in each bin
-    cos_plot_dict = {}
-    mask = (cos_dict_orig['ssfr'] > quench)
-    cos_plot_dict['dist_bins_sf'], cos_plot_dict['plot_bins_sf'] = do_bins(cos_dict_orig['dist'][mask], nbins_sf)
-    cos_plot_dict['dist_bins_q'], cos_plot_dict['plot_bins_q'] = do_bins(cos_dict_orig['dist'][~mask], nbins_q)
-    cos_plot_dict['xerr_sf'] = get_xerr_from_bins(cos_plot_dict['dist_bins_sf'], cos_plot_dict['plot_bins_sf'])
-    cos_plot_dict['xerr_q'] = get_xerr_from_bins(cos_plot_dict['dist_bins_q'], cos_plot_dict['plot_bins_q'])
+    cos_plot_dict = get_equal_bins_mass(survey, r200_scaled=r200_scaled)
+    cos_plot_dict['xerr'] = get_xerr_from_bins(cos_plot_dict['dist_bins'], cos_plot_dict['plot_bins'])
 
     # create the dicts to hold the simulation sample data
-    sim_dict = read_simulation_sample(model, wind, snap, survey, background, norients, sim_lines, r200_scaled)
-    sim_dict['rho'] = np.repeat(cos_dict_orig['rho'], norients*ngals_each)    
+    sim_dict_orig = read_simulation_sample(model, wind, snap, survey, background, norients, sim_lines, r200_scaled)
+    sim_dict_orig['rho'] = np.repeat(cos_dict_orig['rho'], norients*ngals_each)    
     
     # rescaled the x axis by r200
     if r200_scaled:
-        sim_dict['dist'] = sim_dict['rho'] / sim_dict['r200']
+        sim_dict_orig['dist'] = sim_dict_orig['rho'] / sim_dict_orig['r200']
     else:
-        sim_dict['dist'] = sim_dict['rho'].copy()
+        sim_dict_orig['dist'] = sim_dict_orig['rho'].copy()
 
-    if model in ['m100n1024', 'm50n512']:
-        sim_plot_dict = get_equal_bins(model, survey, r200_scaled)
-    elif model in ['m25n512', 'm25n256']:
-        mask = (sim_dict['ssfr'] > quench)
-        sim_plot_dict = {}
-        sim_nbins_sf = 5
-        sim_nbins_q = 4
-        trimmed_dist = np.delete(sim_dict['dist'], ignore_los, axis=0)
-        mask = np.delete(mask, ignore_los, axis=0)
-        sim_plot_dict['dist_bins_sf'], sim_plot_dict['plot_bins_sf'] = do_bins(trimmed_dist[mask], sim_nbins_sf)
-        sim_plot_dict['dist_bins_q'], sim_plot_dict['plot_bins_q'] = do_bins(trimmed_dist[~mask], sim_nbins_q)
+    sim_plot_dict = get_equal_bins_mass(survey, r200_scaled=r200_scaled)
 
     for i, line in enumerate(sim_lines):
         
         if line in cos_lines:
+            sim_dict = sim_dict_orig.copy()
             cos_dict = cos_dict_orig.copy()
             mass_mask = cos_mmask.copy()
 
@@ -141,6 +132,9 @@ if __name__ == '__main__':
                 for k in cos_dict.keys():
                     cos_dict[k] = cos_dict[k][ew_mask]
 
+        for k in sim_dict.keys():
+            sim_dict[k] = np.delete(sim_dict[k], ignore_los, axis=0)
+
         if (survey == 'dwarfs') & (line == 'H1215'):
             for k in sim_dict.keys():
                     sim_dict[k] = np.delete(sim_dict[k], np.arange(3*norients*ngals_each, 4*norients*ngals_each), axis=0)
@@ -149,26 +143,31 @@ if __name__ == '__main__':
         if line in cos_lines:
             cos_dict['path_length'] = np.repeat(sim_dict['path_length_'+line][0], len(cos_dict['EW']))
 
-        for k in sim_dict.keys():
-            sim_dict[k] = np.delete(sim_dict[k], ignore_los, axis=0)
+        for m, mass_label in enumerate(mass_bin_labels):
+            if m != len(mass_bins) -1:
+                mass_mask = (sim_dict['mass'] > mass_bins[m]) & (sim_dict['mass'] < mass_bins[m+1])
+            else:
+                mass_mask = sim_dict['mass'] > mass_bins[m]
 
-        # get binned medians for the simulation sample
-        mask = (sim_dict['ssfr'] > quench)
-        sim_plot_dict['ngals_'+line+'_sf'] = get_ngals(sim_dict['dist'][mask], sim_plot_dict['dist_bins_sf'])
-        sim_plot_dict['path_abs_'+line+'_sf'], sim_plot_dict['path_abs_'+line+'_cv_std_sf'] = \
-                sim_binned_path_abs(sim_dict, mask, sim_plot_dict['dist_bins_sf'], line, boxsize)
-        sim_plot_dict['ngals_'+line+'_q'] = get_ngals(sim_dict['dist'][~mask], sim_plot_dict['dist_bins_q'])
-        sim_plot_dict['path_abs_'+line+'_q'], sim_plot_dict['path_abs_'+line+'_cv_std_q'] = \
-                sim_binned_path_abs(sim_dict, ~mask, sim_plot_dict['dist_bins_q'], line, boxsize)
+            # get binned medians for the simulation sample
+            sim_plot_dict[f'ngals_{line}_{mass_label}'] = get_ngals(sim_dict['dist'][mass_mask], sim_plot_dict['dist_bins'])
+            sim_plot_dict[f'path_abs_{line}_{mass_label}'], sim_plot_dict[f'path_abs_{line}_cv_std_{mass_label}'] = \
+                    sim_binned_path_abs(sim_dict, mass_mask, sim_plot_dict['dist_bins'], line, boxsize)
 
         if line in cos_lines:
-            cos_plot_dict['path_abs_'+line+'_sf'], cos_plot_dict['path_abs_'+line+'_std_sf'] = \
-                    cos_binned_path_abs_thresh(cos_dict, (cos_dict['ssfr'] > quench), cos_plot_dict['dist_bins_sf'], sim_det_thresh[i])
-            cos_plot_dict['path_abs_'+line+'_q'], cos_plot_dict['path_abs_'+line+'_std_q'] = \
-                    cos_binned_path_abs_thresh(cos_dict, (cos_dict['ssfr'] < quench), cos_plot_dict['dist_bins_q'], sim_det_thresh[i])
+
+            for m, mass_label in enumerate(mass_bin_labels):
+
+                if m != len(mass_bins) -1:
+                    mass_mask = (cos_dict['mass'] > mass_bins[m]) & (cos_dict['mass'] < mass_bins[m+1])
+                else:
+                    mass_mask = cos_dict['mass'] > mass_bins[m]
+
+                cos_plot_dict[f'ngals_{line}_{mass_label}'] = get_ngals(cos_dict['dist'][mass_mask], cos_plot_dict['dist_bins'])
+                cos_plot_dict[f'path_abs_{line}_{mass_label}'], cos_plot_dict[f'path_abs_{line}_std_{mass_label}'] = \
+                        cos_binned_path_abs_thresh(cos_dict, mass_mask, cos_plot_dict['dist_bins'], sim_det_thresh[i], lower_lim=1.)
         
-            cos_plot_dict['path_abs_'+line+'_sf'][cos_plot_dict['path_abs_'+line+'_sf'] == 0.] = 10**1.6
-            cos_plot_dict['path_abs_'+line+'_q'][cos_plot_dict['path_abs_'+line+'_q'] == 0.] = 10**1.6
+                #cos_plot_dict[f'path_abs_{line}_{mass_label}'][cos_plot_dict[f'path_abs_{line}_{mass_label}'] == 0.] = 10**1.6
 
     if not os.path.isfile(cos_file):
         write_dict_to_h5(cos_plot_dict, cos_file)

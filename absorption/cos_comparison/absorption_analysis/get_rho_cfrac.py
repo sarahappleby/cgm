@@ -88,15 +88,14 @@ if __name__ == '__main__':
             cos_dict = cos_dict_orig.copy()
             mass_mask = cos_mmask.copy()
 
-            mass_mask = np.delete(mass_mask, ignore_cos_gals)
-            for k in cos_dict.keys():
-                cos_dict[k] = np.delete(cos_dict[k], ignore_cos_gals)
-
             # removing COS-Dwarfs galaxy 3 for the Lya stuff
             if (survey == 'dwarfs') & (line == 'H1215'):
                 mass_mask = np.delete(mass_mask, 3)
                 for k in cos_dict.keys():
                     cos_dict[k] = np.delete(cos_dict[k], 3)
+
+            for k in cos_dict.keys():
+                cos_dict[k] = np.delete(cos_dict[k], ignore_cos_gals)
 
             # read in COS observations, set units, remove dwarfs galaxy 3 for Lya, do mass mask
             if (survey == 'dwarfs') & (line == 'CIV1548'):
@@ -113,10 +112,10 @@ if __name__ == '__main__':
                 cos_dict['EW'], cos_dict['EWerr'] = read_halos_data(line)
                 cos_dict['EW'] = np.abs(cos_dict['EW'])
 
-            cos_dict['EW'] = np.delete(cos_dict['EW'], ignore_cos_gals)
-            cos_dict['EWerr'] = np.delete(cos_dict['EWerr'], ignore_cos_gals)
             cos_dict['EW'] = cos_dict['EW'][mass_mask]
             cos_dict['EWerr'] = cos_dict['EWerr'][mass_mask]
+            cos_dict['EW'] = np.delete(cos_dict['EW'], ignore_cos_gals)
+            cos_dict['EWerr'] = np.delete(cos_dict['EWerr'], ignore_cos_gals)
 
             if survey == 'halos':
                 ew_mask = cos_dict['EW'] > 0.

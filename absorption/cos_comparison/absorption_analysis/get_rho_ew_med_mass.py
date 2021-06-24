@@ -21,7 +21,7 @@ if __name__ == '__main__':
     ngals_each = 5
     mlim = np.log10(5.8e8) # lower limit of M*
     r200_scaled = True
-    background = 'uvb_hm12_x2'
+    background = 'uvb_fg20'
 
     if model == 'm100n1024':
         boxsize = 100000.
@@ -35,15 +35,17 @@ if __name__ == '__main__':
     if survey == 'halos':
         z = 0.25
         snap = '137'
-        nbins_q = 2
-        nbins_sf = 3
+        nbins = 2
         cos_lines = cos_halos_lines
+        mass_bins = [10., 10.5, 11.0]
+        mass_bin_labels = ['10.0-10.5', '10.5-11.0', '>11.0']
     elif survey == 'dwarfs':
         z = 0.
         snap = '151'
-        nbins_q = 1
-        nbins_sf = 3
+        nbins = 3
         cos_lines = cos_dwarfs_lines
+        mass_bins = [9.0, 9.5, 10., 10.5]
+        mass_bin_labels = ['9.0-9.5', '9.5-10.0', '10.0-10.5']
 
     quench = quench_thresh(z)
 
@@ -61,31 +63,26 @@ if __name__ == '__main__':
     # rescaled the x axis by r200
     if r200_scaled:
         cos_dict_orig['dist'] = cos_dict_orig['rho'] / cos_dict_orig['r200']
-        cos_file = basic_dir+'data/cos_'+survey+'_obs_ew_med_data_scaled.h5'
-        sim_file = basic_dir+'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_ew_med_data_scaled.h5'
+        cos_file = basic_dir+'data/cos_'+survey+'_obs_ew_med_data_mass_scaled.h5'
+        sim_file = basic_dir+'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_ew_med_data_mass_scaled.h5'
     else:
         cos_dict_orig['dist'] = cos_dict_orig['rho'].copy()
-        cos_file = basic_dir+'data/cos_'+survey+'_obs_ew_med_data.h5'
-        sim_file = basic_dir+'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_ew_med_data.h5'
+        cos_file = basic_dir+'data/cos_'+survey+'_obs_ew_med_data_mass.h5'
+        sim_file = basic_dir+'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_ew_med_data_mass.h5'
 
     if not os.path.isfile(cos_file):
 
-        # get the bins for the COS data - these nbins ensure there are roughly ~8 galaxies in each bin
-        cos_plot_dict = {}
-        mask = (cos_dict_orig['ssfr'] > quench)
-        cos_plot_dict['dist_bins_sf'], cos_plot_dict['plot_bins_sf'] = do_bins(cos_dict_orig['dist'][mask], nbins_sf)
-        cos_plot_dict['dist_bins_q'], cos_plot_dict['plot_bins_q'] = do_bins(cos_dict_orig['dist'][~mask], nbins_q)
-        cos_plot_dict['xerr_sf'] = get_xerr_from_bins(cos_plot_dict['dist_bins_sf'], cos_plot_dict['plot_bins_sf'])
-        cos_plot_dict['xerr_q'] = get_xerr_from_bins(cos_plot_dict['dist_bins_q'], cos_plot_dict['plot_bins_q'])
+        cos_plot_dict = get_equal_bins_mass(survey, r200_scaled=r200_scaled)
+        cos_plot_dict[f'xerr'] = get_xerr_from_bins(cos_plot_dict[f'dist_bins'], cos_plot_dict[f'plot_bins'])
 
         for i, line in enumerate(cos_lines):
 
             cos_dict = cos_dict_orig.copy()
-            mass_mask = cos_mmask.copy()
-
+            mlim_mask = cos_mmask.copy()
+            
             # removing COS-Dwarfs galaxy 3 for the Lya stuff
             if (survey == 'dwarfs') & (line == 'H1215'):
-                mass_mask = np.delete(mass_mask, 3)
+                mlim_mask = np.delete(mlim_mask, 3)
                 for k in cos_dict.keys():
                     cos_dict[k] = np.delete(cos_dict[k], 3)
 
@@ -107,8 +104,8 @@ if __name__ == '__main__':
                 cos_dict['EW'], cos_dict['EWerr'] = read_halos_data(line)
                 cos_dict['EW'] = np.abs(cos_dict['EW'])
 
-            cos_dict['EW'] = cos_dict['EW'][mass_mask]
-            cos_dict['EWerr'] = cos_dict['EWerr'][mass_mask]
+            cos_dict['EW'] = cos_dict['EW'][mlim_mask]
+            cos_dict['EWerr'] = cos_dict['EWerr'][mlim_mask]
             cos_dict['EW'] = np.delete(cos_dict['EW'], ignore_cos_gals)
             cos_dict['EWerr'] = np.delete(cos_dict['EWerr'], ignore_cos_gals)
 
@@ -117,50 +114,56 @@ if __name__ == '__main__':
                 for k in cos_dict.keys():
                     cos_dict[k] = cos_dict[k][ew_mask]
 
-            cos_plot_dict['EW_'+line+'_med_sf'], cos_plot_dict['EW_'+line+'_std_sf'], cos_plot_dict['EW_'+line+'_per25_sf'], cos_plot_dict['EW_'+line+'_per75_sf'] = \
-                    cos_binned_ew(cos_dict, (cos_dict['ssfr'] > quench), cos_plot_dict['dist_bins_sf'])
-            cos_plot_dict['EW_'+line+'_med_q'], cos_plot_dict['EW_'+line+'_std_q'], cos_plot_dict['EW_'+line+'_per25_q'], cos_plot_dict['EW_'+line+'_per75_q']  = \
-                    cos_binned_ew(cos_dict, (cos_dict['ssfr'] < quench), cos_plot_dict['dist_bins_q'])
+            for m, mass_label in enumerate(mass_bin_labels):
+
+                if m != len(mass_bins) -1:
+                    mass_mask = (cos_dict['mass'] > mass_bins[m]) & (cos_dict['mass'] < mass_bins[m+1])
+                else:
+                    mass_mask = cos_dict['mass'] > mass_bins[m]
+
+                cos_plot_dict[f'ngals_{line}_{mass_label}'] = get_ngals(cos_dict['dist'][mass_mask], cos_plot_dict[f'dist_bins'])
+                cos_plot_dict[f'EW_{line}_med_{mass_label}'], cos_plot_dict[f'EW_{line}_std_{mass_label}'], \
+                    cos_plot_dict[f'EW_{line}_per25_{mass_label}'], cos_plot_dict[f'EW_{line}_per75_{mass_label}'] = \
+                    cos_binned_ew(cos_dict, mass_mask, cos_plot_dict[f'dist_bins'])
 
         write_dict_to_h5(cos_plot_dict, cos_file)
 
     if not os.path.isfile(sim_file):
 
         # create the dicts to hold the simulation sample data
-        sim_dict = read_simulation_sample(model, wind, snap, survey, background, norients, sim_lines, r200_scaled)
-        sim_dict['rho'] = np.repeat(cos_dict_orig['rho'], norients*ngals_each)
+        sim_dict_orig = read_simulation_sample(model, wind, snap, survey, background, norients, sim_lines, r200_scaled)
+        sim_dict_orig['rho'] = np.repeat(cos_dict_orig['rho'], norients*ngals_each)
 
         # rescaled the x axis by r200
         if r200_scaled:
-            sim_dict['dist'] = sim_dict['rho'] / sim_dict['r200']
+            sim_dict_orig['dist'] = sim_dict_orig['rho'] / sim_dict_orig['r200']
         else:
-            sim_dict['dist'] = sim_dict['rho'].copy()
+            sim_dict_orig['dist'] = sim_dict_orig['rho'].copy()
 
-        for k in sim_dict.keys():
-            sim_dict[k] = np.delete(sim_dict[k], ignore_los, axis=0)
+        for k in sim_dict_orig.keys():
+            sim_dict_orig[k] = np.delete(sim_dict_orig[k], ignore_los, axis=0)
 
-        if model in ['m100n1024', 'm50n512']:
-            sim_plot_dict = get_equal_bins(model, survey, r200_scaled)
-        elif model in ['m25n512', 'm25n256']:
-            mask = (sim_dict['ssfr'] > quench)
-            sim_plot_dict = {}
-            sim_nbins_sf = 5
-            sim_nbins_q = 4
-            sim_plot_dict['dist_bins_sf'], sim_plot_dict['plot_bins_sf'] = do_bins(sim_dict['dist'][mask], sim_nbins_sf)
-            sim_plot_dict['dist_bins_q'], sim_plot_dict['plot_bins_q'] = do_bins(sim_dict['dist'][~mask], sim_nbins_q)
+        sim_plot_dict = get_equal_bins_mass(survey, r200_scaled=r200_scaled)
 
         for i, line in enumerate(sim_lines):
 
+            sim_dict = sim_dict_orig.copy()
+
             # removing COS-Dwarfs galaxy 3 for the Lya stuff
+            # generalise this if we ever need to ignore any cos galaxy before number 3
             if (survey == 'dwarfs') & (line == 'H1215'):
                 for k in sim_dict.keys():
                     sim_dict[k] = np.delete(sim_dict[k], np.arange(3*norients*ngals_each, 4*norients*ngals_each), axis=0)
 
-            # get binned medians for the simulation sample
-            mask = (sim_dict['ssfr'] > quench)
-            sim_plot_dict['ngals_'+line+'_sf'] = get_ngals(sim_dict['dist'][mask], sim_plot_dict['dist_bins_sf'])
-            sim_plot_dict['EW_'+line+'_med_sf'], sim_plot_dict['EW_'+line+'_cosmic_std_sf'] = sim_binned_ew(sim_dict, mask, sim_plot_dict['dist_bins_sf'], line, boxsize)
-            sim_plot_dict['ngals_'+line+'_q'] = get_ngals(sim_dict['dist'][~mask], sim_plot_dict['dist_bins_q'])
-            sim_plot_dict['EW_'+line+'_med_q'], sim_plot_dict['EW_'+line+'_cosmic_std_q'] = sim_binned_ew(sim_dict, ~mask, sim_plot_dict['dist_bins_q'], line, boxsize)
+            for m, mass_label in enumerate(mass_bin_labels):
+                if m != len(mass_bins) -1:
+                    mass_mask = (sim_dict['mass'] > mass_bins[m]) & (sim_dict['mass'] < mass_bins[m+1])
+                else:
+                    mass_mask = sim_dict['mass'] > mass_bins[m]
+                
+                # get binned medians for the simulation sample
+                sim_plot_dict[f'ngals_{line}_{mass_label}'] = get_ngals(sim_dict['dist'][mass_mask], sim_plot_dict[f'dist_bins'])
+                sim_plot_dict[f'EW_{line}_med_{mass_label}'], sim_plot_dict[f'EW_{line}_cosmic_std_{mass_label}'] = \
+                        sim_binned_ew(sim_dict, mass_mask, sim_plot_dict['dist_bins'], line, boxsize)
 
         write_dict_to_h5(sim_plot_dict, sim_file)
