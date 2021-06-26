@@ -14,6 +14,10 @@ from pyigm.cgm import cos_halos as pch
 
 salpeter_to_chabrier = 1.63
 
+def get_mhalo_from_r200(r200, rho_crit, delta_vir=200., omega_m = 0.3):
+    # See Bordoloi+2014
+    return (4.*np.pi*delta_vir*omega_m*rho_crit*(r200**3)) / 3.
+
 def make_cos_dict(survey, mlim, r200_scaled=False, h=0.68):
 
     # read in the parameters of the COS galaxies
@@ -64,6 +68,13 @@ def get_cos_dwarfs(return_less_than=False):
     else:
         return np.array(cos_rho), np.array(cos_M), np.array(cos_r200), cos_ssfr
 
+def get_cos_dwarfs_mhalo():
+    rho_crit = 128.34 # in Msun/kpc**3
+    table_file = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
+    table = ascii.read(table_file, format='latex')
+    cos_r200 = np.array(table['R_vir']) # in kpc
+    return np.log10(get_mhalo_from_r200(cos_r200, rho_crit))
+
 def get_cos_dwarfs_civ():
     table_file = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
     table = ascii.read(table_file, format='latex')
@@ -101,6 +112,14 @@ def get_cos_halos():
     cos_r200 = np.array(cos_r200) * h # get in kpc/h, already corrected for 1 + z seemingly
     cos_M = np.array(cos_M) + np.log10(salpeter_to_chabrier)
     return np.array(cos_rho), np.array(cos_M), np.array(cos_r200), np.log10(cos_ssfr)
+
+def get_cos_halos_mhalo():
+    cos_halos = pch.COSHalos()
+    cos_mhalo = []
+    for cos in cos_halos:
+        cos = cos.to_dict()
+        cos_mhalo.append(cos['galaxy']['halo_mass'])
+    return np.array(cos_mhalo)
 
 def get_cos_halos_lines(pg_line, save_file):
 

@@ -38,8 +38,6 @@ if __name__ == '__main__':
     if survey == 'halos':
         z = 0.25
         snap = '137'
-        nbins_q = 2
-        nbins_sf = 3
         cos_lines = cos_halos_lines
         cos_det_thresh = cos_halos_det_thresh
         mass_bins = [10., 10.5, 11.0]
@@ -47,8 +45,6 @@ if __name__ == '__main__':
     elif survey == 'dwarfs':
         z = 0.
         snap = '151'
-        nbins_q = 1
-        nbins_sf = 3
         cos_lines = cos_dwarfs_lines
         cos_det_thresh = cos_dwarfs_det_thresh
         mass_bins = [9.0, 9.5, 10., 10.5]
@@ -80,7 +76,7 @@ if __name__ == '__main__':
     if not os.path.isfile(cos_file):
 
         # get the bins for the COS data - these nbins ensure there are roughly ~8 galaxies in each bin
-        cos_plot_dict = get_equal_bins_mass(survey, r200_scaled=r200_scaled)
+        cos_plot_dict = get_equal_bins_mass(survey, data='cos', r200_scaled=r200_scaled)
         cos_plot_dict['xerr'] = get_xerr_from_bins(cos_plot_dict['dist_bins'], cos_plot_dict['plot_bins'])
 
         for i, line in enumerate(cos_lines):

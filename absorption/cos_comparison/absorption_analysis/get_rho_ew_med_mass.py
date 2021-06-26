@@ -35,14 +35,12 @@ if __name__ == '__main__':
     if survey == 'halos':
         z = 0.25
         snap = '137'
-        nbins = 2
         cos_lines = cos_halos_lines
         mass_bins = [10., 10.5, 11.0]
         mass_bin_labels = ['10.0-10.5', '10.5-11.0', '>11.0']
     elif survey == 'dwarfs':
         z = 0.
         snap = '151'
-        nbins = 3
         cos_lines = cos_dwarfs_lines
         mass_bins = [9.0, 9.5, 10., 10.5]
         mass_bin_labels = ['9.0-9.5', '9.5-10.0', '10.0-10.5']
@@ -72,7 +70,7 @@ if __name__ == '__main__':
 
     if not os.path.isfile(cos_file):
 
-        cos_plot_dict = get_equal_bins_mass(survey, r200_scaled=r200_scaled)
+        cos_plot_dict = get_equal_bins_mass(survey, data='cos', r200_scaled=r200_scaled)
         cos_plot_dict[f'xerr'] = get_xerr_from_bins(cos_plot_dict[f'dist_bins'], cos_plot_dict[f'plot_bins'])
 
         for i, line in enumerate(cos_lines):
@@ -143,7 +141,7 @@ if __name__ == '__main__':
         for k in sim_dict_orig.keys():
             sim_dict_orig[k] = np.delete(sim_dict_orig[k], ignore_los, axis=0)
 
-        sim_plot_dict = get_equal_bins_mass(survey, r200_scaled=r200_scaled)
+        sim_plot_dict = get_equal_bins_mass(survey, data='sim', r200_scaled=r200_scaled)
 
         for i, line in enumerate(sim_lines):
 

@@ -39,16 +39,12 @@ if __name__ == '__main__':
     if survey == 'halos':
         z = 0.25
         snap = '137'
-        nbins_q = 2
-        nbins_sf = 3
         cos_lines = cos_halos_lines
         mass_bins = [10., 10.5, 11.0]
         mass_bin_labels = ['10.0-10.5', '10.5-11.0', '>11.0']
     elif survey == 'dwarfs':
         z = 0.
         snap = '151'
-        nbins_q = 1
-        nbins_sf = 3
         cos_lines = cos_dwarfs_lines
         mass_bins = [9.0, 9.5, 10., 10.5]
         mass_bin_labels = ['9.0-9.5', '9.5-10.0', '10.0-10.5']
@@ -77,7 +73,7 @@ if __name__ == '__main__':
         sim_file = basic_dir+'data/cos_'+survey+'_'+model+'_'+wind+'_'+snap+'_'+background+'_sim_path_abs_mass_data.h5'
 
     # get the bins for the COS data - these nbins ensure there are roughly ~8 galaxies in each bin
-    cos_plot_dict = get_equal_bins_mass(survey, r200_scaled=r200_scaled)
+    cos_plot_dict = get_equal_bins_mass(survey, data='cos', r200_scaled=r200_scaled)
     cos_plot_dict['xerr'] = get_xerr_from_bins(cos_plot_dict['dist_bins'], cos_plot_dict['plot_bins'])
 
     # create the dicts to hold the simulation sample data

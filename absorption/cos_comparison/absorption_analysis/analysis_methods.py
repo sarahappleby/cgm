@@ -78,14 +78,19 @@ def get_equal_bins(model, survey, r200_scaled=False):
 
     return plot_dict
 
-def get_equal_bins_mass(survey, r200_scaled=False):
+def get_equal_bins_mass(survey, data='sim', r200_scaled=False):
 
     if r200_scaled:
         if survey == 'halos':
             r_end = 1.
-        elif survey == 'dwarfs':
+            dr = 0.5
+        elif (survey == 'dwarfs') & (data=='sim'):
             r_end = 1.5
-        dr = 0.5
+            dr = 0.5
+        elif (survey == 'dwarfs') & (data=='cos'):
+            r_end = 1.5
+            dr = 1.5
+
     else:
         r_end = 200.
         dr = 40.

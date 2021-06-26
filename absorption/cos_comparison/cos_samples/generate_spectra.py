@@ -105,15 +105,15 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, vbox, periodic_vel, v_lim
     f_conv += noise
     contin = pg.analysis.absorption_spectra.fit_continuum(wavelengths, f_conv, noise_vector, order=1, sigma_lim=1.5)
     fluxes_effected = f_conv / contin
-
-    plt.plot(velocities, fluxes)
-    plt.axvline(vpos, lw=1, c='k')
-    plt.axvline(vpos + vel_range , lw=1, c='k', ls='--')
-    plt.axvline(vpos - vel_range , lw=1, c='k', ls='--')
-    plt.xlabel('Velocity (km/s)')
-    plt.ylabel('Flux')
-    plt.savefig(save_dir+'/plots/'+spec_name+'_'+line+'.png')
-    plt.clf()
+    
+    #plt.plot(velocities, fluxes)
+    #plt.axvline(vpos, lw=1, c='k')
+    #plt.axvline(vpos + vel_range , lw=1, c='k', ls='--')
+    #plt.axvline(vpos - vel_range , lw=1, c='k', ls='--')
+    #plt.xlabel('Velocity (km/s)')
+    #plt.ylabel('Flux')
+    #plt.savefig(save_dir+'/plots/'+spec_name+'_'+line+'.png')
+    #plt.clf()
 
     with h5py.File(save_dir+'/spectra/{}.h5'.format(spec_name), 'a') as hf:
         if periodic_vel:

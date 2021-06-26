@@ -89,7 +89,7 @@ def isolation_check(gal_pos, pos_range, gal_cent, indices):
 
 if __name__ == '__main__':
 
-    model = 'm25n256'
+    model = 'm25n512'
     wind = 's50'
     survey = sys.argv[1]
 
@@ -177,6 +177,7 @@ if __name__ == '__main__':
     vgal_pos = np.ones((numgals*ngals_each, 3)) * np.nan
     halo_pos = np.ones((numgals*ngals_each, 3)) * np.nan
     halo_r200 = np.ones((numgals*ngals_each)) * np.nan
+    halo_mass = np.ones((numgals*ngals_each)) * np.nan
 
     for cos_id in np.flip(np.argsort(cos_M)):
             ids = range(cos_id*ngals_each, (cos_id+1)*ngals_each)
@@ -274,6 +275,8 @@ if __name__ == '__main__':
     
     halo_r200[~np.isnan(gal_ids)] = \
             np.array([sim.galaxies[int(i)].halo.virial_quantities['r200c'].in_units('kpc/h') for i in gal_ids if ~np.isnan(i)])
+    halo_mass[~np.isnan(gal_ids)] = \
+            np.array([sim.galaxies[int(i)].halo.masses['total'].in_units('Msun') for i in gal_ids if ~np.isnan(i)])
     halo_pos[~np.isnan(gal_ids)] = \
             np.array([sim.galaxies[int(i)].halo.pos.in_units('kpc/h') for i in gal_ids if ~np.isnan(i)])
 
@@ -285,6 +288,7 @@ if __name__ == '__main__':
             hf.create_dataset('gas_frac', data=np.array(gas_frac))
             hf.create_dataset('position', data=np.array(pos))
             hf.create_dataset('halo_r200', data=np.array(halo_r200))
+            hf.create_dataset('halo_mass', data=np.array(halo_mass))
             hf.create_dataset('halo_pos', data=np.array(halo_pos))
             hf.create_dataset('vgal_position', data=np.array(vgal_pos))
             hf.attrs['pos_units'] = 'kpc/h'
