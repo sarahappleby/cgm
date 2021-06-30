@@ -35,11 +35,11 @@ colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
 colours = get_cb_colours(palette_name)[::-1]
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
-fig, ax = plt.subplots(1, 4, figsize=(15, 7), sharey=True)
+fig, ax = plt.subplots(1, 4, figsize=(15, 6.5), sharey=True)
 ax = ax.flatten()
 
 for w, wind in enumerate(winds):
-    
+   
     mhalo_axis, mstar_axis = get_mstar_axis_values(model=model, wind=wind)
 
     data_dir = '/disk01/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'

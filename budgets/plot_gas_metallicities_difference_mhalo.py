@@ -7,6 +7,7 @@ import sys
 import caesar
 import numpy as np 
 from plotting_methods import *
+from get_mhalo_mstar import get_mstar_axis_values
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=17)
@@ -16,7 +17,7 @@ solar_z = 0.0134
 min_mass = 11.
 max_mass = 14.
 dm = 0.25 # dex
-ngals_min = 10
+ngals_min = 5
 xoffset = 0.03
 linestyles = ['--', '-', ':', '-.']
 
@@ -43,7 +44,7 @@ colours = np.roll(colours, 1)[::-1]
 
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
-fig, ax = plt.subplots(1, 4, figsize=(15, 5.5), sharey='row')
+fig, ax = plt.subplots(1, 4, figsize=(15, 6), sharey='row')
 ax = ax.flatten()
 
 wind_lines = []
@@ -56,6 +57,8 @@ simba_data_dir = '/disk01/sapple/cgm/budgets/data/'+model+'_s50_151/'
 simba_z_stats_file = simba_data_dir+model+'_s50_'+snap+'_metallicities_mhalo_stats.h5' 
 simba_z_stats = read_phase_stats(simba_z_stats_file, plot_phases, stats)
 simba_mask = simba_z_stats['all']['ngals'][:] > ngals_min
+
+mhalo_axis, mstar_axis = get_mstar_axis_values(model=model, wind='s50')
 
 for w, wind in enumerate(winds):
 
@@ -94,9 +97,23 @@ for w, wind in enumerate(winds):
         ax[i].plot(z_stats['mhalo_bins'][mask], diff[mask], color=colours[w], ls=linestyles[w])
 
         if w == 0:
-            ax[i].set_xlim(min_mass, z_stats['mhalo_bins'][mask][-1]+0.5*dm)
+            ax[i].set_xlim(min_mass, max_mass)
             ax[i].set_ylim(-1.3, .8)
             ax[i].set_xlabel(r'$\textrm{log} (M_{\rm halo} / \textrm{M}_{\odot})$')
+
+for i in range(len(plot_phases)):
+    new_ax = ax[i].twiny()
+    new_ax.set_xlim(ax[w].get_xlim())
+    new_ax.set_xticks(mhalo_axis)
+    new_ax.set_xticklabels(mstar_axis.astype('int'))
+    new_ax.set_xlabel(r'$\textrm{log} (M_{\star} / \textrm{M}_{\odot})$')
+
+    if i > 0:
+        plt.setp(new_ax.get_xticklabels()[0], visible=False)
+
+plt.setp(ax[1].get_xticklabels()[0], visible=False)
+plt.setp(ax[2].get_xticklabels()[0], visible=False)
+plt.setp(ax[3].get_xticklabels()[0], visible=False)
 
 x = [0.21, 0.28, 0.21, 0.81]
 ax[0].annotate(plot_phases_labels[0], xy=(x[0], 0.92), xycoords='axes fraction',size=15,
