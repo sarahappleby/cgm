@@ -5,16 +5,17 @@ import sys
 import caesar
 import numpy as np 
 from plotting_methods import *
+from get_mhalo_mstar import get_mstar_axis_values
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=17)
 palette_name = 'tol'
 
 alpha = .8
-min_mass = 11.0
-max_mass = 13.75
+min_mass = 10.5
+max_mass = 14.
 dm = 0.25 # dex
-ngals_min = 10
+ngals_min = 5
 
 snap = '151'
 winds = ['s50', 's50nox', 's50nojet', 's50nofb']
@@ -34,10 +35,12 @@ colours = ['m', 'b', 'c', 'g', 'tab:orange', 'tab:pink', 'r']
 colours = get_cb_colours(palette_name)[::-1]
 stats = ['median', 'percentile_25_75', 'std', 'cosmic_median', 'cosmic_std']
 
-fig, ax = plt.subplots(1, 4, figsize=(15, 6), sharey=True)
+fig, ax = plt.subplots(1, 4, figsize=(15, 7), sharey=True)
 ax = ax.flatten()
 
 for w, wind in enumerate(winds):
+    
+    mhalo_axis, mstar_axis = get_mstar_axis_values(model=model, wind=wind)
 
     data_dir = '/disk01/sapple/cgm/budgets/data/'+model+'_'+wind+'_'+snap+'/'
     frac_stats_file = data_dir+model+'_'+wind+'_'+snap+'_omega_frac_mhalo_stats.h5'
@@ -85,15 +88,28 @@ for w, wind in enumerate(winds):
                             color=colours[i], label=plot_phases_labels[i], alpha=alpha)
         running_total += frac_stats['all'][phase]['median']
 
-    ax[w].set_xlim(min_mass, max_mass)
+    new_ax = ax[w].twiny()
+    new_ax.set_xlim(ax[w].get_xlim())
+    new_ax.set_xticks(mhalo_axis)
+    new_ax.set_xticklabels(mstar_axis.astype('int'))
+    new_ax.set_xlabel(r'$\textrm{log} (M_{\star} / \textrm{M}_{\odot})$')
+
+    if w == 0:
+        plt.setp(new_ax.get_xticklabels()[-1], visible=False)
+
+    ax[w].set_xlim(11, max_mass)
     ax[w].set_ylim(0, 1)
     ax[w].set_xlabel(r'$\textrm{log} (M_{\rm halo} / \textrm{M}_{\odot})$')
 
+
 x = [0.72, 0.64, 0.72, 0.53]
 for i in range(4):
-
     ax[i].annotate(wind_title[i], xy=(x[i], 0.05), xycoords='axes fraction',size=17,
             bbox=dict(boxstyle='round', fc='white'))
+
+plt.setp(ax[1].get_xticklabels()[0], visible=False)
+plt.setp(ax[2].get_xticklabels()[0], visible=False)
+plt.setp(ax[3].get_xticklabels()[0], visible=False)
 
 ax[0].set_ylabel(r'$f_{\rm \Omega}$')
 ax[0].legend(loc=2, fontsize=13, framealpha=0.)

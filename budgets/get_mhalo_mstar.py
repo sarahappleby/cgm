@@ -55,7 +55,7 @@ def get_mhalo_mstar_fit(sim, mstar_min=9., order=1):
     return coeffs
 
 
-def get_mhalo_axis_values(min_mhalo=11., max_mhalo=15., dmhalo=1.0, model='m100n1024', wind='s50'):
+def get_coeffs(model, wind):
     if (model == 'm100n1024') & (wind == 's50'):
         coeffs=np.array([0.739, 1.229])
     elif (model == 'm50n512') & (wind in ['s50', 's50j7k']):
@@ -66,8 +66,20 @@ def get_mhalo_axis_values(min_mhalo=11., max_mhalo=15., dmhalo=1.0, model='m100n
         coeffs=np.array([1.06, -2.281])
     elif (model == 'm50n512') & (wind == 's50nofb'):
         coeffs=np.array([0.902, -0.192])
+    return coeffs
+
+
+def get_mhalo_axis_values(min_mhalo=11., max_mhalo=15., dmhalo=1.0, model='m100n1024', wind='s50'):
+    coeffs = get_coeffs(model, wind)
     mhalo = np.arange(min_mhalo, max_mhalo+dmhalo, dmhalo)
     mstar = np.polyval(coeffs, mhalo)
+    return mhalo, mstar
+
+
+def get_mstar_axis_values(min_mstar=9., max_mstar=12., dmstar=1.0, model='m100n1024', wind='s50'):
+    coeffs = get_coeffs(model, wind)
+    mstar = np.arange(min_mstar, max_mstar+dmstar, dmstar)
+    mhalo = (mstar - coeffs[1]) / coeffs[0]
     return mhalo, mstar
 
 
