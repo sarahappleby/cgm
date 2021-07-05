@@ -12,7 +12,7 @@ import numpy as np
 import os
 from pyigm.cgm import cos_halos as pch
 
-salpeter_to_chabrier = 1.63
+salpeter_to_chabrier = 1.59
 
 def get_mhalo_from_r200(r200, rho_crit, delta_vir=200., omega_m = 0.3):
     # See Bordoloi+2014
@@ -47,7 +47,7 @@ def get_cos_dwarfs(return_less_than=False):
     table_file = '/disk01/sapple/cgm/absorption/cos_comparison/cos_samples/obs_data/cos_dwarfs/line_table_simple.tex'
     table = ascii.read(table_file, format='latex')
     cos_rho = table['Rho']
-    cos_M = table['logM_stellar'] + np.log10(salpeter_to_chabrier)
+    cos_M = table['logM_stellar'] - np.log10(salpeter_to_chabrier)
     cos_ssfr = table['logsSFR']
     cos_r200 = table['R_vir'] * h**2 # get in kpc/h
 
@@ -110,7 +110,7 @@ def get_cos_halos():
         cos_rho.append(cos['rho'])
         cos_r200.append(cos['galaxy']['rvir'])
     cos_r200 = np.array(cos_r200) * h # get in kpc/h, already corrected for 1 + z seemingly
-    cos_M = np.array(cos_M) + np.log10(salpeter_to_chabrier)
+    cos_M = np.array(cos_M) - np.log10(salpeter_to_chabrier)
     return np.array(cos_rho), np.array(cos_M), np.array(cos_r200), np.log10(cos_ssfr)
 
 def get_cos_halos_mhalo():

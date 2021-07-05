@@ -48,7 +48,7 @@ wind = sys.argv[2]
 ignore_simba_halo_gals, ngals_each = get_ignore_simba_gals(model, 'halos')
 ignore_simba_halo_mask = make_ignore_mask(ngals_each*44, ignore_simba_halo_gals)
 ignore_simba_dwarfs_gals, ngals_each = get_ignore_simba_gals(model, 'dwarfs')
-ignore_simba_dwarfs_mask = make_ignore_mask(ngals_each*39, ignore_simba_dwarfs_gals)
+ignore_simba_dwarfs_mask = make_ignore_mask(ngals_each*37, ignore_simba_dwarfs_gals)
 ignore_halo_mask = get_ignore_cos_mask(model, 'halos')
 ignore_dwarfs_mask = get_ignore_cos_mask(model, 'dwarfs')
 

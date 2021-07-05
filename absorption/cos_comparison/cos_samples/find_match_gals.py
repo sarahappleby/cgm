@@ -11,15 +11,18 @@ def check_halo_sample(prog_index, obj1, obj2, gal_id):
     gal = obj1.galaxies[gal_id]
     halo1 = gal.parent_halo_index
     halo2 = obj2.halos[prog_index[halo1]]
-    return halo2.central_galaxy.GroupID
+    try:
+        return halo2.central_galaxy.GroupID
+    except AttributeError:
+        return np.nan
 
 if __name__ == '__main__':
 
     model = 'm50n512'
     wind1 = 's50j7k'
-    wind_options = ['s50nojet', 's50nofb']
-    snap = '137'
-    survey = 'halos'
+    wind_options = ['s50nox', 's50nojet', 's50nofb']
+    snap = '151'
+    survey = 'dwarfs'
 
     # ignore these as the main s50 sample has insufficient galaxies
     ignore_simba_gals, ngals_each = get_ignore_simba_gals(model, survey)
