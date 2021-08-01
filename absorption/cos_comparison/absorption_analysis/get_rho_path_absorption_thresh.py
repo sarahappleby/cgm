@@ -165,9 +165,9 @@ if __name__ == '__main__':
                 sim_binned_path_abs_thresh(sim_dict, ~mask, sim_plot_dict['dist_bins_q'], sim_det_thresh[i], line, boxsize)
 
         if line in cos_lines:
-            cos_plot_dict['path_abs_'+line+'_sf'], cos_plot_dict['path_abs_'+line+'_std_sf'] = \
+            cos_plot_dict['path_abs_'+line+'_sf'], cos_plot_dict['path_abs_'+line+'_std_sf'], cos_plot_dict['path_abs_'+line+'_deterr_sf'], cos_plot_dict['path_abs_'+line+'_quad_sf']= \
                     cos_binned_path_abs_thresh(cos_dict, (cos_dict['ssfr'] > quench), cos_plot_dict['dist_bins_sf'], sim_det_thresh[i])
-            cos_plot_dict['path_abs_'+line+'_q'], cos_plot_dict['path_abs_'+line+'_std_q'] = \
+            cos_plot_dict['path_abs_'+line+'_q'], cos_plot_dict['path_abs_'+line+'_std_q'], cos_plot_dict['path_abs_'+line+'_deterr_q'], cos_plot_dict['path_abs_'+line+'_quad_q'] = \
                     cos_binned_path_abs_thresh(cos_dict, (cos_dict['ssfr'] < quench), cos_plot_dict['dist_bins_q'], sim_det_thresh[i])
 
             cos_plot_dict['path_abs_'+line+'_sf'][cos_plot_dict['path_abs_'+line+'_sf'] == 0.] = 10**1.6

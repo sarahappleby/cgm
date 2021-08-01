@@ -98,21 +98,22 @@ if __name__ == '__main__':
 
             if (b == 2) & ('path_abs_'+lines[i]+'_sf' in list(cos_plot_dict.keys())):
                 c1 = ax[i].errorbar(cos_plot_dict['plot_bins_sf'], cos_plot_dict['path_abs_'+lines[i]+'_sf'],
-                                yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_sf'], xerr=cos_plot_dict['xerr_sf'],
+                                yerr=cos_plot_dict['path_abs_'+lines[i]+'_quad_sf'], xerr=cos_plot_dict['xerr_sf'],
                                 capsize=4, c=cos_colors[0], mec=cos_colors[0], mfc='white', marker=cos_marker, markersize=8, ls='')
-            #    c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['path_abs_'+lines[i]+'_q'],
-            #                    yerr=cos_plot_dict['path_abs_'+lines[i]+'_std_q'], xerr=cos_plot_dict['xerr_q'],
-            #                    capsize=4, c=cos_colors[1], mec=cos_colors[1], mfc='white', marker=cos_marker, markersize=8, ls='')
+                c2 = ax[i].errorbar(cos_plot_dict['plot_bins_q'], cos_plot_dict['path_abs_'+lines[i]+'_q'],
+                                yerr=cos_plot_dict['path_abs_'+lines[i]+'_quad_q'], xerr=cos_plot_dict['xerr_q'],
+                                capsize=4, c=cos_colors[1], mec=cos_colors[1], mfc='white', marker=cos_marker, markersize=8, ls='')
                 for c in range(2):
                     c1[-1][c].set_alpha(alpha=0.5)
-            #        c2[-1][c].set_alpha(alpha=0.5)
-                c1[-1][0].set_linestyle('--')
-                leg1 = ax[i].legend([c1], [label+' SF'], fontsize=15, loc=1, framealpha=0.)
+                    c2[-1][c].set_alpha(alpha=0.5)
+                #c1[-1][0].set_linestyle('--')
+                #c2[-1][0].set_linestyle('--')
+                leg1 = ax[i].legend([c1, c2], [label+' SF', label+' Q'], fontsize=15, loc=1, framealpha=0.)
 
             if b == 0:
     
                 ax[i].set_xlabel(xlabel)
-                ax[i].annotate(plot_lines[i], xy=(plot_line_x[i], 0.8), xycoords='axes fraction',
+                ax[i].annotate(plot_lines[i], xy=(plot_line_x[i], 0.73), xycoords='axes fraction',
                         bbox=dict(boxstyle='round', fc='white'))
                 ax[i].set_ylim(0.9, 3.0)
                 if r200_scaled:

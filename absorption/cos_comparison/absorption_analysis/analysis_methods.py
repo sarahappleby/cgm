@@ -278,19 +278,43 @@ def cos_binned_path_abs_thresh(cos_dict, mask, rho_bins, thresh, lower_lim=0.5):
     binned_pl = bin_data(cos_dict['dist'][mask], cos_dict['path_length'][mask], rho_bins)
 
     path_abs = np.zeros(len(binned_ew))
-    path_abs_err = np.zeros(len(binned_ew))
+    path_abs_std = np.zeros(len(binned_ew))
+    path_abs_deterr_upper = np.zeros(len(binned_ew))
+    path_abs_deterr_lower = np.zeros(len(binned_ew))
+    path_abs_quad_upper = np.zeros(len(binned_ew))
+    path_abs_quad_lower = np.zeros(len(binned_ew))
+
 
     for i in range(len(binned_ew)):
         path_abs[i] = compute_path_abs_thresh(binned_ew[i], binned_pl[i], thresh)
-        path_abs_err[i] = compute_path_abs_thresh_err(binned_ew[i], binned_pl[i], thresh)
+        path_abs_std[i], path_abs_deterr_lower[i], path_abs_deterr_upper[i], path_abs_quad_lower[i], path_abs_quad_upper[i] = \
+                compute_path_abs_thresh_err(path_abs[i], binned_ew[i], binned_pl[i], thresh)
 
     path_abs[path_abs < 10**lower_lim] = 10**lower_lim
 
-    return convert_to_log(path_abs, path_abs_err)
+    _, deterr = convert_to_log(path_abs, np.array([path_abs_deterr_lower, path_abs_deterr_upper]))
+    _, quaderr = convert_to_log(path_abs, np.array([path_abs_quad_lower, path_abs_quad_upper]))
+    path_abs, std = convert_to_log(path_abs, path_abs_std)
 
-def compute_path_abs_thresh_err(ew, pl, thresh):
+    return path_abs, std, deterr, quaderr
+
+def compute_path_abs_thresh_err(path_abs_total, ew, pl, thresh):
     path_abs = np.zeros(len(ew))
+    max_path_abs = np.zeros(len(ew))
+    min_path_abs = np.zeros(len(ew))
+
     for i in range(len(ew)):
         path_abs[i] = compute_path_abs_thresh(ew[i], pl[i], thresh)
+    
+    std = np.std(path_abs)
 
-    return np.std(path_abs)
+    max_path_abs = thresh / pl[i]
+    min_path_abs = 0 / pl[i]
+    
+    upper = (max_path_abs - path_abs_total)
+    lower = (path_abs_total - min_path_abs)
+
+    upper_quad = np.sqrt((max_path_abs - path_abs_total)**2 + std**2)
+    lower_quad = np.sqrt((path_abs_total - min_path_abs)**2 + std**2)
+
+    return std, lower, upper, lower_quad, upper_quad
