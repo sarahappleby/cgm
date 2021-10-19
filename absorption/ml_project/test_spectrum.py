@@ -118,3 +118,11 @@ if __name__ == '__main__':
     ax[1].axvline(gal_vpos, c='m')
     plt.savefig(f'{save_dir}{spec_name}.png')
     plt.clf()
+
+
+    line_list = pg.analysis.fit_profiles(line, wavelengths, f_conv_noise_contin, noise, chisq_lim=2.0, max_lines=7, logN_bounds=[12,17], b_bounds=[3,100], mode='Voigt')
+    # append to hdf5 file
+    pg.analysis.write_lines(spec_filename, line_list, istart)
+    # plot, undoing periodic wrap
+    model_flux, N, dN, b, db, l, dl, EW = pg.analysis.plot_fit(ax[ilos], lam, flux, noise, line_list, ION, starting_pixel=istart, show_plot=False)
+

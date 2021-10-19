@@ -68,7 +68,7 @@ if __name__ == '__main__':
     data_dir = f'/home/rad/data/{model}/{wind}/'
     snapfile = f'{data_dir}snap_{model}_{snap}.hdf5'
 
-    output_dir = '/disk01/sapple/cgm/absorption/ml_project/data/samples/'
+    output_dir = '/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     output_file = output_dir + model+'_'+wind+'_'+snap+'.hdf5'
 
     sample_file = f'{output_dir}{model}_{wind}_{snap}_galaxy_sample.h5'

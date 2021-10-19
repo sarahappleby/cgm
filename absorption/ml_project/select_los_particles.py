@@ -6,13 +6,13 @@
 
 from pygadgetreader import readsnap
 import numpy as np
-from numba import jit
+from numba import njit
 import h5py
 import caesar
 import gc
 import sys
 
-@jit(nopython=True)
+@njit
 def get_los_particles(los, gas_pos, hsml):
     x_dist = np.abs(l[0] - gas_pos[:, 0])
     y_dist = np.abs(l[1] - gas_pos[:, 1])
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
     
-    sample_dir = f'/disk01/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     data_dir = f'/home/rad/data/{model}/{wind}/'
     snapfile = f'{data_dir}snap_{model}_{snap}.hdf5'
     sim =  caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5')

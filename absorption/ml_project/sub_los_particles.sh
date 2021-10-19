@@ -1,12 +1,12 @@
 #!/bin/bash
 
-pipeline_path=/disk01/sapple/cgm/absorption/ml_project/
+pipeline_path=/disk04/sapple/cgm/absorption/ml_project/
 model=m100n1024
 wind=s50
 snap=151
-output_path=/disk01/sapple/cgm/absorption/ml_project/output/
+output_path=/disk04/sapple/cgm/absorption/ml_project/output/
 
-for ii in {0..107}
+for ii in {0..216}
 do
    echo Submitting job $ii
    job='gal_'$ii'.txt'
