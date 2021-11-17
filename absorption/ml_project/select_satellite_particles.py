@@ -5,6 +5,7 @@
 4) Get unique particle ids, save out particle ids file
 
 """
+import sys
 import numpy as np
 import h5py
 import caesar
@@ -27,6 +28,7 @@ if __name__ == '__main__':
     model = 'm100n1024'
     snap = '151'
     wind = 's50'
+    num = int(sys.argv[1])
 
     log_frad_min = 0.5
     log_frad_max = 3.
@@ -52,18 +54,20 @@ if __name__ == '__main__':
     for lf in log_frad: 
         partids[f'log_frad_{lf}'] = np.array([])
 
-    for i in sat_ids:
-        gal = sim.galaxies[i]
-        pos = np.array(gal.pos.in_units('kpc/h')) * (1+redshift)
-        rad = np.array(gal.radii['total_half_mass'].in_units('kpc/h')) * (1+redshift)
+    i = sat_ids[num]
 
-        gas_dist = get_particle_distance(pos, gas_pos, gas_hsml)
+    print(f'Doing galaxy {num}/{len(sat_ids)}')
+
+    gal = sim.galaxies[i]
+    pos = np.array(gal.pos.in_units('kpc/h')) * (1+redshift)
+    rad = np.array(gal.radii['total_half_mass'].in_units('kpc/h')) * (1+redshift)
+
+    gas_dist = get_particle_distance(pos, gas_pos, gas_hsml)
         
-        for lf in log_frad:
-            frad = 10**lf
-            partids[f'log_frad_{lf}'] = np.append(partids[f'log_frad_{lf}'], find_satellite_particles(pos, rad*frad, gas_dist)) 
-
     for lf in log_frad:
+        frad = 10**lf
+        partids[f'log_frad_{lf}'] = find_satellite_particles(pos, rad*frad, gas_dist)
         partids[f'log_frad_{lf}'] = np.unique(np.sort(partids[f'log_frad_{lf}']))
         with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_satellite_only_{lf}log_frad.h5', 'a') as f:
-            f.create_dataset(f'plist', data=np.array(partids[f'log_frad_{lf}']))
+            if not f'plist_{i}' in f.keys():
+                f.create_dataset(f'plist_{i}', data=np.array(partids[f'log_frad_{lf}']))
