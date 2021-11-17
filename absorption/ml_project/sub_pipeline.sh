@@ -1,11 +1,11 @@
 #!/bin/bash
 
 line=$1
-pipeline_path=/disk01/sapple/cgm/absorption/ml_project/
+pipeline_path=/disk04/sapple/cgm/absorption/ml_project/
 model=m100n1024
 wind=s50
 snap=151
-output_file=/disk01/sapple/cgm/absorption/ml_project/output/
+output_file=/disk04/sapple/cgm/absorption/ml_project/output/
 
 
 for ii in {0..18}

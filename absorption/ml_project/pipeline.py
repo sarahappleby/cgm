@@ -14,11 +14,11 @@ from generate_spectra import generate_pygad_spectrum
 
 # Set some spectrum parameters:
 sqrt2 = np.sqrt(2.)
-snr = 12.
+snr = 30.
 vel_range = 600. # km/s
 pixel_size = 2.5 # km/s
 periodic_vel = True
-LSF = 'COS_G130M'
+LSF = 'STIS_E140M'
 fit_contin = True
 ngals_each = 12
 delta_fr200 = 0.25
@@ -61,36 +61,36 @@ for i in list(range(len(gal_ids))):
         print('Generating spectra for sample galaxy ' + str(gal_ids[i]))
         gal_name = 'sample_galaxy_' + str(gal_ids[i]) + '_'
 
-        spec_name = gal_name + '0_deg'
+        spec_name = f'{gal_name}{line}_0_deg_{fr200[j]}r200'
         los = pos_sample[i][:2].copy(); los[0] += rho
         print('In kpc/h: ' + str(los))
-        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF)
+        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF, fit_contin=fit_contin)
 
-        spec_name = gal_name + '45_deg'
+        spec_name = f'{gal_name}{line}_45_deg_{fr200[j]}r200'
         los = pos_sample[i][:2].copy(); los[0] += (rho / sqrt2); los[1] += (rho / sqrt2)
-        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF)
+        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF, fit_contin=fit_contin)
 
-        spec_name = gal_name + '90_deg'
+        spec_name = f'{gal_name}{line}_90_deg_{fr200[j]}r200'
         los = pos_sample[i][:2].copy(); los[1] += rho
-        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF)
+        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF, fit_contin=fit_contin)
 
-        spec_name = gal_name + '135_deg'
+        spec_name = f'{gal_name}{line}_135_deg_{fr200[j]}r200'
         los = pos_sample[i][:2].copy(); los[0] -= (rho / sqrt2); los[1] += (rho / sqrt2)
-        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF)
+        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF, fit_contin=fit_contin)
 
-        spec_name = gal_name + '180_deg'
+        spec_name = f'{gal_name}{line}_180_deg_{fr200[j]}r200'
         los = pos_sample[i][:2].copy(); los[0] -= rho
-        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF)
+        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF, fit_contin=fit_contin)
 
-        spec_name = gal_name + '225_deg'
+        spec_name = f'{gal_name}{line}_225_deg_{fr200[j]}r200'
         los = pos_sample[i][:2].copy(); los[0] -= (rho / sqrt2); los[1] -= (rho / sqrt2)
-        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF)
+        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF, fit_contin=fit_contin)
 
-        spec_name = gal_name + '270_deg'    
+        spec_name = f'{gal_name}{line}_270_deg_{fr200[j]}r200'    
         los = pos_sample[i][:2].copy(); los[1] -= rho
-        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF)
+        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF, fit_contin=fit_contin)
 
-        spec_name = gal_name + '315_deg'
+        spec_name = f'{gal_name}{line}_315_deg_{fr200[j]}r200'
         los = pos_sample[i][:2].copy(); los[0] += (rho / sqrt2); los[1] -= (rho / sqrt2)
-        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF)
+        generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos[i], periodic_vel, pixel_size, snr, f'{save_dir}{spec_name}', LSF=LSF, fit_contin=fit_contin)
 

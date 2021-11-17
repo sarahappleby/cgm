@@ -14,8 +14,8 @@ import sys
 
 @njit
 def get_los_particles(los, gas_pos, hsml):
-    x_dist = np.abs(l[0] - gas_pos[:, 0])
-    y_dist = np.abs(l[1] - gas_pos[:, 1])
+    x_dist = np.abs(los[0] - gas_pos[:, 0])
+    y_dist = np.abs(los[1] - gas_pos[:, 1])
     hyp_sq = x_dist**2 + y_dist**2
     dist_mask = hyp_sq < hsml**2
     partids_los = np.arange(len(hsml))[dist_mask]
