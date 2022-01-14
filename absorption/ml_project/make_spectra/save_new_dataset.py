@@ -71,15 +71,11 @@ if __name__ == '__main__':
     output_dir = '/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     output_file = output_dir + model+'_'+wind+'_'+snap+'.hdf5'
 
-    sample_file = f'{output_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
-    with h5py.File(sample_file, 'r') as f:
-        gal_ids = np.array(f['gal_ids'][:], dtype='int')
-
     plist = np.array([])
     with h5py.File(f'{output_dir}{model}_{wind}_{snap}_particle_selection.h5', 'r') as f:
-        for i, gal in enumerate(gal_ids):
-            print('Reading in galaxy '+str(i))
-            plist = np.append(plist, np.array(f['plist_'+str(i)][:], dtype='int'))
+        for k in f.keys():
+            if 'plist' in k:
+                plist = np.append(plist, np.array(f[k][:], dtype='int'))
 
     plist = np.unique(np.sort(plist)).astype('int')
 

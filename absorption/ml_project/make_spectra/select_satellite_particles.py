@@ -14,7 +14,7 @@ from pygadgetreader import readsnap
 
 def get_particle_distance(gal_pos, gas_pos, gas_hsml):
     dist = np.linalg.norm(np.abs(gal_pos - gas_pos), axis=1)
-    dist += gas_hsml
+    dist -= gas_hsml
     return dist
 
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     wind = 's50'
     num = int(sys.argv[1])
 
-    log_frad_min = 0.5
+    log_frad_min = 0.
     log_frad_max = 3.
     log_dfrad = 0.5
     log_frad = np.arange(log_frad_min, log_frad_max+log_dfrad, log_dfrad)
@@ -56,11 +56,15 @@ if __name__ == '__main__':
 
     i = sat_ids[num]
 
+    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_satellite_only_{lf}log_frad.h5', 'a') as f:
+        if f'plist_{i}' in f.keys():
+            quit()
+
     print(f'Doing galaxy {num}/{len(sat_ids)}')
 
     gal = sim.galaxies[i]
     pos = np.array(gal.pos.in_units('kpc/h')) * (1+redshift)
-    rad = np.array(gal.radii['total_half_mass'].in_units('kpc/h')) * (1+redshift)
+    rad = np.array(gal.radii['stellar_half_mass'].in_units('kpc/h')) * (1+redshift)
 
     gas_dist = get_particle_distance(pos, gas_pos, gas_hsml)
         
