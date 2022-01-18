@@ -39,6 +39,8 @@ def write_spectrum(spec_name, line, los, lambda_rest, gal_vel_pos, redshift, spe
 def write_line_list(spectrum, spec_file):
     
     with h5py.File(spec_file, 'a') as hf:
+        if 'lines' in hf.keys():
+            del hf['lines']
         lines = hf.create_group("lines")
         lines.create_dataset("fit_region", data=np.array(spectrum['lines']['region']))
         lines.create_dataset("fit_logN", data=np.array(spectrum['lines']['N']))
@@ -135,10 +137,14 @@ def check_restr_column(snapfile, los, restr_column, f_total_column=0.9):
     los_restr_column = restr_column[los_particles]
     total_column = np.sum(los_restr_column)
     restr_cumsum = np.cumsum(np.sort(los_restr_column)[::-1])
-    i = next(i for i, x in enumerate(restr_cumsum) if x >= f_total_column * total_column)
-    return i
+    try:
+        i = next(i for i, x in enumerate(restr_cumsum) if x >= f_total_column * total_column)
+        return i
+    except:
+        return -9999
 
-def extend_to_continuum(spectrum, vel_range, contin_level=1., nbuffer=10):
+
+def extend_to_continuum(spectrum, vel_range, contin_level=1., nbuffer=20):
         
     vel_mask = (spectrum['velocities'] < spectrum['gal_velocity_pos'][()] + vel_range) & (spectrum['velocities'] > spectrum['gal_velocity_pos'][()] - vel_range)
     v_start, v_end = np.where(vel_mask)[0][0], np.where(vel_mask)[0][-1]
@@ -147,7 +153,7 @@ def extend_to_continuum(spectrum, vel_range, contin_level=1., nbuffer=10):
     i = 0
     while not continuum:
         flux = spectrum['fluxes'][v_start - i:v_start -i +nbuffer]
-        if np.abs(np.median(flux) - contin_level) / contin_level > 0.1:
+        if np.abs(np.median(flux) - contin_level) / contin_level > 0.05:
             i += 1
         else:
             continuum = True
@@ -156,7 +162,7 @@ def extend_to_continuum(spectrum, vel_range, contin_level=1., nbuffer=10):
     j = 0
     while not continuum:
         flux = spectrum['fluxes'][v_end + j - nbuffer: v_end +j]
-        if np.abs(np.median(flux) - contin_level) / contin_level > 0.1:
+        if np.abs(np.median(flux) - contin_level) / contin_level > 0.05:
             j += 1
         else:
             continuum = True
@@ -169,36 +175,36 @@ def extend_to_continuum(spectrum, vel_range, contin_level=1., nbuffer=10):
     return mask
 
 
-def read_spectrum(spectrum_file):
-    spectrum = {}
-    with h5py.File(spectrum_file, 'r') as f:
+def read_h5py_into_dict(h5file):
+    data = {}
+    with h5py.File(h5file, 'r') as f:
         for k in f.keys():
 
             if type(f[k]) == h5py._hl.group.Group:
-                spectrum[k] = {}
+                data[k] = {}
 
                 for gk in f[k].keys():
 
                     if len(f[k][gk].shape) == 0:
-                        spectrum[k][gk] = f[k][gk][()]
+                        data[k][gk] = f[k][gk][()]
                     else:
-                        spectrum[k][gk] = f[k][gk][:]
+                        data[k][gk] = f[k][gk][:]
 
             else:      
                 if len(f[k].shape) == 0:
-                    spectrum[k] = f[k][()]
+                    data[k] = f[k][()]
                 else:
-                    spectrum[k] = f[k][:]
+                    data[k] = f[k][:]
             
                 for attr_k in f[k].attrs.keys():
-                    spectrum[attr_k] = f[k].attrs[attr_k]
+                    data[attr_k] = f[k].attrs[attr_k]
     
-    return spectrum
+    return data
 
 
 def fit_spectrum(spec_file, vel_range=600., nbuffer=20, z=None):
    
-    spectrum = read_spectrum(spec_file)
+    spectrum = read_h5py_into_dict(spec_file)
     if 'lines' in spectrum.keys():
         return
 
@@ -206,7 +212,7 @@ def fit_spectrum(spec_file, vel_range=600., nbuffer=20, z=None):
     vel_mask = extend_to_continuum(spectrum, vel_range, contin_level)
 
     spectrum['lines'] = pg.analysis.fit_profiles(spectrum['ion_name'], spectrum['wavelengths'][vel_mask], spectrum['fluxes'][vel_mask], spectrum['noise'][vel_mask], 
-                                         chisq_lim=2.5, max_lines=7, logN_bounds=[12,17], b_bounds=[3,100], mode='Voigt')
+                                         chisq_lim=2.5, max_lines=10, logN_bounds=[12,17], b_bounds=[3,100], mode='Voigt')
     
     line_velocities = wave_to_vel(spectrum['lines']['l'], spectrum['lambda_rest'], pg.physics.c.in_units_of('km/s'), z)
 
@@ -216,3 +222,25 @@ def fit_spectrum(spec_file, vel_range=600., nbuffer=20, z=None):
         spectrum['lines'][k] = np.delete(spectrum['lines'][k], outwith_vel_mask)
 
     write_line_list(spectrum, spec_file)
+
+def plot_fit(spec_file):
+
+    spectrum = read_h5py_into_dict(spec_file) 
+
+    contin_level = spectrum['continuum'][0]
+    vel_mask = extend_to_continuum(spectrum, vel_range, contin_level)
+
+    spectrum['flux_model'] = get_flux_model(spectrum['wavelengths'], spectrum['lines'], spectrum['ion_name'])
+
+    regions, indices =  pg.analysis.find_regions(spectrum['wavelengths'][vel_mask], spectrum['fluxes'][vel_mask], spectrum['noise'][vel_mask])
+
+    line_velocities = wave_to_vel(regions, spectrum['lambda_rest'], spectrum['redshift'])
+
+    plt.plot(spectrum['velocities'][vel_mask], spectrum['fluxes'][vel_mask], label='data')
+    plt.plot(spectrum['velocities'][vel_mask], spectrum['fluxes_model'][vel_mask], label='model')
+    for r in line_velocities:
+         plt.axvline(r[0], c='g', ls='--', lw=0.75)
+         plt.axvline(r[1], c='g', ls='--', lw=0.75)
+    plt.legend()
+    plt.savefig(spec_file.replace('.h5', '.png'))
+    plt.clf()

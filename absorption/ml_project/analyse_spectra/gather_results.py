@@ -1,9 +1,10 @@
 import h5py
 import numpy as np
 import pygad as pg
+import os
 import sys
-from generate_spectra import read_spectrum
-
+sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
+from utils import *
 
 def convert_to_log(y, yerr):
     yerr /= (y*np.log(10.))
@@ -59,7 +60,16 @@ if __name__ == '__main__':
     spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
 
     results_file = f'data/normal/results/fit_column_densities_{line}.h5'
+    if os.path.isfile(results_file):
+        with h5py.File(results_file, 'r') as hf:
+            results_keys = hf.keys()
     rchisq_file = f'data/normal/results/fit_max_rchisq_{line}.h5'
+    if os.path.isfile(rchisq_file):
+        with h5py.File(rchisq_file, 'r') as hf:
+            rchisq_keys = hf.keys()
+
+        if ('log_totalN_{fr200}r200' in results_keys) & ('log_dtotalN_{fr200}r200' in results_keys) & (f'max_rchisq_{fr200}r200' in rchisq_keys):
+            sys.exit()
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -71,7 +81,7 @@ if __name__ == '__main__':
     for i in range(len(gal_ids)):
         for o, orient in enumerate(orients):
             spec_name = f'sample_galaxy_{gal_ids[i]}_{line}_{orient}_{fr200}r200'
-            spectrum = read_spectrum(f'{spectra_dir}{spec_name}.h5')
+            spectrum = read_h5py_into_dict(f'{spectra_dir}{spec_name}.h5')
 
             spectrum['lines'] = exclude_lines_outside_window(spectrum['lines'], spectrum['gal_velocity_pos'], vel_range, spectrum['lambda_rest'], z)
             all_totalN[i][o], all_dtotalN[i][o] = get_total_column_density(spectrum['lines']['fit_logN'], spectrum['lines']['fit_dlogN'])

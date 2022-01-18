@@ -35,7 +35,7 @@ log_frad = sys.argv[6]
 lambda_rest = float(re.findall(r'\d+', line)[0])
 ids = list(range(num*ngals_each, (num+1)*ngals_each))
 
-snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_satellite_only_{log_frad}log_frad.h5'
+snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_satellite_only_{log_frad}log_frad.hdf5'
 s = pg.Snapshot(snapfile)
 
 sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
