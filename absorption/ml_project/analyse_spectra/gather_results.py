@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import h5py
 import numpy as np
 import pygad as pg
@@ -5,35 +6,7 @@ import os
 import sys
 sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
 from utils import *
-
-def convert_to_log(y, yerr):
-    yerr /= (y*np.log(10.))
-    y = np.log10(y)
-    return y, yerr
-
-
-def get_total_column_density(fit_logN, fit_dlogN):
-    totalN = np.sum(10**(fit_logN))
-    d_totalN = np.sqrt(np.sum(fit_dlogN**2.) * (np.log(10.)**2.) * (totalN**2.))
-    return convert_to_log(totalN, d_totalN)
-
-
-def exclude_lines_outside_window(lines, gal_vpos, vel_range, lambda_rest, z):
-    delete_lines = []
-    for l in range(len(lines['fit_l'])):
-        wavelength = lines['fit_l'][l]
-        velocity = wave_to_vel(wavelength, lambda_rest, z)
-        if not (velocity < gal_vpos+vel_range) & (velocity > gal_vpos-vel_range):
-            delete_lines.append(l)
-    for k in lines.keys():
-        lines[k] = np.delete(lines[k], delete_lines)
-    return lines
-
-
-def wave_to_vel(wave, lambda_rest, z):
-        c = 2.99792e5 # km/s
-        return c * ((wave / lambda_rest) / (1.0 + z) - 1.0)
-
+from physics import *
 
 if __name__ == '__main__':
 
@@ -81,7 +54,7 @@ if __name__ == '__main__':
     for i in range(len(gal_ids)):
         for o, orient in enumerate(orients):
             spec_name = f'sample_galaxy_{gal_ids[i]}_{line}_{orient}_{fr200}r200'
-            spectrum = read_h5py_into_dict(f'{spectra_dir}{spec_name}.h5')
+            spectrum = read_h5_into_dict(f'{spectra_dir}{spec_name}.h5')
 
             spectrum['lines'] = exclude_lines_outside_window(spectrum['lines'], spectrum['gal_velocity_pos'], vel_range, spectrum['lambda_rest'], z)
             all_totalN[i][o], all_dtotalN[i][o] = get_total_column_density(spectrum['lines']['fit_logN'], spectrum['lines']['fit_dlogN'])

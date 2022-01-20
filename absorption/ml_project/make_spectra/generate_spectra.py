@@ -7,18 +7,11 @@ import gc
 import os
 import h5py
 from pygadgetreader import readsnap
-
+from physics import wave_to_vel, vel_to_wave
+from utils import read_h5_into_dict 
 
 def t_elapsed(): 
     return np.round(time.time()-TINIT,2)
-
-
-def vel_to_wave(vel, lambda_rest, c, z):
-    return lambda_rest * (1.0 + z) * (vel / c + 1.)
-
-
-def wave_to_vel(wave, lambda_rest, c, z):
-    return c * ((wave / lambda_rest) / (1.0 + z) - 1.0)
 
 
 def write_spectrum(spec_name, line, los, lambda_rest, gal_vel_pos, redshift, spectrum):
@@ -41,16 +34,16 @@ def write_line_list(spectrum, spec_file):
     with h5py.File(spec_file, 'a') as hf:
         if 'lines' in hf.keys():
             del hf['lines']
-        lines = hf.create_group("lines")
-        lines.create_dataset("fit_region", data=np.array(spectrum['lines']['region']))
-        lines.create_dataset("fit_logN", data=np.array(spectrum['lines']['N']))
-        lines.create_dataset("fit_dlogN", data=np.array(spectrum['lines']['dN']))
-        lines.create_dataset("fit_b", data=np.array(spectrum['lines']['b']))
-        lines.create_dataset("fit_db", data=np.array(spectrum['lines']['db']))
-        lines.create_dataset("fit_l", data=np.array(spectrum['lines']['l']))
-        lines.create_dataset("fit_dl", data=np.array(spectrum['lines']['dl']))
-        lines.create_dataset("fit_EW", data=np.array(spectrum['lines']['EW']))
-        lines.create_dataset("fit_Chisq", data=np.array(spectrum['lines']['Chisq']))
+        lines = hf.create_group("line_list")
+        lines.create_dataset("region", data=np.array(spectrum['line_list']['region']))
+        lines.create_dataset("N", data=np.array(spectrum['line_list']['N']))
+        lines.create_dataset("dN", data=np.array(spectrum['line_list']['dN']))
+        lines.create_dataset("b", data=np.array(spectrum['line_list']['b']))
+        lines.create_dataset("db", data=np.array(spectrum['line_list']['db']))
+        lines.create_dataset("l", data=np.array(spectrum['line_list']['l']))
+        lines.create_dataset("dl", data=np.array(spectrum['line_list']['dl']))
+        lines.create_dataset("EW", data=np.array(spectrum['line_list']['EW']))
+        lines.create_dataset("Chisq", data=np.array(spectrum['line_list']['Chisq']))
 
 
 def generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos, periodic_vel, pixel_size, snr, spec_name, LSF=None, fit_contin=False, min_restr_column=5):
@@ -175,72 +168,48 @@ def extend_to_continuum(spectrum, vel_range, contin_level=1., nbuffer=20):
     return mask
 
 
-def read_h5py_into_dict(h5file):
-    data = {}
-    with h5py.File(h5file, 'r') as f:
-        for k in f.keys():
-
-            if type(f[k]) == h5py._hl.group.Group:
-                data[k] = {}
-
-                for gk in f[k].keys():
-
-                    if len(f[k][gk].shape) == 0:
-                        data[k][gk] = f[k][gk][()]
-                    else:
-                        data[k][gk] = f[k][gk][:]
-
-            else:      
-                if len(f[k].shape) == 0:
-                    data[k] = f[k][()]
-                else:
-                    data[k] = f[k][:]
-            
-                for attr_k in f[k].attrs.keys():
-                    data[attr_k] = f[k].attrs[attr_k]
-    
-    return data
-
-
 def fit_spectrum(spec_file, vel_range=600., nbuffer=20, z=None):
    
     spectrum = read_h5py_into_dict(spec_file)
-    if 'lines' in spectrum.keys():
+    if 'line_list' in spectrum.keys():
         return
 
     contin_level = spectrum['continuum'][0]
     vel_mask = extend_to_continuum(spectrum, vel_range, contin_level)
 
-    spectrum['lines'] = pg.analysis.fit_profiles(spectrum['ion_name'], spectrum['wavelengths'][vel_mask], spectrum['fluxes'][vel_mask], spectrum['noise'][vel_mask], 
+    spectrum['line_list'] = pg.analysis.fit_profiles(spectrum['ion_name'], spectrum['wavelengths'][vel_mask], spectrum['fluxes'][vel_mask], spectrum['noise'][vel_mask], 
                                          chisq_lim=2.5, max_lines=10, logN_bounds=[12,17], b_bounds=[3,100], mode='Voigt')
     
-    line_velocities = wave_to_vel(spectrum['lines']['l'], spectrum['lambda_rest'], pg.physics.c.in_units_of('km/s'), z)
+    line_velocities = wave_to_vel(spectrum['line_list']['l'], spectrum['lambda_rest'], spectrum['redshift'])
 
     outwith_vel_mask = ~((line_velocities > spectrum['gal_velocity_pos'] - vel_range) & (line_velocities < spectrum['gal_velocity_pos'] + vel_range))
 
-    for k in spectrum['lines'].keys():
-        spectrum['lines'][k] = np.delete(spectrum['lines'][k], outwith_vel_mask)
+    for k in spectrum['line_list'].keys():
+        spectrum['line_list'][k] = np.delete(spectrum['line_list'][k], outwith_vel_mask)
 
     write_line_list(spectrum, spec_file)
+
 
 def plot_fit(spec_file):
 
     spectrum = read_h5py_into_dict(spec_file) 
 
-    contin_level = spectrum['continuum'][0]
-    vel_mask = extend_to_continuum(spectrum, vel_range, contin_level)
+    plt.plot(spectrum['velocities'], spectrum['fluxes'], label='data', c='tab:grey', lw=2, ls='-')
 
-    spectrum['flux_model'] = get_flux_model(spectrum['wavelengths'], spectrum['lines'], spectrum['ion_name'])
+    tau_model_total = np.zeros(len(spectrum['wavelengths']))
+    for i in range(len(spectrum['line_list'])):
+        p = np.array([spectrum['line_list']['N'][i], spectrum['line_list']['b'][i], spectrum['line_list']['l'][i]]) 
+        tau_model = pg.analysis.model_tau(line, p, spectrum['wavelengths'])
+        plt.plot(spectrum['velocities'], tau_to_flux(tau_model), c='tab:pink', lw=1.5, ls='--')
+        tau_model_total += tau_model
 
-    regions, indices =  pg.analysis.find_regions(spectrum['wavelengths'][vel_mask], spectrum['fluxes'][vel_mask], spectrum['noise'][vel_mask])
+    spectrum['fluxes_model'] = tau_to_flux(tau_model_total)
+    plt.plot(spectrum['velocities'], spectrum['fluxes_model'], label='model', c='tab:pink', ls='-', lw=2)
 
-    line_velocities = wave_to_vel(regions, spectrum['lambda_rest'], spectrum['redshift'])
-
-    plt.plot(spectrum['velocities'][vel_mask], spectrum['fluxes'][vel_mask], label='data')
-    plt.plot(spectrum['velocities'][vel_mask], spectrum['fluxes_model'][vel_mask], label='model')
-    for r in line_velocities:
-         plt.axvline(r[0], c='g', ls='--', lw=0.75)
-         plt.axvline(r[1], c='g', ls='--', lw=0.75)
+    spectrum['line_list']['v'] = wave_to_vel(spectrum['line_list']['l'], spectrum['lambda_rest'], z)
+    for v in spectrum['line_list']['v']:
+         plt.axvline(v, c='b', ls='--', lw=0.75)
+    plt.xlim(spectrum['gal_velocity_pos'][()] - vel_range, spectrum['gal_velocity_pos'][()] +vel_range)
     plt.legend()
     plt.savefig(spec_file.replace('.h5', '.png'))
     plt.clf()

@@ -9,41 +9,20 @@ import h5py
 import sys
 from numba import jit
 
+def ssfr_b_redshift(z):
+    return 1.9*np.log10(1+z) - 7.7
+
 def sfms_line(mstar, a=0.73, b=-7.7):
     # The definition of the SFMS from Belfiore+18 is:
     # log (SFR/Msun/yr) = 0.73 log (Mstar/Msun) - 7.33
     # With a scatter of sigma = 0.39 dex
     return mstar*a + b
 
-def sf_check(mstar, sfr):
-    # Check whether galaxy is star forming according to Belfiore+18
-    sfr_lower = sfms_line(mstar, a=0.73, b=-7.7)
-    if sfr_lower < sfr:
-        return True
-    else:
-        return False
+def ssfr_type_check(z, mstar, sfr):
 
-def gv_check(mstar, sfr):
-    # Check whether galaxy is in the green valley according to Belfiore+18
-    sfr_upper = sfms_line(mstar, a=0.73, b=-7.7)
-    sfr_lower = sfms_line(mstar, a=0.73, b=-8.7)
-    if (sfr_upper > sfr) & (sfr_lower < sfr):
-        return True
-    else:
-        return False 
-
-def q_check(mstar, sfr):
-    # Check whether galaxy is quenched according to Belfiore+18
-    sfr_upper = sfms_line(mstar, a=0.73, b=-8.7)
-    if sfr_upper > sfr:
-        return True
-    else:
-        return False
-
-def ssfr_type_check(mstar, sfr):
-
-    sf_line = sfms_line(mstar, a=0.73, b=-7.7)
-    q_line = sfms_line(mstar, a=0.73, b=-8.7)
+    ssfr_b = ssfr_b_redshift(z)
+    sf_line = sfms_line(mstar, a=0.73, b=ssfr_b)
+    q_line = sfms_line(mstar, a=0.73, b=ssfr_b - 1.)
 
     sf_mask = sfr > sf_line
     gv_mask = (sfr < sf_line) & (sfr > q_line)
@@ -93,7 +72,7 @@ gal_gas_frac = np.array([i.masses['gas'].in_units('Msun') /i.masses['stellar'].i
 # empty arrays to store ngals_each simba galaxies per ssfr-mstar bin
 gal_ids = np.ones(nbins_m*nbins_ssfr*ngals_each) * np.nan
 
-sf_mask, gv_mask, q_mask = ssfr_type_check(gal_sm, np.log10(gal_sfr))
+sf_mask, gv_mask, q_mask = ssfr_type_check(redshift, gal_sm, np.log10(gal_sfr))
 
 for i in range(len(mass_bins)):
     gal_id_range = range((i)*ngals_each*nbins_ssfr, (i+1)*ngals_each*nbins_ssfr)
