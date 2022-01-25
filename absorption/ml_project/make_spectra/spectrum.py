@@ -19,34 +19,62 @@ class Spectrum(object):
             setattr(self, key, data[key])
         del data
 
+    def get_initial_window(self, vel_range, v_central=None, v_boxsize=10000.):
 
-    def extend_to_continuum(self, vel_range, contin_level=1., nbuffer=20):
+        def _find_nearest(array, value):
+            return np.abs(array - value).argmin()
 
-        self.vel_mask = (self.velocities < self.gal_velocity_pos + vel_range) & (self.velocities > self.gal_velocity_pos - vel_range)
-        v_start, v_end = np.where(self.vel_mask)[0][0], np.where(self.vel_mask)[0][-1]
+        if v_central is None:
+            v_central = self.gal_velocity_pos
+
+        # get the velocity start and end positions
+        dv = self.velocities[1] - self.velocities[0]
+        v_start = v_central - vel_range
+        v_end = v_central + vel_range
+        N = int((v_end - v_start) / dv)
+
+        # get the start and end indices
+        if v_start < 0.:
+            v_start += v_boxsize
+        i_start = _find_nearest(self.velocities, v_start)
+        i_end = i_start + N
+
+        return i_start, i_end
+
+    def extend_to_continuum(self, i_start, i_end, contin_level=1.):
 
         continuum = False
-        i = 0
         while not continuum:
-            _flux = self.fluxes[v_start - i:v_start -i +nbuffer]
-            if np.abs(np.median(_flux) - contin_level) / contin_level > 0.05:
-                i += 1
+            _flux = self.fluxes.take(i_start, mode='wrap')
+            if np.abs(_flux - contin_level) / contin_level > 0.05:
+                i_start -= 1
             else:
                 continuum = True
 
         continuum = False
-        j = 0
         while not continuum:
-            _flux = self.fluxes[v_end + j - nbuffer: v_end +j]
-            if np.abs(np.median(_flux) - contin_level) / contin_level > 0.05:
-                j += 1
+            _flux = self.fluxes.take(i_end, mode='wrap')
+            if np.abs(_flux - contin_level) / contin_level > 0.05:
+                i_end += 1
             else:
                 continuum = True
 
-        extended_indices = np.arange(v_start - i - nbuffer, v_end+j+ nbuffer+1, 1)
-        extended_indices = np.delete(extended_indices, np.argwhere(extended_indices > len(self.vel_mask) -1))
-        self.vel_mask = np.zeros(len(self.vel_mask)).astype(bool)
-        self.vel_mask[extended_indices] = True
+        return i_start, i_end
+    
+    def buffer_with_continuum(self, waves, flux, noise, nbuffer=50,):
+
+        dl = waves[1] - waves[0]
+        l_start = np.arange(waves[0] - dl*nbuffer, waves[0], dl)
+        l_end = np.arange(waves[-1]+dl, waves[-1] + dl*(nbuffer+1), dl)
+        
+        waves = np.concatenate((l_start, waves, l_end))
+
+        sigma_noise = 1./snr
+        new_noise = np.random.normal(0.0, sigma_noise, 2*nbuffer)
+        noise = np.concatenate((new_noise[:nbuffer], noise, new_noise[nbuffer:]))
+        flux = np.concatenate((tau_to_flux(np.zeros(nbuffer)) + new_noise[:nbuffer], flux, tau_to_flux(np.zeros(nbuffer)) + new_noise[nbuffer:]))
+        
+        return waves, flux, noise 
 
 
     def fit_spectrum(self, vel_range=600., nbuffer=20):
@@ -88,9 +116,38 @@ class Spectrum(object):
     
     def get_fluxes_model(self):
         self.get_tau_model()
-        self.fluxes_model = np.exp(-np.clip(self.tau_model, -30, 30))
+        self.fluxes_model = tau_to_flux(self.tau_model)
 
+   
+    def run(self, vel_range):
     
+        i_start, i_end = get_initial_window(vel_range) 
+        i_start, i_end = extend_to_continuum(i_start, i_end)
+
+        if i_start < 0:
+            i_start += len(self.wavelengths)
+            i_end += len(self.wavelengths)
+
+        waves = self.wavelengths.take(range(i_start, i_end), mode='wrap')
+        flux = self.fluxes.take(range(i_start, i_end), mode='wrap')
+        noise = self.noise.take(range(i_start, i_end), mode='wrap')
+
+        # check if the start and end wavelengths go over the limits of the box
+        i_wrap = len(self.wavelengths) - i_start
+        if i_wrap < N:
+            # spectrum wraps, i_wrap is the first index of the wavelengths that have been moved to the left side of the box
+            dl = self.wavelengths[1] - self.wavelengths[0]
+            wave_boxsize = self.wavelengths[-1] - self.wavelengths[0]
+            waves[i_wrap:] += wave_boxsize + dl
+            # then for any fitted lines with position outwith the right-most box limits: subtract dl + wave_boxsize
+
+        # buffer to continuum
+
+        # fit spectra
+
+        # adjust the output lines to cope with wrapping
+
+
     def write_line_list(self):
 
         with h5py.File(self.spectrum_file, 'a') as hf:
