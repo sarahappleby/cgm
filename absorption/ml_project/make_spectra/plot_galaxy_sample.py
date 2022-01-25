@@ -5,6 +5,10 @@ import matplotlib.colors as colors
 import h5py
 import numpy as np
 import sys
+import caesar
+
+def ssfr_b_redshift(z):
+    return 1.9*np.log10(1+z) - 7.7
 
 def sfms_line(mstar, a=0.73, b=-7.7):
     # The definition of the SFMS from Belfiore+18 is:
@@ -31,6 +35,17 @@ if __name__ == '__main__':
     model = sys.argv[1]
     wind = sys.argv[2]
     snap = sys.argv[3]
+
+    data_dir = f'/home/rad/data/{model}/{wind}/'
+    sim = caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5') 
+    redshift = sim.simulation.redshift
+
+    possible_snaps = ['151', '137', '125', '105', '078']
+    snap_index = possible_snaps.index(snap)
+    sf_height = [1.1, 1.2, 1.6, 2.1, 2.6]
+    gv_height = [0.3, 0.3, 0.5, 0.7, 1.1]
+    q_height = [-0.7, -0.7, -0.5, -0.3, 0.]
+    ylims = [1.5, 1.75, 2., 2.5, 3.0]
 
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
@@ -61,21 +76,22 @@ if __name__ == '__main__':
     mass_bins = np.arange(min_m, min_m+nbins_m*delta_m, delta_m)
 
     sm_line = np.arange(9.5, 12.5, 0.5)
-    sf_line = sfms_line(sm_line)
-    q_line = sfms_line(sm_line, b=-8.7)
+    ssfr_b = ssfr_b_redshift(redshift)
+    sf_line = sfms_line(sm_line, b=ssfr_b)
+    q_line = sfms_line(sm_line, b=ssfr_b-1.)
 
     plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
     plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
-    plt.text(11.55, 1.1, 'SF')
-    plt.text(11.55, 0.3, 'GV')
-    plt.text(11.55, -0.7, 'Q')
+    plt.text(11.55, sf_height[snap_index], 'SF')
+    plt.text(11.55, gv_height[snap_index], 'GV')
+    plt.text(11.55, q_height[snap_index], 'Q')
     for i in range(nbins_m + 1):
         plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
     im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=inclination, cmap=cmap, s=5, marker='o')
     plt.colorbar(im, label=r'$i\ (^\circ)$')
     plt.clim(90, 0)
     plt.xlim(9.75,11.75)
-    plt.ylim(-3.5, 1.5)
+    plt.ylim(-3.5, ylims[snap_index])
     plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
     plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
     plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_inclination.png')
@@ -83,16 +99,16 @@ if __name__ == '__main__':
 
     plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
     plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
-    plt.text(11.55, 1.1, 'SF')
-    plt.text(11.55, 0.3, 'GV')
-    plt.text(11.55, -0.7, 'Q')
+    plt.text(11.55, sf_height[snap_index], 'SF')
+    plt.text(11.55, gv_height[snap_index], 'GV')
+    plt.text(11.55, q_height[snap_index], 'Q')
     for i in range(nbins_m + 1):
         plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
     im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=np.abs(np.cos(alpha)), cmap=cmap, s=5, marker='o')
     plt.colorbar(im, label=r'$\vert{\rm cos}\ i\vert$')
     plt.clim(1, 0)
     plt.xlim(9.75,11.75)
-    plt.ylim(-3.5, 1.5)
+    plt.ylim(-3.5, ylims[snap_index])
     plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
     plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
     plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_cosi.png')
@@ -120,16 +136,16 @@ if __name__ == '__main__':
 
     plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
     plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
-    plt.text(11.55, 1.1, 'SF')
-    plt.text(11.55, 0.3, 'GV')
-    plt.text(11.55, -0.7, 'Q')
+    plt.text(11.55, sf_height[snap_index], 'SF')
+    plt.text(11.55, gv_height[snap_index], 'GV')
+    plt.text(11.55, q_height[snap_index], 'Q')
     for i in range(nbins_m + 1):
         plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
     im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=gal_fgas, cmap=cmap, s=5, marker='o')
     plt.colorbar(im, label=r'$\textrm{log} (f_{\textrm{gas}})$')
     plt.clim(1.0, -3.)
     plt.xlim(9.75,11.75)
-    plt.ylim(-3.5, 1.5)
+    plt.ylim(-3.5, ylims[snap_index])
     plt.xlabel(r'$\log\ (M_{*} / M_{\odot})$')
     plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
     plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_fgas.png')

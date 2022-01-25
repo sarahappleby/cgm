@@ -14,7 +14,7 @@ def t_elapsed():
     return np.round(time.time()-TINIT,2)
 
 
-def write_spectrum(spec_name, line, los, lambda_rest, gal_vel_pos, redshift, spectrum):
+def write_spectrum(spec_name, line, los, lambda_rest, gal_vel_pos, redshift, snr, spectrum):
 
     if len(los) == 2: 
         los = np.append(np.array(los), -1.0)  # assumes if only 2 values are provided, they are (x,y), so we add -1 for z. 
@@ -25,6 +25,7 @@ def write_spectrum(spec_name, line, los, lambda_rest, gal_vel_pos, redshift, spe
         hf.create_dataset("gal_velocity_pos", data=np.array(gal_vel_pos))
         hf.create_dataset("LOS_pos", data=np.array(los))
         hf.create_dataset("redshift", data=redshift)
+        hf.create_dataset("snr", data=redshift)
         for k in spectrum.keys():
             hf.create_dataset(k, data=np.array(spectrum[k]))
 
@@ -106,7 +107,7 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos, periodic_vel
         print(f'WARNING: fewer than {min_restr_column} gas elements contribute 90% of the total column density.')
     del spectrum['restr_column']
 
-    write_spectrum(f'{spec_name}.h5', line, los, lambda_rest, gal_vel_pos, s.redshift, spectrum)
+    write_spectrum(f'{spec_name}.h5', line, los, lambda_rest, gal_vel_pos, s.redshift, snr, spectrum)
 
     return
 

@@ -41,7 +41,10 @@ class Spectrum(object):
 
         return i_start, i_end
 
-    def extend_to_continuum(self, i_start, i_end, contin_level=1.):
+    def extend_to_continuum(self, i_start, i_end, contin_level=None):
+
+        if contin_level is None:
+            contin_level = self.continuum[0]
 
         continuum = False
         while not continuum:
@@ -77,7 +80,7 @@ class Spectrum(object):
         return waves, flux, noise 
 
 
-    def fit_spectrum(self, vel_range=600., nbuffer=20):
+    def fit_spectrum_old(self, vel_range=600., nbuffer=20):
 
         contin_level = self.continuum[0]
         self.extend_to_continuum(vel_range, contin_level)
@@ -118,35 +121,6 @@ class Spectrum(object):
         self.get_tau_model()
         self.fluxes_model = tau_to_flux(self.tau_model)
 
-   
-    def run(self, vel_range):
-    
-        i_start, i_end = get_initial_window(vel_range) 
-        i_start, i_end = extend_to_continuum(i_start, i_end)
-
-        if i_start < 0:
-            i_start += len(self.wavelengths)
-            i_end += len(self.wavelengths)
-
-        waves = self.wavelengths.take(range(i_start, i_end), mode='wrap')
-        flux = self.fluxes.take(range(i_start, i_end), mode='wrap')
-        noise = self.noise.take(range(i_start, i_end), mode='wrap')
-
-        # check if the start and end wavelengths go over the limits of the box
-        i_wrap = len(self.wavelengths) - i_start
-        if i_wrap < N:
-            # spectrum wraps, i_wrap is the first index of the wavelengths that have been moved to the left side of the box
-            dl = self.wavelengths[1] - self.wavelengths[0]
-            wave_boxsize = self.wavelengths[-1] - self.wavelengths[0]
-            waves[i_wrap:] += wave_boxsize + dl
-            # then for any fitted lines with position outwith the right-most box limits: subtract dl + wave_boxsize
-
-        # buffer to continuum
-
-        # fit spectra
-
-        # adjust the output lines to cope with wrapping
-
 
     def write_line_list(self):
 
@@ -166,7 +140,7 @@ class Spectrum(object):
             line_list.create_dataset("EW", data=np.array(self.line_list['EW']))
             line_list.create_dataset("Chisq", data=np.array(self.line_list['Chisq']))
 
-    
+
     def plot_fit(self, ax=None, vel_range=600., filename=None):
 
         if ax is None:
@@ -191,4 +165,43 @@ class Spectrum(object):
             filename = self.spectrum_file.replace('.h5', '.png')
         plt.savefig(filename)
         plt.clf()
+
+
+    def main(self, vel_range, do_continuum_buffer=True, nbuffer=50, write_lines=False):
+    
+        i_start, i_end = get_initial_window(vel_range) 
+        i_start, i_end = extend_to_continuum(i_start, i_end)
+
+        if i_start < 0:
+            i_start += len(self.wavelengths)
+            i_end += len(self.wavelengths)
+
+        waves = self.wavelengths.take(range(i_start, i_end), mode='wrap')
+        flux = self.fluxes.take(range(i_start, i_end), mode='wrap')
+        noise = self.noise.take(range(i_start, i_end), mode='wrap')
+
+        # check if the start and end wavelengths go over the limits of the box
+        i_wrap = len(self.wavelengths) - i_start
+        wave_boxsize = self.wavelengths[-1] - self.wavelengths[0]
+        dl = self.wavelengths[1] - self.wavelengths[0]
+        if i_wrap < N:
+            # spectrum wraps, i_wrap is the first index of the wavelengths that have been moved to the left side of the box
+            waves[i_wrap:] += wave_boxsize + dl
+            # then for any fitted lines with position outwith the right-most box limits: subtract dl + wave_boxsize
+
+        if do_continuum_buffer is True:
+            waves, flux, noise = buffer_with_continuum(waves, flux, noise, nbuffer=nbuffer)
+
+        self.line_list = pg.analysis.fit_profiles(self.ion_name, waves, flux, noise,
+                                                  chisq_lim=2.5, max_lines=10, logN_bounds=[12,17], b_bounds=[3,100], mode='Voigt')
+        
+        # adjust the output lines to cope with wrapping
+        for line in self.line_list:
+            if line['l'] > self.wavelengths[-1]:
+                line['l'] -= (wave_boxsize + dl)
+            elif line['l'] < self.wavelengths[0]:
+                line['l'] += (wave_boxsize + dl)
+
+        if write_lines:
+            self.write_line_list()
 
