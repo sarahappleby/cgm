@@ -39,7 +39,7 @@ class Spectrum(object):
         i_start = _find_nearest(self.velocities, v_start)
         i_end = i_start + N
 
-        return i_start, i_end
+        return i_start, i_end, N
 
     def extend_to_continuum(self, i_start, i_end, contin_level=None):
 
@@ -49,7 +49,7 @@ class Spectrum(object):
         continuum = False
         while not continuum:
             _flux = self.fluxes.take(i_start, mode='wrap')
-            if np.abs(_flux - contin_level) / contin_level > 0.05:
+            if np.abs(_flux - contin_level) / contin_level > 0.02:
                 i_start -= 1
             else:
                 continuum = True
@@ -57,15 +57,19 @@ class Spectrum(object):
         continuum = False
         while not continuum:
             _flux = self.fluxes.take(i_end, mode='wrap')
-            if np.abs(_flux - contin_level) / contin_level > 0.05:
+            if np.abs(_flux - contin_level) / contin_level > 0.02:
                 i_end += 1
             else:
                 continuum = True
 
         return i_start, i_end
     
-    def buffer_with_continuum(self, waves, flux, noise, nbuffer=50,):
+    def buffer_with_continuum(self, waves, flux, noise, nbuffer=50, snr_default=30.):
 
+        if hasattr(self, 'snr'):
+            snr = self.snr
+        else:
+            snr = snr_default
         dl = waves[1] - waves[0]
         l_start = np.arange(waves[0] - dl*nbuffer, waves[0], dl)
         l_end = np.arange(waves[-1]+dl, waves[-1] + dl*(nbuffer+1), dl)
@@ -152,13 +156,12 @@ class Spectrum(object):
         for i in range(len(self.line_list)):
             p = np.array([self.line_list['N'][i], self.line_list['b'][i], self.line_list['l'][i]])
             _tau_model = pg.analysis.model_tau(self.ion_name, p, self.wavelengths)
-            ax.plot(self.velocities, tau_to_flux(_tau_model), c='tab:pink', lw=1.5, ls='--')
+            ax.plot(self.velocities, tau_to_flux(_tau_model), c='tab:pink', alpha=0.5, lw=1, ls='--')
 
         ax.plot(self.velocities, self.fluxes_model, label='model', c='tab:pink', ls='-', lw=2)
 
-        self.line_list['v'] = wave_to_vel(self.line_list['l'], self.lambda_rest, self.redshift)
-        for v in self.line_list['v']:
-             ax.axvline(v, c='b', ls='--', lw=0.75)
+        #for v in self.line_list['v']:
+        #     ax.axvline(v, c='b', ls='--', lw=0.75)
         ax.set_xlim(self.gal_velocity_pos - vel_range, self.gal_velocity_pos +vel_range)
         ax.legend()
         if filename == None:
@@ -167,10 +170,13 @@ class Spectrum(object):
         plt.clf()
 
 
-    def main(self, vel_range, do_continuum_buffer=True, nbuffer=50, write_lines=False):
-    
-        i_start, i_end = get_initial_window(vel_range) 
-        i_start, i_end = extend_to_continuum(i_start, i_end)
+    def main(self, vel_range, do_continuum_buffer=True, nbuffer=50, chisq_asym_thresh=-3., write_lines=False):
+   
+        print('getting initial window')
+        i_start, i_end, N = self.get_initial_window(vel_range) 
+        print(i_start, i_end)
+        i_start, i_end = self.extend_to_continuum(i_start, i_end)
+        print(i_start, i_end)
 
         if i_start < 0:
             i_start += len(self.wavelengths)
@@ -189,19 +195,24 @@ class Spectrum(object):
             waves[i_wrap:] += wave_boxsize + dl
             # then for any fitted lines with position outwith the right-most box limits: subtract dl + wave_boxsize
 
+        print('Doing continuum buffer')
         if do_continuum_buffer is True:
-            waves, flux, noise = buffer_with_continuum(waves, flux, noise, nbuffer=nbuffer)
+            waves, flux, noise = self.buffer_with_continuum(waves, flux, noise, nbuffer=nbuffer)
 
+        print('Fitting...')
         self.line_list = pg.analysis.fit_profiles(self.ion_name, waves, flux, noise,
-                                                  chisq_lim=2.5, max_lines=10, logN_bounds=[12,17], b_bounds=[3,100], mode='Voigt')
-        
+                                                  chisq_lim=2.5, chisq_asym_thresh=chisq_asym_thresh, max_lines=10, logN_bounds=[12,17], 
+                                                  b_bounds=[3,100], mode='Voigt')
+       
+        print(self.line_list)
         # adjust the output lines to cope with wrapping
-        for line in self.line_list:
-            if line['l'] > self.wavelengths[-1]:
-                line['l'] -= (wave_boxsize + dl)
-            elif line['l'] < self.wavelengths[0]:
-                line['l'] += (wave_boxsize + dl)
+        for i in range(len(self.line_list['l'])):
+            if self.line_list['l'][i] > self.wavelengths[-1]:
+                self.line_list['l'][i]  -= (wave_boxsize + dl)
+            elif self.line_list['l'][i] < self.wavelengths[0]:
+                self.line_list['l'][i] += (wave_boxsize + dl)
 
+        print(self.line_list)
         if write_lines:
             self.write_line_list()
 

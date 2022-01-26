@@ -100,7 +100,6 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos, periodic_vel
     if fit_contin:
         spectrum['continuum'] = pg.analysis.absorption_spectra.fit_continuum(spectrum['wavelengths'], spectrum['fluxes'], noise_vector, order=0, sigma_lim=1.5)
         spectrum['fluxes'] = spectrum['fluxes']/spectrum['continuum']
-        noise_vector = noise_vector/spectrum['continuum']
 
     spectrum['n90_restr_column'] = check_restr_column(s.filename, los, spectrum['restr_column'])
     if spectrum['n90_restr_column'] < min_restr_column:
