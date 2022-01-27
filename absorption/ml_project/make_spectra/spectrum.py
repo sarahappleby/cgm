@@ -19,6 +19,7 @@ class Spectrum(object):
             setattr(self, key, data[key])
         del data
 
+
     def get_initial_window(self, vel_range, v_central=None, v_boxsize=10000.):
 
         def _find_nearest(array, value):
@@ -40,6 +41,7 @@ class Spectrum(object):
         i_end = i_start + N
 
         return i_start, i_end, N
+
 
     def extend_to_continuum(self, i_start, i_end, contin_level=None):
 
@@ -63,8 +65,9 @@ class Spectrum(object):
                 continuum = True
 
         return i_start, i_end
-    
-    def buffer_with_continuum(self, waves, flux, noise, nbuffer=50, snr_default=30.):
+   
+
+    def buffer_with_continuum(self, waves, flux, nbuffer=50, snr_default=30.):
 
         if hasattr(self, 'snr'):
             snr = self.snr
@@ -78,10 +81,9 @@ class Spectrum(object):
 
         sigma_noise = 1./snr
         new_noise = np.random.normal(0.0, sigma_noise, 2*nbuffer)
-        noise = np.concatenate((new_noise[:nbuffer], noise, new_noise[nbuffer:]))
         flux = np.concatenate((tau_to_flux(np.zeros(nbuffer)) + new_noise[:nbuffer], flux, tau_to_flux(np.zeros(nbuffer)) + new_noise[nbuffer:]))
         
-        return waves, flux, noise 
+        return waves, flux
 
 
     def fit_spectrum_old(self, vel_range=600., nbuffer=20):
@@ -134,15 +136,8 @@ class Spectrum(object):
             elif 'lines' in hf.keys():
                 del hf['lines']
             line_list = hf.create_group("line_list")
-            line_list.create_dataset("region", data=np.array(self.line_list['region']))
-            line_list.create_dataset("N", data=np.array(self.line_list['N']))
-            line_list.create_dataset("dN", data=np.array(self.line_list['dN']))
-            line_list.create_dataset("b", data=np.array(self.line_list['b']))
-            line_list.create_dataset("db", data=np.array(self.line_list['db']))
-            line_list.create_dataset("l", data=np.array(self.line_list['l']))
-            line_list.create_dataset("dl", data=np.array(self.line_list['dl']))
-            line_list.create_dataset("EW", data=np.array(self.line_list['EW']))
-            line_list.create_dataset("Chisq", data=np.array(self.line_list['Chisq']))
+            for k in self.line_list.keys():
+                line_list.create_dataset(k, data=np.array(self.line_list[k]))
 
 
     def plot_fit(self, ax=None, vel_range=600., filename=None):
@@ -153,7 +148,7 @@ class Spectrum(object):
         ax.plot(self.velocities, self.fluxes, label='data', c='tab:grey', lw=2, ls='-')
 
         self.get_fluxes_model()
-        for i in range(len(self.line_list)):
+        for i in range(len(self.line_list['N'])):
             p = np.array([self.line_list['N'][i], self.line_list['b'][i], self.line_list['l'][i]])
             _tau_model = pg.analysis.model_tau(self.ion_name, p, self.wavelengths)
             ax.plot(self.velocities, tau_to_flux(_tau_model), c='tab:pink', alpha=0.5, lw=1, ls='--')
@@ -165,12 +160,13 @@ class Spectrum(object):
         ax.set_xlim(self.gal_velocity_pos - vel_range, self.gal_velocity_pos +vel_range)
         ax.legend()
         if filename == None:
-            filename = self.spectrum_file.replace('.h5', '.png')
+            filename = self.spectrum_file.split('/')[-1].replace('.h5', '.png')
         plt.savefig(filename)
         plt.clf()
 
 
-    def main(self, vel_range, do_continuum_buffer=True, nbuffer=50, chisq_asym_thresh=-3., write_lines=False):
+    def main(self, vel_range, do_continuum_buffer=True, nbuffer=50, 
+             snr_default=30., chisq_asym_thresh=-3., write_lines=False, plot_fit=False):
    
         print('getting initial window')
         i_start, i_end, N = self.get_initial_window(vel_range) 
@@ -184,7 +180,12 @@ class Spectrum(object):
 
         waves = self.wavelengths.take(range(i_start, i_end), mode='wrap')
         flux = self.fluxes.take(range(i_start, i_end), mode='wrap')
-        noise = self.noise.take(range(i_start, i_end), mode='wrap')
+
+        if hasattr(self, 'snr'):
+            snr = self.snr
+        else:
+            snr = snr_default
+        noise = np.asarray([1./snr] * len(flux))
 
         # check if the start and end wavelengths go over the limits of the box
         i_wrap = len(self.wavelengths) - i_start
@@ -197,12 +198,18 @@ class Spectrum(object):
 
         print('Doing continuum buffer')
         if do_continuum_buffer is True:
-            waves, flux, noise = self.buffer_with_continuum(waves, flux, noise, nbuffer=nbuffer)
+            waves, flux = self.buffer_with_continuum(waves, flux, nbuffer=nbuffer)
 
         print('Fitting...')
+        if self.ion_name == 'H1215':
+            logN_bounds = [12, 19]
+            b_bounds = [8, 200]
+        else:
+            logN_bounds = [12, 17]
+            b_bounds = [3, 100]
         self.line_list = pg.analysis.fit_profiles(self.ion_name, waves, flux, noise,
-                                                  chisq_lim=2.5, chisq_asym_thresh=chisq_asym_thresh, max_lines=10, logN_bounds=[12,17], 
-                                                  b_bounds=[3,100], mode='Voigt')
+                                                  chisq_lim=2.5, chisq_asym_thresh=chisq_asym_thresh, max_lines=10, logN_bounds=logN_bounds, 
+                                                  b_bounds=b_bounds, mode='Voigt')
        
         print(self.line_list)
         # adjust the output lines to cope with wrapping
@@ -216,3 +223,22 @@ class Spectrum(object):
         if write_lines:
             self.write_line_list()
 
+        if plot_fit:
+            self.plot_fit()
+
+
+if __name__ == '__main__':
+    model = 'm100n1024'
+    wind = 's50'
+    snap = '151'
+    fr200 = 0.25
+    line = 'H1215'
+    orient = 0
+    vel_range = 600.
+    chisq_asym_thresh = -3.
+    
+    spectrum_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
+    spectrum_file = f'{spectrum_dir}sample_galaxy_195_{line}_{orient}_deg_{fr200}r200.h5'
+
+    spec = Spectrum(spectrum_file)
+    spec.main(vel_range=vel_range, chisq_asym_thresh=chisq_asym_thresh, plot_fit=True)
