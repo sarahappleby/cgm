@@ -42,6 +42,10 @@ if __name__ == '__main__':
     h = sim.simulation.hubble_constant
     redshift = sim.simulation.redshift
 
+    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5', 'r') as hf:
+        if f'plist_{sample_gal}' in hf.keys():
+            sys.exit()
+
     hsml = readsnap(snapfile, 'SmoothingLength', 'gas', suppress=1, units=1)  # in kpc/h, comoving
     gas_pos = readsnap(snapfile, 'pos', 'gas', suppress=1, units=1) # in kpc/h, comoving
 

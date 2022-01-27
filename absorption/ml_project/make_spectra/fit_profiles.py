@@ -1,10 +1,7 @@
 import os
 import sys
-import h5py
 import numpy as np
-import matplotlib.pyplot as plt
-import pygad as pg
-from generate_spectra import *
+from spectrum import Spectrum
 
 if __name__ == '__main__':
 
@@ -14,9 +11,13 @@ if __name__ == '__main__':
     i = int(sys.argv[1])
 
     vel_range = 600.
-    z = 0
+    chisq_asym_thresh = -3.
 
-    spec_dir = f'data/{model}_{wind}_{snap}/'
+    spec_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
     spec_file = sorted(os.listdir(spec_dir))[i]
 
-    fit_spectrum(f'{spec_dir}{spec_file}', vel_range=vel_range, z=z)
+    spec = Spectrum(f'{spec_dir}{spec_file}')
+    if hasattr(spec, 'line_list'):
+        sys.exit()
+    else:
+        spec.main(vel_range=vel_range, chisq_asym_thresh=-3., write_lines=True)

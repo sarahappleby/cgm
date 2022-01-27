@@ -181,12 +181,6 @@ class Spectrum(object):
         waves = self.wavelengths.take(range(i_start, i_end), mode='wrap')
         flux = self.fluxes.take(range(i_start, i_end), mode='wrap')
 
-        if hasattr(self, 'snr'):
-            snr = self.snr
-        else:
-            snr = snr_default
-        noise = np.asarray([1./snr] * len(flux))
-
         # check if the start and end wavelengths go over the limits of the box
         i_wrap = len(self.wavelengths) - i_start
         wave_boxsize = self.wavelengths[-1] - self.wavelengths[0]
@@ -199,6 +193,12 @@ class Spectrum(object):
         print('Doing continuum buffer')
         if do_continuum_buffer is True:
             waves, flux = self.buffer_with_continuum(waves, flux, nbuffer=nbuffer)
+
+        if hasattr(self, 'snr'):
+            snr = self.snr
+        else:
+            snr = snr_default
+        noise = np.asarray([1./snr] * len(flux))
 
         print('Fitting...')
         if self.ion_name == 'H1215':
