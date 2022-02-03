@@ -43,8 +43,8 @@ snap = sys.argv[3]
 
 delta_m = 0.25
 min_m = 10.
-nbins_m = 6
-mass_bins = np.arange(min_m, min_m+nbins_m*delta_m, delta_m)
+nbins_m = 5
+mass_bins = np.arange(min_m, min_m+(nbins_m+1)*delta_m, delta_m)
 ngals_each = 12
 nbins_ssfr = 3
 

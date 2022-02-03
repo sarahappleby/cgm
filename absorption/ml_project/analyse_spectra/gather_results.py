@@ -36,12 +36,12 @@ if __name__ == '__main__':
     if os.path.isfile(results_file):
         with h5py.File(results_file, 'r') as hf:
             results_keys = hf.keys()
-    rchisq_file = f'data/normal/results/fit_max_rchisq_{line}.h5'
-    if os.path.isfile(rchisq_file):
-        with h5py.File(rchisq_file, 'r') as hf:
-            rchisq_keys = hf.keys()
+    chisq_file = f'data/normal/results/fit_max_chisq_{line}.h5'
+    if os.path.isfile(chisq_file):
+        with h5py.File(chisq_file, 'r') as hf:
+            chisq_keys = hf.keys()
 
-        if ('log_totalN_{fr200}r200' in results_keys) & ('log_dtotalN_{fr200}r200' in results_keys) & (f'max_rchisq_{fr200}r200' in rchisq_keys):
+        if ('log_totalN_{fr200}r200' in results_keys) & ('log_dtotalN_{fr200}r200' in results_keys) & (f'max_chisq_{fr200}r200' in chisq_keys):
             sys.exit()
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
@@ -49,20 +49,22 @@ if __name__ == '__main__':
 
     all_totalN = np.zeros((len(gal_ids), len(orients)))
     all_dtotalN = np.zeros((len(gal_ids), len(orients)))
-    all_max_rchisq = np.zeros((len(gal_ids), len(orients)))
+    all_max_chisq = np.zeros((len(gal_ids), len(orients)))
+    all_chisq = []
 
     for i in range(len(gal_ids)):
         for o, orient in enumerate(orients):
             spec_name = f'sample_galaxy_{gal_ids[i]}_{line}_{orient}_{fr200}r200'
             spectrum = read_h5_into_dict(f'{spectra_dir}{spec_name}.h5')
 
-            spectrum['lines'] = exclude_lines_outside_window(spectrum['lines'], spectrum['gal_velocity_pos'], vel_range, spectrum['lambda_rest'], z)
-            all_totalN[i][o], all_dtotalN[i][o] = get_total_column_density(spectrum['lines']['fit_logN'], spectrum['lines']['fit_dlogN'])
+            all_totalN[i][o], all_dtotalN[i][o] = get_total_column_density(spectrum['line_list']['N'], spectrum['line_list']['dN'])
            
-            if len(spectrum['lines']['fit_Chisq']) > 0.:
-                all_max_rchisq[i][o] = np.nanmax(spectrum['lines']['fit_Chisq'])
+            if len(spectrum['line_list']['Chisq']) > 0.:
+                all_max_chisq[i][o] = np.nanmax(spectrum['line_list']['Chisq'])
+                all_chisq.extend(np.unique(spectrum['line_list']['Chisq']))
             else:
-                all_max_rchisq[i][o] = -9999.
+                all_max_chisq[i][o] = -99.
+                all_chisq.extend(-99.)
 
     with h5py.File(results_file, 'a') as hf:
         if not f'log_totalN_{fr200}r200' in hf.keys():
@@ -70,21 +72,9 @@ if __name__ == '__main__':
         if not f'log_dtotalN_{fr200}r200' in hf.keys():
             hf.create_dataset(f'log_dtotalN_{fr200}r200', data=np.array(all_dtotalN))
     
-    with h5py.File(rchisq_file, 'a') as hf:
-        if not f'max_rchisq_{fr200}r200' in hf.keys():
-            hf.create_dataset(f'max_rchisq_{fr200}r200', data=np.array(all_max_rchisq))
+    with h5py.File(chisq_file, 'a') as hf:
+        if not f'max_chisq_{fr200}r200' in hf.keys():
+            hf.create_dataset(f'max_chisq_{fr200}r200', data=np.array(all_max_chisq))
+        if not f'chisq_{fr200}r200' in hf.keys():
+            hf.create_dataset(f'chisq_{fr200}r200', data=np.array(all_chisq))
 
-    """
-    1) read in the list of galaxies
-    2) for each sample galaxy:
-        3) for each impact parameter:
-            4) for each line of sight:
-                5) find the overall absorption measures for each ion, i.e. combine the absorption features
-                6) add these to a database
-   
-    one file per impact parameter
-    file name: model_wind_snap_fr200_absorption.h5
-    for each parameter in the file:
-        2d array with shape (number of galaxies, number of lines of sight)
-
-    """

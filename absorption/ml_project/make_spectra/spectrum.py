@@ -157,6 +157,7 @@ class Spectrum(object):
 
         #for v in self.line_list['v']:
         #     ax.axvline(v, c='b', ls='--', lw=0.75)
+        ax.set_ylim(-0.1, 1.1)
         ax.set_xlim(self.gal_velocity_pos - vel_range, self.gal_velocity_pos +vel_range)
         ax.legend()
         if filename == None:
@@ -211,7 +212,6 @@ class Spectrum(object):
                                                   chisq_lim=2.5, chisq_asym_thresh=chisq_asym_thresh, max_lines=10, logN_bounds=logN_bounds, 
                                                   b_bounds=b_bounds, mode='Voigt')
        
-        print(self.line_list)
         # adjust the output lines to cope with wrapping
         for i in range(len(self.line_list['l'])):
             if self.line_list['l'][i] > self.wavelengths[-1]:

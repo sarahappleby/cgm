@@ -1,28 +1,44 @@
 import h5py
+import numpy as np
+
+def write_dict_to_h5(mydict, h5file):
+    
+    with h5py.File(h5file, 'a') as f:
+        for key in mydict.keys():
+            
+            if type(mydict[key]) == dict:
+                new_group = f.create_group(key) 
+                for sub_key in mydict[key].keys():
+                    new_group.create_dataset(sub_key, data=np.array(mydict[key][sub_key]))
+            
+            else:
+                f.create_dataset(key, data=np.array(mydict[key]))
+
 
 def read_h5_into_dict(h5file):
-    data = {}
+
+    mydict = {}
     with h5py.File(h5file, 'r') as f:
-        for k in f.keys():
+        for key in f.keys():
 
-            if type(f[k]) == h5py._hl.group.Group:
-                data[k] = {}
+            if type(f[key]) == h5py._hl.group.Group:
+                mydict[key] = {}
 
-                for gk in f[k].keys():
+                for sub_key in f[key].keys():
 
-                    if len(f[k][gk].shape) == 0:
-                        data[k][gk] = f[k][gk][()]
+                    if len(f[key][sub_key].shape) == 0:
+                        mydict[key][sub_key] = f[key][sub_key][()]
                     else:
-                        data[k][gk] = f[k][gk][:]
+                        mydict[key][sub_key] = f[key][sub_key][:]
 
             else:
-                if len(f[k].shape) == 0:
-                    data[k] = f[k][()]
+                if len(f[key].shape) == 0:
+                    mydict[key] = f[key][()]
                 else:
-                    data[k] = f[k][:]
+                    mydict[key] = f[key][:]
 
-                for attr_k in f[k].attrs.keys():
-                    data[attr_k] = f[k].attrs[attr_k]
+                for attr_k in f[key].attrs.keys():
+                    mydict[attr_k] = f[key].attrs[attr_k]
 
-    return data
+    return mydict
 
