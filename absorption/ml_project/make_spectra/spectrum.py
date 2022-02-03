@@ -5,6 +5,8 @@ import pygad as pg
 from physics import wave_to_vel, vel_to_wave, tau_to_flux
 from utils import read_h5_into_dict
 
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif', size=15)
 
 class Spectrum(object):
 
@@ -155,11 +157,14 @@ class Spectrum(object):
 
         ax.plot(self.velocities, self.fluxes_model, label='model', c='tab:pink', ls='-', lw=2)
 
-        #for v in self.line_list['v']:
-        #     ax.axvline(v, c='b', ls='--', lw=0.75)
         ax.set_ylim(-0.1, 1.1)
         ax.set_xlim(self.gal_velocity_pos - vel_range, self.gal_velocity_pos +vel_range)
         ax.legend()
+        
+        chisq = np.around(np.unique(self.line_list['Chisq']), 2)
+        chisq = [str(i) for i in chisq]
+        plt.title(r'$\chi^2_r = {x}$'.format(x = ', '.join(chisq) ))
+        
         if filename == None:
             filename = self.spectrum_file.split('/')[-1].replace('.h5', '.png')
         plt.savefig(filename)
