@@ -11,8 +11,8 @@ from physics import *
 if __name__ == '__main__':
 
     model = sys.argv[1]
-    snap = sys.argv[2]
-    wind = sys.argv[3]
+    wind = sys.argv[2]
+    snap = sys.argv[3]
     fr200 = sys.argv[4]
     line = sys.argv[5]
 
@@ -32,11 +32,11 @@ if __name__ == '__main__':
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
 
-    results_file = f'data/normal/results/fit_column_densities_{line}.h5'
+    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_column_densities_{line}.h5'
     if os.path.isfile(results_file):
         with h5py.File(results_file, 'r') as hf:
             results_keys = hf.keys()
-    chisq_file = f'data/normal/results/fit_max_chisq_{line}.h5'
+    chisq_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_max_chisq_{line}.h5'
     if os.path.isfile(chisq_file):
         with h5py.File(chisq_file, 'r') as hf:
             chisq_keys = hf.keys()
@@ -57,14 +57,16 @@ if __name__ == '__main__':
             spec_name = f'sample_galaxy_{gal_ids[i]}_{line}_{orient}_{fr200}r200'
             spectrum = read_h5_into_dict(f'{spectra_dir}{spec_name}.h5')
 
-            all_totalN[i][o], all_dtotalN[i][o] = get_total_column_density(spectrum['line_list']['N'], spectrum['line_list']['dN'])
-           
-            if len(spectrum['line_list']['Chisq']) > 0.:
-                all_max_chisq[i][o] = np.nanmax(spectrum['line_list']['Chisq'])
-                all_chisq.extend(np.unique(spectrum['line_list']['Chisq']))
+            if 'line_list' in spectrum.keys():
+                all_totalN[i][o], all_dtotalN[i][o] = get_total_column_density(spectrum['line_list']['N'], spectrum['line_list']['dN'])
+
+                if len(spectrum['line_list']['Chisq']) > 0.:
+                    all_max_chisq[i][o] = np.nanmax(spectrum['line_list']['Chisq'])
+                    all_chisq.extend(np.unique(spectrum['line_list']['Chisq']))
+            
             else:
                 all_max_chisq[i][o] = -99.
-                all_chisq.extend(-99.)
+                all_chisq.extend([-99.])
 
     with h5py.File(results_file, 'a') as hf:
         if not f'log_totalN_{fr200}r200' in hf.keys():
