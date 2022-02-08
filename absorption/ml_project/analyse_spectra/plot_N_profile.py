@@ -83,7 +83,7 @@ if __name__ == '__main__':
     sfr_long = np.repeat(np.log10(gal_sfr + 1e-3), norients)
     sf_mask, gv_mask, q_mask = ssfr_type_check(redshift, mass_long, sfr_long)
 
-    fig, ax = plt.subplots(len(lines), nbins_m, sharey='row', sharex='col')
+    fig, ax = plt.subplots(len(lines), nbins_m, figsize=(14, 13), sharey='row', sharex='col')
 
     for l, line in enumerate(lines):
 
@@ -155,7 +155,8 @@ if __name__ == '__main__':
             if l == len(lines) -1:
                 ax[l][b].set_xlabel(r'$\rho / r_{200}$')
 
-
+            ax[l][b].set_ylim(8.75, 16.5)
+    
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_profile.png')

@@ -83,7 +83,7 @@ if __name__ == '__main__':
     sfr_long = np.repeat(np.log10(gal_sfr + 1e-3), norients)
     sf_mask, gv_mask, q_mask = ssfr_type_check(redshift, mass_long, sfr_long)
 
-    fig, ax = plt.subplots(len(lines), nbins_m, figsize=(15, 15), sharey='row', sharex='col')
+    fig, ax = plt.subplots(len(lines), nbins_m, figsize=(14, 13), sharey='row', sharex='col')
 
     for l, line in enumerate(lines):
 

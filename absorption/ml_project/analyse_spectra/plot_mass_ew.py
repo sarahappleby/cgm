@@ -58,26 +58,21 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(len(lines), len(fr200), figsize=(14, 13), sharey='row', sharex='col')
 
     for l, line in enumerate(lines):
-        chisq_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_fit_chisq_{line}.h5')    
-        mask_dict = {}
-        for key in chisq_dict.keys():
-            mask_dict[f'{key}_mask'] = np.abs(chisq_dict[key]) < chisq_lim
-        del chisq_dict 
-        fitN_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_fit_column_densities_{line}.h5')
+        fitN_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_ew_{line}.h5')
 
         for i in range(len(fr200)):
-            totalN = fitN_dict[f'log_totalN_{fr200[i]}r200'].flatten()
-            mask = mask_dict[f'max_chisq_{fr200[i]}r200_mask'].flatten()
+            ew = fitN_dict[f'ew_wave_{fr200[i]}r200'].flatten()
 
-            im = ax[l][i].scatter(mass_long[mask], totalN[mask], c=ssfr_long[mask], cmap=cmap, s=1.5, vmin=-2.5, vmax=0)
+            im = ax[l][i].scatter(mass_long, np.log10(ew), c=ssfr_long, cmap=cmap, s=1.5, vmin=-2.5, vmax=0)
             if l == len(lines)-1:
                 ax[l][i].set_xlabel(r'$\log\ (M_{*} / M_{\odot})$')
             if i == 0:
-                ax[l][i].set_ylabel(r'$\log\ N ({\rm cm}^{-2})$')
+                ax[l][i].set_ylabel(r'${\rm log (EW}/\AA)$')
+            if i == len(fr200) -1:
                 ax[l][i].annotate(plot_lines[l], xy=(0.05, 0.85), xycoords='axes fraction')
             if l == 0:
                 ax[l][i].set_title(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
-            ax[l][i].set_ylim(8.75, 16.)
+            ax[l][i].set_ylim(-2, 1)
    
     fig.subplots_adjust(right=0.8, bottom=0.1, top=0.9)
     cbar_ax = fig.add_axes([0.9, 0.15, 0.05, 0.7])
@@ -85,7 +80,7 @@ if __name__ == '__main__':
 
     #plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_mass_column.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_mass_ew.png')
     plt.show()
     plt.clf()
 
