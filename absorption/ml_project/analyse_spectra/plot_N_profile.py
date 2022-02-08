@@ -1,6 +1,7 @@
 import numpy as np
 import h5py
 import sys
+import os
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import caesar
@@ -38,8 +39,8 @@ def ssfr_type_check(z, mstar, sfr):
 if __name__ == '__main__':
 
     model = sys.argv[1]
-    snap = sys.argv[2]
-    wind = sys.argv[3]
+    wind = sys.argv[2]
+    snap = sys.argv[3]
 
     sim = caesar.load(f'/home/rad/data/{model}/{wind}/Groups/{model}_{snap}.hdf5')
     redshift = sim.simulation.redshift
@@ -67,6 +68,7 @@ if __name__ == '__main__':
         mass_plot_titles.append(f'{mass_bins[i]}'+ r'$ < \textrm{log} (M_* / M_{\odot}) < $' + f'{mass_bins[i+1]}')
 
     results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
+    plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -126,7 +128,7 @@ if __name__ == '__main__':
         for b, bin_label in enumerate(mass_bin_labels):
 
             ax[l][b].plot(plot_data['fr200'], plot_data[f'{bin_label}_sf_med'], ls='-', c='b')
-            ax[l][b].fill_between(plot_data['fr200']plot_data[f'{bin_label}_sf_per75'], plot_data[f'{bin_label}_sf_per25'], alpha=0.5, c='b')
+            ax[l][b].fill_between(plot_data['fr200'], plot_data[f'{bin_label}_sf_per75'], plot_data[f'{bin_label}_sf_per25'], alpha=0.5, c='b')
 
             if b == 0:
                 ax[l][b].set_ylabel(r'${{\rm log}} N_{{{}}}$'.format(plot_lines[l]))
@@ -136,7 +138,7 @@ if __name__ == '__main__':
                 ax[l][b].set_xlabel(r'$\rho / r_{200}$')
 
 
-    # plot: each row is a different ion
-    each column is a different mass bin
-    column density against distance, lines split into green valley, star forming and quenched
-
+    fig.subplots_adjust(wspace=0., hspace=0.)
+    plt.tight_layout()
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_profile.png')
+    plt.clf()

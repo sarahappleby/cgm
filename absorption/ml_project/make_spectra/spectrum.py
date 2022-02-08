@@ -45,7 +45,7 @@ class Spectrum(object):
         return i_start, i_end, N
 
 
-    def extend_to_continuum(self, i_start, i_end, contin_level=None):
+    def extend_to_continuum(self, i_start, i_end, N, contin_level=None):
 
         if contin_level is None:
             contin_level = self.continuum[0]
@@ -55,6 +55,7 @@ class Spectrum(object):
             _flux = self.fluxes.take(i_start, mode='wrap')
             if np.abs(_flux - contin_level) / contin_level > 0.02:
                 i_start -= 1
+                N += 1
             else:
                 continuum = True
 
@@ -63,10 +64,11 @@ class Spectrum(object):
             _flux = self.fluxes.take(i_end, mode='wrap')
             if np.abs(_flux - contin_level) / contin_level > 0.02:
                 i_end += 1
+                N += 1
             else:
                 continuum = True
 
-        return i_start, i_end
+        return i_start, i_end, N
    
 
     def buffer_with_continuum(self, waves, flux, nbuffer=50, snr_default=30.):
@@ -177,7 +179,7 @@ class Spectrum(object):
         print('getting initial window')
         i_start, i_end, N = self.get_initial_window(vel_range) 
         print(i_start, i_end)
-        i_start, i_end = self.extend_to_continuum(i_start, i_end)
+        i_start, i_end, N = self.extend_to_continuum(i_start, i_end, N)
         print(i_start, i_end)
 
         if i_start < 0:

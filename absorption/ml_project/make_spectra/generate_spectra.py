@@ -25,7 +25,7 @@ def write_spectrum(spec_name, line, los, lambda_rest, gal_vel_pos, redshift, snr
         hf.create_dataset("gal_velocity_pos", data=np.array(gal_vel_pos))
         hf.create_dataset("LOS_pos", data=np.array(los))
         hf.create_dataset("redshift", data=redshift)
-        hf.create_dataset("snr", data=redshift)
+        hf.create_dataset("snr", data=snr)
         for k in spectrum.keys():
             hf.create_dataset(k, data=np.array(spectrum[k]))
 

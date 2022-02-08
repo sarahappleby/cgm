@@ -25,7 +25,12 @@ if __name__ == '__main__':
 
     if snap == '151':
         z = 0.
-
+    
+    if line == 'H1215':
+        minN = 11.
+    else:
+        minN = 9.
+    mindN = 0.05
     vel_range = 600 # km/s 
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg'] 
 
@@ -33,16 +38,7 @@ if __name__ == '__main__':
     spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
 
     results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_column_densities_{line}.h5'
-    if os.path.isfile(results_file):
-        with h5py.File(results_file, 'r') as hf:
-            results_keys = hf.keys()
-    chisq_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_max_chisq_{line}.h5'
-    if os.path.isfile(chisq_file):
-        with h5py.File(chisq_file, 'r') as hf:
-            chisq_keys = hf.keys()
-
-        if ('log_totalN_{fr200}r200' in results_keys) & ('log_dtotalN_{fr200}r200' in results_keys) & (f'max_chisq_{fr200}r200' in chisq_keys):
-            sys.exit()
+    chisq_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_chisq_{line}.h5'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -57,14 +53,13 @@ if __name__ == '__main__':
             spec_name = f'sample_galaxy_{gal_ids[i]}_{line}_{orient}_{fr200}r200'
             spectrum = read_h5_into_dict(f'{spectra_dir}{spec_name}.h5')
 
-            if 'line_list' in spectrum.keys():
+            if len(spectrum['line_list']['N']) > 0.:
                 all_totalN[i][o], all_dtotalN[i][o] = get_total_column_density(spectrum['line_list']['N'], spectrum['line_list']['dN'])
-
-                if len(spectrum['line_list']['Chisq']) > 0.:
-                    all_max_chisq[i][o] = np.nanmax(spectrum['line_list']['Chisq'])
-                    all_chisq.extend(np.unique(spectrum['line_list']['Chisq']))
-            
+                all_max_chisq[i][o] = np.nanmax(spectrum['line_list']['Chisq'])
+                all_chisq.extend(np.unique(spectrum['line_list']['Chisq']))
             else:
+               
+                all_totalN[i][o], all_dtotalN[i][o] = minN, mindN
                 all_max_chisq[i][o] = -99.
                 all_chisq.extend([-99.])
 
