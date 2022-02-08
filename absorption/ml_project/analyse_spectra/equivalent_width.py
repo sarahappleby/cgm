@@ -1,5 +1,6 @@
 import h5py
 import numpy as np
+import os
 import sys
 sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
 from utils import read_h5_into_dict
@@ -36,27 +37,30 @@ if __name__ == '__main__':
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
 
-        with h5py.File(results_file, 'a') as f:
-                keys = f.keys()
+        if os.path.isfile(results_file):
+            with h5py.File(results_file, 'r') as f:
+                all_keys = list(f.keys())
+        else:
+            all_keys = []
 
-        for f in fr200:
+        for i in range(len(fr200)):
 
-            if not f'ew_wave_{f}r200' in keys:
+            if not f'ew_wave_{fr200[i]}r200' in all_keys:
 
                 all_ew = np.zeros((len(gal_ids), len(orients)))
 
-                for i, gal in enumerate(gal_ids):
+                for j, gal in enumerate(gal_ids):
             
                     for o, orient in enumerate(orients):
 
-                        spec_name = f'sample_galaxy_{gal_ids[i]}_{line}_{orient}_{f}r200'
+                        spec_name = f'sample_galaxy_{gal_ids[j]}_{line}_{orient}_{fr200[i]}r200'
                         spec = read_h5_into_dict(f'{spectra_dir}{spec_name}.h5')
 
                         vel_mask = (spec['velocities'] < spec['gal_velocity_pos'] + vel_range) & (spec['velocities'] > spec['gal_velocity_pos'] - vel_range)
                         flux = spec['fluxes'][vel_mask]
                         pixel_size = spec['wavelengths'][1] - spec['wavelengths'][0]
-                        all_ew[i][o] = equivalent_width(flux, pixel_size)
+                        all_ew[j][o] = equivalent_width(flux, pixel_size)
 
                 with h5py.File(results_file, 'a') as f:
-                    f.create_dataset(f'ew_wave_{f}r200', data=np.array(all_ew))
+                    f.create_dataset(f'ew_wave_{fr200[i]}r200', data=np.array(all_ew))
             
