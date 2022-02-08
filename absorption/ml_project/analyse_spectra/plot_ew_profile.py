@@ -10,7 +10,7 @@ sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
 from utils import read_h5_into_dict, write_dict_to_h5
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=15)
+plt.rc('font', family='serif', size=13)
 
 cb_blue = '#5289C7'
 cb_green = '#90C987'
@@ -83,22 +83,17 @@ if __name__ == '__main__':
     sfr_long = np.repeat(np.log10(gal_sfr + 1e-3), norients)
     sf_mask, gv_mask, q_mask = ssfr_type_check(redshift, mass_long, sfr_long)
 
-    fig, ax = plt.subplots(len(lines), nbins_m, sharey='row', sharex='col')
+    fig, ax = plt.subplots(len(lines), nbins_m, figsize=(15, 15), sharey='row', sharex='col')
 
     for l, line in enumerate(lines):
 
-        profile_file = f'{results_dir}{model}_{wind}_{snap}_{line}_median_N_profile.h5'
+        profile_file = f'{results_dir}{model}_{wind}_{snap}_{line}_median_ew_profile.h5'
 
         if os.path.isfile(profile_file):
             plot_data = read_h5_into_dict(profile_file)
         else:
 
-            chisq_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_fit_chisq_{line}.h5')    
-            mask_dict = {}
-            for key in chisq_dict.keys():
-                mask_dict[f'{key}_mask'] = np.abs(chisq_dict[key]) < chisq_lim
-            del chisq_dict 
-            fitN_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_fit_column_densities_{line}.h5')
+            ew_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_ew_{line}.h5')
 
             plot_data = {}
             plot_data['fr200'] = fr200.copy()
@@ -111,20 +106,19 @@ if __name__ == '__main__':
                 mass_mask = (mass_long > mass_bins[i]) & (mass_long < mass_bins[i+1])
 
                 for j in range(len(fr200)):
-                    totalN = fitN_dict[f'log_totalN_{fr200[j]}r200'].flatten()
-                    chisq_mask = mask_dict[f'max_chisq_{fr200[j]}r200_mask'].flatten()
+                    ew = ew_dict[f'ew_wave_{fr200[j]}r200'].flatten()
 
-                    plot_data[f'{bin_label}_sf_med'][j] = np.nanmedian(totalN[chisq_mask*sf_mask*mass_mask])
-                    plot_data[f'{bin_label}_sf_per25'][j] = np.nanpercentile(totalN[chisq_mask*sf_mask*mass_mask], 25)
-                    plot_data[f'{bin_label}_sf_per75'][j] = np.nanpercentile(totalN[chisq_mask*sf_mask*mass_mask], 75)
+                    plot_data[f'{bin_label}_sf_med'][j] = np.nanmedian(np.log10(ew[sf_mask*mass_mask]))
+                    plot_data[f'{bin_label}_sf_per25'][j] = np.nanpercentile(np.log10(ew[sf_mask*mass_mask]), 25)
+                    plot_data[f'{bin_label}_sf_per75'][j] = np.nanpercentile(np.log10(ew[sf_mask*mass_mask]), 75)
 
-                    plot_data[f'{bin_label}_gv_med'][j] = np.nanmedian(totalN[chisq_mask*gv_mask*mass_mask])
-                    plot_data[f'{bin_label}_gv_per25'][j] = np.nanpercentile(totalN[chisq_mask*gv_mask*mass_mask], 25)
-                    plot_data[f'{bin_label}_gv_per75'][j] = np.nanpercentile(totalN[chisq_mask*gv_mask*mass_mask], 75)
+                    plot_data[f'{bin_label}_gv_med'][j] = np.nanmedian(np.log10(ew[gv_mask*mass_mask]))
+                    plot_data[f'{bin_label}_gv_per25'][j] = np.nanpercentile(np.log10(ew[gv_mask*mass_mask]), 25)
+                    plot_data[f'{bin_label}_gv_per75'][j] = np.nanpercentile(np.log10(ew[gv_mask*mass_mask]), 75)
 
-                    plot_data[f'{bin_label}_q_med'][j] = np.nanmedian(totalN[chisq_mask*q_mask*mass_mask])
-                    plot_data[f'{bin_label}_q_per25'][j] = np.nanpercentile(totalN[chisq_mask*q_mask*mass_mask], 25)
-                    plot_data[f'{bin_label}_q_per75'][j] = np.nanpercentile(totalN[chisq_mask*q_mask*mass_mask], 75)
+                    plot_data[f'{bin_label}_q_med'][j] = np.nanmedian(np.log10(ew[q_mask*mass_mask]))
+                    plot_data[f'{bin_label}_q_per25'][j] = np.nanpercentile(np.log10(ew[q_mask*mass_mask]), 25)
+                    plot_data[f'{bin_label}_q_per75'][j] = np.nanpercentile(np.log10(ew[q_mask*mass_mask]), 75)
 
             write_dict_to_h5(plot_data, profile_file)
 
@@ -143,9 +137,10 @@ if __name__ == '__main__':
             if b == 0:
                 ax[l][b].fill_between(plot_data['fr200'], plot_data[f'{bin_label}_q_per75'], plot_data[f'{bin_label}_q_per25'], alpha=0.3, color=cb_red)
 
+            ax[l][b].set_ylim(-3., 0.)
 
             if b == 0:
-                ax[l][b].set_ylabel(r'${\rm log} N$')
+                ax[l][b].set_ylabel(r'${\rm log (EW}/\AA)$')
             if b == nbins_m  -1:
                 ax[l][b].annotate(plot_lines[l], xy=(0.05, 0.85), xycoords='axes fraction')
                 if l == 0:
@@ -155,9 +150,8 @@ if __name__ == '__main__':
             if l == len(lines) -1:
                 ax[l][b].set_xlabel(r'$\rho / r_{200}$')
 
-
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_profile.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_ew_profile.png')
     plt.show()
     plt.clf()

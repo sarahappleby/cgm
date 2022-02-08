@@ -56,6 +56,10 @@ if __name__ == '__main__':
     sf_mask, gv_mask, q_mask = ssfr_type_check(redshift, mass_long, sfr_long)
 
     results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
+
+    fig, ax = plt.subplots(1, , sharey='row')
+    ax = ax.flatten()
+
     for l, line in enumerate(lines):
         chisq_dict = read_h5_into_dict(f'{results_dir}fit_max_chisq_{line}.h5')    
         mask_dict = {}
@@ -80,29 +84,8 @@ if __name__ == '__main__':
             ax[i].set_ylabel(r'$\log\ N ({\rm cm}^{-2})$')
             cbar = fig.colorbar(im,ax=ax, label=r'$\log\ ({\rm sSFR} / {\rm Gyr}^{-1})$')
 
-    # plot: each row is a different ion
-    each column is a different mass bin
-    column density against distance, lines split into green valley, star forming and quenched
+    fig.subplots_adjust(wspace=0., hspace=0.)
+    plt.tight_layout()
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_total_column_profile.png')
+    plt.clf()
 
-    # plot: each row is a different ion
-    each column is a different distance, scatter plot column density against mass, coloured by star formation
-
-    # plot: each row is a different ion
-    # oppenheimer 2009 figure 3
-    column 1: column density distribution function
-    column 2: column density against log(1+z)
-    column 3: doppler parameter histogram in bins of column density above 10^13
-
-    # plot: oppenheimer 2009 figure 4
-    column 1: cumulative ew distribution
-    column 2: column density against doppler parameter
-    column 3: column density of hi against column density of ion
-
-    # plot: oppenheimer 2009 figure 7
-    physical properties of the spectra against column density
-
-    # plot: oppenheimer 2009 figure 8
-    allignment fractions of ion relative to hi - absorption features are considered aligned when the difference in velocity position is less than some threshold
-
-    # plot: oppenheimer 2009 figure 9
-    physical properties of hi against properties of ion
