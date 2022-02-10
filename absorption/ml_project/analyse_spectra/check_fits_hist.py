@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     for i in range(len(lines)):
     
-        chisq_file = f'{results_dir}{model}_{wind}_{snap}_fit_max_chisq_{lines[i]}.h5'
+        chisq_file = f'{results_dir}{model}_{wind}_{snap}_fit_chisq_{lines[i]}.h5'
         chisq_dict = read_h5_into_dict(chisq_file)
 
         for j in range(nbins_fr200):
@@ -59,11 +59,11 @@ if __name__ == '__main__':
     plt.savefig(f'{plot_dir}chisq_hist.png')
     plt.clf()
 
-    fig, ax = plt.subplots(len(lines), len(fr200), figsize=(12, 14), sharey='row')
+    fig, ax = plt.subplots(len(lines), len(fr200), figsize=(12, 14), sharey='row', sharex='col')
 
     for i in range(len(lines)):
 
-        chisq_file = f'{results_dir}{model}_{wind}_{snap}_fit_max_chisq_{lines[i]}.h5'
+        chisq_file = f'{results_dir}{model}_{wind}_{snap}_fit_chisq_{lines[i]}.h5'
         chisq_dict = read_h5_into_dict(chisq_file)
 
         for j in range(nbins_fr200):
@@ -80,7 +80,7 @@ if __name__ == '__main__':
             ax[i][j].set_xlim(-2, 2)
             ax[i][j].set_ylim(0, 1)
 
-    fig.subplots_adjust(wspace=0., hspace=0.)
     plt.tight_layout()
+    fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}chisq_cum_hist.png')
     plt.clf()

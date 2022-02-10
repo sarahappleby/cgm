@@ -97,6 +97,13 @@ def generate_pygad_spectrum(s, los, line, lambda_rest, gal_vel_pos, periodic_vel
     if not line == 'MgII2796':
         if LSF is not None and spectrum['wavelengths'][0] > 900:
             spectrum['fluxes'],noise_vector = pg.analysis.absorption_spectra.apply_LSF(spectrum['wavelengths'], spectrum['fluxes'], noise_vector, grating=LSF)
+    else:
+        from astropy.convolution import convolve, Gaussian1DKernel
+        fwhm = 6. / pixel_size # 6km s^-1, in pixels
+        gauss_kernel = Gaussian1DKernel(stddev=fwhm / 2.355)
+        spectrum['fluxes'] = convolve(spectrum['fluxes'], gauss_kernel, boundary="wrap")
+        noise_vector = convolve(noise_vector, gauss_kernel, boundary="wrap")
+    
     if fit_contin:
         spectrum['continuum'] = pg.analysis.absorption_spectra.fit_continuum(spectrum['wavelengths'], spectrum['fluxes'], noise_vector, order=0, sigma_lim=1.5)
         spectrum['fluxes'] = spectrum['fluxes']/spectrum['continuum']

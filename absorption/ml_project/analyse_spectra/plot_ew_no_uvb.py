@@ -89,7 +89,7 @@ if __name__ == '__main__':
             per75[j] = np.nanpercentile(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]), 75.)
 
         plt.plot(plot_bins, median, ls='-', c=colors[i], label=r'$T_{{\rm min}} = {{{}}}$'.format(minT[i]))
-        if i == len(minT) -1:
+        if i == len(minT) -2:
             plt.fill_between(plot_bins, per25, per75, color=colors[i], alpha=0.4)
     
     plt.legend()
