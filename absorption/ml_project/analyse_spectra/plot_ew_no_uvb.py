@@ -38,8 +38,9 @@ if __name__ == '__main__':
     sim = caesar.load(f'/home/rad/data/{model}/{wind}/Groups/{model}_{snap}.hdf5')
     redshift = sim.simulation.redshift
 
-    line = 'H1215'
-    plot_line = r'${\rm HI}1215$'
+    lines = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
+    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm SiIII}1206$',
+                  r'${\rm CIV}1548$', r'${\rm OVI}1031$', r'${\rm NeVIII}770$']
     norients = 8
     fr200 = 0.25
     minT = ['4.0', '4.5', '5.0', '5.5']
@@ -69,70 +70,45 @@ if __name__ == '__main__':
 
     # Median difference plots :)
 
-    for i in range(len(minT)):
-
-        no_uvb_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_no_uvb_minT_{minT[i]}_ew_{line}.h5')
-        with_uvb_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_with_uvb_minT_{minT[i]}_ew_{line}.h5')
-
-        ew_no_uvb = no_uvb_dict[f'ew_wave_{fr200}r200'].flatten()
-        ew_with_uvb = with_uvb_dict[f'ew_wave_{fr200}r200'].flatten()
-
-        median = np.zeros(nbins_m)
-        per25 = np.zeros(nbins_m)
-        per75 = np.zeros(nbins_m)
-
-        for j in range(nbins_m):
-
-            mask = (mass_long > mass_bins[j]) & (mass_long < mass_bins[j+1])
-            median[j] = np.nanmedian(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]))
-            per25[j] = np.nanpercentile(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]), 25.)
-            per75[j] = np.nanpercentile(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]), 75.)
-
-        plt.plot(plot_bins, median, ls='-', c=colors[i], label=r'$T_{{\rm min}} = {{{}}}$'.format(minT[i]))
-        if i == len(minT) -2:
-            plt.fill_between(plot_bins, per25, per75, color=colors[i], alpha=0.4)
-    
-    plt.legend()
-    plt.xlabel(r'$\log\ (M_{*} / M_{\odot})$')
-    plt.ylabel(r'$\Delta {\rm log (EW}/\AA)$')
-    plt.ylim(-1, 1)
-
-    plt.tight_layout()
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_uvb_test_mass_median_delta_ew_{line}.png')
-    plt.show()
-    plt.clf()
-
-
-    """
-    # Difference plots, coloured by sSFR :)
-
-    fig, ax = plt.subplots(1, len(minT), figsize=(10, 6), sharey='row', sharex='col')
+    fig, ax = plt.subplots(2, 3, figsize=(15, 10), sharex='col', sharey='row')
     ax = ax.flatten()
 
-    for i in range(len(minT)):
+    for l, line in enumerate(lines):
 
-        no_uvb_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_no_uvb_minT_{minT[i]}_ew_{line}.h5')
-        with_uvb_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_with_uvb_minT_{minT[i]}_ew_{line}.h5')
+        for i in range(len(minT)):
 
-        ew_no_uvb = no_uvb_dict[f'ew_wave_{fr200}r200'].flatten()
-        ew_with_uvb = with_uvb_dict[f'ew_wave_{fr200}r200'].flatten()
+            no_uvb_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_no_uvb_minT_{minT[i]}_ew_{line}.h5')
+            with_uvb_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_with_uvb_minT_{minT[i]}_ew_{line}.h5')
 
-        im = ax[i].scatter(mass_long, np.log10(ew_no_uvb) - np.log10(ew_with_uvb), c=ssfr_long, cmap=ssfr_cmap, s=1.5, vmin=-2.5, vmax=0)
-        ax[i].set_xlabel(r'$\log\ (M_{*} / M_{\odot})$')
-        if i == 0:
-            ax[i].set_ylabel(r'$\Delta {\rm log (EW}_{\rm HI}/\AA)$')
-        if i == len(minT) -1:
-            ax[i].annotate(plot_line, xy=(0.05, 0.85), xycoords='axes fraction')
-        ax[i].set_title(r'$T_{{\rm min}} = {{{}}}$'.format(minT[i]))
-        ax[i].set_ylim(-1, 1)
+            ew_no_uvb = no_uvb_dict[f'ew_wave_{fr200}r200'].flatten()
+            ew_with_uvb = with_uvb_dict[f'ew_wave_{fr200}r200'].flatten()
 
-    fig.subplots_adjust(right=0.8, bottom=0.1, top=0.9)
-    cbar_ax = fig.add_axes([0.9, 0.15, 0.05, 0.7])
-    cbar = fig.colorbar(im,ax=cbar_ax, shrink=.6, label=r'$\log\ ({\rm sSFR} / {\rm Gyr}^{-1})$')
+            median = np.zeros(nbins_m)
+            per25 = np.zeros(nbins_m)
+            per75 = np.zeros(nbins_m)
 
-    #plt.tight_layout()
+            for j in range(nbins_m):
+
+                mask = (mass_long > mass_bins[j]) & (mass_long < mass_bins[j+1])
+                median[j] = np.nanmedian(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]))
+                per25[j] = np.nanpercentile(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]), 25.)
+                per75[j] = np.nanpercentile(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]), 75.)
+
+            ax[l].plot(plot_bins, median, ls='-', c=colors[i], label=r'$T_{{\rm min}} = {{{}}}$'.format(minT[i]))
+            if i == len(minT) -2:
+                ax[l].fill_between(plot_bins, per25, per75, color=colors[i], alpha=0.4)
+    
+        if l == 0:
+            ax[l].legend(fontsize=13)
+        if l in [3, 4, 5]:
+            ax[l].set_xlabel(r'$\log\ (M_{*} / M_{\odot})$')
+        if l in [0, 3]:
+            ax[l].set_ylabel(r'$\Delta {\rm log (EW}/\AA)$')
+        ax[l].set_ylim(-1.5, 1.5)
+        ax[l].annotate(plot_lines[l], xy=(0.05, 0.85), xycoords='axes fraction')
+
+    plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_uvb_test_mass_delta_ew_{line}.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_uvb_test_mass_median_delta_ew.png')
+    plt.show()
     plt.clf()
-    """
-
