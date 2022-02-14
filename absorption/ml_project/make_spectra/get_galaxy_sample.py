@@ -7,7 +7,6 @@ import yt
 import numpy as np
 import h5py
 import sys
-from numba import jit
 
 def ssfr_b_redshift(z):
     return 1.9*np.log10(1+z) - 7.7
@@ -34,7 +33,7 @@ def choose_gals(gal_ids, ngals_each, seed=1):
     if seed is not None:
         np.random.seed(seed)
     ngals = len(gal_ids)
-    chosen = np.random.choice(ngals, ngals_each)
+    chosen = np.random.choice(ngals, ngals_each, replace=False)
     return gal_ids[chosen]
 
 model = sys.argv[1]
@@ -51,7 +50,9 @@ nbins_ssfr = 3
 sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
 data_dir = f'/home/rad/data/{model}/{wind}/'
 sim =  caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5')
-co = yt.utilities.cosmology.Cosmology()
+co = yt.utilities.cosmology.Cosmology(hubble_constant=sim.simulation.hubble_constant,
+                                      omega_matter=sim.simulation.omega_matter,
+                                      omega_lambda=sim.simulation.omega_lambda)
 hubble = co.hubble_parameter(sim.simulation.redshift).in_units('km/s/kpc')
 redshift = sim.simulation.redshift
 

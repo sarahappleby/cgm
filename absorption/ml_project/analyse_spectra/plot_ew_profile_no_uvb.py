@@ -37,7 +37,7 @@ if __name__ == '__main__':
     min_fr200 = 0.25 
     nbins_fr200 = 5 
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
-    minT = ['4.0', '4.5', '5.0', '5.5']
+    minT = ['4.0', '4.5', '5.0', '5.5', '6.0']
 
     delta_m = 0.5
     min_m = 10.5
