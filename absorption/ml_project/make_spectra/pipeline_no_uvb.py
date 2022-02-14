@@ -25,7 +25,7 @@ delta_fr200 = 0.25
 min_fr200 = 0.25
 nbins_fr200 = 5
 fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
-minT = 4.5
+minT = 6.0
 
 model = sys.argv[1]
 snap = sys.argv[2]
@@ -39,7 +39,7 @@ snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind
 s = pg.Snapshot(snapfile)
 
 sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-save_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/no_uvb/{model}_{wind}_{snap}_minT_{minT}/'
+save_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/no_uvb/{model}_{wind}_{snap}_minT_{minT}/'
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 

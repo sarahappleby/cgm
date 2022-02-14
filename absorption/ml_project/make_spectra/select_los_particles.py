@@ -42,10 +42,6 @@ if __name__ == '__main__':
     h = sim.simulation.hubble_constant
     redshift = sim.simulation.redshift
 
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5', 'r') as hf:
-        if f'plist_{sample_gal}' in hf.keys():
-            sys.exit()
-
     hsml = readsnap(snapfile, 'SmoothingLength', 'gas', suppress=1, units=1)  # in kpc/h, comoving
     gas_pos = readsnap(snapfile, 'pos', 'gas', suppress=1, units=1) # in kpc/h, comoving
 
@@ -53,6 +49,10 @@ if __name__ == '__main__':
         gal_id = f['gal_ids'][:].astype('int')[sample_gal]
         pos = f['position'][:][sample_gal] * (1.+redshift) # already in kpc/h, factor of 1+z for comoving
         r200 = f['halo_r200'][:][sample_gal] * (1.+redshift) # already in kpc/h, factor of 1+z for comoving
+
+    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5', 'r') as hf:
+        if f'plist_{gal_id}' in hf.keys():
+            sys.exit()
 
     partids = np.array([])
 
@@ -75,6 +75,6 @@ if __name__ == '__main__':
 
     partids = np.unique(np.sort(partids))
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5', 'a') as f:
-        f.create_dataset(f'plist_{sample_gal}', data=np.array(partids))
+        f.create_dataset(f'plist_{gal_id}', data=np.array(partids))
     del partids
 
