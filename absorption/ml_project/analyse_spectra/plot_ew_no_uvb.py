@@ -32,8 +32,8 @@ if __name__ == '__main__':
     plot_quantities = ['med', 'per25', 'per75']
     norients = 8
     fr200 = 0.25
-    minT = ['4.0', '4.5', '5.0', '5.5']
-   
+    minT = ['4.0', '4.5', '5.0', '5.5', '6.0']
+
     delta_m = 0.25
     min_m = 10.
     nbins_m = 5

@@ -12,7 +12,8 @@ def write_dict_to_h5(mydict, h5file):
                     new_group.create_dataset(sub_key, data=np.array(mydict[key][sub_key]))
             
             else:
-                f.create_dataset(key, data=np.array(mydict[key]))
+                if not key in list(f.keys()):
+                    f.create_dataset(key, data=np.array(mydict[key]))
 
 
 def read_h5_into_dict(h5file):
