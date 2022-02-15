@@ -10,11 +10,17 @@ import caesar
 def ssfr_b_redshift(z):
     return 1.9*np.log10(1+z) - 7.7
 
-def sfms_line(mstar, a=0.73, b=-7.7):
+def belfiore_line(mstar, a=0.73, b=-7.7):
     # The definition of the SFMS from Belfiore+18 is:
     # log (SFR/Msun/yr) = 0.73 log (Mstar/Msun) - 7.33
     # With a scatter of sigma = 0.39 dex
     return mstar*a + b
+
+def sfms_line(mstar, a=1., b=-10.8):
+    return mstar*a + b
+
+def quench_thresh(z): # in units of yr^-1 
+    return -1.8  + 0.3*z -9.
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
     new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
@@ -39,6 +45,7 @@ if __name__ == '__main__':
     data_dir = f'/home/rad/data/{model}/{wind}/'
     sim = caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5') 
     redshift = sim.simulation.redshift
+    quench = quench_thresh(redshift)
 
     possible_snaps = ['151', '137', '125', '105', '078']
     snap_index = possible_snaps.index(snap)
@@ -77,9 +84,8 @@ if __name__ == '__main__':
     mass_bins = np.arange(min_m, min_m+nbins_m*delta_m, delta_m)
 
     sm_line = np.arange(9.5, 12.5, 0.5)
-    ssfr_b = ssfr_b_redshift(redshift)
-    sf_line = sfms_line(sm_line, b=ssfr_b)
-    q_line = sfms_line(sm_line, b=ssfr_b-1.)
+    sf_line = sfms_line(sm_line,b=quench)
+    q_line = sfms_line(sm_line, b=quench-1.)
 
     plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
     plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')

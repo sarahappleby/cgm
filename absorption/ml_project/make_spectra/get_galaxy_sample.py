@@ -1,5 +1,5 @@
 # Select 12 Simba galaxies in each of our SFR-Mstar bins
-# Mask out the regions we want, using the definition of SF/GV/Q galaxies from Belfiore+18 and Appleby+20
+# Mask out the regions we want, using a simple sSFR cut
 # Save the galaxy properties for our sample galaxies
 
 import caesar
@@ -8,24 +8,25 @@ import numpy as np
 import h5py
 import sys
 
-def ssfr_b_redshift(z):
-    return 1.9*np.log10(1+z) - 7.7
 
-def sfms_line(mstar, a=0.73, b=-7.7):
+def belfiore_line(mstar, a=0.73, b=-7.7):
     # The definition of the SFMS from Belfiore+18 is:
     # log (SFR/Msun/yr) = 0.73 log (Mstar/Msun) - 7.33
     # With a scatter of sigma = 0.39 dex
     return mstar*a + b
 
-def ssfr_type_check(z, mstar, sfr):
+def sfms_line(mstar, a=1., b=-10.8):
+    # a cut of -10.8/yr as in other Simba work
+    return mstar*a + b
 
-    ssfr_b = ssfr_b_redshift(z)
-    sf_line = sfms_line(mstar, a=0.73, b=ssfr_b)
-    q_line = sfms_line(mstar, a=0.73, b=ssfr_b - 1.)
+def quench_thresh(z): # in units of yr^-1 
+    return -1.8  + 0.3*z -9.
 
-    sf_mask = sfr > sf_line
-    gv_mask = (sfr < sf_line) & (sfr > q_line)
-    q_mask = sfr < q_line
+def ssfr_type_check(ssfr_thresh, ssfr):
+
+    sf_mask = (ssfr >= ssfr_thresh)
+    gv_mask = (ssfr < ssfr_thresh) & (ssfr > ssfr_thresh -1)
+    q_mask = ssfr == -14.0
     return sf_mask, gv_mask, q_mask
 
 # Randomly select ngals_each galaxies in each region
@@ -55,6 +56,7 @@ co = yt.utilities.cosmology.Cosmology(hubble_constant=sim.simulation.hubble_cons
                                       omega_lambda=sim.simulation.omega_lambda)
 hubble = co.hubble_parameter(sim.simulation.redshift).in_units('km/s/kpc')
 redshift = sim.simulation.redshift
+quench = quench_thresh(redshift)
 
 gal_cent = np.array([i.central for i in sim.galaxies])
 gal_sm = yt.YTArray([sim.galaxies[i].masses['stellar'].in_units('Msun') for i in range(len(sim.galaxies))], 'Msun')
@@ -73,7 +75,7 @@ gal_gas_frac = np.array([i.masses['gas'].in_units('Msun') /i.masses['stellar'].i
 # empty arrays to store ngals_each simba galaxies per ssfr-mstar bin
 gal_ids = np.ones(nbins_m*nbins_ssfr*ngals_each) * np.nan
 
-sf_mask, gv_mask, q_mask = ssfr_type_check(redshift, gal_sm, np.log10(gal_sfr))
+sf_mask, gv_mask, q_mask = ssfr_type_check(quench, gal_ssfr)
 
 for i in range(len(mass_bins)):
     gal_id_range = range((i)*ngals_each*nbins_ssfr, (i+1)*ngals_each*nbins_ssfr)
