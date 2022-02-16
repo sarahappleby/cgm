@@ -13,12 +13,12 @@ import gc
 import sys
 
 @njit
-def get_los_particles(los, gas_pos, hsml):
+def get_los_particles(los, gas_pos, hsml, wind_mask):
     x_dist = np.abs(los[0] - gas_pos[:, 0])
     y_dist = np.abs(los[1] - gas_pos[:, 1])
     hyp_sq = x_dist**2 + y_dist**2
     dist_mask = hyp_sq < hsml**2
-    partids_los = np.arange(len(hsml))[dist_mask]
+    partids_los = np.arange(len(hsml))[dist_mask * wind_mask]
     return partids_los
 
 if __name__ == '__main__':
@@ -42,9 +42,6 @@ if __name__ == '__main__':
     h = sim.simulation.hubble_constant
     redshift = sim.simulation.redshift
 
-    hsml = readsnap(snapfile, 'SmoothingLength', 'gas', suppress=1, units=1)  # in kpc/h, comoving
-    gas_pos = readsnap(snapfile, 'pos', 'gas', suppress=1, units=1) # in kpc/h, comoving
-
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as f:
         gal_id = f['gal_ids'][:].astype('int')[sample_gal]
         pos = f['position'][:][sample_gal] * (1.+redshift) # already in kpc/h, factor of 1+z for comoving
@@ -53,6 +50,11 @@ if __name__ == '__main__':
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5', 'r') as hf:
         if f'plist_{gal_id}' in hf.keys():
             sys.exit()
+
+    hsml = readsnap(snapfile, 'SmoothingLength', 'gas', suppress=1, units=1)  # in kpc/h, comoving
+    gas_pos = readsnap(snapfile, 'pos', 'gas', suppress=1, units=1) # in kpc/h, comoving
+    gas_delaytime = readsnap(snapfile, 'DelayTime', 'gas', suppress=1)
+    wind_mask = gas_delaytime == 0.
 
     partids = np.array([])
 
@@ -69,7 +71,7 @@ if __name__ == '__main__':
         los[7][0] += (rho / sqrt2); los[7][1] -= (rho / sqrt2)
 
         for l in los:
-            partids_los = get_los_particles(l, gas_pos, hsml)
+            partids_los = get_los_particles(l, gas_pos, hsml, wind_mask)
             partids = np.append(partids, partids_los)
             del partids_los
 

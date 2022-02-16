@@ -38,6 +38,7 @@ if __name__ == '__main__':
     spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
 
     results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_column_densities_{line}.h5'
+    ew_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_ew_{line}.h5'
     chisq_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_chisq_{line}.h5'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
@@ -45,6 +46,7 @@ if __name__ == '__main__':
 
     all_totalN = np.zeros((len(gal_ids), len(orients)))
     all_dtotalN = np.zeros((len(gal_ids), len(orients)))
+    all_fit_ew = np.zeros((len(gal_ids), len(orients)))
     all_max_chisq = np.zeros((len(gal_ids), len(orients)))
     all_chisq = []
 
@@ -55,8 +57,10 @@ if __name__ == '__main__':
 
             if len(spectrum['line_list']['N']) > 0.:
                 all_totalN[i][o], all_dtotalN[i][o] = get_total_column_density(spectrum['line_list']['N'], spectrum['line_list']['dN'])
+                all_fit_ew[i][o] = np.sum(spectrum['line_list']['EW'])
                 all_max_chisq[i][o] = np.nanmax(spectrum['line_list']['Chisq'])
                 all_chisq.extend(np.unique(spectrum['line_list']['Chisq']))
+            
             else:
                
                 all_totalN[i][o], all_dtotalN[i][o] = minN, mindN
@@ -68,7 +72,11 @@ if __name__ == '__main__':
             hf.create_dataset(f'log_totalN_{fr200}r200', data=np.array(all_totalN))
         if not f'log_dtotalN_{fr200}r200' in hf.keys():
             hf.create_dataset(f'log_dtotalN_{fr200}r200', data=np.array(all_dtotalN))
-    
+
+    with h5py.File(ew_file, 'a') as hf:
+        if not f'fit_ew_{fr200}r200' in hf.keys():
+            hf.create_dataset(f'fit_ew_{fr200}r200', data=np.array(all_fit_ew))
+
     with h5py.File(chisq_file, 'a') as hf:
         if not f'max_chisq_{fr200}r200' in hf.keys():
             hf.create_dataset(f'max_chisq_{fr200}r200', data=np.array(all_max_chisq))

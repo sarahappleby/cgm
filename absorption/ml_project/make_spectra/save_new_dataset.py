@@ -63,7 +63,6 @@ if __name__ == '__main__':
     wind = 's50'
     snap = '151'
     verbose = 2
-    ngals_each = 12
 
     data_dir = f'/home/rad/data/{model}/{wind}/'
     snapfile = f'{data_dir}snap_{model}_{snap}.hdf5'
