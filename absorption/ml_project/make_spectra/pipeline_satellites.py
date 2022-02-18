@@ -43,7 +43,7 @@ save_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/{model}_{w
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 
-with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
+with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_old.h5', 'r') as sf:
     
     gal_ids = sf['gal_ids'][:][ids]
     # we can't have the line of sight as a pygad UnitArr because it can't convert between kpc/h and ckpc/h_0

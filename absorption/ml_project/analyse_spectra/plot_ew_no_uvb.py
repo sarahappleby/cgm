@@ -88,17 +88,18 @@ if __name__ == '__main__':
 
         for i in range(len(minT)):
             ax[l].plot(plot_data['mass'], plot_data[f'minT_{minT[i]}_med'], ls='-', c=colors[i], label=r'$T_{{\rm min}} = {{{}}}$'.format(minT[i]))
-            if i == len(minT) -2:
+            if minT[i] == '5.0':
                 ax[l].fill_between(plot_data['mass'], plot_data[f'minT_{minT[i]}_per25'], plot_data[f'minT_{minT[i]}_per75'], color=colors[i], alpha=0.4)
     
         if l == 0:
-            ax[l].legend(fontsize=13)
+            ax[l].legend(fontsize=13, loc=3)
         if l in [3, 4, 5]:
             ax[l].set_xlabel(r'$\log\ (M_{*} / M_{\odot})$')
         if l in [0, 3]:
-            ax[l].set_ylabel(r'$\Delta {\rm log (EW}/\AA)$')
-        ax[l].set_ylim(-1.5, 1.5)
+            ax[l].set_ylabel(r'${\rm log }( {\rm EW}_{\rm no UVB} / {\rm EW}_{\rm UVB} )$')
+        ax[l].set_ylim(-1.5, 1.1)
         ax[l].annotate(plot_lines[l], xy=(0.05, 0.85), xycoords='axes fraction')
+        ax[l].axhline(0., c='k', ls='--', lw=1)
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)

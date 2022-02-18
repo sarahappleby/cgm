@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
 
         for i in range(len(log_frad)):
-            ax[l].plot(plot_data['mass'], plot_data[f'log_frad_{log_frad[i]}_med'], ls='-', c=colors[i], label=r'${{{}}}  {{\rm log}} f_{{r_{{\rm half}} *}}$'.format(log_frad[i]))
+            ax[l].plot(plot_data['mass'], plot_data[f'log_frad_{log_frad[i]}_med'], ls='-', c=colors[i], label=r'${{\rm log}} f_{{r_{{\rm half}} \star}} = {{{}}}$'.format(log_frad[i]))
             if i == 1:
                 ax[l].fill_between(plot_data['mass'], plot_data[f'log_frad_{log_frad[i]}_per25'], plot_data[f'log_frad_{log_frad[i]}_per75'], color=colors[i], alpha=0.4)
     
@@ -101,6 +101,8 @@ if __name__ == '__main__':
         ax[l].set_ylim(-1.5, 0)
         ax[l].annotate(plot_lines[l], xy=(0.05, 0.05), xycoords='axes fraction')
 
+        if l == 1:
+            ax[l].set_title(r'${\rm Mass\ dependence\ at}\ r_{200}$')
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sat_test_{fr200}r200_mass_median_delta_ew.png')

@@ -36,7 +36,7 @@ snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind
 s = pg.Snapshot(snapfile)
 
 sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-save_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/{model}_{wind}_{snap}/'
+save_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 

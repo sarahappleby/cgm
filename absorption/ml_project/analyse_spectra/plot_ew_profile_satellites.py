@@ -44,6 +44,7 @@ if __name__ == '__main__':
     nbins_m = 1
     mass_bins = np.arange(min_m, min_m+(nbins_m+1)*delta_m, delta_m)
     bin_label = '10.5-11.0'
+    mass_title = f'{mass_bins[0]}'+ r'$ < \textrm{log} (M_* / M_{\odot}) < $' + f'{mass_bins[1]}'
 
     colors = make_color_list(plt.get_cmap('viridis'), len(log_frad))
 
@@ -93,7 +94,7 @@ if __name__ == '__main__':
         for i in range(len(log_frad)):
 
             ax[l].plot(plot_data['fr200'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'], 
-                       ls='-', c=colors[i], label=r'${{{}}}  {{\rm log}} f_{{r_{{\rm half}} *}}$'.format(log_frad[i]), lw=1.5)
+                       ls='-', c=colors[i], label=r'${{\rm log}} f_{{r_{{\rm half}} \star}} = {{{}}}$'.format(log_frad[i]), lw=1.5)
             if i == 1:
                 ax[l].fill_between(plot_data['fr200'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per75'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per25'], 
                                       alpha=0.3, color=colors[i])
@@ -107,7 +108,9 @@ if __name__ == '__main__':
             ax[l].legend(loc=4)
         if l in [3, 4, 5]:
             ax[l].set_xlabel(r'$\rho / r_{200}$')
-
+        if l ==1:
+            ax[l].set_title('Profiles for galaxies with ' + mass_title)
+    
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sat_test_ew_profile_mstar.png')

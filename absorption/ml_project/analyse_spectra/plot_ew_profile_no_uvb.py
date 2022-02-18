@@ -97,13 +97,14 @@ if __name__ == '__main__':
                 ax[l].fill_between(plot_data['fr200'], plot_data[f'minT_{minT[i]}_{bin_label}_per75'], plot_data[f'minT_{minT[i]}_{bin_label}_per25'], 
                                       alpha=0.3, color=colors[i])
 
-        ax[l].set_ylim(-1.5, 2.0)
+        ax[l].set_ylim(-1.5, 2.5)
         ax[l].annotate(plot_lines[l], xy=(0.05, 0.85), xycoords='axes fraction')
+        ax[l].axhline(0., c='k', ls='--', lw=1)
 
         if l in [0, 3]:
-            ax[l].set_ylabel(r'$\Delta {\rm log (EW}/\AA)$')
+            ax[l].set_ylabel(r'${\rm log }( {\rm EW}_{\rm no UVB} / {\rm EW}_{\rm UVB} )$')
         if l == 0:
-            ax[l].legend(loc=1)
+            ax[l].legend(loc=3)
         if l in [3, 4, 5]:
             ax[l].set_xlabel(r'$\rho / r_{200}$')
 

@@ -11,6 +11,6 @@ logfrad=3.0
 for ii in {0..18}
 do
    echo Submitting job $ii
-   python $pipeline_path/pipeline_satellites.py $model $snap $wind $ii $line $logfrad
+   python $pipeline_path/pipeline_satellites.py $model $wind $snap $ii $line $logfrad
    echo Finished job $ii
 done

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a lines=("H1215" "MgII2796" "SiIII1206" "CIV1548" "OVI1031" "NeVIII770 ")
+declare -a lines=("H1215" "MgII2796" "CII1334" "SiIII1206" "CIV1548" "OVI1031")
 
 for l in "${lines[@]}"
 do

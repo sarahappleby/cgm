@@ -8,7 +8,6 @@ import numpy as np
 import h5py
 import sys
 
-
 def belfiore_line(mstar, a=0.73, b=-7.7):
     # The definition of the SFMS from Belfiore+18 is:
     # log (SFR/Msun/yr) = 0.73 log (Mstar/Msun) - 7.33
@@ -43,7 +42,7 @@ snap = sys.argv[3]
 
 delta_m = 0.25
 min_m = 10.
-nbins_m = 5
+nbins_m = 6
 mass_bins = np.arange(min_m, min_m+(nbins_m+1)*delta_m, delta_m)
 ngals_each = 12
 nbins_ssfr = 3
@@ -72,31 +71,48 @@ gal_recession = gal_pos.in_units('kpc')*hubble
 gal_vgal_pos = gal_vels + gal_recession
 gal_gas_frac = np.array([i.masses['gas'].in_units('Msun') /i.masses['stellar'].in_units('Msun') for i in sim.galaxies ])
 
+halo_r200 = np.array([i.halo.virial_quantities['r200c'].in_units('kpc/h') for i in sim.galaxies]) 
+r200_mask = halo_r200 > 0.
+
 # empty arrays to store ngals_each simba galaxies per ssfr-mstar bin
 gal_ids = np.ones(nbins_m*nbins_ssfr*ngals_each) * np.nan
 
 sf_mask, gv_mask, q_mask = ssfr_type_check(quench, gal_ssfr)
 
-for i in range(len(mass_bins)):
+for i in range(nbins_m):
     gal_id_range = range((i)*ngals_each*nbins_ssfr, (i+1)*ngals_each*nbins_ssfr)
     mass_mask = (gal_sm > mass_bins[i]) & (gal_sm < (mass_bins[i] + delta_m))
 
     # get the star forming galaxies:
-    mask = gal_cent * mass_mask * sf_mask
+    mask = gal_cent * mass_mask * sf_mask * r200_mask
     gals_possible = np.arange(len(sim.galaxies))[mask]
-    gal_ids[gal_id_range[0:ngals_each]] = choose_gals(gals_possible, ngals_each)
+    if len(gals_possible) >= ngals_each:
+        gal_ids[gal_id_range[0:ngals_each]] = choose_gals(gals_possible, ngals_each)
+    else:
+        print(f'Fewer than {ngals_each} galaxies in star forming bin {i}')
+        gal_ids[gal_id_range[0:len(gals_possible)]] = gals_possible
 
     # get the green valley galaxies:
-    mask = gal_cent * mass_mask * gv_mask
+    mask = gal_cent * mass_mask * gv_mask * r200_mask
     gals_possible = np.arange(len(sim.galaxies))[mask]
-    gal_ids[gal_id_range[ngals_each:2*ngals_each]] = choose_gals(gals_possible, ngals_each)
+    if len(gals_possible) >= ngals_each:
+        gal_ids[gal_id_range[ngals_each:2*ngals_each]] = choose_gals(gals_possible, ngals_each)
+    else:
+        print(f'Fewer than {ngals_each} galaxies in green valley bin {i}')
+        gal_ids[gal_id_range[ngals_each:ngals_each+len(gals_possible)]] = gals_possible
 
     # get the quenched galaxies:
-    mask = gal_cent * mass_mask * q_mask
+    mask = gal_cent * mass_mask * q_mask * r200_mask
     gals_possible = np.arange(len(sim.galaxies))[mask]
-    gal_ids[gal_id_range[2*ngals_each:3*ngals_each]] = choose_gals(gals_possible, ngals_each)
+    if len(gals_possible) >= ngals_each:
+        gal_ids[gal_id_range[2*ngals_each:3*ngals_each]] = choose_gals(gals_possible, ngals_each)
+    else:
+        print(f'Fewer than {ngals_each} galaxies in quenched bin {i}')
+        gal_ids[gal_id_range[2*ngals_each:2*ngals_each + len(gals_possible)]] = gals_possible
 
+gal_ids = np.delete(gal_ids, np.arange(len(gal_ids))[np.isnan(gal_ids)])
 gal_ids = gal_ids.astype('int')
+
 halo_r200 = np.array([sim.galaxies[i].halo.virial_quantities['r200c'].in_units('kpc/h') for i in gal_ids])
 halo_pos = np.array([sim.galaxies[i].halo.pos.in_units('kpc/h') for i in gal_ids])
 
