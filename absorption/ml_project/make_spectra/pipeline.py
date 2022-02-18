@@ -9,7 +9,6 @@ import re
 import yt
 from yt.units.yt_array import YTArray, YTQuantity
 import pygad as pg
-from astropy.io import ascii
 from generate_spectra import generate_pygad_spectrum
 
 # Set some spectrum parameters:
