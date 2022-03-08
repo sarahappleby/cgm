@@ -61,6 +61,7 @@ if __name__ == '__main__':
         gal_ssfr = sf['ssfr'][:] +9.
         gal_fgas = np.log10(sf['fgas'][:] + 1e-3)
         gal_Lbaryon = sf['L_baryon'][:]
+        gal_nsats = sf['nsats'][:]
 
     z = np.array([0, 0, 1])
     Lbaryon_norm = gal_Lbaryon / np.linalg.norm(gal_Lbaryon, axis=1)[:, None]
@@ -119,6 +120,23 @@ if __name__ == '__main__':
     plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
     plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
     plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_ssfr.png')
+    plt.clf()
+
+    plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
+    plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
+    plt.text(11.55, sf_height[snap_index], 'SF')
+    plt.text(11.55, gv_height[snap_index], 'GV')
+    plt.text(11.55, q_height[snap_index], 'Q')
+    for i in range(nbins_m + 1):
+        plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
+    im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=np.log10(gal_nsats + 0.31), cmap=cmap, s=5, marker='o')
+    plt.colorbar(im, label=r'$N_{\rm sats}$')
+    plt.clim(-0.5, 1.75)
+    plt.xlim(9.75,11.75)
+    plt.ylim(-3.5, ylims[snap_index])
+    plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
+    plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
+    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_nsats.png')
     plt.show()
     plt.clf()
 
