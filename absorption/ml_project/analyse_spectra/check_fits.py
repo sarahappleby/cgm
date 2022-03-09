@@ -9,6 +9,7 @@ from spectrum import Spectrum
 from utils import *
 from physics import *
 
+np.random.seed(0)
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=15)
@@ -60,7 +61,7 @@ if __name__ == '__main__':
         os.makedirs(plot_dir)
 
     results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
-    chisq_file = f'{results_dir}{model}_{wind}_{snap}_fit_max_chisq_{line}.h5'
+    chisq_file = f'{results_dir}{model}_{wind}_{snap}_fit_chisq_{line}.h5'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -68,7 +69,6 @@ if __name__ == '__main__':
     chisq_dict = read_h5_into_dict(chisq_file)
     max_chisq = chisq_dict[f'max_chisq_{fr200}r200'] 
 
-    
     make_chisq_range_plots(max_chisq, 0., 2.5, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/low_chisq/')
     make_chisq_range_plots(max_chisq, 2.5, 5., gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/mid_chisq/')
     make_chisq_range_plots(max_chisq, 5., np.inf, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/high_chisq/')

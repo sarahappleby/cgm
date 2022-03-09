@@ -69,22 +69,21 @@ if __name__ == '__main__':
 
             all_ids = all_ids[mask]
             idx = np.array([np.where(gal_ids == j)[0] for j in all_ids]).flatten() 
-            all_mass = mass[idx]
             all_ssfr = ssfr[idx]
             
-            im = ax[i].scatter(all_mass, all_N, c=all_ssfr, cmap=cmap, s=1, vmin=-2, vmax=0)
+            im = ax[i].scatter(all_N, np.log10(all_b), c=all_ssfr, cmap=cmap, s=1, vmin=-2, vmax=0)
             if i == len(fr200) -1:
                 fig.colorbar(im, ax=ax[i], label=r'$\textrm{log} ({\rm sSFR} / {\rm Gyr}^{-1})$')
             ax[i].set_title(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
-            ax[i].set_xlim(10, 12)
-            ax[i].set_ylim(12, 18)
-            ax[i].set_xlabel(r'${\rm log }(M_\star / {\rm M}_{\odot})$')
+            ax[i].set_xlim(12, 18)
+            ax[i].set_ylim(0, 2.5)
+            ax[i].set_xlabel(r'${\rm log }(N / {\rm cm}^{-2})$')
             if i == 0:
-                ax[i].set_ylabel(r'${\rm log }(N / {\rm cm}^{-2})$')
+                ax[i].set_ylabel(r'${\rm log }(b /{\rm km s}^{-1})$')
 
         plt.tight_layout()
         fig.subplots_adjust(wspace=0., hspace=0.)
-        plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_mass_column_{line}.png')
+        plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_kinematics_{line}.png')
         plt.clf()
 
 
