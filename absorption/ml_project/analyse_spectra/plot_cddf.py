@@ -81,7 +81,7 @@ if __name__ == '__main__':
                 all_N = hf[f'log_N_{fr200[i]}r200'][:]
                 all_b = hf[f'b_{fr200[i]}r200'][:]
                 all_l = hf[f'l_{fr200[i]}r200'][:]
-                #all_ew = hf[f'ew_{fr200[i]}r200'][:]
+                all_ew = hf[f'ew_{fr200[i]}r200'][:]
                 all_chisq = hf[f'chisq_{fr200[i]}r200'][:]
                 all_ids = hf[f'ids_{fr200[i]}r200'][:]
 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
             all_N = all_N[mask]
             all_b = all_b[mask]
             all_l = all_l[mask]
-            #all_ew = all_ew[mask]
+            all_ew = all_ew[mask]
 
             all_ids = all_ids[mask]
             idx = np.array([np.where(gal_ids == j)[0] for j in all_ids]).flatten() 
@@ -135,8 +135,8 @@ if __name__ == '__main__':
             if l == len(lines)-1:
                 ax[l][i].set_xlabel(r'${\rm log }(N / {\rm cm}^{-2})$')
             if i == 0:
-                ax[l][i].set_ylabel(r'${\rm log }(\delta^2 n / \delta X \delta N )$')
-                #ax[l][i].set_ylabel(r'${\rm log }( N^2 \delta^2 n / \delta X \delta N )$')
+                #ax[l][i].set_ylabel(r'${\rm log }(\delta^2 n / \delta X \delta N )$')
+                ax[l][i].set_ylabel(r'${\rm log }( N^2 \delta^2 n / \delta X \delta N )$')
                 ax[l][i].annotate(plot_lines[l], xy=(0.7, 0.85), xycoords='axes fraction')
                 if l == 0:
                     ax[l][i].legend(loc=3)
