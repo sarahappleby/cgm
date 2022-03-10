@@ -29,8 +29,8 @@ if __name__ == '__main__':
     gal_pos = np.array([i.pos.in_units('unitary') for i in sim.galaxies])[~central]
     gal_rad = np.array([i.radii['stellar_half_mass'].in_units('kpc/h') for i in sim.galaxies])[~central] / boxsize
 
+    x_pos = gal_pos[:, 0]
     y_pos = gal_pos[:, 1]
-    z_pos = gal_pos[:, 2]
 
     fig, ax = plt.subplots(2, 3, sharey='row', sharex='col')
     ax = ax.flatten()
@@ -46,7 +46,8 @@ if __name__ == '__main__':
         p = PatchCollection(patches, alpha=0.25)
         ax[i].add_collection(p)
 
-        ax[i].annotate(r'${{\rm log}} f_{{r_{{\rm half}} \star}} = {{{}}}$'.format(log_frad[i]), xy=(0.05, 0.05), xycoords='axes fraction')
+        ax[i].annotate(r'${{\rm log}} f_{{r_{{\rm half}} \star}} = {{{}}}$'.format(log_frad[i]), 
+                       xy=(0.05, 0.05), xycoords='axes fraction', size=11, bbox=dict(boxstyle="round", fc="w"))
 
         if i in [3, 4, 5]:
             ax[i].set_xlabel('x (unitary)')

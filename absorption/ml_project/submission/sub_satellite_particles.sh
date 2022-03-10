@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pipeline_path=/disk04/sapple/cgm/absorption/ml_project/
+pipeline_path=/disk04/sapple/cgm/absorption/ml_project/make_spectra/
 
 for ii in {0..19766}
 do

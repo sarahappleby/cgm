@@ -9,6 +9,7 @@ import numpy as np
 from numba import njit
 import h5py
 import caesar
+import os
 import gc
 import sys
 
@@ -29,7 +30,6 @@ if __name__ == '__main__':
     sample_gal = int(sys.argv[4]) # supply the gal id that we want from command lin
 
     sqrt2 = np.sqrt(2.)
-    ngals_each = 12
     delta_fr200 = 0.25
     min_fr200 = 0.25
     nbins_fr200 = 5
@@ -47,9 +47,10 @@ if __name__ == '__main__':
         pos = f['position'][:][sample_gal] * (1.+redshift) # already in kpc/h, factor of 1+z for comoving
         r200 = f['halo_r200'][:][sample_gal] * (1.+redshift) # already in kpc/h, factor of 1+z for comoving
 
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5', 'r') as hf:
-        if f'plist_{gal_id}' in hf.keys():
-            sys.exit()
+    if os.path.isfile(f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5'):
+        with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5', 'r') as hf:
+            if f'plist_{gal_id}' in hf.keys():
+                sys.exit()
 
     hsml = readsnap(snapfile, 'SmoothingLength', 'gas', suppress=1, units=1)  # in kpc/h, comoving
     gas_pos = readsnap(snapfile, 'pos', 'gas', suppress=1, units=1) # in kpc/h, comoving

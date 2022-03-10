@@ -5,7 +5,7 @@ pipeline_path=/disk04/sapple/cgm/absorption/ml_project/make_spectra/
 model=m100n1024
 wind=s50
 snap=151
-logfrad=3.0
+logfrad=0.0
 
 
 for ii in {0..18}

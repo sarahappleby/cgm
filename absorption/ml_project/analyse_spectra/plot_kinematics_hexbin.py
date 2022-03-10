@@ -33,6 +33,8 @@ if __name__ == '__main__':
     redshift = 0.
     chisq_lim = 2.5
     N_min = 12.
+    N_max = 18.
+    b_max = 10**2.5
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -63,7 +65,7 @@ if __name__ == '__main__':
                 all_chisq = hf[f'chisq_{fr200[i]}r200'][:]
                 all_ids = hf[f'ids_{fr200[i]}r200'][:]
 
-            mask = (all_N > N_min) * (all_chisq < chisq_lim)
+            mask = (all_N > N_min) * (all_N < N_max) * (all_b < b_max) * (all_chisq < chisq_lim)
             all_N = all_N[mask]
             all_b = all_b[mask]
             all_l = all_l[mask]
@@ -73,12 +75,15 @@ if __name__ == '__main__':
             idx = np.array([np.where(gal_ids == j)[0] for j in all_ids]).flatten() 
             all_ssfr = ssfr[idx]
             
-            im = ax[l][i].scatter(all_N, np.log10(all_b), c=all_ssfr, cmap=cmap, s=1, vmin=-2, vmax=0)
+            
+            hb = ax[l][i].hexbin(all_N, np.log10(all_b), gridsize=50, bins='log', cmap='Blues')
+    
+            #im = ax[l][i].scatter(all_N, np.log10(all_b), c=all_ssfr, cmap=cmap, s=1, vmin=-2, vmax=0)
             ax[l][i].set_xlim(12, 18) 
             ax[l][i].set_ylim(0, 2.5)
             
             if i == len(fr200) -1:
-                fig.colorbar(im, ax=ax[l][i], label=r'$\textrm{log} ({\rm sSFR} / {\rm Gyr}^{-1})$')
+                fig.colorbar(hb, ax=ax[l][i], label=r'${\rm log} n$')
             if l == 0:
                 ax[l][i].set_title(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
             if l == len(lines)-1:
@@ -89,7 +94,7 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_kinematics.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_kinematics_hexbin.png')
     plt.show()
     plt.clf()
 

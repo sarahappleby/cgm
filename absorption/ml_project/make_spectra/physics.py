@@ -1,5 +1,8 @@
 import pygad as pg
 import numpy as np
+import caesar
+from yt.utilities.cosmology import Cosmology
+
 
 def convert_to_log(y, yerr):
     yerr /= (y*np.log(10.))
@@ -25,3 +28,50 @@ def wave_to_vel(wave, lambda_rest, z, v_units='km/s'):
 
 def tau_to_flux(tau):
     return np.exp(-np.clip(tau, -30, 30))
+
+
+def wave_to_z(wave, lambda_rest):
+    return (wave - lambda_rest) / lambda_rest
+
+
+def compute_dX(model, wind, snap, lines, nspectra, path_lengths):
+    sim = caesar.load(f'/home/rad/data/{model}/{wind}/Groups/{model}_{snap}.hdf5')
+    redshift = sim.simulation.redshift
+    co = Cosmology(hubble_constant=sim.simulation.hubble_constant, omega_matter=sim.simulation.omega_matter, omega_lambda=sim.simulation.omega_lambda)
+    hubble_parameter = co.hubble_parameter(sim.simulation.redshift).in_units('km/s/Mpc')
+    hubble_constant = co.hubble_parameter(0).in_units('km/s/Mpc')
+
+    idx = np.argmin(path_lengths['redshifts'] - redshift)
+    all_dX = np.zeros(len(lines))
+
+    for i in range(len(lines)):
+        dz = path_lengths[f'dz_{lines[i]}'][idx] * nspectra
+        all_dX[i] = dz * (hubble_parameter / hubble_constant) * ((1 + redshift) **2.)
+    
+    return all_dX
+
+
+def create_path_length_file(vel_range, lines, redshifts, path_length_file):
+    import pygad as pg
+    lambda_rest = [float(pg.analysis.absorption_spectra.lines[i]['l'].split(' ')[0]) for i in lines]
+    c = float(pg.physics.c.in_units_of('km/s'))
+
+    with h5py.File(path_length_file, 'a') as hf:
+        hf.create_dataset('redshifts', data=np.array(redshifts))
+
+    for i in range(len(lines)):
+        path_length = np.zeros(len(redshifts))
+
+        for j, z in enumerate(redshifts):
+
+            lmin = lambda_rest[i] * (1+z)
+            lmax = lambda_rest[i] * (1+z) * (1 + vel_range / c)
+
+            zmin = wave_to_z(lmin, lambda_rest[i])
+            zmax = wave_to_z(lmax, lambda_rest[i])
+
+            path_length[j] = np.abs(zmax - zmin)
+
+        with h5py.File(path_length_file, 'a') as hf:
+            hf.create_dataset(f'dz_{lines[i]}', data=np.array(path_length))
+

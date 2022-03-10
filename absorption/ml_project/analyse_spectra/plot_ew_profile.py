@@ -16,28 +16,16 @@ cb_blue = '#5289C7'
 cb_green = '#90C987'
 cb_red = '#E26F72'
 
+def quench_thresh(z): # in units of yr^-1 
+    return -1.8  + 0.3*z -9.
 
-def ssfr_b_redshift(z):
-    return 1.9*np.log10(1+z) - 7.7
+def ssfr_type_check(ssfr_thresh, ssfr):
 
-
-def sfms_line(mstar, a=0.73, b=-7.7):
-    # The definition of the SFMS from Belfiore+18 is:
-    # log (SFR/Msun/yr) = 0.73 log (Mstar/Msun) - 7.33
-    # With a scatter of sigma = 0.39 dex
-    return mstar*a + b
-
-
-def ssfr_type_check(z, mstar, sfr):
-
-    ssfr_b = ssfr_b_redshift(z)
-    sf_line = sfms_line(mstar, a=0.73, b=ssfr_b)
-    q_line = sfms_line(mstar, a=0.73, b=ssfr_b - 1.)
-
-    sf_mask = sfr > sf_line
-    gv_mask = (sfr < sf_line) & (sfr > q_line)
-    q_mask = sfr < q_line
+    sf_mask = (ssfr >= ssfr_thresh)
+    gv_mask = (ssfr < ssfr_thresh) & (ssfr > ssfr_thresh -1)
+    q_mask = ssfr == -14.0
     return sf_mask, gv_mask, q_mask
+
 
 
 if __name__ == '__main__':
@@ -48,6 +36,7 @@ if __name__ == '__main__':
 
     sim = caesar.load(f'/home/rad/data/{model}/{wind}/Groups/{model}_{snap}.hdf5')
     redshift = sim.simulation.redshift
+    quench = quench_thresh(redshift)
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
@@ -77,11 +66,11 @@ if __name__ == '__main__':
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
         gal_sm = sf['mass'][:]
-        gal_sfr = sf['sfr'][:]
+        gal_ssfr = sf['ssfr'][:]
 
     mass_long = np.repeat(gal_sm, norients)
-    sfr_long = np.repeat(np.log10(gal_sfr + 1e-3), norients)
-    sf_mask, gv_mask, q_mask = ssfr_type_check(redshift, mass_long, sfr_long)
+    ssfr_long = np.repeat(gal_ssfr, norients)
+    sf_mask, gv_mask, q_mask = ssfr_type_check(quench, ssfr_long)
 
     fig, ax = plt.subplots(len(lines), nbins_m, figsize=(14, 13), sharey='row', sharex='col')
 

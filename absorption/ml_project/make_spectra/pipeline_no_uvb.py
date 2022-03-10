@@ -24,13 +24,13 @@ delta_fr200 = 0.25
 min_fr200 = 0.25
 nbins_fr200 = 5
 fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
-minT = 4.0
 
 model = sys.argv[1]
 wind = sys.argv[2]
 snap = sys.argv[3]
 num = int(sys.argv[4])
 line = sys.argv[5]
+minT = sys.argv[6]
 lambda_rest = float(re.findall(r'\d+', line)[0])
 
 snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_minT_{minT}.hdf5'
