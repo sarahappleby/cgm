@@ -50,8 +50,14 @@ if __name__ == '__main__':
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
         weighted_n = np.zeros(len(fr200))
+        weighted_n_25 = np.zeros(len(fr200))
+        weighted_n_75 = np.zeros(len(fr200))
         weighted_T = np.zeros(len(fr200))
+        weighted_T_25 = np.zeros(len(fr200))
+        weighted_T_75 = np.zeros(len(fr200))
         weighted_Z = np.zeros(len(fr200))
+        weighted_Z_25 = np.zeros(len(fr200))
+        weighted_Z_75 = np.zeros(len(fr200))
 
         for i in range(len(fr200)):
 
@@ -72,11 +78,20 @@ if __name__ == '__main__':
 
             order = np.argsort(all_n)
             weighted_n[i] = all_n[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
+            weighted_n_25[i] = all_n[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
+            weighted_n_75[i] = all_n[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
             order = np.argsort(all_T)
             weighted_T[i] = all_T[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
+            weighted_T_25[i] = all_T[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
+            weighted_T_75[i] = all_T[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
             order = np.argsort(all_Z)
             weighted_Z[i] = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
-
+            weighted_Z_25[i] = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
+            weighted_Z_75[i] = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
+    
+            if i == 0:
+                ax[0].errorbar(line_ev[l], weighted_n[i], color=colors[i], yerr=np.array([[weighted_n[i] - weighted_n_25[i], weighted_n_75[i] - weighted_n[i],]]).T,
+                                  lw=1, ls='None', marker='None', capsize=2)
             if l == 0:
                 ax[0].scatter(line_ev[l], weighted_n[i], color=colors[i], label=r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
             else:
