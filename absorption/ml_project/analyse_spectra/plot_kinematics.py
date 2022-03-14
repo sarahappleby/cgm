@@ -73,7 +73,7 @@ if __name__ == '__main__':
             idx = np.array([np.where(gal_ids == j)[0] for j in all_ids]).flatten() 
             all_ssfr = ssfr[idx]
             
-            im = ax[l][i].scatter(all_N, np.log10(all_b), c=all_ssfr, cmap=cmap, s=1, vmin=-2, vmax=0)
+            im = ax[l][i].scatter(all_N, np.log10(all_b), c=all_ssfr, cmap=cmap, s=1, vmin=-3.5, vmax=0)
             ax[l][i].set_xlim(12, 18) 
             ax[l][i].set_ylim(0, 2.5)
             
