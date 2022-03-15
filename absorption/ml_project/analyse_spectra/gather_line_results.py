@@ -57,6 +57,8 @@ if __name__ == '__main__':
     all_Nspec = []
     all_vpec = []
 
+    all_pos_dv = []
+
     all_N = []
     all_b = []
     all_l = []
@@ -88,6 +90,8 @@ if __name__ == '__main__':
                 all_Nspec.extend(get_interp_conditions(spectrum['wavelengths'], spectrum['line_list']['l'][line_mask], np.log10(spectrum['col_density'])))
                 all_vpec.extend(get_interp_conditions(spectrum['wavelengths'], spectrum['line_list']['l'][line_mask], spectrum['vpec']))
 
+                all_pos_dv.extend(np.array(wave_to_vel(spectrum['line_list']['l'][line_mask], lambda_rest, redshift)) - spectrum['gal_velocity_pos'])
+
                 all_chisq.extend(spectrum['line_list']['Chisq'][line_mask])
                 all_N.extend(spectrum['line_list']['N'][line_mask])
                 all_b.extend(spectrum['line_list']['b'][line_mask])
@@ -106,6 +110,8 @@ if __name__ == '__main__':
             hf.create_dataset(f'log_Nspec_{fr200}r200', data=np.array(all_Nspec))
         if not f'vpec_{fr200}r200' in hf.keys():
             hf.create_dataset(f'vpec_{fr200}r200', data=np.array(all_vpec))
+        if not f'pos_dv_{fr200}r200' in hf.keys():
+            hf.create_dataset(f'pos_dv_{fr200}r200', data=np.array(all_pos_dv))
         if not f'log_N_{fr200}r200' in hf.keys():
             hf.create_dataset(f'log_N_{fr200}r200', data=np.array(all_N))
         if not f'b_{fr200}r200' in hf.keys():
