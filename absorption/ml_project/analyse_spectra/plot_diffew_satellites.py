@@ -26,14 +26,13 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
 
-    lines = ['H1215', 'MgII2796', 'SiIII1206', 'CIV1548', 'OVI1031', 'NeVIII770']
-    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm SiIII}1206$',
-                  r'${\rm CIV}1548$', r'${\rm OVI}1031$', r'${\rm NeVIII}770$']
+    lines = ['H1215', 'MgII2796', 'CII1334', 'SiIII1206', 'CIV1548', 'OVI1031']
+    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
+                  r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
     plot_quantities = ['med', 'per25', 'per75']
     norients = 8
     fr200 = 1.0
-    log_frad = ['0.0', '0.5', '1.0', '1.5', '2.0', '2.5', '3.0']
-    log_frad = ['0.0', '0.5', '1.0', '1.5', '2.0']
+    log_frad = ['0.0', '0.5', '1.0', '1.5', '2.0', '2.5']
 
     delta_m = 0.25
     min_m = 10.
@@ -46,7 +45,7 @@ if __name__ == '__main__':
     results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
 
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_old.h5', 'r') as sf: # change this back to current sample
+    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf: # change this back to current sample
         mass_long = np.repeat(sf['mass'][:], norients)
 
     fig, ax = plt.subplots(2, 3, figsize=(15, 10), sharex='col', sharey='row')
@@ -89,7 +88,7 @@ if __name__ == '__main__':
 
         for i in range(len(log_frad)):
             ax[l].plot(plot_data['mass'], plot_data[f'log_frad_{log_frad[i]}_med'], ls='-', c=colors[i], label=r'${{\rm log}} f_{{r_{{\rm half}} \star}} = {{{}}}$'.format(log_frad[i]))
-            if i == 1:
+            if log_frad[i] == '1.0':
                 ax[l].fill_between(plot_data['mass'], plot_data[f'log_frad_{log_frad[i]}_per25'], plot_data[f'log_frad_{log_frad[i]}_per75'], color=colors[i], alpha=0.4)
     
         if l == 0:

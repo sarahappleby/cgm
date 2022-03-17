@@ -20,7 +20,7 @@ if __name__ == '__main__':
     ion_mass = np.array([pg.UnitArr(pg.analysis.absorption_spectra.lines[line]['atomwt']) * pg.physics.m_u for line in lines])
     chisq_lim = 2.5
     N_min = 12.
-    zsolar = 0.0134
+    zsolar = [0.0134, 7.14e-4, 2.38e-3, 6.71e-4, 2.38e-3, 5.79e-3]
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         for i in range(len(fr200)):
 
             with h5py.File(results_file, 'r') as hf:
-                all_Z = hf[f'log_Z_{fr200[i]}r200'][:] - np.log10(zsolar)
+                all_Z = hf[f'log_Z_{fr200[i]}r200'][:] - np.log10(zsolar[l])
                 all_T = hf[f'log_T_{fr200[i]}r200'][:]
                 all_rho = hf[f'log_rho_{fr200[i]}r200'][:]
                 all_N = hf[f'log_N_{fr200[i]}r200'][:]
@@ -58,9 +58,9 @@ if __name__ == '__main__':
             all_ids = all_ids[mask]
             all_N = all_N[mask]
 
-            im = ax[l][i].scatter(all_rho, all_T, c=all_Z, cmap='magma', s=1, vmin=-2, vmax=0)
+            im = ax[l][i].scatter(all_rho, all_T, c=all_Z, cmap='magma', s=1, vmin=-1., vmax=0.5)
             ax[l][i].set_xlim(-6, 0)
-            ax[l][i].set_ylim(2, 8)
+            ax[l][i].set_ylim(3, 8)
 
             if i == len(fr200) -1:
                 fig.colorbar(im, ax=ax[l][i], label=r'${\rm log} (Z / Z_{\odot})$')
@@ -87,7 +87,7 @@ if __name__ == '__main__':
         for i in range(len(fr200)):
 
             with h5py.File(results_file, 'r') as hf:
-                all_Z = hf[f'log_Z_{fr200[i]}r200'][:] - np.log10(zsolar)
+                all_Z = hf[f'log_Z_{fr200[i]}r200'][:] - np.log10(zsolar[l])
                 all_T = hf[f'log_T_{fr200[i]}r200'][:]
                 all_rho = hf[f'log_rho_{fr200[i]}r200'][:]
                 all_N = hf[f'log_N_{fr200[i]}r200'][:]
@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
             im = ax[l][i].scatter(all_rho, all_T, c=all_N, cmap='magma', s=1, vmin=12, vmax=16)
             ax[l][i].set_xlim(-6, 0)
-            ax[l][i].set_ylim(2, 8)
+            ax[l][i].set_ylim(3, 8)
 
             if i == len(fr200) -1:
                 fig.colorbar(im, ax=ax[l][i], label=r'${\rm log }(N / {\rm cm}^{-2})$')

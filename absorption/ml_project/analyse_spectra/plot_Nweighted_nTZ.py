@@ -22,7 +22,7 @@ if __name__ == '__main__':
     ion_mass = np.array([pg.UnitArr(pg.analysis.absorption_spectra.lines[line]['atomwt']) * pg.physics.m_u for line in lines])
     chisq_lim = 2.5
     N_min = 12.
-    zsolar = 0.0134
+    zsolar = [0.0134, 7.14e-4, 2.38e-3, 6.71e-4, 2.38e-3, 5.79e-3]
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         for i in range(len(fr200)):
 
             with h5py.File(results_file, 'r') as hf:
-                all_Z = hf[f'log_Z_{fr200[i]}r200'][:] - np.log10(zsolar)
+                all_Z = hf[f'log_Z_{fr200[i]}r200'][:] - np.log10(zsolar[l])
                 all_T = hf[f'log_T_{fr200[i]}r200'][:]
                 all_n = hf[f'log_rho_{fr200[i]}r200'][:] - np.log10(ion_mass[l])
                 all_N = hf[f'log_N_{fr200[i]}r200'][:]
@@ -92,17 +92,17 @@ if __name__ == '__main__':
             if i == 0:
                 ax[0].errorbar(line_ev[l], weighted_n[i], color=colors[i], yerr=np.array([[weighted_n[i] - weighted_n_25[i], weighted_n_75[i] - weighted_n[i],]]).T,
                                   lw=1, ls='None', marker='None', capsize=2)
-            if l == 0:
-                ax[0].scatter(line_ev[l], weighted_n[i], color=colors[i], label=r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
-            else:
-                ax[0].scatter(line_ev[l], weighted_n[i], color=colors[i])
 
+            ax[0].scatter(line_ev[l], weighted_n[i], color=colors[i])
             ax[1].scatter(line_ev[l], weighted_T[i], color=colors[i])
-            ax[2].scatter(line_ev[l], weighted_Z[i], color=colors[i])
-    
+            if l == 0:
+                ax[2].scatter(line_ev[l], weighted_Z[i], color=colors[i], label=r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
+            else:
+                ax[2].scatter(line_ev[l], weighted_Z[i], color=colors[i])
+
         ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_n - 0.45)))
 
-    ax[0].legend(loc=1, fontsize=12)
+    ax[2].legend(loc=4, fontsize=12)
     ax[0].set_ylim(-3.75, -0.5)
 
     ax[2].set_xlabel(r'${\rm log }(E / {\rm eV})$')

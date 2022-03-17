@@ -24,7 +24,7 @@ if __name__ == '__main__':
     ion_mass = np.array([pg.UnitArr(pg.analysis.absorption_spectra.lines[line]['atomwt']) * pg.physics.m_u for line in lines])
     chisq_lim = 2.5
     N_min = 12.
-    zsolar = 0.0134
+    zsolar = [0.0134, 7.14e-4, 2.38e-3, 6.71e-4, 2.38e-3, 5.79e-3]
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -63,7 +63,7 @@ if __name__ == '__main__':
             weighted_Z = np.zeros(nbins_m)
 
             with h5py.File(results_file, 'r') as hf:
-                all_Z = hf[f'log_Z_{fr200[i]}r200'][:] - np.log10(zsolar)
+                all_Z = hf[f'log_Z_{fr200[i]}r200'][:] - np.log10(zsolar[l])
                 all_T = hf[f'log_T_{fr200[i]}r200'][:]
                 all_n = hf[f'log_rho_{fr200[i]}r200'][:] - np.log10(ion_mass[l])
                 all_N = hf[f'log_N_{fr200[i]}r200'][:]
