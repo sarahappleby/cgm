@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 import h5py
 import pygad as pg
@@ -19,7 +20,7 @@ if __name__ == '__main__':
 
     ion_mass = np.array([pg.UnitArr(pg.analysis.absorption_spectra.lines[line]['atomwt']) * pg.physics.m_u for line in lines])
     chisq_lim = 2.5
-    N_min = 12.
+    N_min = [12., 11., 12., 11., 12., 12.]
     zsolar = [0.0134, 7.14e-4, 2.38e-3, 6.71e-4, 2.38e-3, 5.79e-3]
     
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
@@ -33,8 +34,13 @@ if __name__ == '__main__':
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
-    n_bins = np.arange(-6, 0+0.1, 0.1)
-    T_bins = np.arange(3, 8+0.1, 0.1)
+    phase_space_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_phase_space.h5'
+    with h5py.File(phase_space_file, 'r') as hf:
+        rho_overdensity_temp_hist2d = hf['rho_overdensity_temp'][:]
+        nh_temp_hist2d = hf['nh_temp'][:]
+        rho_overdensity_bins = hf['rho_overdensity_bins'][:]
+        temp_bins = hf['temp_bins'][:]
+        n_bins = hf['n_bins'][:]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
@@ -44,7 +50,7 @@ if __name__ == '__main__':
         mass = sf['mass'][:]
         ssfr = sf['ssfr'][:]
     
-    fig, ax = plt.subplots(len(lines), len(fr200), figsize=(14, 13), sharey='row', sharex='col')
+    fig, ax = plt.subplots(len(lines), len(fr200)+1, figsize=(14, 13), sharey='row', sharex='col')
     
     for l, line in enumerate(lines):
 
@@ -66,21 +72,21 @@ if __name__ == '__main__':
                 all_chisq = hf[f'chisq_{fr200[i]}r200'][:]
                 all_ids = hf[f'ids_{fr200[i]}r200'][:]
 
-            mask = (all_N > N_min) * (all_chisq < chisq_lim)
+            mask = (all_N > N_min[l]) * (all_chisq < chisq_lim)
             all_Z = all_Z[mask]
             all_T = all_T[mask]
             all_n = np.log10(10**all_Z * 10**all_rho[mask]) - np.log10(ion_mass[l])
             all_ids = all_ids[mask]
             all_N = all_N[mask]
 
-            #ax[l][i].hist2d(all_n, all_T, bins=[n_bins, T_bins], density=True, cmap='Greys') 
+            ax[l][i].imshow(nh_temp_hist2d, extent=(n_bins[0], n_bins[-1], temp_bins[0], temp_bins[-1]), cmap='Greys')
 
             im = ax[l][i].scatter(all_n, all_T, c=all_Z, cmap='magma', s=1, vmin=-1., vmax=0.5)
             ax[l][i].set_xlim(-6, 0)
-            ax[l][i].set_ylim(3, 8)
+            ax[l][i].set_ylim(3, 7)
 
             if i == len(fr200) -1:
-                fig.colorbar(im, ax=ax[l][i], label=r'${\rm log} (Z / Z_{\odot})$')
+                fig.colorbar(im, ax=ax[l][-1], label=r'${\rm log} (Z / Z_{\odot})$')
             if l == 0:
                 ax[l][i].set_title(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
             if l == len(lines)-1:
@@ -92,7 +98,7 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_nTZ.png')
-    plt.clf()
+    plt.close()
 
 
     fig, ax = plt.subplots(len(lines), len(fr200), figsize=(14, 13), sharey='row', sharex='col')
@@ -111,22 +117,24 @@ if __name__ == '__main__':
                 all_chisq = hf[f'chisq_{fr200[i]}r200'][:]
                 all_ids = hf[f'ids_{fr200[i]}r200'][:]
 
-            mask = (all_N > N_min) * (all_chisq < chisq_lim)
+            mask = (all_N > N_min[l]) * (all_chisq < chisq_lim)
             all_Z = all_Z[mask]
             all_T = all_T[mask]
             all_n = np.log10(10**all_Z * 10**all_rho[mask]) - np.log10(ion_mass[l])
             all_ids = all_ids[mask]
             all_N = all_N[mask]
 
+            ax[l][i].imshow(nh_temp_hist2d, extent=(n_bins[0], n_bins[-1], temp_bins[0], temp_bins[-1]), cmap='Greys')
+
             if line == 'H1215':
-                im = ax[l][i].scatter(all_n, all_T, c=all_N, cmap='magma', s=1, vmin=12, vmax=16)
+                im = ax[l][i].scatter(all_n, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=16)
             else:
-                im = ax[l][i].scatter(all_n, all_T, c=all_N, cmap='magma', s=1, vmin=12, vmax=15)
+                im = ax[l][i].scatter(all_n, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=15)
             ax[l][i].set_xlim(-6, 0)
-            ax[l][i].set_ylim(3, 8)
+            ax[l][i].set_ylim(3, 7)
 
             if i == len(fr200) -1:
-                fig.colorbar(im, ax=ax[l][i], label=r'${\rm log }(N / {\rm cm}^{-2})$')
+                fig.colorbar(im, ax=ax[l][-1], label=r'${\rm log }(N / {\rm cm}^{-2})$')
             if l == 0:
                 ax[l][i].set_title(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
             if l == len(lines)-1:
@@ -138,7 +146,7 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_nTN.png')
-    plt.clf()
+    plt.close()
 
     fig, ax = plt.subplots(len(lines), len(fr200), figsize=(14, 13), sharey='row', sharex='col')
 
@@ -156,22 +164,24 @@ if __name__ == '__main__':
                 all_chisq = hf[f'chisq_{fr200[i]}r200'][:]
                 all_ids = hf[f'ids_{fr200[i]}r200'][:]
 
-            mask = (all_N > N_min) * (all_chisq < chisq_lim)
+            mask = (all_N > N_min[l]) * (all_chisq < chisq_lim)
             all_Z = all_Z[mask]
             all_T = all_T[mask]
             all_delta_rho = all_rho[mask] - np.log10(cosmic_rho)
             all_ids = all_ids[mask]
             all_N = all_N[mask]
 
+            ax[l][i].imshow(rho_overdensity_temp_hist2d, extent=(rho_overdensity_bins[0], rho_overdensity_bins[-1], temp_bins[0], temp_bins[-1]), cmap='Greys')
+
             if line == 'H1215':
-                im = ax[l][i].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=12, vmax=16)
+                im = ax[l][i].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=16)
             else:
-                im = ax[l][i].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=12, vmax=15)
+                im = ax[l][i].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=15)
             ax[l][i].set_xlim(-1, 5)
-            ax[l][i].set_ylim(3, 8)
+            ax[l][i].set_ylim(3, 7)
 
             if i == len(fr200) -1:
-                fig.colorbar(im, ax=ax[l][i], label=r'${\rm log }(N / {\rm cm}^{-2})$')
+                fig.colorbar(im, ax=ax[l][-1], label=r'${\rm log }(N / {\rm cm}^{-2})$')
             if l == 0:
                 ax[l][i].set_title(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
             if l == len(lines)-1:
@@ -183,8 +193,59 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN.png')
-    plt.clf()
+    plt.close()
+    
+    """
+    fig, ax = plt.subplots(len(lines), len(fr200), figsize=(14, 13), sharey='row', sharex='col')
 
+    for l, line in enumerate(lines):
+
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+
+        for i in range(len(fr200)):
+
+            with h5py.File(results_file, 'r') as hf:
+                all_Z = hf[f'log_Z_{fr200[i]}r200'][:] - np.log10(zsolar[l])
+                all_T = hf[f'log_T_{fr200[i]}r200'][:]
+                all_rho = hf[f'log_rho_{fr200[i]}r200'][:]
+                all_N = hf[f'log_N_{fr200[i]}r200'][:]
+                all_chisq = hf[f'chisq_{fr200[i]}r200'][:]
+                all_ids = hf[f'ids_{fr200[i]}r200'][:]
+
+            mask = (all_N > N_min[l]) * (all_chisq < chisq_lim)
+            all_Z = all_Z[mask]
+            all_T = all_T[mask]
+            all_delta_rho = all_rho[mask] - np.log10(cosmic_rho)
+            all_ids = all_ids[mask]
+            all_N = all_N[mask]
+
+            ax[l][i].imshow(rho_overdensity_temp_hist2d, extent=(rho_overdensity_bins[0], rho_overdensity_bins[-1], temp_bins[0], temp_bins[-1]), cmap='Greys')
+
+            if line == 'H1215':
+                im = ax[l][i].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=16)
+            else:
+                im = ax[l][i].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=15)
+            ax[l][i].set_xlim(-1, 5)
+            ax[l][i].set_ylim(3, 7)
+
+            if i == len(fr200) -1:
+                divider = make_axes_locatable(ax[l][i])
+                cax = divider.append_axes("right", size="5%", pad=0.15)
+                fig.colorbar(im, ax=cax, location='right', label=r'${\rm log }(N / {\rm cm}^{-2})$')
+            if l == 0:
+                ax[l][i].set_title(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
+            if l == len(lines)-1:
+                ax[l][i].set_xlabel(r'${\rm log }\Delta$')
+            if i == 0:
+                ax[l][i].set_ylabel(r'${\rm log } (T / {\rm K})$')
+                ax[l][i].annotate(plot_lines[l], xy=(0.65, 0.85), xycoords='axes fraction')
+
+    #plt.tight_layout(h_pad=1)
+    fig.subplots_adjust(wspace=0., hspace=0.)
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN_ugh.png')
+    plt.show()
+    plt.close()
+    """
 
 '''
 FYI: Gizmo metallicity structure
