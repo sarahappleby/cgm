@@ -46,7 +46,7 @@ if __name__ == '__main__':
     redshift = 0.
     quench = quench_thresh(redshift)
     chisq_lim = 2.5
-    all_dv = np.arange(5., 105., 5.)
+    all_dv = np.arange(5, 105, 5)
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
