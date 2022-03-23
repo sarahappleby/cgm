@@ -35,10 +35,8 @@ if __name__ == '__main__':
 
     line_a = 'H1215'
     line_b = ["CII1334", "CIV1548", "OVI1031"]
-    line_b = ["CII1334", "CIV1548"]
     plot_line_a = r'${\rm HI}1215$'
     plot_line_b = [r'${\rm CII}1334$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
-    plot_line_b = [r'${\rm CII}1334$', r'${\rm CIV}1548$']
 
     #line_a = 'CII1334'
     #line_b = ["CIV1548", "OVI1031"]
@@ -49,7 +47,6 @@ if __name__ == '__main__':
     ion_mass_b = np.array([pg.UnitArr(pg.analysis.absorption_spectra.lines[line]['atomwt']) * pg.physics.m_u for line in line_b])
     zsolar_a = 0.0134
     zsolar_b = [2.38e-3, 2.38e-3, 5.79e-3]
-    zsolar_b = [2.38e-3, 2.38e-3]
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
@@ -78,7 +75,7 @@ if __name__ == '__main__':
 
 
     # overdensity
-    fig, ax = plt.subplots(4, len(line_b), figsize=(10, 5), sharey='row')
+    fig, ax = plt.subplots(4, len(line_b), figsize=(10, 10), sharey='row')
 
     fr200_points = []
     fr200_labels = []
@@ -141,12 +138,11 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.5)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_aligned_NdeltaTZ_{line_a}.png')
-    plt.show()
     plt.close()
 
 
     # number density
-    fig, ax = plt.subplots(4, len(line_b), figsize=(10, 5), sharey='row')
+    fig, ax = plt.subplots(4, len(line_b), figsize=(10, 10), sharey='row')
 
     fr200_points = []
     fr200_labels = []
@@ -209,6 +205,5 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.5)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_aligned_NnTZ_{line_a}.png')
-    plt.show()
     plt.close()
 
