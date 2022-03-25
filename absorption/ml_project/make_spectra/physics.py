@@ -34,6 +34,9 @@ def wave_to_z(wave, lambda_rest):
     return (wave - lambda_rest) / lambda_rest
 
 
+def get_redshift(wave, wave_rest): 
+    return (wave - lambda_rest) / lambda_rest
+
 def compute_dX(model, wind, snap, lines, nspectra, path_lengths):
     sim = caesar.load(f'/home/rad/data/{model}/{wind}/Groups/{model}_{snap}.hdf5')
     redshift = sim.simulation.redshift

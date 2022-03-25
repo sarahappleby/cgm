@@ -11,17 +11,19 @@ from physics import wave_to_vel, vel_to_wave
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=13)
     
-def get_outlying_line_mask(spectrum, gal_wave_pos, wave_range, wave_boxsize, chisq_lim):
+def mask_outlying_lines(spectrum, vel_range, vel_boxsize, chisq_lim):
 
     chisq_mask = spectrum['line_list']['Chisq'] < chisq_lim
 
-    for j in range(len(spectrum['line_list']['l'])):
-        if spectrum['line_list']['l'][j] < np.min(spectrum['wavelengths']):
-            spectrum['line_list']['l'][j] += wave_boxsize
-        elif spectrum['line_list']['l'][j] > np.max(spectrum['wavelengths']):
-            spectrum['line_list']['l'][j] -= wave_boxsize
+    """
+    for j in range(len(spectrum['line_list']['v'])):
+        if spectrum['line_list']['v'][j] < 0:
+            spectrum['line_list']['v'][j] += vel_boxsize
+        elif spectrum['line_list']['v'][j] > vel_boxsize:
+            spectrum['line_list']['v'][j] -= wave_boxsize
+    """
 
-    line_mask = (spectrum['line_list']['l'] > gal_wave_pos - wave_range) & (spectrum['line_list']['l'] < gal_wave_pos + wave_range)
+    line_mask = (spectrum['line_list']['v'] > spectrum['gal_velocity_pos'] - vel_range) & (spectrum['line_list']['v'] < spectrum['gal_velocity_pos'] + vel_range)
 
     for key in list(spectrum['line_list'].keys()):
         spectrum['line_list'][key] = spectrum['line_list'][key][line_mask*chisq_mask]
@@ -49,13 +51,10 @@ if __name__ == '__main__':
     fr200 = sys.argv[1]
 
     line_a = 'H1215'
-    line_b = 'CII1334'
-    lambda_a = float(pg.UnitArr(pg.analysis.absorption_spectra.lines[line_a]['l']))
-    lambda_b = float(pg.UnitArr(pg.analysis.absorption_spectra.lines[line_b]['l']))
+    line_b = 'OVI1031'
     redshift = 0.
     vel_range = 600.
-    wave_range_a = float(vel_to_wave(vel_range, lambda_a, redshift)) - lambda_a
-    wave_range_b = float(vel_to_wave(vel_range, lambda_b, redshift)) - lambda_b
+    vel_boxsize = 10000.
 
     chisq_lim = 2.5
     all_dv = np.arange(5, 105, 5)
@@ -96,19 +95,15 @@ if __name__ == '__main__':
                 spectrum_b = read_h5_into_dict(f'{spectra_dir}sample_galaxy_{gal_ids[i]}_{line_b}_{orient}_{fr200}r200.h5')
 
                 if (len(spectrum_a['line_list']['l']) > 0) & (len(spectrum_b['line_list']['l']) > 0):
-                    wave_boxsize_a = spectrum_a['wavelengths'][-1] - spectrum_a['wavelengths'][0]
-                    wave_boxsize_b = spectrum_b['wavelengths'][-1] - spectrum_b['wavelengths'][0]
-                    gal_wave_pos_a = vel_to_wave(spectrum_a['gal_velocity_pos'], lambda_a, redshift)
-                    gal_wave_pos_b = vel_to_wave(spectrum_b['gal_velocity_pos'], lambda_b, redshift)
 
-                    spectrum_a = get_outlying_line_mask(spectrum_a, gal_wave_pos_a, wave_range_a, wave_boxsize_a, chisq_lim)                
-                    spectrum_b = get_outlying_line_mask(spectrum_b, gal_wave_pos_b, wave_range_b, wave_boxsize_b, chisq_lim)
+                    spectrum_a['line_list']['v'] = np.array(wave_to_vel(spectrum_a['line_list']['l'], spectrum_a['lambda_rest'], redshift))
+                    spectrum_b['line_list']['v'] = np.array(wave_to_vel(spectrum_b['line_list']['l'], spectrum_b['lambda_rest'], redshift))
+                    
+                    spectrum_a = mask_outlying_lines(spectrum_a, vel_range, vel_boxsize, chisq_lim)                
+                    spectrum_b = mask_outlying_lines(spectrum_b, vel_range, vel_boxsize, chisq_lim)
                 
-                    vels_a = np.array(wave_to_vel(spectrum_a['line_list']['l'], lambda_a, redshift))
-                    vels_b = np.array(wave_to_vel(spectrum_b['line_list']['l'], lambda_b, redshift))
-            
-                    for j in range(len(vels_b)):
-                        vel_sep = vels_a - vels_b[j]
+                    for j in range(len(spectrum_b['line_list']['v'])):
+                        vel_sep = spectrum_a['line_list']['v'] - spectrum_b['line_list']['v'][j]
                         vel_mask = np.abs(vel_sep) < dv
                         if len(vel_sep[vel_mask]) > 0.:
                         
@@ -117,7 +112,7 @@ if __name__ == '__main__':
                             aligned_ids.append(gal_ids[i])
                     
                             aligned_ew_a.append(spectrum_a['line_list']['EW'][vel_mask][closest])
-                            aligned_v_a.append(vels_a[vel_mask][closest])
+                            aligned_v_a.append(spectrum_a['line_list']['v'][vel_mask][closest])
                             aligned_b_a.append(spectrum_a['line_list']['b'][vel_mask][closest])
                             aligned_N_a.append(spectrum_a['line_list']['N'][vel_mask][closest])
                             aligned_rho_a.append(get_interp_conditions(spectrum_a['wavelengths'], [spectrum_a['line_list']['l'][vel_mask][closest]], 
@@ -129,7 +124,7 @@ if __name__ == '__main__':
                             
 
                             aligned_ew_b.append(spectrum_b['line_list']['EW'][j])
-                            aligned_v_b.append(vels_b[j])
+                            aligned_v_b.append(spectrum_b['line_list']['v'][j])
                             aligned_b_b.append(spectrum_b['line_list']['b'][j])
                             aligned_N_b.append(spectrum_b['line_list']['N'][j])
                             aligned_rho_b.append(get_interp_conditions(spectrum_b['wavelengths'], [spectrum_b['line_list']['l'][j]],

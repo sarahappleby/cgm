@@ -55,7 +55,7 @@ if __name__ == '__main__':
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         mass_long = np.repeat(sf['mass'][:], norients)
 
-    fig, ax = plt.subplots(2, 3, figsize=(14, 13), sharey='row', sharex='col')
+    fig, ax = plt.subplots(2, 3, figsize=(10, 7), sharey='row', sharex='col')
     ax = ax.flatten()
 
     for l, line in enumerate(lines):
@@ -108,8 +108,8 @@ if __name__ == '__main__':
             ax[l].legend(loc=4)
         if l in [3, 4, 5]:
             ax[l].set_xlabel(r'$\rho / r_{200}$')
-        if l ==1:
-            ax[l].set_title('Profiles for galaxies with ' + mass_title)
+        #if l ==1:
+        #    ax[l].set_title('Profiles for galaxies with ' + mass_title)
     
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)

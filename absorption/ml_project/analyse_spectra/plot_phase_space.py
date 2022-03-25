@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1 import ImageGrid
 import numpy as np
@@ -9,11 +10,22 @@ import sys
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=13)
 
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
+        cmap_list = cmap(np.linspace(minval, maxval, n))
+        cmap_list[:, -1] = alpha
+        new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+                                                            cmap_list)
+        return new_cmap
+
+
 if __name__ == '__main__':
 
     model = sys.argv[1]
     wind = sys.argv[2]
     snap = sys.argv[3]
+
+    cmap = plt.get_cmap('Greys')
+    cmap = truncate_colormap(cmap, 0.0, .6)
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
@@ -37,11 +49,9 @@ if __name__ == '__main__':
 
     phase_space_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_phase_space.h5'
     with h5py.File(phase_space_file, 'r') as hf:
-        rho_overdensity_temp_hist2d = hf['rho_overdensity_temp'][:]
-        nh_temp_hist2d = hf['nh_temp'][:]
-        rho_overdensity_bins = hf['rho_overdensity_bins'][:]
+        rho_overdensity_temp_hist2d = hf['rho_delta_temp'][:]
+        rho_overdensity_bins = hf['rho_delta_bins'][:]
         temp_bins = hf['temp_bins'][:]
-        n_bins = hf['n_bins'][:]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
@@ -79,7 +89,8 @@ if __name__ == '__main__':
             all_ids = all_ids[mask]
             all_N = all_N[mask]
 
-            ax[l][i].imshow(rho_overdensity_temp_hist2d, extent=(rho_overdensity_bins[0], rho_overdensity_bins[-1], temp_bins[0], temp_bins[-1]), cmap='Greys')
+            ax[l][i].imshow(np.log10(rho_overdensity_temp_hist2d), extent=(rho_overdensity_bins[0], rho_overdensity_bins[-1], temp_bins[0], temp_bins[-1]), 
+                            cmap=cmap)
 
             if line == 'H1215':
                 im = ax[l][i].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=16)
@@ -88,10 +99,6 @@ if __name__ == '__main__':
             ax[l][i].set_xlim(-1, 5)
             ax[l][i].set_ylim(3, 7)
 
-            #if i == len(fr200) -1:
-            #    ax_divider = make_axes_locatable(ax[l][-1])
-            #    cax = ax_divider.append_axes("right", size="7%", pad="2%")
-            #    fig.colorbar(im, cax=cax, label=r'${\rm log }(N / {\rm cm}^{-2})$')
             if i == len(fr200) -1:
                 cax = plt.axes([horizontal_position, vertical_position[l], width, height])
                 fig.colorbar(im, cax=cax, label=r'${\rm log }(N / {\rm cm}^{-2})$')
@@ -103,60 +110,12 @@ if __name__ == '__main__':
             if i == 0:
                 ax[l][i].set_ylabel(r'${\rm log } (T / {\rm K})$')
 
-    #plt.tight_layout()
-    fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN_ugh.png')
-    plt.close()
-   
-    """
-    fig, ax = plt.subplots(len(lines), len(fr200), figsize=(14, 13), sharey='row', sharex='col')
-
-    for l, line in enumerate(lines):
-
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-
-        for i in range(len(fr200)):
-
-            with h5py.File(results_file, 'r') as hf:
-                all_Z = hf[f'log_Z_{fr200[i]}r200'][:] - np.log10(zsolar[l])
-                all_T = hf[f'log_T_{fr200[i]}r200'][:]
-                all_rho = hf[f'log_rho_{fr200[i]}r200'][:]
-                all_N = hf[f'log_N_{fr200[i]}r200'][:]
-                all_chisq = hf[f'chisq_{fr200[i]}r200'][:]
-                all_ids = hf[f'ids_{fr200[i]}r200'][:]
-
-            mask = (all_N > N_min[l]) * (all_chisq < chisq_lim)
-            all_Z = all_Z[mask]
-            all_T = all_T[mask]
-            all_delta_rho = all_rho[mask] - np.log10(cosmic_rho)
-            all_ids = all_ids[mask]
-            all_N = all_N[mask]
-
-            ax[l][i].imshow(rho_overdensity_temp_hist2d, extent=(rho_overdensity_bins[0], rho_overdensity_bins[-1], temp_bins[0], temp_bins[-1]), cmap='Greys')
-
-            if line == 'H1215':
-                im = ax[l][i].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=16)
-            else:
-                im = ax[l][i].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=15)
-            ax[l][i].set_xlim(-1, 5)
-            ax[l][i].set_ylim(3, 7)
-
-            if i == len(fr200) -1:
-                fig.colorbar(im, ax=ax[l][-1], label=r'${\rm log }(N / {\rm cm}^{-2})$')
-            if l == 0:
-                ax[l][i].set_title(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
-            if l == len(lines)-1:
-                ax[l][i].set_xlabel(r'${\rm log }\Delta$')
-            if i == 0:
-                ax[l][i].set_ylabel(r'${\rm log } (T / {\rm K})$')
-                ax[l][i].annotate(plot_lines[l], xy=(0.65, 0.85), xycoords='axes fraction')
-
-    plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN.png')
     plt.close()
-
-    fig, ax = plt.subplots(len(lines), len(fr200)+1, figsize=(14, 13), sharey='row', sharex='col')
+  
+    """
+    fig, ax = plt.subplots(len(lines), len(fr200), figsize=(14, 13), sharey='row', sharex='col')
 
     for l, line in enumerate(lines):
 
@@ -185,14 +144,13 @@ if __name__ == '__main__':
             all_ids = all_ids[mask]
             all_N = all_N[mask]
 
-            ax[l][i].imshow(nh_temp_hist2d, extent=(n_bins[0], n_bins[-1], temp_bins[0], temp_bins[-1]), cmap='Greys')
-
             im = ax[l][i].scatter(all_n, all_T, c=all_Z, cmap='magma', s=1, vmin=-1., vmax=0.5)
             ax[l][i].set_xlim(-6, 0)
             ax[l][i].set_ylim(3, 7)
 
             if i == len(fr200) -1:
-                fig.colorbar(im, ax=ax[l][-1], label=r'${\rm log} (Z / Z_{\odot})$')
+                cax = plt.axes([horizontal_position, vertical_position[l], width, height])
+                fig.colorbar(im, cax=cax, label=r'${\rm log} (Z / Z_{\odot})$')
             if l == 0:
                 ax[l][i].set_title(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
             if l == len(lines)-1:
@@ -201,12 +159,11 @@ if __name__ == '__main__':
                 ax[l][i].set_ylabel(r'${\rm log } (T / {\rm K})$')
                 ax[l][i].annotate(plot_lines[l], xy=(0.65, 0.85), xycoords='axes fraction')
 
-    plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_nTZ.png')
     plt.close()
     """
-    
+
 '''
 FYI: Gizmo metallicity structure
 All.SolarAbundances[0]=0.0134;        // all metals (by mass); present photospheric abundances from Asplund et al. 2009 (Z=0.0134, proto-solar=0.0142) in notes;
