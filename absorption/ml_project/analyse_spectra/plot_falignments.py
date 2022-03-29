@@ -38,10 +38,20 @@ if __name__ == '__main__':
     plot_line_a = r'${\rm HI}1215$'
     plot_line_b = [r'${\rm CII}1334$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
 
+    line_a = 'CII1334'
+    line_b = ["CIV1548", "OVI1031"]
+    plot_line_a = r'${\rm CII}1334$'
+    plot_line_b = [r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+
+    line_a = "CIV1548"
+    line_b = ["OVI1031"]
+    plot_line_a = r'${\rm CIV}1548$'
+    plot_line_b = [r'${\rm OVI}1031$']
+
     redshift = 0.
     quench = quench_thresh(redshift)
     chisq_lim = 2.5
-    all_dv = np.arange(5., 105., 5.)
+    all_dv = np.arange(5, 105, 5)
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -60,7 +70,7 @@ if __name__ == '__main__':
 
     line_a_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line_a}.h5'
 
-    fig, ax = plt.subplots(1, len(line_b), figsize=(10, 5), sharey='row', sharex='col')
+    fig, ax = plt.subplots(1, len(line_b), figsize=(8, 5), sharey='row', sharex='col')
     ax = ax.flatten()
 
     for l, line in enumerate(line_b):
@@ -94,10 +104,15 @@ if __name__ == '__main__':
         ax[i].set_ylim(0., 1.0)
         ax[i].set_title(plot_line_b[i])
 
-    ax[0].set_xlabel(r'$|v({\rm HI}) - v({\rm CII}) ({\rm km s}^{-1}) | $')
-    ax[1].set_xlabel(r'$|v({\rm HI}) - v({\rm CIV}) ({\rm km s}^{-1}) | $')
-    ax[2].set_xlabel(r'$|v({\rm HI}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
-        
+    #ax[0].set_xlabel(r'$|v({\rm HI}) - v({\rm CII}) ({\rm km s}^{-1}) | $')
+    #ax[1].set_xlabel(r'$|v({\rm HI}) - v({\rm CIV}) ({\rm km s}^{-1}) | $')
+    #ax[2].set_xlabel(r'$|v({\rm HI}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
+     
+    #ax[0].set_xlabel(r'$|v({\rm CII}) - v({\rm CIV}) ({\rm km s}^{-1}) | $')
+    #ax[1].set_xlabel(r'$|v({\rm CII}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
+
+    ax[0].set_xlabel(r'$|v({\rm CIV}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
+
     ax[0].set_ylabel(r'$ f_{\rm aligned}$')
     ax[0].legend(loc=2)
 

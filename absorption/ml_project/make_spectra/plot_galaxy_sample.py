@@ -112,11 +112,11 @@ if __name__ == '__main__':
     plt.text(11.55, q_height[snap_index], 'Q')
     for i in range(nbins_m + 1):
         plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
-    im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=gal_ssfr, cmap=sf_cmap, s=5, marker='o')
+    im = plt.scatter(gal_sm, np.log10(gal_sfr + 10**-2.5), c=gal_ssfr, cmap=sf_cmap, s=5, marker='o')
     plt.colorbar(im, label=r'$\textrm{log} ({\rm sSFR} / {\rm Gyr}^{-1})$')
-    plt.clim(-2, 0)
+    plt.clim(-3.5, 0)
     plt.xlim(9.75,11.75)
-    plt.ylim(-3.5, ylims[snap_index])
+    plt.ylim(-3., ylims[snap_index])
     plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
     plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
     plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_ssfr.png')
@@ -137,7 +137,6 @@ if __name__ == '__main__':
     plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
     plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
     plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_nsats.png')
-    plt.show()
     plt.clf()
 
     plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')

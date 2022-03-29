@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import numpy as np
 import h5py
 import os
@@ -14,6 +15,9 @@ cb_blue = '#5289C7'
 cb_green = '#90C987'
 cb_red = '#E26F72'
 
+cmap = cm.get_cmap('plasma')
+gv_colors = [cmap(0.8), cmap(0.6), cmap(0.25)]
+
 def get_bin_middle(xbins):
     return np.array([xbins[i] + 0.5*(xbins[i+1] - xbins[i]) for i in range(len(xbins)-1)])
 
@@ -27,6 +31,15 @@ def ssfr_type_check(ssfr_thresh, ssfr):
     q_mask = ssfr == -14.0
     return sf_mask, gv_mask, q_mask
     
+def stop_array_after_inf(array):
+    mask = np.isinf(array)
+    if len(array[mask]) > 0:
+        inf_start = np.where(mask)[0][0]
+        array[inf_start:] = np.inf
+        return array
+    else:
+        return array
+
 
 if __name__ == '__main__':
 
@@ -48,6 +61,11 @@ if __name__ == '__main__':
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
+    inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
+    labels = ['inner', 'outer']
+    rho_labels = ['Inner CGM', 'Outer CGM']
+    ssfr_labels = ['All', 'Star forming', 'Green valley', 'Quenched']
+
     logN_min = 11.
     logN_max = 18.
     delta_logN = 0.5
@@ -55,6 +73,11 @@ if __name__ == '__main__':
     bins_logN = np.array([11., 11.5, 12., 12.5, 13., 13.5, 14., 15., 16., 17., 18.])
     plot_logN = get_bin_middle(bins_logN)
     delta_N = np.array([10**bins_logN[i+1] - 10**bins_logN[i] for i in range(len(plot_logN))])
+
+    idelta = 0.8 / (len(inner_outer) -1)
+    icolor = np.arange(0.1, 0.9+idelta, idelta)
+    cmap = cm.get_cmap('viridis')
+    all_color = [cmap(i) for i in icolor]
 
     path_length_file = f'/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/path_lengths.h5'
     if not os.path.isfile(path_length_file):
@@ -68,85 +91,120 @@ if __name__ == '__main__':
         gal_ids = sf['gal_ids'][:]
         mass = sf['mass'][:]
         ssfr = sf['ssfr'][:]
-
-    fig, ax = plt.subplots(len(lines), len(fr200), figsize=(14, 13), sharey='row', sharex='col')
+    
+    fig, ax = plt.subplots(len(lines), 4, figsize=(14, 13), sharey='row', sharex='col')
 
     for l, line in enumerate(lines):
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf.h5'
 
-        for i in range(len(fr200)):
+        if os.path.isfile(cddf_file):
+            plot_data = read_h5_into_dict(cddf_file)
+        else:
 
-            with h5py.File(results_file, 'r') as hf:
-                all_N = hf[f'log_N_{fr200[i]}r200'][:]
-                all_b = hf[f'b_{fr200[i]}r200'][:]
-                all_l = hf[f'l_{fr200[i]}r200'][:]
-                all_ew = hf[f'ew_{fr200[i]}r200'][:]
-                all_chisq = hf[f'chisq_{fr200[i]}r200'][:]
-                all_ids = hf[f'ids_{fr200[i]}r200'][:]
+            plot_data = {}
+            plot_data['plot_logN'] = plot_logN.copy()
 
-            mask = (all_N > logN_min) * (all_chisq < chisq_lim)
-            all_N = all_N[mask]
-            all_b = all_b[mask]
-            all_l = all_l[mask]
-            all_ew = all_ew[mask]
+            for i in range(len(inner_outer)):
 
-            all_ids = all_ids[mask]
-            idx = np.array([np.where(gal_ids == j)[0] for j in all_ids]).flatten() 
-            all_mass = mass[idx]
-            all_ssfr = ssfr[idx]
+                all_N = []
+                all_b = []
+                all_l = []
+                all_ew = []
+                all_chisq = []
+                all_ids = []
 
-            sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
+                for j in range(len(inner_outer[i])):
+                
+                    with h5py.File(results_file, 'r') as hf:
+                        all_N.extend(hf[f'log_N_{inner_outer[i][j]}r200'][:])
+                        all_b.extend(hf[f'b_{inner_outer[i][j]}r200'][:])
+                        all_l.extend(hf[f'l_{inner_outer[i][j]}r200'][:])
+                        all_ew.extend(hf[f'ew_{inner_outer[i][j]}r200'][:])
+                        all_chisq.extend(hf[f'chisq_{inner_outer[i][j]}r200'][:])
+                        all_ids.extend(hf[f'ids_{inner_outer[i][j]}r200'][:])
 
-            cddf_all = np.zeros(len(plot_logN))
-            cddf_sf = np.zeros(len(plot_logN))
-            cddf_gv = np.zeros(len(plot_logN))
-            cddf_q = np.zeros(len(plot_logN))
+                all_N = np.array(all_N)
+                all_b = np.array(all_b)
+                all_l = np.array(all_l)
+                all_ew = np.array(all_ew)
+                all_chisq = np.array(all_chisq)
+                all_ids = np.array(all_ids)
 
-            dX = compute_dX(model, wind, snap, lines, len(all_ids), path_lengths)    
-     
-            for j in range(len(plot_logN)):
-                N_mask = (all_N > logN_min + j*delta_logN) & (all_N < logN_min + (j+1)*delta_logN)
-                cddf_all[j] = len(all_N[N_mask])
-                cddf_sf[j] = len(all_N[N_mask*sf_mask])
-                cddf_gv[j] = len(all_N[N_mask*gv_mask])
-                cddf_q[j] = len(all_N[N_mask*q_mask])
+                mask = (all_N > logN_min) * (all_chisq < chisq_lim)
+                all_N = all_N[mask]
+                all_b = all_b[mask]
+                all_l = all_l[mask]
+                all_ew = all_ew[mask]
 
-            #cddf_all /= (delta_N * dX[0])
-            #cddf_sf /= (delta_N * dX[0])
-            #cddf_gv /= (delta_N * dX[0])
-            #cddf_q /= (delta_N * dX[0])
+                all_ids = all_ids[mask]
+                idx = np.array([np.where(gal_ids == j)[0] for j in all_ids]).flatten()
+                all_mass = mass[idx]
+                all_ssfr = ssfr[idx]
 
-            cddf_all *= (10**plot_logN)**2 / (delta_N * dX[0])
-            cddf_sf *= (10**plot_logN)**2 / (delta_N * dX[0])
-            cddf_gv *= (10**plot_logN)**2 / (delta_N * dX[0])
-            cddf_q *= (10**plot_logN)**2 / (delta_N * dX[0])
+                sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
 
-            ax[l][i].plot(plot_logN, np.log10(cddf_all), label='All', c='k', lw=1)
-            ax[l][i].plot(plot_logN, np.log10(cddf_sf), label='SF', c=cb_blue, lw=1)
-            ax[l][i].plot(plot_logN, np.log10(cddf_gv), label='GV', c=cb_green, lw=1)
-            ax[l][i].plot(plot_logN, np.log10(cddf_q), label='Q', c=cb_red, lw=1)
+                plot_data[f'cddf_all_{labels[i]}'] = np.zeros(len(plot_logN))
+                plot_data[f'cddf_sf_{labels[i]}'] = np.zeros(len(plot_logN))
+                plot_data[f'cddf_gv_{labels[i]}'] = np.zeros(len(plot_logN))
+                plot_data[f'cddf_q_{labels[i]}'] = np.zeros(len(plot_logN))
 
+                dX = compute_dX(model, wind, snap, lines, len(all_ids), path_lengths)
+
+                for j in range(len(plot_logN)):
+                    N_mask = (all_N > logN_min + j*delta_logN) & (all_N < logN_min + (j+1)*delta_logN)
+                    plot_data[f'cddf_all_{labels[i]}'][j] = len(all_N[N_mask])
+                    plot_data[f'cddf_sf_{labels[i]}'][j] = len(all_N[N_mask*sf_mask])
+                    plot_data[f'cddf_gv_{labels[i]}'][j] = len(all_N[N_mask*gv_mask])
+                    plot_data[f'cddf_q_{labels[i]}'][j] = len(all_N[N_mask*q_mask])
+
+                plot_data[f'cddf_all_{labels[i]}'] /= (delta_N * dX[0])
+                plot_data[f'cddf_sf_{labels[i]}'] /= (delta_N * dX[0])
+                plot_data[f'cddf_gv_{labels[i]}'] /= (delta_N * dX[0])
+                plot_data[f'cddf_q_{labels[i]}'] /= (delta_N * dX[0])
+
+                plot_data[f'cddf_all_{labels[i]}'] = np.log10(plot_data[f'cddf_all_{labels[i]}'])
+                plot_data[f'cddf_sf_{labels[i]}'] = np.log10(plot_data[f'cddf_sf_{labels[i]}'])
+                plot_data[f'cddf_gv_{labels[i]}'] = np.log10(plot_data[f'cddf_gv_{labels[i]}'])
+                plot_data[f'cddf_q_{labels[i]}'] = np.log10(plot_data[f'cddf_q_{labels[i]}'])
+
+                #plot_data[f'cddf_all_{labels[i]}'] = stop_array_after_inf(plot_data[f'cddf_all_{labels[i]}'])
+                #plot_data[f'cddf_sf_{labels[i]}'] = stop_array_after_inf(plot_data[f'cddf_sf_{labels[i]}'])
+                #plot_data[f'cddf_gv_{labels[i]}'] = stop_array_after_inf(plot_data[f'cddf_gv_{labels[i]}'])
+                #plot_data[f'cddf_q_{labels[i]}'] = stop_array_after_inf(plot_data[f'cddf_q_{labels[i]}'])
+
+            write_dict_to_h5(plot_data, cddf_file) 
+
+
+        for i in range(len(labels)):
+
+            ax[l][0].plot(plot_data['plot_logN'], plot_data[f'cddf_all_{labels[i]}'], label=rho_labels[i], c=all_color[i], lw=1)
+            ax[l][1].plot(plot_data['plot_logN'], plot_data[f'cddf_sf_{labels[i]}'], label=rho_labels[i], c=all_color[i], lw=1)
+            ax[l][2].plot(plot_data['plot_logN'], plot_data[f'cddf_gv_{labels[i]}'], label=rho_labels[i], c=all_color[i], lw=1)
+            ax[l][3].plot(plot_data['plot_logN'], plot_data[f'cddf_q_{labels[i]}'], label=rho_labels[i], c=all_color[i], lw=1)
+
+        for i in range(4):
             ax[l][i].set_xlim(logN_min, 18)
             #ax[l][i].set_ylim(-18, -9)
 
-            if l == 0:
-                ax[l][i].set_title(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
-            if l == len(lines)-1:
+        if l == 0:
+            ax[l][0].set_title('All')
+            ax[l][1].set_title('Star forming')
+            ax[l][2].set_title('Green valley')
+            ax[l][3].set_title('Quenched')
+        if l == len(lines)-1:
+            for i in range(4):
                 ax[l][i].set_xlabel(r'${\rm log }(N / {\rm cm}^{-2})$')
-            if i == 0:
-                #ax[l][i].set_ylabel(r'${\rm log }(\delta^2 n / \delta X \delta N )$')
-                ax[l][i].set_ylabel(r'${\rm log }( N^2 \delta^2 n / \delta X \delta N )$')
-                ax[l][i].annotate(plot_lines[l], xy=(0.7, 0.85), xycoords='axes fraction')
-                if l == 0:
-                    ax[l][i].legend(loc=3)
+
+        ax[l][0].set_ylabel(r'${\rm log }(\delta^2 n / \delta X \delta N )$')
+        ax[l][0].annotate(plot_lines[l], xy=(0.7, 0.05), xycoords='axes fraction')
+        if l == 0:
+            ax[l][0].legend(loc=2)
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_n.png')
-    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf.png')
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_timesN2.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_ssfr_split_inner_outer.png')
     plt.show()
     plt.clf()
-
 

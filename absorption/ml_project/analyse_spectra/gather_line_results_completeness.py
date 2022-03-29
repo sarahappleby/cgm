@@ -28,15 +28,28 @@ if __name__ == '__main__':
     fr200 = sys.argv[4]
     line = sys.argv[5]
 
-    vel_range = 600. #km/s
+    if snap == '151':
+        redshift = 0.
+    elif snap == '137':
+        redshift = 0.25
+
+    vel_range = 600. # km/s
+
+    """
+    delta_fr200 = 0.25 
+    min_fr200 = 0.25 
+    nbins_fr200 = 5 
+    fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
+    """
+
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg'] 
+    orients = ['0_deg', '180_deg']
+
 
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-
-    s = pg.Snapshot(f'{sample_dir}{model}_{wind}_{snap}.hdf5')
-    redshift = s.redshift
+    completeness_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}_completeness/'
+    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_snr100.h5'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -60,18 +73,22 @@ if __name__ == '__main__':
         for o, orient in enumerate(orients):
             spec_name = f'sample_galaxy_{gal_ids[i]}_{line}_{orient}_{fr200}r200'
             spectrum = read_h5_into_dict(f'{spectra_dir}{spec_name}.h5')
+            spectrum_snr100 = read_h5_into_dict(f'{completeness_dir}{spec_name}.h5')
+            spectrum['line_list'] = spectrum_snr100['line_list']
 
             if len(spectrum['line_list']['N']) > 0.:
                
                 wave_boxsize = spectrum['wavelengths'][-1] - spectrum['wavelengths'][0]
+                gal_wave_pos = vel_to_wave(spectrum['gal_velocity_pos'], spectrum['lambda_rest'], redshift)
+                wave_range = float(vel_to_wave(vel_range, spectrum['lambda_rest'], redshift)) - spectrum['lambda_rest']
+
                 for j in range(len(spectrum['line_list']['l'])):
                     if spectrum['line_list']['l'][j] < np.min(spectrum['wavelengths']):
                         spectrum['line_list']['l'][j] += wave_boxsize
                     elif spectrum['line_list']['l'][j] > np.max(spectrum['wavelengths']):
                         spectrum['line_list']['l'][j] -= wave_boxsize
 
-                spectrum['line_list']['v'] = np.array(wave_to_vel(spectrum['line_list']['l'], spectrum['lambda_rest'], redshift))                
-                line_mask = (spectrum['line_list']['v'] > spectrum['gal_velocity_pos'] - vel_range) & (spectrum['line_list']['v'] < spectrum['gal_velocity_pos'] + vel_range)
+                line_mask = (spectrum['line_list']['l'] > gal_wave_pos - wave_range) & (spectrum['line_list']['l'] < gal_wave_pos + wave_range)
 
                 all_rho.extend(get_interp_conditions(spectrum['wavelengths'], spectrum['line_list']['l'][line_mask], np.log10(spectrum['phys_density'])))
                 all_T.extend(get_interp_conditions(spectrum['wavelengths'], spectrum['line_list']['l'][line_mask], np.log10(spectrum['temperature'])))
