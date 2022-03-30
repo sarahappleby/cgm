@@ -23,32 +23,20 @@ if __name__ == '__main__':
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
     """
 
-    if snap == '151':
-        z = 0.
-    
-    if line == 'H1215':
-        minN = 11.
-    else:
-        minN = 9.
-    mindN = 0.05
     vel_range = 600 # km/s 
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg'] 
 
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
 
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_column_densities_{line}.h5'
     ew_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_ew_{line}.h5'
     chisq_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_chisq_{line}.h5'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
 
-    all_totalN = np.zeros((len(gal_ids), len(orients)))
-    all_dtotalN = np.zeros((len(gal_ids), len(orients)))
     all_fit_ew = np.zeros((len(gal_ids), len(orients)))
     all_max_chisq = np.zeros((len(gal_ids), len(orients)))
-    all_chisq = []
 
     for i in range(len(gal_ids)):
         for o, orient in enumerate(orients):
@@ -56,22 +44,11 @@ if __name__ == '__main__':
             spectrum = read_h5_into_dict(f'{spectra_dir}{spec_name}.h5')
 
             if len(spectrum['line_list']['N']) > 0.:
-                all_totalN[i][o], all_dtotalN[i][o] = get_total_column_density(spectrum['line_list']['N'], spectrum['line_list']['dN'])
                 all_fit_ew[i][o] = np.sum(spectrum['line_list']['EW'])
                 all_max_chisq[i][o] = np.nanmax(spectrum['line_list']['Chisq'])
-                all_chisq.extend(np.unique(spectrum['line_list']['Chisq']))
             
             else:
-               
-                all_totalN[i][o], all_dtotalN[i][o] = minN, mindN
                 all_max_chisq[i][o] = -99.
-                all_chisq.extend([-99.])
-
-    with h5py.File(results_file, 'a') as hf:
-        if not f'log_totalN_{fr200}r200' in hf.keys():
-            hf.create_dataset(f'log_totalN_{fr200}r200', data=np.array(all_totalN))
-        if not f'log_dtotalN_{fr200}r200' in hf.keys():
-            hf.create_dataset(f'log_dtotalN_{fr200}r200', data=np.array(all_dtotalN))
 
     with h5py.File(ew_file, 'a') as hf:
         if not f'fit_ew_{fr200}r200' in hf.keys():
@@ -80,6 +57,4 @@ if __name__ == '__main__':
     with h5py.File(chisq_file, 'a') as hf:
         if not f'max_chisq_{fr200}r200' in hf.keys():
             hf.create_dataset(f'max_chisq_{fr200}r200', data=np.array(all_max_chisq))
-        if not f'chisq_{fr200}r200' in hf.keys():
-            hf.create_dataset(f'chisq_{fr200}r200', data=np.array(all_chisq))
 

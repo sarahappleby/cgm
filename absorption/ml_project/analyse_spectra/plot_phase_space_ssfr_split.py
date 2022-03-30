@@ -40,10 +40,13 @@ if __name__ == '__main__':
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    x = [0.75, 0.69, 0.73, 0.705, 0.71, 0.71]
+    cbar_ticks = [[12, 13, 14, 15, 16], [11, 12, 13, 14], [12, 13, 14], [11, 12, 13, 14], [12, 13, 14], [12, 13, 14],]
 
     width = 0.007
-    height = 0.1132
+    height = 0.1283
     vertical_position = [0.76, 0.632, 0.504, 0.373, 0.247, 0.1175]
+    vertical_position = [0.7516, 0.623, 0.495, 0.366, 0.238, 0.11]
     horizontal_position = 0.9
 
     inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
@@ -80,7 +83,7 @@ if __name__ == '__main__':
         ssfr = sf['ssfr'][:]
 
     # ssfr split, all fr200
-    fig, ax = plt.subplots(len(lines), 3, figsize=(12, 13), sharey='row', sharex='col')
+    fig, ax = plt.subplots(len(lines), 3, figsize=(9.7, 13), sharey='row', sharex='col')
 
     for l, line in enumerate(lines):
 
@@ -119,35 +122,38 @@ if __name__ == '__main__':
         all_ssfr = ssfr[idx]
         sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
 
-        for i in range(4):
+        for i in range(3):
             ax[l][i].imshow(np.log10(rho_overdensity_temp_hist2d), extent=(rho_overdensity_bins[0], rho_overdensity_bins[-1], temp_bins[0], temp_bins[-1]),
                             cmap=cmap)
         
         if line == 'H1215':
-            im = ax[l][0].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=16)
-            im = ax[l][1].scatter(all_delta_rho[sf_mask], all_T[sf_mask], c=all_N[sf_mask], cmap='magma', s=1, vmin=N_min[l], vmax=16)
-            im = ax[l][2].scatter(all_delta_rho[gv_mask], all_T[gv_mask], c=all_N[gv_mask], cmap='magma', s=1, vmin=N_min[l], vmax=16)
-            im = ax[l][3].scatter(all_delta_rho[q_mask], all_T[q_mask], c=all_N[q_mask], cmap='magma', s=1, vmin=N_min[l], vmax=16)
+            im = ax[l][0].scatter(all_delta_rho[sf_mask], all_T[sf_mask], c=all_N[sf_mask], cmap='magma', s=1, vmin=N_min[l], vmax=16)
+            im = ax[l][1].scatter(all_delta_rho[gv_mask], all_T[gv_mask], c=all_N[gv_mask], cmap='magma', s=1, vmin=N_min[l], vmax=16)
+            im = ax[l][2].scatter(all_delta_rho[q_mask], all_T[q_mask], c=all_N[q_mask], cmap='magma', s=1, vmin=N_min[l], vmax=16)
         else:
-            im = ax[l][0].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=16)
-            im = ax[l][1].scatter(all_delta_rho[sf_mask], all_T[sf_mask], c=all_N[sf_mask], cmap='magma', s=1, vmin=N_min[l], vmax=16)
-            im = ax[l][2].scatter(all_delta_rho[gv_mask], all_T[gv_mask], c=all_N[gv_mask], cmap='magma', s=1, vmin=N_min[l], vmax=16)
-            im = ax[l][3].scatter(all_delta_rho[q_mask], all_T[q_mask], c=all_N[q_mask], cmap='magma', s=1, vmin=N_min[l], vmax=16)
+            im = ax[l][0].scatter(all_delta_rho[sf_mask], all_T[sf_mask], c=all_N[sf_mask], cmap='magma', s=1, vmin=N_min[l], vmax=15)
+            im = ax[l][1].scatter(all_delta_rho[gv_mask], all_T[gv_mask], c=all_N[gv_mask], cmap='magma', s=1, vmin=N_min[l], vmax=15)
+            im = ax[l][2].scatter(all_delta_rho[q_mask], all_T[q_mask], c=all_N[q_mask], cmap='magma', s=1, vmin=N_min[l], vmax=15)
         
-        for i in range(4):
+        for i in range(3):
             ax[l][i].set_xlim(-1, 5)
             ax[l][i].set_ylim(3, 7)
 
         cax = plt.axes([horizontal_position, vertical_position[l], width, height])
-        fig.colorbar(im, cax=cax, label=r'${\rm log }(N / {\rm cm}^{-2})$')
-        ax[l][0].annotate(plot_lines[l], xy=(0.65, 0.85), xycoords='axes fraction')
+        cbar = fig.colorbar(im, cax=cax, label=r'${\rm log }(N / {\rm cm}^{-2})$')
+        cbar.set_ticks(cbar_ticks[l])
+        ax[l][0].annotate(plot_lines[l], xy=(x[l], 0.85), xycoords='axes fraction', fontsize=12, bbox=dict(boxstyle="round", fc="w", lw=0.75))
         
         if l == 0:
-            for i in range(4):
+            for i in range(3):
                 ax[l][i].set_title(ssfr_labels[i])
         if l == len(lines)-1:
-            for i in range(4):
+            for i in range(3):
                 ax[l][i].set_xlabel(r'${\rm log }\Delta$')
+            ax[l][0].set_yticks([3, 4, 5, 6, 7])
+        else:
+            ax[l][0].set_yticks([4, 5, 6, 7])
+
         ax[l][0].set_ylabel(r'${\rm log } (T / {\rm K})$')
 
     fig.subplots_adjust(wspace=0., hspace=0.)

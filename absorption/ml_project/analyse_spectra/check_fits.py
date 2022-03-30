@@ -69,7 +69,12 @@ if __name__ == '__main__':
     chisq_dict = read_h5_into_dict(chisq_file)
     max_chisq = chisq_dict[f'max_chisq_{fr200}r200'] 
 
-    make_chisq_range_plots(max_chisq, 0., 2.5, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/low_chisq/')
-    make_chisq_range_plots(max_chisq, 2.5, 5., gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/mid_chisq/')
-    make_chisq_range_plots(max_chisq, 5., np.inf, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/high_chisq/')
-    make_chisq_range_plots(max_chisq, -99.5, -89.5, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/no_features/')
+    make_chisq_range_plots(max_chisq, 2.9, 3.1, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_2.9_3.1/')
+    make_chisq_range_plots(max_chisq, 3.9, 4.1, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_3.9_4.1/')
+    make_chisq_range_plots(max_chisq, 4.9, 5.1, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_4.9_5.1/')
+
+    #make_chisq_range_plots(max_chisq, 0., 2.5, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_0_2.5/')
+    #make_chisq_range_plots(max_chisq, 2.5, 5., gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_2.5_5/')
+    #make_chisq_range_plots(max_chisq, 5., 10., gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_5_10/')
+    #make_chisq_range_plots(max_chisq, 10., 100., gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_10_100/')
+    #make_chisq_range_plots(max_chisq, -99.5, -89.5, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/no_features/')

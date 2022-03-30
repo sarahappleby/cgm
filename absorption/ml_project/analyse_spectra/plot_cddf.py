@@ -52,7 +52,9 @@ if __name__ == '__main__':
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
 
-    redshift = 0.
+    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    s = pg.Snapshot(snapfile)
+    redshift = s.redshift
     quench = quench_thresh(redshift)
     chisq_lim = 2.5
 
