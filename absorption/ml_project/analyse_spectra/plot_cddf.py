@@ -152,7 +152,10 @@ if __name__ == '__main__':
                 plot_data[f'cddf_gv_{labels[i]}'] = np.zeros(len(plot_logN))
                 plot_data[f'cddf_q_{labels[i]}'] = np.zeros(len(plot_logN))
 
-                dX = compute_dX(model, wind, snap, lines, len(all_ids), path_lengths)
+                dX_all = compute_dX(model, wind, snap, lines, len(all_ids), path_lengths)
+                dX_sf = compute_dX(model, wind, snap, lines, len(all_ids[sf_mask]), path_lengths)
+                dX_gv = compute_dX(model, wind, snap, lines, len(all_ids[gv_mask]), path_lengths)
+                dX_q = compute_dX(model, wind, snap, lines, len(all_ids[q_mask]), path_lengths)
 
                 for j in range(len(plot_logN)):
                     N_mask = (all_N > logN_min + j*delta_logN) & (all_N < logN_min + (j+1)*delta_logN)
@@ -161,10 +164,10 @@ if __name__ == '__main__':
                     plot_data[f'cddf_gv_{labels[i]}'][j] = len(all_N[N_mask*gv_mask])
                     plot_data[f'cddf_q_{labels[i]}'][j] = len(all_N[N_mask*q_mask])
 
-                plot_data[f'cddf_all_{labels[i]}'] /= (delta_N * dX[0])
-                plot_data[f'cddf_sf_{labels[i]}'] /= (delta_N * dX[0])
-                plot_data[f'cddf_gv_{labels[i]}'] /= (delta_N * dX[0])
-                plot_data[f'cddf_q_{labels[i]}'] /= (delta_N * dX[0])
+                plot_data[f'cddf_all_{labels[i]}'] /= (delta_N * dX_all[0])
+                plot_data[f'cddf_sf_{labels[i]}'] /= (delta_N * dX_sf[0])
+                plot_data[f'cddf_gv_{labels[i]}'] /= (delta_N * dX_gv[0])
+                plot_data[f'cddf_q_{labels[i]}'] /= (delta_N * dX_q[0])
 
                 plot_data[f'cddf_all_{labels[i]}'] = np.log10(plot_data[f'cddf_all_{labels[i]}'])
                 plot_data[f'cddf_sf_{labels[i]}'] = np.log10(plot_data[f'cddf_sf_{labels[i]}'])

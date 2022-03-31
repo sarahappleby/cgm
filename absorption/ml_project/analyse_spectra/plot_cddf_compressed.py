@@ -15,6 +15,16 @@ cb_blue = '#5289C7'
 cb_green = '#90C987'
 cb_red = '#E26F72'
 
+def stop_array_after_inf(array):
+    mask = np.isinf(array)
+    if len(array[mask]) > 0:
+        inf_start = np.where(mask)[0][0]
+        array[inf_start:] = np.inf
+        return array
+    else:
+        return array
+
+
 if __name__ == '__main__':
 
     model = 'm100n1024'
@@ -31,6 +41,7 @@ if __name__ == '__main__':
     ssfr_labels = ['All', 'Star forming', 'Green valley', 'Quenched']
     ssfr_colors = ['k', cb_blue, cb_green, cb_red]
     rho_ls = ['-', '--', ':']
+    rho_lw = [1, 1.5, 2]
     logN_min = 11.
     
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
@@ -45,7 +56,7 @@ if __name__ == '__main__':
 
     rho_lines = []
     for i in range(len(rho_ls)):
-        rho_lines.append(Line2D([0,1],[0,1], color='k', ls=rho_ls[i]))
+        rho_lines.append(Line2D([0,1],[0,1], color='k', ls=rho_ls[i], lw=rho_lw[i]))
     leg = ax[0][0].legend(rho_lines, rho_labels, loc=1, fontsize=12)
     ax[0][0].add_artist(leg)
 
@@ -65,30 +76,35 @@ if __name__ == '__main__':
 
         for k in range(len(labels)):
 
-            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all_{labels[k]}'], c=ssfr_colors[0], ls=rho_ls[k+1], lw=1)
-            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_sf_{labels[k]}'], c=ssfr_colors[1], ls=rho_ls[k+1], lw=1)
-            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_gv_{labels[k]}'], c=ssfr_colors[2], ls=rho_ls[k+1], lw=1)
-            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_q_{labels[k]}'], c=ssfr_colors[3], ls=rho_ls[k+1], lw=1)
+            plot_data[f'cddf_all_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_all_{labels[k]}'])
+            plot_data[f'cddf_sf_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_sf_{labels[k]}'])
+            plot_data[f'cddf_gv_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_gv_{labels[k]}'])
+            plot_data[f'cddf_q_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_q_{labels[k]}'])
 
-            ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_sf_{labels[k]}'] / plot_data[f'cddf_all']) - 1, 
-                            c=ssfr_colors[1], ls=rho_ls[k+1], lw=1)
-            ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_gv_{labels[k]}'] / plot_data[f'cddf_all']) - 1, 
-                            c=ssfr_colors[2], ls=rho_ls[k+1], lw=1)
-            ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_q_{labels[k]}'] / plot_data[f'cddf_all']) - 1, 
-                            c=ssfr_colors[3], ls=rho_ls[k+1], lw=1)
+            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all_{labels[k]}'], c=ssfr_colors[0], ls=rho_ls[k+1], lw=1.5)
+            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_sf_{labels[k]}'], c=ssfr_colors[1], ls=rho_ls[k+1], lw=rho_lw[k+1])
+            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_gv_{labels[k]}'], c=ssfr_colors[2], ls=rho_ls[k+1], lw=rho_lw[k+1])
+            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_q_{labels[k]}'], c=ssfr_colors[3], ls=rho_ls[k+1], lw=rho_lw[k+1])
+
+            ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_sf_{labels[k]}'] - plot_data[f'cddf_all']), 
+                            c=ssfr_colors[1], ls=rho_ls[k+1], lw=rho_lw[k+1])
+            ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_gv_{labels[k]}'] - plot_data[f'cddf_all']), 
+                            c=ssfr_colors[2], ls=rho_ls[k+1], lw=rho_lw[k+1])
+            ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_q_{labels[k]}'] - plot_data[f'cddf_all']), 
+                            c=ssfr_colors[3], ls=rho_ls[k+1], lw=rho_lw[k+1])
 
         ax[i][j].set_xlim(logN_min, 18)
         ax[i][j].set_ylim(-19, -9)
 
         ax[i+1][j].set_xlim(logN_min, 18)
-        ax[i+1][j].set_ylim(-0.05, 0.1)
+        ax[i+1][j].set_ylim(-.5, 0.75)
 
         if line in ["SiIII1206", "CIV1548", "OVI1031"]:
             ax[i+1][j].set_xlabel(r'${\rm log }(N / {\rm cm}^{-2})$')
 
         if line in ['H1215', "SiIII1206"]:
             ax[i][j].set_ylabel(r'${\rm log }(\delta^2 n / \delta X \delta N )$')
-            ax[i+1][j].set_ylabel(r'${\rm CDDF} / {\rm CDDF}_{\rm All} - 1$')
+            ax[i+1][j].set_ylabel(r'${\rm CDDF} / {\rm CDDF}_{\rm All}$')
         ax[i][j].annotate(plot_lines[lines.index(line)], xy=(0.7, 0.05), xycoords='axes fraction')
 
         j += 1
