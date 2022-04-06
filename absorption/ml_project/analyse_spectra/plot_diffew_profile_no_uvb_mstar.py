@@ -28,9 +28,9 @@ if __name__ == '__main__':
     sim = caesar.load(f'/home/rad/data/{model}/{wind}/Groups/{model}_{snap}.hdf5')
     redshift = sim.simulation.redshift
 
-    lines = ["H1215", "MgII2796", "SiIII1206", "CIV1548", "OVI1031", "NeVIII770"]
-    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm SiIII}1206$', 
-                  r'${\rm CIV}1548$', r'${\rm OVI}1031$', r'${\rm NeVIII}770$']
+    lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
+    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CIV}1334$',
+                  r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
     plot_quantities = ['med', 'per25', 'per75',]
     norients = 8
     delta_fr200 = 0.25 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     mass_bins = np.arange(min_m, min_m+(nbins_m+1)*delta_m, delta_m)
     bin_label = '10.5-11.0'
 
-    colors = make_color_list(plt.get_cmap('viridis'), len(minT))
+    colors = make_color_list(plt.get_cmap('magma'), len(minT))
 
     results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/'
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         mass_long = np.repeat(sf['mass'][:], norients)
 
-    fig, ax = plt.subplots(2, 3, figsize=(14, 13), sharey='row', sharex='col')
+    fig, ax = plt.subplots(2, 3, figsize=(10, 7), sharey='row', sharex='col')
     ax = ax.flatten()
 
     for l, line in enumerate(lines):
@@ -97,8 +97,8 @@ if __name__ == '__main__':
                 ax[l].fill_between(plot_data['fr200'], plot_data[f'minT_{minT[i]}_{bin_label}_per75'], plot_data[f'minT_{minT[i]}_{bin_label}_per25'], 
                                       alpha=0.3, color=colors[i])
 
-        ax[l].set_ylim(-1.5, 2.5)
-        ax[l].annotate(plot_lines[l], xy=(0.05, 0.85), xycoords='axes fraction')
+        ax[l].set_ylim(-2., 1.0)
+        ax[l].annotate(plot_lines[l], xy=(0.05, 0.91), xycoords='axes fraction')
         ax[l].axhline(0., c='k', ls='--', lw=1)
 
         if l in [0, 3]:

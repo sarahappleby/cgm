@@ -19,7 +19,12 @@ if __name__ == '__main__':
     line_ev = np.log10([13.6, 15.04, 24.38, 33.49, 64.49, 138.1]) # in eV
     adjust_x = [0.015, 0.025, 0.02, 0.025, 0.02, 0.02]
 
-    ion_mass = np.array([pg.UnitArr(pg.analysis.absorption_spectra.lines[line]['atomwt']) * pg.physics.m_u for line in lines])
+    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    s = pg.Snapshot(snapfile)
+    redshift = s.redshift
+    rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
+    cosmic_rho = rho_crit * float(s.cosmology.Omega_b)
+
     chisq_lim = 2.5
     N_min = 12.
     zsolar = [0.0134, 7.14e-4, 2.38e-3, 6.71e-4, 2.38e-3, 5.79e-3]
@@ -49,9 +54,9 @@ if __name__ == '__main__':
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
-        weighted_n = np.zeros(len(fr200))
-        weighted_n_25 = np.zeros(len(fr200))
-        weighted_n_75 = np.zeros(len(fr200))
+        weighted_D = np.zeros(len(fr200))
+        weighted_D_25 = np.zeros(len(fr200))
+        weighted_D_75 = np.zeros(len(fr200))
         weighted_T = np.zeros(len(fr200))
         weighted_T_25 = np.zeros(len(fr200))
         weighted_T_75 = np.zeros(len(fr200))
@@ -64,7 +69,7 @@ if __name__ == '__main__':
             with h5py.File(results_file, 'r') as hf:
                 all_Z = hf[f'log_Z_{fr200[i]}r200'][:] - np.log10(zsolar[l])
                 all_T = hf[f'log_T_{fr200[i]}r200'][:]
-                all_n = hf[f'log_rho_{fr200[i]}r200'][:] - np.log10(ion_mass[l])
+                all_D = hf[f'log_rho_{fr200[i]}r200'][:] - np.log10(cosmic_rho) 
                 all_N = hf[f'log_N_{fr200[i]}r200'][:]
                 all_chisq = hf[f'chisq_{fr200[i]}r200'][:]
                 all_ids = hf[f'ids_{fr200[i]}r200'][:]
@@ -72,14 +77,14 @@ if __name__ == '__main__':
             mask = (all_N > N_min) * (all_chisq < chisq_lim)
             all_Z = all_Z[mask]
             all_T = all_T[mask]
-            all_n = all_n[mask]
+            all_D = all_D[mask]
             all_ids = all_ids[mask]
             all_N = all_N[mask]
 
-            order = np.argsort(all_n)
-            weighted_n[i] = all_n[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
-            weighted_n_25[i] = all_n[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
-            weighted_n_75[i] = all_n[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
+            order = np.argsort(all_D)
+            weighted_D[i] = all_D[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
+            weighted_D_25[i] = all_D[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
+            weighted_D_75[i] = all_D[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
             order = np.argsort(all_T)
             weighted_T[i] = all_T[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
             weighted_T_25[i] = all_T[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
@@ -90,27 +95,27 @@ if __name__ == '__main__':
             weighted_Z_75[i] = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
     
             if i == 0:
-                ax[0].errorbar(line_ev[l], weighted_n[i], color=colors[i], yerr=np.array([[weighted_n[i] - weighted_n_25[i], weighted_n_75[i] - weighted_n[i],]]).T,
+                ax[0].errorbar(line_ev[l], weighted_D[i], color=colors[i], yerr=np.array([[weighted_D[i] - weighted_D_25[i], weighted_D_75[i] - weighted_D[i],]]).T,
                                   lw=1, ls='None', marker='None', capsize=2)
 
-            ax[0].scatter(line_ev[l], weighted_n[i], color=colors[i])
+            ax[0].scatter(line_ev[l], weighted_D[i], color=colors[i])
             ax[1].scatter(line_ev[l], weighted_T[i], color=colors[i])
             if l == 0:
                 ax[2].scatter(line_ev[l], weighted_Z[i], color=colors[i], label=r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
             else:
                 ax[2].scatter(line_ev[l], weighted_Z[i], color=colors[i])
 
-        ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_n - 0.45)))
+        ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D - 0.45)))
 
     ax[2].legend(loc=4, fontsize=12)
-    ax[0].set_ylim(-3.75, -0.5)
+    ax[0].set_ylim(1, 3.5)
 
     ax[2].set_xlabel(r'${\rm log }(E / {\rm eV})$')
-    ax[0].set_ylabel(r'${\rm log }(n / {\rm cm}^{-3})$')
+    ax[0].set_ylabel(r'${\rm log }\Delta$')
     ax[1].set_ylabel(r'${\rm log } (T / {\rm K})$')
     ax[2].set_ylabel(r'${\rm log} (Z / Z_{\odot})$')
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Nweighted_nTZ.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Nweighted_deltaTZ.png')
     plt.clf()

@@ -33,21 +33,12 @@ if __name__ == '__main__':
     wind = 's50'
     snap = '151'
 
-    line_a = 'H1215'
-    line_b = ["CII1334", "CIV1548", "OVI1031"]
-    plot_line_a = r'${\rm HI}1215$'
-    plot_line_b = [r'${\rm CII}1334$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
-
-    #line_a = 'CII1334'
-    #line_b = ["CIV1548", "OVI1031"]
-    #plot_line_a = r'${\rm CII}1334$'
-    #plot_line_b = [r'${\rm CIV}1548$', r'${\rm OVI}1031$']
-
-    #line_a = "CIV1548"
-    #line_b = ["OVI1031"]
-    #plot_line_a = r'${\rm CIV}1548$'
-    #plot_line_b = [r'${\rm OVI}1031$']
-
+    line_a = ['H1215', 'H1215', 'H1215', 'CII1334', 'CII1334', "CIV1548"]
+    line_b = ["CII1334", "CIV1548", "OVI1031", "CIV1548", "OVI1031", "OVI1031"]
+    plot_line_pairs = [r'${\rm HI}1215-{\rm CII}1334$', r'${\rm HI}1215-{\rm CIV}1548$', r'${\rm HI}1215-{\rm OVI}1031$',
+                       r'${\rm CII}1334-{\rm CIV}154$', r'${\rm CII}1334-{\rm OVI}1031$', r'${\rm CIV}1548-{\rm OVI}1031$']
+    
+    x = [0.505, 0.48, 0.48, 0.49, 0.465, 0.445]
     redshift = 0.
     quench = quench_thresh(redshift)
     dv = np.arange(5, 105, 5)
@@ -67,9 +58,7 @@ if __name__ == '__main__':
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
 
-    line_a_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line_a}.h5'
-
-    fig, ax = plt.subplots(1, len(line_b), figsize=(8, 5), sharey='row', sharex='col')
+    fig, ax = plt.subplots(2, 3, figsize=(10, 7), sharey='row', sharex='col')
     ax = ax.flatten()
 
     for l, line in enumerate(line_b):
@@ -87,11 +76,11 @@ if __name__ == '__main__':
             Ntotal = len(all_ids)
             faligned = np.zeros(len(dv))
             
-            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}.h5'
+            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a[l]}_{line_b[l]}.h5'
 
             with h5py.File(align_file, 'r') as hf:
                 all_dv = hf[f'dv_{fr200[i]}'][:]
-                all_N_a = hf[f'{line_a}_log_N_{fr200[i]}'][:]
+                all_N_a = hf[f'{line_a[l]}_log_N_{fr200[i]}'][:]
                 all_N_b = hf[f'{line_b[l]}_log_N_{fr200[i]}'][:]
                 
             mask = (all_N_a > logN_min) & (all_N_b > logN_min) 
@@ -102,26 +91,23 @@ if __name__ == '__main__':
 
             ax[l].plot(dv, faligned, label=r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]), c=colors[i], lw=1)
 
-    for i in range(len(plot_line_b)):
-        ax[i].set_xlim(0, dv[-1])
-        ax[i].set_ylim(0., 1.0)
-        ax[i].set_title(plot_line_b[i])
+        ax[l].set_xlim(0, dv[-1])
+        ax[l].set_ylim(0., 1.0)
 
-    ax[0].set_xlabel(r'$|v({\rm HI}) - v({\rm CII}) ({\rm km s}^{-1}) | $')
-    ax[1].set_xlabel(r'$|v({\rm HI}) - v({\rm CIV}) ({\rm km s}^{-1}) | $')
-    ax[2].set_xlabel(r'$|v({\rm HI}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
+        ax[l].annotate(plot_line_pairs[l], xy=(x[l], 0.89), xycoords='axes fraction',
+                          fontsize=12, bbox=dict(boxstyle="round", fc="w", lw=0.75))
+
+        if l in [3, 4, 5]:
+            ax[l].set_xlabel(r'$|\Delta v\ ({\rm km s}^{-1}) | $')
      
-    #ax[0].set_xlabel(r'$|v({\rm CII}) - v({\rm CIV}) ({\rm km s}^{-1}) | $')
-    #ax[1].set_xlabel(r'$|v({\rm CII}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
-
-    #ax[0].set_xlabel(r'$|v({\rm CIV}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
-
-    ax[0].set_ylabel(r'$ f_{\rm aligned}$')
-    ax[0].legend(loc=2)
+        if l in [0, 3]:
+            ax[l].set_ylabel(r'$ f_{\rm aligned}$')
+        
+    ax[0].legend(loc=4, fontsize=12)
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_aligned_{line_a}.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_faligned.png')
     plt.show()
     plt.close()
 

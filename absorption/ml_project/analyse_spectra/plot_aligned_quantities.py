@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib import cm
+from matplotlib import colors
 import numpy as np
 import h5py
 import os
@@ -11,10 +12,12 @@ from physics import *
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=13)
 
-cb_blue = '#5289C7'
-cb_green = '#90C987'
-cb_red = '#E26F72'
-
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
+        cmap_list = cmap(np.linspace(minval, maxval, n))
+        cmap_list[:, -1] = alpha
+        new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+                                                            cmap_list)
+        return new_cmap
 
 def quench_thresh(z): # in units of yr^-1 
     return -1.8  + 0.3*z -9.
@@ -57,63 +60,81 @@ if __name__ == '__main__':
     quench = quench_thresh(redshift)
     chisq_lim = 2.5
     dv = 10
+    logN_min = 12.
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
-    logN_min = 12.
-
-    idelta = 0.8 / (len(fr200) -1)
-    icolor = np.arange(0.1, 0.9+idelta, idelta)
     cmap = cm.get_cmap('viridis')
-    colors = [cmap(i) for i in icolor]
+    cmap = truncate_colormap(cmap, 0.1, 0.9)
+    norm = colors.BoundaryNorm(np.arange(0.125, 1.625, 0.25), cmap.N)
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
 
+    fig, ax = plt.subplots(3, len(line_b), figsize=(10, 10), sharey='row')
 
-    # overdensity
-    fig, ax = plt.subplots(4, len(line_b), figsize=(10, 10), sharey='row')
 
-    fr200_points = []
-    fr200_labels = []
-    for i in range(len(fr200)):
-        fr200_points.append(plt.scatter([-10,-11],[-10,-11],marker='o', color=colors[i]))
-        fr200_labels.append(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
-    leg = ax[0][0].legend(fr200_points, fr200_labels, loc=2, fontsize=12)
-    ax[0][0].add_artist(leg)
+    #fr200_points = []
+    #fr200_labels = []
+    #for i in range(len(fr200)):
+    #    fr200_points.append(plt.scatter([-10,-11],[-10,-11],marker='o', color=colors[i]))
+    #    fr200_labels.append(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
+    #leg = ax[0][0].legend(fr200_points, fr200_labels, loc=2, fontsize=12)
+    #ax[0][0].add_artist(leg)
 
     for l, line in enumerate(line_b):
+
+        all_dv = []
+        all_N_a = []
+        all_rho_a = []
+        all_T_a = []
+        all_N_b = []
+        all_rho_b = []
+        all_T_b = []
+        all_r = []
 
         for i in range(len(fr200)):
 
             align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}.h5'
 
             with h5py.File(align_file, 'r') as hf:
-                all_dv = hf[f'dv_{fr200[i]}'][:]
+                all_dv.extend(hf[f'dv_{fr200[i]}'][:])
 
-                all_N_a = hf[f'{line_a}_log_N_{fr200[i]}'][:]
-                all_rho_a = hf[f'{line_a}_log_rho_{fr200[i]}'][:]
-                all_T_a = hf[f'{line_a}_log_T_{fr200[i]}'][:] 
-                all_Z_a = hf[f'{line_a}_log_Z_{fr200[i]}'][:] - np.log10(zsolar_a)
+                all_N_a.extend(hf[f'{line_a}_log_N_{fr200[i]}'][:])
+                all_rho_a.extend(hf[f'{line_a}_log_rho_{fr200[i]}'][:])
+                all_T_a.extend(hf[f'{line_a}_log_T_{fr200[i]}'][:])
 
-                all_N_b = hf[f'{line_b[l]}_log_N_{fr200[i]}'][:]
-                all_rho_b = hf[f'{line_b[l]}_log_rho_{fr200[i]}'][:]
-                all_T_b = hf[f'{line_b[l]}_log_T_{fr200[i]}'][:]
-                all_Z_b = hf[f'{line_b[l]}_log_Z_{fr200[i]}'][:] - np.log10(zsolar_b[l])
+                all_N_b.extend(hf[f'{line_b[l]}_log_N_{fr200[i]}'][:])
+                all_rho_b.extend(hf[f'{line_b[l]}_log_rho_{fr200[i]}'][:])
+                all_T_b.extend(hf[f'{line_b[l]}_log_T_{fr200[i]}'][:])
 
-            N_mask = (all_N_a > logN_min) & (all_N_b > logN_min) 
-            dv_mask = all_dv < dv 
-            mask = N_mask * dv_mask
-            all_delta_rho_a = all_rho_a[mask] - np.log10(cosmic_rho)
-            all_delta_rho_b = all_rho_b[mask] - np.log10(cosmic_rho)
+                all_r.extend([fr200[i]] * len(hf[f'dv_{fr200[i]}'][:]))
 
-            ax[0][l].scatter(all_N_a[mask], all_N_b[mask], color=colors[i], s=1.5)
-            ax[1][l].scatter(all_delta_rho_a, all_delta_rho_b, color=colors[i], s=1.5)
-            ax[2][l].scatter(all_T_a[mask], all_T_b[mask], color=colors[i], s=1.5)
-            ax[3][l].scatter(all_Z_a[mask], all_Z_b[mask], color=colors[i], s=1.5)
+        all_dv = np.array(all_dv)
+        all_N_a = np.array(all_N_a)
+        all_rho_a = np.array(all_rho_a)
+        all_T_a = np.array(all_T_a)
+        all_N_b = np.array(all_N_b)
+        all_rho_b = np.array(all_rho_b)
+        all_T_b = np.array(all_T_b)
+        all_r = np.array(all_r)
+
+        N_mask = (all_N_a > logN_min) & (all_N_b > logN_min) 
+        dv_mask = all_dv < dv 
+        mask = N_mask * dv_mask
+        all_delta_rho_a = all_rho_a[mask] - np.log10(cosmic_rho)
+        all_delta_rho_b = all_rho_b[mask] - np.log10(cosmic_rho)
+
+        #ax[0][l].scatter(all_N_a[mask], all_N_b[mask], color=colors[i], s=1.5)
+        #ax[1][l].scatter(all_delta_rho_a, all_delta_rho_b, color=colors[i], s=1.5)
+        #ax[2][l].scatter(all_T_a[mask], all_T_b[mask], color=colors[i], s=1.5)
+
+        im = ax[0][l].scatter(all_N_a[mask], all_N_b[mask], c=all_r[mask], cmap=cmap, norm=norm, s=1.5)
+        ax[1][l].scatter(all_delta_rho_a, all_delta_rho_b, c=all_r[mask], cmap=cmap, norm=norm, s=1.5)
+        ax[2][l].scatter(all_T_a[mask], all_T_b[mask], c=all_r[mask], cmap=cmap, norm=norm, s=1.5)
 
         ax[0][l].set_xlim(logN_min, 17)
         ax[0][l].set_ylim(logN_min, 17)
@@ -121,33 +142,28 @@ if __name__ == '__main__':
         ax[1][l].set_ylim(-1, 5)
         ax[2][l].set_xlim(3, 7)
         ax[2][l].set_ylim(3, 7)
-        #ax[3][l].set_xlim(-1, 0.5)
-        #ax[3][l].set_ylim(-1, 0.5)
-        ax[3][l].set_xlim(-2, 0.5)
-        ax[3][l].set_ylim(-2, 0.5)
 
         ax[0][l].set_title(plot_line_b[l]) 
         
         #ax[0][l].set_xlabel(r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$')
         #ax[1][l].set_xlabel(r'${\rm log }\Delta\ {\rm HI}$')
         #ax[2][l].set_xlabel(r'${\rm log } (T\ {\rm HI} / {\rm K})$')
-        #ax[3][l].set_xlabel(r'${\rm log} (Z\ {\rm HI} / Z_{\odot})$')
 
         ax[0][l].set_xlabel(r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$')
         ax[1][l].set_xlabel(r'${\rm log }\Delta\ {\rm CII}$')
         ax[2][l].set_xlabel(r'${\rm log } (T\ {\rm CII} / {\rm K})$')
-        ax[3][l].set_xlabel(r'${\rm log} (Z\ {\rm CII} / Z_{\odot})$')
 
-        for i in range(4):
+        for i in range(3):
             ax[i][l].plot(np.arange(-20, 20),np.arange(-20, 20), ls=':', color='k', lw=1)
 
     ax[0][0].set_ylabel(r'${\rm log }(N\ {\rm Ion} / {\rm cm}^{-2})$')
     ax[1][0].set_ylabel(r'${\rm log }\Delta\ {\rm Ion}$')
     ax[2][0].set_ylabel(r'${\rm log } (T\ {\rm Ion} / {\rm K})$')
-    ax[3][0].set_ylabel(r'${\rm log} (Z\ {\rm Ion} / Z_{\odot})$')
 
+    fig.colorbar(im, ticks=fr200)
+    
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.5)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_aligned_NdeltaTZ_{line_a}.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_aligned_NdeltaT_{line_a}.png')
     plt.close()
 
