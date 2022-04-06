@@ -79,7 +79,7 @@ if __name__ == '__main__':
             plot_data = read_h5_into_dict(profile_file)
         else:
 
-            results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+            results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_ew_{line}.h5'
 
             plot_data = {}
             plot_data['fr200'] = fr200.copy()

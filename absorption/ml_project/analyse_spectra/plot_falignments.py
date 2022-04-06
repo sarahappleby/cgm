@@ -38,20 +38,19 @@ if __name__ == '__main__':
     plot_line_a = r'${\rm HI}1215$'
     plot_line_b = [r'${\rm CII}1334$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
 
-    line_a = 'CII1334'
-    line_b = ["CIV1548", "OVI1031"]
-    plot_line_a = r'${\rm CII}1334$'
-    plot_line_b = [r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    #line_a = 'CII1334'
+    #line_b = ["CIV1548", "OVI1031"]
+    #plot_line_a = r'${\rm CII}1334$'
+    #plot_line_b = [r'${\rm CIV}1548$', r'${\rm OVI}1031$']
 
-    line_a = "CIV1548"
-    line_b = ["OVI1031"]
-    plot_line_a = r'${\rm CIV}1548$'
-    plot_line_b = [r'${\rm OVI}1031$']
+    #line_a = "CIV1548"
+    #line_b = ["OVI1031"]
+    #plot_line_a = r'${\rm CIV}1548$'
+    #plot_line_b = [r'${\rm OVI}1031$']
 
     redshift = 0.
     quench = quench_thresh(redshift)
-    chisq_lim = 2.5
-    all_dv = np.arange(5, 105, 5)
+    dv = np.arange(5, 105, 5)
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -86,32 +85,36 @@ if __name__ == '__main__':
             mask = (all_N > logN_min)
             all_ids = all_ids[mask]
             Ntotal = len(all_ids)
-            faligned = np.zeros(len(all_dv))
+            faligned = np.zeros(len(dv))
             
-            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}_{fr200[i]}r200.h5'
+            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}.h5'
 
-            for j in range(len(all_dv)):
-                with h5py.File(align_file, 'r') as hf:
-                    all_N_a = hf[f'{line_a}_log_N_{all_dv[j]}kms'][:]
-                    all_N_b = hf[f'{line_b[l]}_log_N_{all_dv[j]}kms'][:]
-                mask = (all_N_a > logN_min) & (all_N_b > logN_min) 
-                faligned[j] = len(all_N_b) / Ntotal
+            with h5py.File(align_file, 'r') as hf:
+                all_dv = hf[f'dv_{fr200[i]}'][:]
+                all_N_a = hf[f'{line_a}_log_N_{fr200[i]}'][:]
+                all_N_b = hf[f'{line_b[l]}_log_N_{fr200[i]}'][:]
+                
+            mask = (all_N_a > logN_min) & (all_N_b > logN_min) 
+            
+            for j in range(len(dv)):
+                dv_mask = all_dv < dv[j]
+                faligned[j] = len(all_N_b[mask* dv_mask]) / Ntotal
 
-            ax[l].plot(all_dv, faligned, label=r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]), c=colors[i], lw=1)
+            ax[l].plot(dv, faligned, label=r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]), c=colors[i], lw=1)
 
     for i in range(len(plot_line_b)):
-        ax[i].set_xlim(0, all_dv[-1])
+        ax[i].set_xlim(0, dv[-1])
         ax[i].set_ylim(0., 1.0)
         ax[i].set_title(plot_line_b[i])
 
-    #ax[0].set_xlabel(r'$|v({\rm HI}) - v({\rm CII}) ({\rm km s}^{-1}) | $')
-    #ax[1].set_xlabel(r'$|v({\rm HI}) - v({\rm CIV}) ({\rm km s}^{-1}) | $')
-    #ax[2].set_xlabel(r'$|v({\rm HI}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
+    ax[0].set_xlabel(r'$|v({\rm HI}) - v({\rm CII}) ({\rm km s}^{-1}) | $')
+    ax[1].set_xlabel(r'$|v({\rm HI}) - v({\rm CIV}) ({\rm km s}^{-1}) | $')
+    ax[2].set_xlabel(r'$|v({\rm HI}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
      
     #ax[0].set_xlabel(r'$|v({\rm CII}) - v({\rm CIV}) ({\rm km s}^{-1}) | $')
     #ax[1].set_xlabel(r'$|v({\rm CII}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
 
-    ax[0].set_xlabel(r'$|v({\rm CIV}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
+    #ax[0].set_xlabel(r'$|v({\rm CIV}) - v({\rm OVI}) ({\rm km s}^{-1}) | $')
 
     ax[0].set_ylabel(r'$ f_{\rm aligned}$')
     ax[0].legend(loc=2)

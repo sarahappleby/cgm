@@ -38,10 +38,10 @@ if __name__ == '__main__':
     plot_line_a = r'${\rm HI}1215$'
     plot_line_b = [r'${\rm CII}1334$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
 
-    line_a = 'CII1334'
-    line_b = ["CIV1548", "OVI1031"]
-    plot_line_a = r'${\rm CII}1334$'
-    plot_line_b = [r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    #line_a = 'CII1334'
+    #line_b = ["CIV1548", "OVI1031"]
+    #plot_line_a = r'${\rm CII}1334$'
+    #plot_line_b = [r'${\rm CIV}1548$', r'${\rm OVI}1031$']
 
     ion_mass_a = float(pg.UnitArr(pg.analysis.absorption_spectra.lines[line_a]['atomwt']) * pg.physics.m_u)
     ion_mass_b = np.array([pg.UnitArr(pg.analysis.absorption_spectra.lines[line]['atomwt']) * pg.physics.m_u for line in line_b])
@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
     quench = quench_thresh(redshift)
     chisq_lim = 2.5
-    dv = 25
+    dv = 10
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -89,20 +89,24 @@ if __name__ == '__main__':
 
         for i in range(len(fr200)):
 
-            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}_{fr200[i]}r200.h5'
+            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}.h5'
 
             with h5py.File(align_file, 'r') as hf:
-                all_N_a = hf[f'{line_a}_log_N_{dv}kms'][:]
-                all_rho_a = hf[f'{line_a}_log_rho_{dv}kms'][:]
-                all_T_a = hf[f'{line_a}_log_T_{dv}kms'][:] 
-                all_Z_a = hf[f'{line_a}_log_Z_{dv}kms'][:] - np.log10(zsolar_a)
+                all_dv = hf[f'dv_{fr200[i]}'][:]
 
-                all_N_b = hf[f'{line_b[l]}_log_N_{dv}kms'][:]
-                all_rho_b = hf[f'{line_b[l]}_log_rho_{dv}kms'][:]
-                all_T_b = hf[f'{line_b[l]}_log_T_{dv}kms'][:]
-                all_Z_b = hf[f'{line_b[l]}_log_Z_{dv}kms'][:] - np.log10(zsolar_b[l])
+                all_N_a = hf[f'{line_a}_log_N_{fr200[i]}'][:]
+                all_rho_a = hf[f'{line_a}_log_rho_{fr200[i]}'][:]
+                all_T_a = hf[f'{line_a}_log_T_{fr200[i]}'][:] 
+                all_Z_a = hf[f'{line_a}_log_Z_{fr200[i]}'][:] - np.log10(zsolar_a)
 
-            mask = (all_N_a > logN_min) & (all_N_b > logN_min) 
+                all_N_b = hf[f'{line_b[l]}_log_N_{fr200[i]}'][:]
+                all_rho_b = hf[f'{line_b[l]}_log_rho_{fr200[i]}'][:]
+                all_T_b = hf[f'{line_b[l]}_log_T_{fr200[i]}'][:]
+                all_Z_b = hf[f'{line_b[l]}_log_Z_{fr200[i]}'][:] - np.log10(zsolar_b[l])
+
+            N_mask = (all_N_a > logN_min) & (all_N_b > logN_min) 
+            dv_mask = all_dv < dv 
+            mask = N_mask * dv_mask
             all_delta_rho_a = all_rho_a[mask] - np.log10(cosmic_rho)
             all_delta_rho_b = all_rho_b[mask] - np.log10(cosmic_rho)
 

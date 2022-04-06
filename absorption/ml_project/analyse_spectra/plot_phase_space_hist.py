@@ -71,6 +71,8 @@ if __name__ == '__main__':
         mass = sf['mass'][:]
         ssfr = sf['ssfr'][:]
 
+    #### Overdensity histograms
+
     fig, ax = plt.subplots(2, 3, figsize=(15, 7.1), sharey='row', sharex='col')
 
     ssfr_lines = []
@@ -96,7 +98,6 @@ if __name__ == '__main__':
 
         for k in range(len(inner_outer)):
 
-            all_T = []
             all_rho = []
             all_N = []
             all_chisq = []
@@ -105,23 +106,19 @@ if __name__ == '__main__':
             for l in range(len(inner_outer[k])):
 
                 with h5py.File(results_file, 'r') as hf:
-                    all_T.extend(hf[f'log_T_{inner_outer[k][l]}r200'][:])
                     all_rho.extend(hf[f'log_rho_{inner_outer[k][l]}r200'][:])
                     all_N.extend(hf[f'log_N_{inner_outer[k][l]}r200'][:])
                     all_chisq.extend(hf[f'chisq_{inner_outer[k][l]}r200'][:])
                     all_ids.extend(hf[f'ids_{inner_outer[k][l]}r200'][:])
 
-            all_T = np.array(all_T)
             all_rho = np.array(all_rho)
             all_N = np.array(all_N)
             all_chisq = np.array(all_chisq)
             all_ids = np.array(all_ids)
 
             mask = (all_N > N_min[lines.index(line)]) * (all_chisq < chisq_lim)
-            all_T = all_T[mask]
             all_delta_rho = all_rho[mask] - np.log10(cosmic_rho)
             all_ids = all_ids[mask]
-            all_N = all_N[mask]
 
             idx = np.array([np.where(gal_ids == l)[0] for l in all_ids]).flatten()
             all_mass = mass[idx]
@@ -150,5 +147,83 @@ if __name__ == '__main__':
 
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist.png')
+    plt.close()
+
+    #### Temperature histograms
+
+    fig, ax = plt.subplots(2, 3, figsize=(15, 7.1), sharey='row', sharex='col')
+
+    ssfr_lines = []
+    for i in range(len(ssfr_colors)):
+        ssfr_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[i], ls='-', lw=1))
+    leg = ax[0][0].legend(ssfr_lines, ssfr_labels, loc=2, fontsize=12)
+    ax[0][0].add_artist(leg)
+
+    rho_lines = []
+    for i in range(len(rho_ls)):
+        rho_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[0], ls=rho_ls[i], lw=1))
+    leg = ax[0][1].legend(rho_lines, rho_labels, loc=2, fontsize=12)
+    ax[0][1].add_artist(leg)
+
+    i = 0
+    j = 0
+
+    for line in lines:
+
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+
+        ax[i][j].step(T_bins[:-1] + T_bins[1] - T_bins[0], temp_hist, c=ssfr_colors[0], lw=1, ls=rho_ls[0])
+
+        for k in range(len(inner_outer)):
+
+            all_T = []
+            all_N = []
+            all_chisq = []
+            all_ids = []
+
+            for l in range(len(inner_outer[k])):
+
+                with h5py.File(results_file, 'r') as hf:
+                    all_T.extend(hf[f'log_T_{inner_outer[k][l]}r200'][:])
+                    all_N.extend(hf[f'log_N_{inner_outer[k][l]}r200'][:])
+                    all_chisq.extend(hf[f'chisq_{inner_outer[k][l]}r200'][:])
+                    all_ids.extend(hf[f'ids_{inner_outer[k][l]}r200'][:])
+
+            all_T = np.array(all_T)
+            all_N = np.array(all_N)
+            all_chisq = np.array(all_chisq)
+            all_ids = np.array(all_ids)
+
+            mask = (all_N > N_min[lines.index(line)]) * (all_chisq < chisq_lim)
+            all_T = all_T[mask]
+            all_ids = all_ids[mask]
+
+            idx = np.array([np.where(gal_ids == l)[0] for l in all_ids]).flatten()
+            all_mass = mass[idx]
+            all_ssfr = ssfr[idx]
+            sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
+
+            ax[i][j].hist(all_T[sf_mask], bins=T_bins, density=True, color=ssfr_colors[1], ls=rho_ls[k], lw=1, histtype='step')
+            ax[i][j].hist(all_T[gv_mask], bins=T_bins, density=True, color=ssfr_colors[2], ls=rho_ls[k], lw=1, histtype='step')
+            ax[i][j].hist(all_T[q_mask], bins=T_bins, density=True, color=ssfr_colors[3], ls=rho_ls[k], lw=1, histtype='step')
+
+        ax[i][j].set_xlim(T_min, T_max)
+
+        ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[lines.index(line)], 0.85), xycoords='axes fraction',
+                          fontsize=12, bbox=dict(boxstyle="round", fc="w", lw=0.75))
+
+        if line in ["SiIII1206", "CIV1548", "OVI1031"]:
+            ax[i][j].set_xlabel(r'${\rm log } (T / {\rm K})$')
+
+        if line in ['H1215', "SiIII1206"]:
+            ax[i][j].set_ylabel('Frequency')
+
+        j += 1
+        if line == 'CII1334':
+            i += 1
+            j = 0
+
+    fig.subplots_adjust(wspace=0., hspace=0.)
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist.png')
     plt.close()
 

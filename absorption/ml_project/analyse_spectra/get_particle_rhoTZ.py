@@ -28,9 +28,9 @@ if __name__ == '__main__':
 
     Npoints = 20000
     minT = 3
-    maxT = 7
-    mindelta = -2
-    maxdelta = 7
+    maxT = 8
+    mindelta = -1
+    maxdelta = 5
     width = 0.01
     height = 0.77
     vertical_position = 0.115
@@ -69,12 +69,13 @@ if __name__ == '__main__':
             plt.savefig(plotfile.replace('.png', '_hist.png'))
             plt.close()
 
-            """
             with h5py.File(results_file, 'a') as hf:
                 hf.create_dataset('rho_delta_temp', data=np.array(np.rot90(hist[0])))
                 hf.create_dataset('rho_delta_bins', data=np.array(over_bins))
                 hf.create_dataset('temp_bins', data=np.array(temp_bins))
-            """
+
+            over_bins = np.arange(mindelta, maxdelta+0.2, 0.2)
+            temp_bins = np.arange(minT, maxT+0.2, 0.2)
 
             hist = plt.hist(gas_overdensity, bins=over_bins, density=True)
             with h5py.File(results_file, 'a') as hf:

@@ -46,7 +46,7 @@ if __name__ == '__main__':
     bin_label = '10.5-11.0'
     mass_title = f'{mass_bins[0]}'+ r'$ < \textrm{log} (M_* / M_{\odot}) < $' + f'{mass_bins[1]}'
 
-    colors = make_color_list(plt.get_cmap('viridis'), len(log_frad))
+    colors = make_color_list(plt.get_cmap('magma'), len(log_frad))
 
     results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/'
     normal_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
@@ -97,7 +97,7 @@ if __name__ == '__main__':
                        ls='-', c=colors[i], label=r'${{\rm log}} f_{{r_{{\rm half}} \star}} = {{{}}}$'.format(log_frad[i]), lw=1.5)
             if log_frad[i] == '1.0':
                 ax[l].fill_between(plot_data['fr200'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per75'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per25'], 
-                                      alpha=0.3, color=colors[i])
+                                      alpha=0.2, color=colors[i])
 
         ax[l].set_ylim(-1.5, 0)
         ax[l].annotate(plot_lines[l], xy=(0.05, 0.05), xycoords='axes fraction')
