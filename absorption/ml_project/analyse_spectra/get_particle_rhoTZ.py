@@ -22,7 +22,9 @@ if __name__ == '__main__':
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     snapfiles = [f'{sample_dir}{model}_{wind}_{snap}.hdf5', f'{sample_dir}{model}_{wind}_{snap}_star_forming.hdf5', 
                  f'{sample_dir}{model}_{wind}_{snap}_green_valley.hdf5', f'{sample_dir}{model}_{wind}_{snap}_quenched.hdf5',]
+    snapfiles = [f'{sample_dir}{model}_{wind}_{snap}.hdf5']
     titles = ['All', 'Star forming', 'Green valley', 'Quenched']
+    titles = ['All']
 
     Npoints = 20000
     minT = 3
@@ -67,10 +69,20 @@ if __name__ == '__main__':
             plt.savefig(plotfile.replace('.png', '_hist.png'))
             plt.close()
 
+            """
             with h5py.File(results_file, 'a') as hf:
                 hf.create_dataset('rho_delta_temp', data=np.array(np.rot90(hist[0])))
                 hf.create_dataset('rho_delta_bins', data=np.array(over_bins))
                 hf.create_dataset('temp_bins', data=np.array(temp_bins))
+            """
+
+            hist = plt.hist(gas_overdensity, bins=over_bins, density=True)
+            with h5py.File(results_file, 'a') as hf:
+                hf.create_dataset('rho_delta_hist', data=np.array(hist[0]))
+
+            hist = plt.hist(gas_temp, bins=temp_bins, density=True)
+            with h5py.File(results_file, 'a') as hf:
+                hf.create_dataset('temp_hist', data=np.array(hist[0])) 
 
             mask = (gas_overdensity > mindelta) & (gas_overdensity < maxdelta) & (gas_temp > minT) & (gas_temp < maxT)
 
