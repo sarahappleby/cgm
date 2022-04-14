@@ -146,6 +146,6 @@ if __name__ == '__main__':
             ax[l][0].set_ylabel(r'${\rm log } (T / {\rm K})$')
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_redshift_deltaTN_ssfr_split.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_redshift_deltaTN.png')
     plt.close()
 

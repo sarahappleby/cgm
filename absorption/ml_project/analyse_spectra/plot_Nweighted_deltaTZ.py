@@ -18,6 +18,7 @@ if __name__ == '__main__':
     plot_lines = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
     line_ev = np.log10([13.6, 15.04, 24.38, 33.49, 64.49, 138.1]) # in eV
     adjust_x = [0.015, 0.025, 0.02, 0.025, 0.02, 0.02]
+    chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5]
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
@@ -25,7 +26,6 @@ if __name__ == '__main__':
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
     cosmic_rho = rho_crit * float(s.cosmology.Omega_b)
 
-    chisq_lim = 2.5
     N_min = 12.
     zsolar = [0.0134, 7.14e-4, 2.38e-3, 6.71e-4, 2.38e-3, 5.79e-3]
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
                 all_chisq = hf[f'chisq_{fr200[i]}r200'][:]
                 all_ids = hf[f'ids_{fr200[i]}r200'][:]
 
-            mask = (all_N > N_min) * (all_chisq < chisq_lim)
+            mask = (all_N > N_min) * (all_chisq < chisq_lim[l])
             all_Z = all_Z[mask]
             all_T = all_T[mask]
             all_D = all_D[mask]
@@ -117,5 +117,5 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Nweighted_deltaTZ.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Nweighted_deltaTZ_chisqion.png')
     plt.clf()

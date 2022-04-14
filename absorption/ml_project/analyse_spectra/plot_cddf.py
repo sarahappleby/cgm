@@ -67,7 +67,7 @@ if __name__ == '__main__':
     for l, line in enumerate(lines):
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-        cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf.h5'
+        cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
 
         plot_data = read_h5_into_dict(cddf_file)
 
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_compressed.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_compressed_chisqion.png')
     plt.show()
     plt.close()
 

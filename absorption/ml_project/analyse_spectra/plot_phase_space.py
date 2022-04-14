@@ -42,12 +42,14 @@ if __name__ == '__main__':
     cbar_labels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$']
     N_min = [12., 11., 12.]
     x = [0.79, 0.75, 0.78]
+    chisq_lim = [4.5, 63.1, 20.0]
 
-    lines = ["SiIII1206", "CIV1548", "OVI1031"]
-    plot_lines = [r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
-    cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
-    N_min = [11., 12., 12.]
-    x = [0.765, 0.765, 0.77]
+    #lines = ["SiIII1206", "CIV1548", "OVI1031"]
+    #plot_lines = [r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    #cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
+    #N_min = [11., 12., 12.]
+    #x = [0.765, 0.765, 0.77]
+    #chisq_lim = [70.8, 15.8, 4.5]
 
     #width = 0.258
     #height = 0.015
@@ -64,7 +66,6 @@ if __name__ == '__main__':
     inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
     rho_labels = ['Inner CGM', 'Outer CGM']
     ssfr_labels = ['All', 'Star forming', 'Green valley', 'Quenched']
-    chisq_lim = 2.5
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
@@ -122,7 +123,7 @@ if __name__ == '__main__':
             all_chisq = np.array(all_chisq)
             all_ids = np.array(all_ids)
 
-            mask = (all_N > N_min[l]) * (all_chisq < chisq_lim)
+            mask = (all_N > N_min[l]) * (all_chisq < chisq_lim[l])
             all_T = all_T[mask]
             all_delta_rho = all_rho[mask] - np.log10(cosmic_rho)
             all_ids = all_ids[mask]
@@ -154,5 +155,5 @@ if __name__ == '__main__':
                 ax[i][l].set_ylabel(r'${\rm log } (T / {\rm K})$')
                 ax[i][l].set_xticks(xticks[l])
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN_{lines[0]}_{lines[1]}_{lines[2]}.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN_{lines[0]}_{lines[1]}_{lines[2]}_chisqion.png')
     plt.close()

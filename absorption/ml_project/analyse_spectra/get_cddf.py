@@ -51,12 +51,12 @@ if __name__ == '__main__':
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5]
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     quench = quench_thresh(redshift)
-    chisq_lim = 2.5
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     for l, line in enumerate(lines):
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-        cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf.h5'
+        cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
 
         if os.path.isfile(cddf_file):
             continue
@@ -131,7 +131,7 @@ if __name__ == '__main__':
             all_chisq = np.array(all_chisq)
             all_ids = np.array(all_ids)
 
-            mask = (all_N > logN_min) * (all_chisq < chisq_lim)
+            mask = (all_N > logN_min) * (all_chisq < chisq_lim[l])
             all_N = all_N[mask]
             all_b = all_b[mask]
             all_l = all_l[mask]
@@ -140,10 +140,13 @@ if __name__ == '__main__':
             overall_mask = (all_N > logN_min) & (all_N < bins_logN[-1])
             dX = compute_dX(model, wind, snap, lines, len(all_N[overall_mask]), path_lengths)[0]
 
+            plot_data[f'cddf_all'] = np.zeros(len(plot_logN))
+
             for j in range(len(plot_logN)):
                 N_mask = (all_N > logN_min + j*delta_logN) & (all_N < logN_min + (j+1)*delta_logN)
                 plot_data[f'cddf_all'][j] = len(all_N[N_mask])
-
+            plot_data[f'cddf_all'] /= (delta_N * dX)
+            plot_data[f'cddf_all'] = np.log10(plot_data[f'cddf_all'])
 
             for i in range(len(inner_outer)):
 
@@ -171,7 +174,7 @@ if __name__ == '__main__':
                 all_chisq = np.array(all_chisq)
                 all_ids = np.array(all_ids)
 
-                mask = (all_N > logN_min) * (all_chisq < chisq_lim)
+                mask = (all_N > logN_min) * (all_chisq < chisq_lim[l])
                 all_N = all_N[mask]
                 all_b = all_b[mask]
                 all_l = all_l[mask]
