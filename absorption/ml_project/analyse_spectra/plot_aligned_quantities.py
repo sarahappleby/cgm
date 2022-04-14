@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
         for i in range(len(fr200)):
 
-            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}.h5'
+            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}_chisq{chisq_lim}.h5'
 
             with h5py.File(align_file, 'r') as hf:
                 all_dv.extend(hf[f'dv_{fr200[i]}'][:])
@@ -132,9 +132,12 @@ if __name__ == '__main__':
         #ax[1][l].scatter(all_delta_rho_a, all_delta_rho_b, color=colors[i], s=1.5)
         #ax[2][l].scatter(all_T_a[mask], all_T_b[mask], color=colors[i], s=1.5)
 
-        im = ax[0][l].scatter(all_N_a[mask], all_N_b[mask], c=all_r[mask], cmap=cmap, norm=norm, s=1.5)
-        ax[1][l].scatter(all_delta_rho_a, all_delta_rho_b, c=all_r[mask], cmap=cmap, norm=norm, s=1.5)
-        ax[2][l].scatter(all_T_a[mask], all_T_b[mask], c=all_r[mask], cmap=cmap, norm=norm, s=1.5)
+        plot_order = np.arange(len(all_N_a[mask]))
+        np.random.shuffle(plot_order)
+
+        im = ax[0][l].scatter(all_N_a[mask][plot_order], all_N_b[mask][plot_order], c=all_r[mask][plot_order], cmap=cmap, norm=norm, s=1.5)
+        ax[1][l].scatter(all_delta_rho_a[plot_order], all_delta_rho_b[plot_order], c=all_r[mask][plot_order], cmap=cmap, norm=norm, s=1.5)
+        ax[2][l].scatter(all_T_a[mask][plot_order], all_T_b[mask][plot_order], c=all_r[mask][plot_order], cmap=cmap, norm=norm, s=1.5)
 
         ax[0][l].set_xlim(logN_min, 17)
         ax[0][l].set_ylim(logN_min, 17)
@@ -145,13 +148,13 @@ if __name__ == '__main__':
 
         ax[0][l].set_title(plot_line_b[l]) 
         
-        #ax[0][l].set_xlabel(r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$')
-        #ax[1][l].set_xlabel(r'${\rm log }\Delta\ {\rm HI}$')
-        #ax[2][l].set_xlabel(r'${\rm log } (T\ {\rm HI} / {\rm K})$')
+        ax[0][l].set_xlabel(r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$')
+        ax[1][l].set_xlabel(r'${\rm log }\Delta\ {\rm HI}$')
+        ax[2][l].set_xlabel(r'${\rm log } (T\ {\rm HI} / {\rm K})$')
 
-        ax[0][l].set_xlabel(r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$')
-        ax[1][l].set_xlabel(r'${\rm log }\Delta\ {\rm CII}$')
-        ax[2][l].set_xlabel(r'${\rm log } (T\ {\rm CII} / {\rm K})$')
+        #ax[0][l].set_xlabel(r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$')
+        #ax[1][l].set_xlabel(r'${\rm log }\Delta\ {\rm CII}$')
+        #ax[2][l].set_xlabel(r'${\rm log } (T\ {\rm CII} / {\rm K})$')
 
         for i in range(3):
             ax[i][l].plot(np.arange(-20, 20),np.arange(-20, 20), ls=':', color='k', lw=1)
@@ -160,10 +163,10 @@ if __name__ == '__main__':
     ax[1][0].set_ylabel(r'${\rm log }\Delta\ {\rm Ion}$')
     ax[2][0].set_ylabel(r'${\rm log } (T\ {\rm Ion} / {\rm K})$')
 
-    fig.colorbar(im, ticks=fr200)
-    
-    plt.tight_layout()
-    fig.subplots_adjust(wspace=0., hspace=0.5)
+    fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.7])
+    fig.colorbar(im, cax=cbar_ax, ticks=fr200, label=r'$\rho / r_{200}$')
+    fig.subplots_adjust(wspace=0., hspace=0.3)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_aligned_NdeltaT_{line_a}.png')
     plt.close()
 

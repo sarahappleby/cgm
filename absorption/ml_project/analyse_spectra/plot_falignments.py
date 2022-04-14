@@ -47,7 +47,7 @@ if __name__ == '__main__':
     min_fr200 = 0.25
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
-
+    chisq_lim = 3
     logN_min = 12.
 
     idelta = 0.8 / (len(fr200) -1)
@@ -69,14 +69,15 @@ if __name__ == '__main__':
 
             with h5py.File(line_b_file, 'r') as hf:
                 all_N = hf[f'log_N_{fr200[i]}r200'][:]
+                all_chisq = hf[f'chisq_{fr200[i]}r200'][:] 
                 all_ids = hf[f'ids_{fr200[i]}r200'][:]
 
-            mask = (all_N > logN_min)
+            mask = (all_N > logN_min) & (all_chisq < chisq_lim)
             all_ids = all_ids[mask]
             Ntotal = len(all_ids)
             faligned = np.zeros(len(dv))
             
-            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a[l]}_{line_b[l]}.h5'
+            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a[l]}_{line_b[l]}_chisq{chisq_lim}.h5'
 
             with h5py.File(align_file, 'r') as hf:
                 all_dv = hf[f'dv_{fr200[i]}'][:]
@@ -107,7 +108,7 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_faligned.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_faligned_chisq{chisq_lim}.png')
     plt.show()
     plt.close()
 

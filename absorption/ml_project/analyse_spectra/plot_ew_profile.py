@@ -126,7 +126,7 @@ if __name__ == '__main__':
             if b == 0:
                 ax[l][b].fill_between(plot_data['fr200'], plot_data[f'{bin_label}_q_per75'], plot_data[f'{bin_label}_q_per25'], alpha=0.3, color=cb_red)
 
-            ax[l][b].set_ylim(-3., 0.)
+            ax[l][b].set_ylim(-3., 1.)
 
             if b == 0:
                 ax[l][b].set_ylabel(r'${\rm log (EW}/\AA)$')

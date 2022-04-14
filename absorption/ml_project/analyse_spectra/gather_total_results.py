@@ -43,6 +43,10 @@ if __name__ == '__main__':
             spec_name = f'sample_galaxy_{gal_ids[i]}_{line}_{orient}_{fr200}r200'
             spectrum = read_h5_into_dict(f'{spectra_dir}{spec_name}.h5')
 
+            if not 'line_list' in spectrum.keys():
+                spectrum['line_list'] = {}
+                spectrum['line_list']['N'] = []
+
             if len(spectrum['line_list']['N']) > 0.:
                 all_fit_ew[i][o] = np.sum(spectrum['line_list']['EW'])
                 all_max_chisq[i][o] = np.nanmax(spectrum['line_list']['Chisq'])

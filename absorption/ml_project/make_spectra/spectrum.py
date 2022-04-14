@@ -170,7 +170,7 @@ class Spectrum(object):
         if filename == None:
             filename = self.spectrum_file.split('/')[-1].replace('.h5', '.png')
         plt.savefig(filename)
-        plt.clf()
+        plt.close()
 
 
     def main(self, vel_range, do_continuum_buffer=True, nbuffer=50, 
