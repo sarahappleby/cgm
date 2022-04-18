@@ -144,7 +144,7 @@ if __name__ == '__main__':
             j = 0
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_chisqion.png')
     plt.close()
 
     #### Temperature histograms
@@ -214,6 +214,6 @@ if __name__ == '__main__':
             j = 0
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_chisqion.png')
     plt.close()
 

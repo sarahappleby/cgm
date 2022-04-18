@@ -37,6 +37,7 @@ if __name__ == '__main__':
     min_fr200 = 0.25 
     nbins_fr200 = 5 
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
+    minT = ['4.0', '4.5', '5.0', '5.5', '6.0']
 
     delta_m = 0.5
     min_m = 10.5
@@ -44,10 +45,8 @@ if __name__ == '__main__':
     mass_bins = np.arange(min_m, min_m+(nbins_m+1)*delta_m, delta_m)
     bin_label = '10.5-11.0'
 
-    #colors = make_color_list(plt.get_cmap('magma'), len(minT))
-    color = 'b'
+    colors = make_color_list(plt.get_cmap('magma'), len(minT))
 
-    normal_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
     results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/'
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
@@ -59,9 +58,6 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        if line == 'H1215':
-            continue
-
         profile_file = f'{results_dir}{model}_{wind}_{snap}_{line}_uvb_median_ew_profile.h5'
 
         if os.path.isfile(profile_file):
@@ -71,36 +67,42 @@ if __name__ == '__main__':
 
             plot_data = {}
             plot_data['fr200'] = fr200.copy()
-            for pq in plot_quantities:
-                plot_data[f'{bin_label}_{pq}'] = np.zeros(len(fr200))
+            for i in range(len(minT)):
+                for pq in plot_quantities:
+                    plot_data[f'minT_{minT[i]}_{bin_label}_{pq}'] = np.zeros(len(fr200))
 
-            no_uvb_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_no_uvb_ew_{line}.h5')
-            with_uvb_dict = read_h5_into_dict(f'{normal_dir}{model}_{wind}_{snap}_ew_{line}.h5')
+            for i in range(len(minT)):
 
-            mask = (mass_long > mass_bins[0]) & (mass_long < mass_bins[1])
+                no_uvb_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_no_uvb_minT_{minT[i]}_ew_{line}.h5')
+                with_uvb_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_with_uvb_minT_{minT[i]}_ew_{line}.h5')
 
-            for j in range(len(fr200)):
+                mask = (mass_long > mass_bins[0]) & (mass_long < mass_bins[1])
+
+                for j in range(len(fr200)):
                         
-                ew_no_uvb = no_uvb_dict[f'ew_wave_{fr200[j]}r200'].flatten()
-                ew_with_uvb = with_uvb_dict[f'ew_wave_{fr200[j]}r200'].flatten()
+                    ew_no_uvb = no_uvb_dict[f'ew_wave_{fr200[j]}r200'].flatten()
+                    ew_with_uvb = with_uvb_dict[f'ew_wave_{fr200[j]}r200'].flatten()
                         
-                plot_data[f'{bin_label}_med'][j] = np.nanmedian(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]))
-                plot_data[f'{bin_label}_per25'][j] = np.nanpercentile(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]), 25.)
-                plot_data[f'{bin_label}_per75'][j] = np.nanpercentile(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]), 75)
+                    plot_data[f'minT_{minT[i]}_{bin_label}_med'][j] = np.nanmedian(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]))
+                    plot_data[f'minT_{minT[i]}_{bin_label}_per25'][j] = np.nanpercentile(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]), 25.)
+                    plot_data[f'minT_{minT[i]}_{bin_label}_per75'][j] = np.nanpercentile(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]), 75)
 
             write_dict_to_h5(plot_data, profile_file)
 
-        ax[l].plot(plot_data['fr200'], plot_data[f'{bin_label}_med'], 
-                   ls='-', c=color, lw=1.5)
-        ax[l].fill_between(plot_data['fr200'], plot_data[f'{bin_label}_per75'], plot_data[f'{bin_label}_per25'], 
-                           alpha=0.3, color=color)
+        for i in range(len(minT)):
+
+            ax[l].plot(plot_data['fr200'], plot_data[f'minT_{minT[i]}_{bin_label}_med'], 
+                       ls='-', c=colors[i], label=r'$T_{{\rm min}} = {{{}}}$'.format(minT[i]), lw=1.5)
+            if minT[i] == '5.0':
+                ax[l].fill_between(plot_data['fr200'], plot_data[f'minT_{minT[i]}_{bin_label}_per75'], plot_data[f'minT_{minT[i]}_{bin_label}_per25'], 
+                                      alpha=0.3, color=colors[i])
 
         ax[l].set_ylim(-2., 1.0)
         ax[l].annotate(plot_lines[l], xy=(0.05, 0.91), xycoords='axes fraction')
         ax[l].axhline(0., c='k', ls='--', lw=1)
 
         if l in [0, 3]:
-            ax[l].set_ylabel(r'${\rm log }( {\rm EW}_{\rm Collisional} / {\rm EW}_{\rm Collisional + UVB} )$')
+            ax[l].set_ylabel(r'${\rm log }( {\rm EW}_{\rm no UVB} / {\rm EW}_{\rm UVB} )$')
         if l == 0:
             ax[l].legend(loc=3)
         if l in [3, 4, 5]:
@@ -108,6 +110,6 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_uvb_test_ew_profile_mstar.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_uvb_test_ew_profile_mstar_Tthresh.png')
     plt.show()
-    plt.close()
+    plt.clf()

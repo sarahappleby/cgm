@@ -50,8 +50,8 @@ if __name__ == '__main__':
     snap = '151'
     fr200 = sys.argv[1]
 
-    line_a = 'CII1334'
-    line_b = 'OVI1031'
+    line_a = 'H1215'
+    line_b = "CII1334" 
     
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
@@ -59,12 +59,12 @@ if __name__ == '__main__':
  
     vel_range = 600.
     vel_boxsize = 10000.
-    chisq_lim = 2.5
+    chisq_lim = 20
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg']
 
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b}.h5'
+    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b}_chisq{chisq_lim}.h5'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]

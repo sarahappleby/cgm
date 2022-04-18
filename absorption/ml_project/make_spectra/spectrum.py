@@ -174,7 +174,7 @@ class Spectrum(object):
 
 
     def main(self, vel_range, do_continuum_buffer=True, nbuffer=50, 
-             snr_default=30., chisq_asym_thresh=-3., write_lines=False, plot_fit=False):
+             snr_default=30., chisq_unacceptable=25, chisq_asym_thresh=-3., write_lines=False, plot_fit=False):
    
         print('getting initial window')
         i_start, i_end, N = self.get_initial_window(vel_range) 
@@ -211,12 +211,14 @@ class Spectrum(object):
         print('Fitting...')
         if self.ion_name == 'H1215':
             logN_bounds = [12, 19]
-            b_bounds = [8, 200]
         else:
-            logN_bounds = [12, 17]
-            b_bounds = [3, 100]
+            logN_bounds = [11, 17]
+        b_bounds=None
+        
         self.line_list = pg.analysis.fit_profiles(self.ion_name, waves, flux, noise,
-                                                  chisq_lim=2.5, chisq_asym_thresh=chisq_asym_thresh, max_lines=10, logN_bounds=logN_bounds, 
+                                                  chisq_lim=2.5, chisq_unacceptable=chisq_unacceptable, 
+                                                  chisq_asym_thresh=chisq_asym_thresh, 
+                                                  max_lines=10, logN_bounds=logN_bounds, 
                                                   b_bounds=b_bounds, mode='Voigt')
        
         # adjust the output lines to cope with wrapping
