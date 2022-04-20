@@ -33,7 +33,8 @@ if __name__ == '__main__':
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
     x = [0.81, 0.77, 0.8, 0.785, 0.785, 0.79]
-    chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5]
+    #chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5] limits with old fitting procedure
+    chisq_lim = [4., 50., 15.8, 39.8, 8.9, 4.5]
 
     T_min = 3.
     T_max = 8.
@@ -42,7 +43,10 @@ if __name__ == '__main__':
     delta = 0.2
     T_bins = np.arange(T_min, T_max+delta, delta)
     delta_rho_bins = np.arange(delta_rho_min, delta_rho_max+delta, delta)
-   
+
+    inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]		
+    rho_labels = ['All gas', 'Inner CGM', 'Outer CGM']
+    rho_ls = ['-', '--', ':']
     ssfr_labels = ['All gas', 'Star forming', 'Green valley', 'Quenched']
     ssfr_colors = ['dimgrey', cb_blue, cb_green, cb_red]
     N_min = [12., 11., 12., 11., 12., 12.]
@@ -53,11 +57,6 @@ if __name__ == '__main__':
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
     cosmic_rho = rho_crit * float(s.cosmology.Omega_b)
     quench = quench_thresh(redshift)
-
-    delta_fr200 = 0.25
-    min_fr200 = 0.25
-    nbins_fr200 = 5
-    fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
     phase_space_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_phase_space.h5'
     with h5py.File(phase_space_file, 'r') as hf:
@@ -82,6 +81,12 @@ if __name__ == '__main__':
     leg = ax[0][0].legend(ssfr_lines, ssfr_labels, loc=2, fontsize=12)
     ax[0][0].add_artist(leg)
 
+    rho_lines = []		
+    for i in range(len(rho_ls)):		
+        rho_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[0], ls=rho_ls[i], lw=1))		
+    leg = ax[0][1].legend(rho_lines, rho_labels, loc=2, fontsize=12)		
+    ax[0][1].add_artist(leg)		
+
     i = 0
     j = 0
 
@@ -94,29 +99,48 @@ if __name__ == '__main__':
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
         #ax[i][j].step(delta_rho_bins[:-1] + delta_rho_bins[1] - delta_rho_bins[0], delta_rho_hist, c=ssfr_colors[0], lw=1, ls='-')
-        ax[i][j].step(bin_edges, delta_rho_hist, c=ssfr_colors[0], lw=1, ls='-')
+        ax[i][j].step(bin_edges, delta_rho_hist, c=ssfr_colors[0], lw=1, ls=rho_ls[0])
+        
+        all_delta_rho = np.array([])
+        all_ids = np.array([])
 
-        all_rho = []
-        all_N = []
-        all_chisq = []
-        all_ids = []
+        for k in range(len(inner_outer)):
 
-        for k in range(len(fr200)):
+            rho = []
+            N = []
+            chisq = []
+            ids = []
 
-            with h5py.File(results_file, 'r') as hf:
-                all_rho.extend(hf[f'log_rho_{fr200[k]}r200'][:])
-                all_N.extend(hf[f'log_N_{fr200[k]}r200'][:])
-                all_chisq.extend(hf[f'chisq_{fr200[k]}r200'][:])
-                all_ids.extend(hf[f'ids_{fr200[k]}r200'][:])
+            for l in range(len(inner_outer[k])):
 
-        all_rho = np.array(all_rho)
-        all_N = np.array(all_N)
-        all_chisq = np.array(all_chisq)
-        all_ids = np.array(all_ids)
+                with h5py.File(results_file, 'r') as hf:
+                    rho.extend(hf[f'log_rho_{inner_outer[k][l]}r200'][:])
+                    N.extend(hf[f'log_N_{inner_outer[k][l]}r200'][:])
+                    chisq.extend(hf[f'chisq_{inner_outer[k][l]}r200'][:])
+                    ids.extend(hf[f'ids_{inner_outer[k][l]}r200'][:])
 
-        mask = (all_N > N_min[lines.index(line)]) * (all_chisq < chisq_lim[lines.index(line)])
-        all_delta_rho = all_rho[mask] - np.log10(cosmic_rho)
-        all_ids = all_ids[mask]
+            rho = np.array(rho)
+            N = np.array(N)
+            chisq = np.array(chisq)
+            ids = np.array(ids)
+
+            mask = (N > N_min[lines.index(line)]) * (chisq < chisq_lim[lines.index(line)])
+            delta_rho = rho[mask] - np.log10(cosmic_rho)
+            ids = ids[mask]
+
+            mask = (delta_rho > delta_rho_bins[0]) & (delta_rho < delta_rho_bins[-1])
+
+            idx = np.array([np.where(gal_ids == l)[0] for l in ids]).flatten()
+            all_mass = mass[idx]
+            all_ssfr = ssfr[idx]
+            sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
+
+            ax[i][j].axvline(np.nanmedian(delta_rho[sf_mask*mask]), color=ssfr_colors[1], ls=rho_ls[k+1], lw=1)
+            ax[i][j].axvline(np.nanmedian(delta_rho[gv_mask*mask]), color=ssfr_colors[2], ls=rho_ls[k+1], lw=1)
+            ax[i][j].axvline(np.nanmedian(delta_rho[q_mask*mask]), color=ssfr_colors[3], ls=rho_ls[k+1], lw=1)
+
+            all_delta_rho = np.append(all_delta_rho, delta_rho)
+            all_ids = np.append(all_ids, ids)
 
         idx = np.array([np.where(gal_ids == l)[0] for l in all_ids]).flatten()
         all_mass = mass[idx]
@@ -134,6 +158,11 @@ if __name__ == '__main__':
         
         if line in ["SiIII1206", "CIV1548", "OVI1031"]:
             ax[i][j].set_xlabel(r'${\rm log }\Delta$')
+        
+        if line in ["SiIII1206", 'CIV14548']:
+            ax[i][j].set_xticks(range(-1, 5))
+        elif line in ["OVI1031"]:
+            ax[i][j].set_xticks(range(0, 6))
 
         if line in ['H1215', "SiIII1206"]:
             ax[i][j].set_ylabel('Frequency')
@@ -157,6 +186,12 @@ if __name__ == '__main__':
     leg = ax[0][0].legend(ssfr_lines, ssfr_labels, loc=2, fontsize=12)
     ax[0][0].add_artist(leg)
 
+    rho_lines = []		
+    for i in range(len(rho_ls)):		
+        rho_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[0], ls=rho_ls[i], lw=1))		
+    leg = ax[0][1].legend(rho_lines, rho_labels, loc=2, fontsize=12)
+    ax[0][1].add_artist(leg)		
+
     i = 0
     j = 0
 
@@ -166,36 +201,55 @@ if __name__ == '__main__':
 
         ax[i][j].step(T_bins[:-1] + T_bins[1] - T_bins[0], temp_hist, c=ssfr_colors[0], lw=1, ls='-')
 
-        all_T = []
-        all_N = []
-        all_chisq = []
-        all_ids = []
+        all_T = np.array([])
+        all_ids = np.array([])
 
-        for k in range(len(fr200)):
+        for k in range(len(inner_outer)):
 
-            with h5py.File(results_file, 'r') as hf:
-                all_T.extend(hf[f'log_T_{fr200[k]}r200'][:])
-                all_N.extend(hf[f'log_N_{fr200[k]}r200'][:])
-                all_chisq.extend(hf[f'chisq_{fr200[k]}r200'][:])
-                all_ids.extend(hf[f'ids_{fr200[k]}r200'][:])
+            T = []
+            N = []
+            chisq = []
+            ids = []
 
-        all_T = np.array(all_T)
-        all_N = np.array(all_N)
-        all_chisq = np.array(all_chisq)
-        all_ids = np.array(all_ids)
+            for l in range(len(inner_outer[k])):
 
-        mask = (all_N > N_min[lines.index(line)]) * (all_chisq < chisq_lim[lines.index(line)])
-        all_T = all_T[mask]
-        all_ids = all_ids[mask]
+                with h5py.File(results_file, 'r') as hf:
+                    T.extend(hf[f'log_T_{inner_outer[k][l]}r200'][:])
+                    N.extend(hf[f'log_N_{inner_outer[k][l]}r200'][:])
+                    chisq.extend(hf[f'chisq_{inner_outer[k][l]}r200'][:])
+                    ids.extend(hf[f'ids_{inner_outer[k][l]}r200'][:])
+
+            T = np.array(T)
+            N = np.array(N)
+            chisq = np.array(chisq)
+            ids = np.array(ids)
+
+            mask = (N > N_min[lines.index(line)]) * (chisq < chisq_lim[lines.index(line)])
+            T = T[mask]
+            ids = ids[mask]
+
+            mask = (T > T_bins[0]) & (T < T_bins[-1])
+
+            idx = np.array([np.where(gal_ids == l)[0] for l in ids]).flatten()
+            all_mass = mass[idx]
+            all_ssfr = ssfr[idx]
+            sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
+
+            ax[i][j].axvline(np.nanmedian(T[sf_mask*mask]), color=ssfr_colors[1], ls=rho_ls[k+1], lw=1)
+            ax[i][j].axvline(np.nanmedian(T[gv_mask*mask]), color=ssfr_colors[2], ls=rho_ls[k+1], lw=1)
+            ax[i][j].axvline(np.nanmedian(T[q_mask*mask]), color=ssfr_colors[3], ls=rho_ls[k+1], lw=1)
+
+            all_T = np.append(all_T, T)
+            all_ids = np.append(all_ids, ids)
 
         idx = np.array([np.where(gal_ids == l)[0] for l in all_ids]).flatten()
         all_mass = mass[idx]
         all_ssfr = ssfr[idx]
         sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
 
-        ax[i][j].hist(all_T[sf_mask], bins=T_bins, density=True, color=ssfr_colors[1], ls='-', lw=1, histtype='step')
-        ax[i][j].hist(all_T[gv_mask], bins=T_bins, density=True, color=ssfr_colors[2], ls='-', lw=1, histtype='step')
-        ax[i][j].hist(all_T[q_mask], bins=T_bins, density=True, color=ssfr_colors[3], ls='-', lw=1, histtype='step')
+        ax[i][j].hist(all_T[sf_mask], bins=T_bins, density=True, color=ssfr_colors[1], ls=rho_ls[k], lw=1, histtype='step')
+        ax[i][j].hist(all_T[gv_mask], bins=T_bins, density=True, color=ssfr_colors[2], ls=rho_ls[k], lw=1, histtype='step')
+        ax[i][j].hist(all_T[q_mask], bins=T_bins, density=True, color=ssfr_colors[3], ls=rho_ls[k], lw=1, histtype='step')
 
         ax[i][j].set_xlim(T_min, T_max)
 
