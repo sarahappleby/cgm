@@ -38,7 +38,8 @@ if __name__ == '__main__':
     for i in range(len(lines)):
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}.h5'
-
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}_snr100.h5'
+        
         for j in range(nbins_fr200):
 
             with h5py.File(results_file, 'r') as hf:
@@ -61,14 +62,16 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_chisq_hist.png')
-    plt.clf()
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_chisq_hist_snr100.png')
+    plt.close()
 
     fig, ax = plt.subplots(len(lines), len(fr200), figsize=(12, 14), sharey='row', sharex='col')
 
     for i in range(len(lines)):
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}.h5'
-
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}_snr100.h5'
+        
         for j in range(nbins_fr200):
 
             with h5py.File(results_file, 'r') as hf:
@@ -91,4 +94,5 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_chisq_cum_hist.png')
-    plt.clf()
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_chisq_cum_hist_snr100.png')
+    plt.close()

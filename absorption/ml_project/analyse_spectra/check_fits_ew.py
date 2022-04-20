@@ -59,10 +59,13 @@ if __name__ == '__main__':
 
         all_ew = np.array(all_ew)
         all_chisq = np.array(all_chisq)
+        print(line, np.nanmedian(all_chisq))
 
         mask = (np.log10(all_chisq) < max_chisq)
         all_ew = all_ew[mask]
         all_chisq = all_chisq[mask]
+
+        print(line, np.nanmedian(all_chisq))
 
         ew_total = np.nansum(all_ew)
         few_total = np.zeros(len(chisq_bins))
@@ -94,6 +97,8 @@ if __name__ == '__main__':
         if line == 'CII1334':
             i += 1
             j = 0
+
+        print('\n')
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)

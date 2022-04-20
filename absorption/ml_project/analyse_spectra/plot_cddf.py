@@ -77,10 +77,10 @@ if __name__ == '__main__':
 
         for k in range(len(labels)):
 
-            plot_data[f'cddf_all_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_all_{labels[k]}'])
-            plot_data[f'cddf_sf_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_sf_{labels[k]}'])
-            plot_data[f'cddf_gv_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_gv_{labels[k]}'])
-            plot_data[f'cddf_q_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_q_{labels[k]}'])
+            #plot_data[f'cddf_all_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_all_{labels[k]}'])
+            #plot_data[f'cddf_sf_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_sf_{labels[k]}'])
+            #plot_data[f'cddf_gv_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_gv_{labels[k]}'])
+            #plot_data[f'cddf_q_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_q_{labels[k]}'])
 
             ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all_{labels[k]}'], c=ssfr_colors[0], ls=rho_ls[k+1], lw=1.5)
             ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_sf_{labels[k]}'], c=ssfr_colors[1], ls=rho_ls[k+1], lw=rho_lw[k+1])
@@ -95,10 +95,10 @@ if __name__ == '__main__':
                             c=ssfr_colors[3], ls=rho_ls[k+1], lw=rho_lw[k+1])
 
         ax[i][j].set_xlim(logN_min, 18)
-        ax[i][j].set_ylim(-19, -9)
+        #ax[i][j].set_ylim(-19, -9)
 
         ax[i+1][j].set_xlim(logN_min, 18)
-        ax[i+1][j].set_ylim(-0.75, 0.75)
+        #ax[i+1][j].set_ylim(-0.75, 0.75)
 
         if line in ["SiIII1206", "CIV1548", "OVI1031"]:
             ax[i+1][j].set_xlabel(r'${\rm log }(N / {\rm cm}^{-2})$')
@@ -110,6 +110,11 @@ if __name__ == '__main__':
             ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[l], 0.05), xycoords='axes fraction')
         else:
             ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[l], 0.9), xycoords='axes fraction')
+
+        if line in ['SiIII1206', 'CIV1548']:
+            ax[i][j].set_xticks(range(11, 18))
+        elif line in ['OVI1031']:
+            ax[i][j].set_xticks(range(11, 19))
 
         j += 1
         if line == 'CII1334':

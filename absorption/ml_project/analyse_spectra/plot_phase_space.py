@@ -42,14 +42,16 @@ if __name__ == '__main__':
     cbar_labels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$']
     N_min = [12., 11., 12.]
     x = [0.79, 0.75, 0.78]
-    chisq_lim = [4.5, 63.1, 20.0]
+    #chisq_lim = [4.5, 63.1, 20.0]
+    chisq_lim = [4., 50., 15.8]
 
     #lines = ["SiIII1206", "CIV1548", "OVI1031"]
     #plot_lines = [r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
     #cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
     #N_min = [11., 12., 12.]
     #x = [0.765, 0.765, 0.77]
-    #chisq_lim = [70.8, 15.8, 4.5]
+    ###chisq_lim = [70.8, 15.8, 4.5]
+    #chisq_lim = [39.8, 8.9, 4.5]
 
     #width = 0.258
     #height = 0.015
@@ -153,7 +155,13 @@ if __name__ == '__main__':
                 ax[i][l].annotate(plot_lines[l], xy=(x[l], 0.09), xycoords='axes fraction', fontsize=13, bbox=dict(boxstyle="round", fc="w", lw=0.75))
             if l == 0:
                 ax[i][l].set_ylabel(r'${\rm log } (T / {\rm K})$')
-                ax[i][l].set_xticks(xticks[l])
+
+        if l in [0, 1]:
+            ax[1][l].set_xticks(range(-1, 5))
+        elif l == 2:
+            ax[1][l].set_xticks(range(-1, 6))
+
+
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN_{lines[0]}_{lines[1]}_{lines[2]}_chisqion.png')
     plt.close()

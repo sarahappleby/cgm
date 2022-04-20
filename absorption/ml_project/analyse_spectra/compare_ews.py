@@ -51,7 +51,8 @@ if __name__ == '__main__':
     snap = sys.argv[3]
     
     fr200_choose = 0.25
-    chisq_lim = 2.5
+    #chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5] limits with old fitting procedure
+    chisq_lim = [4., 50., 15.8, 39.8, 8.9, 4.5]
     norients = 8
     delta_fr200 = 0.25
     min_fr200 = 0.25

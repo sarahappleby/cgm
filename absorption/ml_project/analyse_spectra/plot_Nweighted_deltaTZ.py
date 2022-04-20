@@ -18,7 +18,8 @@ if __name__ == '__main__':
     plot_lines = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
     line_ev = np.log10([13.6, 15.04, 24.38, 33.49, 64.49, 138.1]) # in eV
     adjust_x = [0.015, 0.025, 0.02, 0.025, 0.02, 0.02]
-    chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5]
+    #chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5] limits with old fitting procedure
+    chisq_lim = [4., 50., 15.8, 39.8, 8.9, 4.5]
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
