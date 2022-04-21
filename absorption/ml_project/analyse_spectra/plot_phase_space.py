@@ -45,13 +45,13 @@ if __name__ == '__main__':
     #chisq_lim = [4.5, 63.1, 20.0]
     chisq_lim = [4., 50., 15.8]
 
-    #lines = ["SiIII1206", "CIV1548", "OVI1031"]
-    #plot_lines = [r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
-    #cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
-    #N_min = [11., 12., 12.]
-    #x = [0.765, 0.765, 0.77]
-    ###chisq_lim = [70.8, 15.8, 4.5]
-    #chisq_lim = [39.8, 8.9, 4.5]
+    lines = ["SiIII1206", "CIV1548", "OVI1031"]
+    plot_lines = [r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
+    N_min = [11., 12., 12.]
+    x = [0.765, 0.765, 0.77]
+    #chisq_lim = [70.8, 15.8, 4.5]
+    chisq_lim = [39.8, 8.9, 4.5]
 
     #width = 0.258
     #height = 0.015
@@ -64,6 +64,9 @@ if __name__ == '__main__':
     horizontal_position = [0.15, 0.4088, 0.666]
     
     xticks = [[-1, 0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5]]
+
+    deltath = 2.046913
+    Tth = 5.
 
     inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
     rho_labels = ['Inner CGM', 'Outer CGM']
@@ -134,6 +137,9 @@ if __name__ == '__main__':
             ax[i][l].imshow(np.log10(rho_overdensity_temp_hist2d), extent=(rho_overdensity_bins[0], rho_overdensity_bins[-1], temp_bins[0], temp_bins[-1]), 
                             cmap=cmap)
 
+            ax[i][l].axhline(Tth, c='k', ls=':', lw=1)
+            ax[i][l].axvline(deltath, c='k', ls=':', lw=1)
+
             if line == 'H1215':
                 im = ax[i][l].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=16)
             else:
@@ -151,7 +157,7 @@ if __name__ == '__main__':
                 elif i == 1:
                     ax[i][l].annotate(rho_labels[i], xy=(0.7, 0.87), xycoords='axes fraction', fontsize=13, bbox=dict(boxstyle="round", fc="w", lw=0.75))
             if i == 1:
-                ax[i][l].set_xlabel(r'${\rm log }\Delta$')
+                ax[i][l].set_xlabel(r'${\rm log }\delta$')
                 ax[i][l].annotate(plot_lines[l], xy=(x[l], 0.09), xycoords='axes fraction', fontsize=13, bbox=dict(boxstyle="round", fc="w", lw=0.75))
             if l == 0:
                 ax[i][l].set_ylabel(r'${\rm log } (T / {\rm K})$')

@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
         plot_data = read_h5_into_dict(cddf_file)
 
-        ax[i+1][j].axhline(0, c='k', lw=1, ls=':')
+        ax[i+1][j].axhline(0, c='k', lw=0.8, ls='-')
 
         ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all'], c=ssfr_colors[0], ls=rho_ls[0], lw=1)
 

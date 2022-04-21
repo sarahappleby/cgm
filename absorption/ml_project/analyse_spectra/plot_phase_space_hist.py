@@ -130,14 +130,16 @@ if __name__ == '__main__':
 
             mask = (delta_rho > delta_rho_bins[0]) & (delta_rho < delta_rho_bins[-1])
 
-            idx = np.array([np.where(gal_ids == l)[0] for l in ids]).flatten()
-            all_mass = mass[idx]
-            all_ssfr = ssfr[idx]
-            sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
+            ax[i][j].axvline(np.nanmedian(delta_rho[mask]), color=ssfr_colors[0], ls=rho_ls[k+1], lw=1)
 
-            ax[i][j].axvline(np.nanmedian(delta_rho[sf_mask*mask]), color=ssfr_colors[1], ls=rho_ls[k+1], lw=1)
-            ax[i][j].axvline(np.nanmedian(delta_rho[gv_mask*mask]), color=ssfr_colors[2], ls=rho_ls[k+1], lw=1)
-            ax[i][j].axvline(np.nanmedian(delta_rho[q_mask*mask]), color=ssfr_colors[3], ls=rho_ls[k+1], lw=1)
+            #idx = np.array([np.where(gal_ids == l)[0] for l in ids]).flatten()
+            #all_mass = mass[idx]
+            #all_ssfr = ssfr[idx]
+            #sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
+
+            #ax[i][j].axvline(np.nanmedian(delta_rho[sf_mask*mask]), color=ssfr_colors[1], ls=rho_ls[k+1], lw=1)
+            #ax[i][j].axvline(np.nanmedian(delta_rho[gv_mask*mask]), color=ssfr_colors[2], ls=rho_ls[k+1], lw=1)
+            #ax[i][j].axvline(np.nanmedian(delta_rho[q_mask*mask]), color=ssfr_colors[3], ls=rho_ls[k+1], lw=1)
 
             all_delta_rho = np.append(all_delta_rho, delta_rho)
             all_ids = np.append(all_ids, ids)
@@ -157,7 +159,7 @@ if __name__ == '__main__':
                           fontsize=12, bbox=dict(boxstyle="round", fc="w", lw=0.75))
         
         if line in ["SiIII1206", "CIV1548", "OVI1031"]:
-            ax[i][j].set_xlabel(r'${\rm log }\Delta$')
+            ax[i][j].set_xlabel(r'${\rm log }\delta$')
         
         if line in ["SiIII1206", 'CIV14548']:
             ax[i][j].set_xticks(range(-1, 5))
@@ -172,6 +174,8 @@ if __name__ == '__main__':
             i += 1
             j = 0
 
+    ax[1][0].set_ylim(0, 1.05)
+
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_chisqion.png')
     plt.close()
@@ -180,17 +184,17 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots(2, 3, figsize=(15, 7.1), sharey='row', sharex='col')
 
-    ssfr_lines = []
-    for i in range(len(ssfr_colors)):
-        ssfr_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[i], ls='-', lw=1))
-    leg = ax[0][0].legend(ssfr_lines, ssfr_labels, loc=2, fontsize=12)
-    ax[0][0].add_artist(leg)
+    #ssfr_lines = []
+    #for i in range(len(ssfr_colors)):
+    #    ssfr_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[i], ls='-', lw=1))
+    #leg = ax[0][0].legend(ssfr_lines, ssfr_labels, loc=2, fontsize=12)
+    #ax[0][0].add_artist(leg)
 
-    rho_lines = []		
-    for i in range(len(rho_ls)):		
-        rho_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[0], ls=rho_ls[i], lw=1))		
-    leg = ax[0][1].legend(rho_lines, rho_labels, loc=2, fontsize=12)
-    ax[0][1].add_artist(leg)		
+    #rho_lines = []		
+    #for i in range(len(rho_ls)):		
+    #    rho_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[0], ls=rho_ls[i], lw=1))		
+    #leg = ax[0][1].legend(rho_lines, rho_labels, loc=2, fontsize=12)
+    #ax[0][1].add_artist(leg)		
 
     i = 0
     j = 0
@@ -230,14 +234,16 @@ if __name__ == '__main__':
 
             mask = (T > T_bins[0]) & (T < T_bins[-1])
 
-            idx = np.array([np.where(gal_ids == l)[0] for l in ids]).flatten()
-            all_mass = mass[idx]
-            all_ssfr = ssfr[idx]
-            sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
+            ax[i][j].axvline(np.nanmedian(T[mask]), color=ssfr_colors[0], ls=rho_ls[k+1], lw=1)
 
-            ax[i][j].axvline(np.nanmedian(T[sf_mask*mask]), color=ssfr_colors[1], ls=rho_ls[k+1], lw=1)
-            ax[i][j].axvline(np.nanmedian(T[gv_mask*mask]), color=ssfr_colors[2], ls=rho_ls[k+1], lw=1)
-            ax[i][j].axvline(np.nanmedian(T[q_mask*mask]), color=ssfr_colors[3], ls=rho_ls[k+1], lw=1)
+            #idx = np.array([np.where(gal_ids == l)[0] for l in ids]).flatten()
+            #all_mass = mass[idx]
+            #all_ssfr = ssfr[idx]
+            #sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
+
+            #ax[i][j].axvline(np.nanmedian(T[sf_mask*mask]), color=ssfr_colors[1], ls=rho_ls[k+1], lw=1)
+            #ax[i][j].axvline(np.nanmedian(T[gv_mask*mask]), color=ssfr_colors[2], ls=rho_ls[k+1], lw=1)
+            #ax[i][j].axvline(np.nanmedian(T[q_mask*mask]), color=ssfr_colors[3], ls=rho_ls[k+1], lw=1)
 
             all_T = np.append(all_T, T)
             all_ids = np.append(all_ids, ids)

@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib import cm
+from matplotlib.ticker import AutoMinorLocator
 import numpy as np
 import h5py
 import pygad as pg
@@ -29,6 +30,8 @@ if __name__ == '__main__':
 
     N_min = 12.
     zsolar = [0.0134, 7.14e-4, 2.38e-3, 6.71e-4, 2.38e-3, 5.79e-3]
+    deltath = 2.046913
+    Tth = 5.
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -98,6 +101,11 @@ if __name__ == '__main__':
             if i == 0:
                 ax[0].errorbar(line_ev[l], weighted_D[i], color=colors[i], yerr=np.array([[weighted_D[i] - weighted_D_25[i], weighted_D_75[i] - weighted_D[i],]]).T,
                                   lw=1, ls='None', marker='None', capsize=2)
+                ax[1].errorbar(line_ev[l], weighted_T[i], color=colors[i], yerr=np.array([[weighted_T[i] - weighted_T_25[i], weighted_T_75[i] - weighted_T[i],]]).T,
+                                  lw=1, ls='None', marker='None', capsize=2)
+                ax[2].errorbar(line_ev[l], weighted_Z[i], color=colors[i], yerr=np.array([[weighted_Z[i] - weighted_Z_25[i], weighted_Z_75[i] - weighted_Z[i],]]).T,
+                                  lw=1, ls='None', marker='None', capsize=2)
+
 
             ax[0].scatter(line_ev[l], weighted_D[i], color=colors[i])
             ax[1].scatter(line_ev[l], weighted_T[i], color=colors[i])
@@ -106,15 +114,24 @@ if __name__ == '__main__':
             else:
                 ax[2].scatter(line_ev[l], weighted_Z[i], color=colors[i])
 
-        ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D - 0.45)))
+        ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D - 0.35)))
+
+    ax[0].axhline(deltath, ls=':', c='k', lw=1)
+    ax[1].axhline(Tth, ls=':', c='k', lw=1)
 
     ax[2].legend(loc=4, fontsize=12)
-    ax[0].set_ylim(1, 3.5)
+    
+    ax[0].set_ylim(1, 4.)
+    ax[1].set_ylim(4, 5.7)
+    ax[2].set_ylim(-1.5, )
 
     ax[2].set_xlabel(r'${\rm log }(E / {\rm eV})$')
-    ax[0].set_ylabel(r'${\rm log }\Delta$')
+    ax[0].set_ylabel(r'${\rm log }\delta$')
     ax[1].set_ylabel(r'${\rm log } (T / {\rm K})$')
     ax[2].set_ylabel(r'${\rm log} (Z / Z_{\odot})$')
+
+    ax[0].xaxis.set_minor_locator(AutoMinorLocator(4))
+    ax[1].xaxis.set_minor_locator(AutoMinorLocator(4))
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
