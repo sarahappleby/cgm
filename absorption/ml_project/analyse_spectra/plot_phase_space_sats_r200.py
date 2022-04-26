@@ -42,16 +42,14 @@ if __name__ == '__main__':
     cbar_labels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$']
     N_min = [12., 11., 12.]
     x = [0.79, 0.75, 0.78]
-    #chisq_lim = [4.5, 63.1, 20.0]
-    chisq_lim = [4., 50., 15.8]
+    chisq_lim = [4.5, 20., 20.]
 
     #lines = ["SiIII1206", "CIV1548", "OVI1031"]
     #plot_lines = [r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
     #cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
     #N_min = [11., 12., 12.]
     #x = [0.765, 0.765, 0.77]
-    #chisq_lim = [70.8, 15.8, 4.5]
-    #chisq_lim = [39.8, 8.9, 4.5]
+    #chisq_lim = [20, 7.1, 2.8]
 
     #width = 0.258
     #height = 0.015
@@ -103,7 +101,7 @@ if __name__ == '__main__':
     
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/{model}_{wind}_{snap}_log_frad_1_fit_lines_{line}.h5'
 
         for i in range(len(inner_outer)):
 
@@ -179,5 +177,8 @@ if __name__ == '__main__':
 
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN_{lines[0]}_{lines[1]}_{lines[2]}_chisqion.png')
+    if len(lines) == 2:
+        plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sats_deltaTN_{lines[0]}_{lines[1]}_chisqion.png')
+    elif len(lines) == 3:
+        plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sats_deltaTN_{lines[0]}_{lines[1]}_{lines[2]}_chisqion.png')
     plt.close()

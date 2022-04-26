@@ -30,7 +30,7 @@ if __name__ == '__main__':
     minT = 3
     maxT = 8
     mindelta = -1
-    maxdelta = 5
+    maxdelta = 8
     width = 0.01
     height = 0.77
     vertical_position = 0.115

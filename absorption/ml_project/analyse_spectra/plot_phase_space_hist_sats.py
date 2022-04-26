@@ -32,11 +32,11 @@ if __name__ == '__main__':
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
-    Nlabels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$', 
+    Nlabels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$',
                r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
+
     x = [0.81, 0.77, 0.8, 0.785, 0.785, 0.79]
-    #chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5] limits with old fitting procedure
-    chisq_lim = [4., 50., 15.8, 39.8, 8.9, 4.5]
+    chisq_lim = [4.5, 20., 20., 20., 7.1, 2.8]
 
     delta = 0.2
     T_min = 3.
@@ -99,10 +99,9 @@ if __name__ == '__main__':
     delta_rho_hist = np.insert(delta_rho_hist, 0, 0)
 
     for line in lines:
+        
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/{model}_{wind}_{snap}_log_frad_1_fit_lines_{line}.h5'
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-
-        #ax[i][j].step(delta_rho_bins[:-1] + delta_rho_bins[1] - delta_rho_bins[0], delta_rho_hist, c=ssfr_colors[0], lw=1, ls='-')
         ax[i][j].step(bin_edges, delta_rho_hist, c=ssfr_colors[0], lw=1, ls=rho_ls[0])
         
         all_delta_rho = np.array([])
@@ -181,7 +180,7 @@ if __name__ == '__main__':
     ax[1][0].set_ylim(0, 1.05)
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sats_delta_hist_chisqion.png')
     plt.close()
 
     #### Temperature histograms
@@ -193,7 +192,7 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/{model}_{wind}_{snap}_log_frad_1_fit_lines_{line}.h5'
 
         ax[i][j].step(T_bins[:-1] + T_bins[1] - T_bins[0], temp_hist, c=ssfr_colors[0], lw=1, ls='-')
 
@@ -266,7 +265,7 @@ if __name__ == '__main__':
             j = 0
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sats_temp_hist_chisqion.png')
     plt.close()
 
 
@@ -279,7 +278,7 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/{model}_{wind}_{snap}_log_frad_1_fit_lines_{line}.h5'
 
         all_N = np.array([])
         all_ids = np.array([])
@@ -338,6 +337,6 @@ if __name__ == '__main__':
             j = 0
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_hist_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sats_N_hist_chisqion.png')
     plt.close()
 

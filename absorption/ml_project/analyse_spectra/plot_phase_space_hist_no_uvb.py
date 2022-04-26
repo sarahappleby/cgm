@@ -29,20 +29,20 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
 
-    lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
-    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
+    lines = ["MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
+    plot_lines = [r'${\rm MgII}2796$', r'${\rm CII}1334$',
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
-    Nlabels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$', 
+    Nlabels = [r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$',
                r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
-    x = [0.81, 0.77, 0.8, 0.785, 0.785, 0.79]
-    #chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5] limits with old fitting procedure
-    chisq_lim = [4., 50., 15.8, 39.8, 8.9, 4.5]
+
+    x = [0.77, 0.8, 0.785, 0.785, 0.79]
+    chisq_lim = [20., 20., 20., 7.1, 2.8]
 
     delta = 0.2
     T_min = 3.
     T_max = 8.
     delta_rho_min = -1.
-    delta_rho_max = 5
+    delta_rho_max = 8
     N_min = [12, 11, 12, 11, 12, 12]
     N_max = 18.
     T_bins = np.arange(T_min, T_max+delta, delta)
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     ax[0][1].add_artist(leg)		
 
     i = 0
-    j = 0
+    j = 1
 
     bin_edges = delta_rho_bins[:-1] + delta_rho_bins[1] - delta_rho_bins[0]
     bin_edges = np.insert(bin_edges, 0, bin_edges[0])
@@ -100,10 +100,9 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{lines[i]}.h5'
 
-        #ax[i][j].step(delta_rho_bins[:-1] + delta_rho_bins[1] - delta_rho_bins[0], delta_rho_hist, c=ssfr_colors[0], lw=1, ls='-')
-        ax[i][j].step(bin_edges, delta_rho_hist, c=ssfr_colors[0], lw=1, ls=rho_ls[0])
+        #ax[i][j].step(bin_edges, delta_rho_hist, c=ssfr_colors[0], lw=1, ls=rho_ls[0])
         
         all_delta_rho = np.array([])
         all_ids = np.array([])
@@ -165,13 +164,13 @@ if __name__ == '__main__':
         if line in ["SiIII1206", "CIV1548", "OVI1031"]:
             ax[i][j].set_xlabel(r'${\rm log }\delta$')
         
-        if line in ["SiIII1206", 'CIV14548']:
-            ax[i][j].set_xticks(range(-1, 5))
-        elif line in ["OVI1031"]:
-            ax[i][j].set_xticks(range(0, 6))
+        #if line in ["SiIII1206", 'CIV14548']:
+        #    ax[i][j].set_xticks(range(-1, 5))
+        #elif line in ["OVI1031"]:
+        #    ax[i][j].set_xticks(range(0, 6))
 
-        if line in ['H1215', "SiIII1206"]:
-            ax[i][j].set_ylabel('Frequency')
+        if line in ['MgII2796', "SiIII1206"]:
+            ax[i][0].set_ylabel('Frequency')
 
         j += 1
         if line == 'CII1334':
@@ -181,7 +180,7 @@ if __name__ == '__main__':
     ax[1][0].set_ylim(0, 1.05)
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_no_uvb_delta_hist_chisqion.png')
     plt.close()
 
     #### Temperature histograms
@@ -189,13 +188,13 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(2, 3, figsize=(15, 7.1), sharey='row', sharex='col')
 
     i = 0
-    j = 0
+    j = 1
 
     for line in lines:
+        
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{lines[i]}.h5'
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-
-        ax[i][j].step(T_bins[:-1] + T_bins[1] - T_bins[0], temp_hist, c=ssfr_colors[0], lw=1, ls='-')
+        #ax[i][j].step(T_bins[:-1] + T_bins[1] - T_bins[0], temp_hist, c=ssfr_colors[0], lw=1, ls='-')
 
         all_T = np.array([])
         all_ids = np.array([])
@@ -257,7 +256,7 @@ if __name__ == '__main__':
         if line in ["SiIII1206", "CIV1548", "OVI1031"]:
             ax[i][j].set_xlabel(r'${\rm log } (T / {\rm K})$')
 
-        if line in ['H1215', "SiIII1206"]:
+        if line in ['MgII2796', "SiIII1206"]:
             ax[i][j].set_ylabel('Frequency')
 
         j += 1
@@ -266,7 +265,7 @@ if __name__ == '__main__':
             j = 0
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_no_uvb_temp_hist_chisqion.png')
     plt.close()
 
 
@@ -275,11 +274,11 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(2, 3, figsize=(15, 7.1), sharey='row', sharex='col')
 
     i = 0
-    j = 0
+    j = 1
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{lines[i]}.h5'
 
         all_N = np.array([])
         all_ids = np.array([])
@@ -329,7 +328,7 @@ if __name__ == '__main__':
         if line in ["SiIII1206", "CIV1548", "OVI1031"]:
             ax[i][j].set_xlabel(Nlabels[lines.index(line)])
 
-        if line in ['H1215', "SiIII1206"]:
+        if line in ['MgII2796', "SiIII1206"]:
             ax[i][j].set_ylabel('Frequency')
 
         j += 1
@@ -338,6 +337,6 @@ if __name__ == '__main__':
             j = 0
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_hist_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_no_uvb_N_hist_chisqion.png')
     plt.close()
 
