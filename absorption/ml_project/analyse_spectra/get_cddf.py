@@ -1,22 +1,14 @@
-import matplotlib.pyplot as plt
-from matplotlib import cm
 import numpy as np
 import h5py
+import pygad as pg
+import caesar
+from yt.utilities.cosmology import Cosmology
 import os
 import sys
 sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
 from utils import *
-from physics import *
-
-plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=13)
-
-cb_blue = '#5289C7'
-cb_green = '#90C987'
-cb_red = '#E26F72'
-
-cmap = cm.get_cmap('plasma')
-gv_colors = [cmap(0.8), cmap(0.6), cmap(0.25)]
+from physics import create_path_length_file, compute_dX
+from cosmic_variance import get_cosmic_variance_cddf
 
 def get_bin_middle(xbins):
     return np.array([xbins[i] + 0.5*(xbins[i+1] - xbins[i]) for i in range(len(xbins)-1)])
@@ -30,15 +22,6 @@ def ssfr_type_check(ssfr_thresh, ssfr):
     gv_mask = (ssfr < ssfr_thresh) & (ssfr > ssfr_thresh -1)
     q_mask = ssfr == -14.0
     return sf_mask, gv_mask, q_mask
-    
-def stop_array_after_inf(array):
-    mask = np.isinf(array)
-    if len(array[mask]) > 0:
-        inf_start = np.where(mask)[0][0]
-        array[inf_start:] = np.inf
-        return array
-    else:
-        return array
 
 
 if __name__ == '__main__':
@@ -56,8 +39,14 @@ if __name__ == '__main__':
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
+    boxsize = float(s.boxsize.in_units_of('ckpc/h_0'))
     redshift = s.redshift
     quench = quench_thresh(redshift)
+
+    sim = caesar.load(f'/home/rad/data/{model}/{wind}/Groups/{model}_{snap}.hdf5')
+    co = Cosmology(hubble_constant=sim.simulation.hubble_constant, omega_matter=sim.simulation.omega_matter, omega_lambda=sim.simulation.omega_lambda)
+    hubble_parameter = co.hubble_parameter(sim.simulation.redshift).in_units('km/s/Mpc')
+    hubble_constant = co.hubble_parameter(0).in_units('km/s/Mpc')
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -66,9 +55,8 @@ if __name__ == '__main__':
 
     inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
     labels = ['inner', 'outer']
-    rho_labels = ['Inner CGM', 'Outer CGM']
-    ssfr_labels = ['All', 'Star forming', 'Green valley', 'Quenched']
 
+    ncells=4
     logN_min = 11.
     logN_max = 18.
     delta_logN = 0.5
@@ -76,11 +64,6 @@ if __name__ == '__main__':
     bins_logN = np.array([11., 11.5, 12., 12.5, 13., 13.5, 14., 15., 16., 17., 18.])
     plot_logN = get_bin_middle(bins_logN)
     delta_N = np.array([10**bins_logN[i+1] - 10**bins_logN[i] for i in range(len(plot_logN))])
-
-    idelta = 0.8 / (len(inner_outer) -1)
-    icolor = np.arange(0.1, 0.9+idelta, idelta)
-    cmap = cm.get_cmap('viridis')
-    all_color = [cmap(i) for i in icolor]
 
     path_length_file = f'/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/path_lengths.h5'
     if not os.path.isfile(path_length_file):
@@ -100,7 +83,8 @@ if __name__ == '__main__':
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
         cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
 
-        if os.path.isfile(cddf_file):
+        #if os.path.isfile(cddf_file):
+        if 1 == 0:
             continue
 
         else:
@@ -114,6 +98,7 @@ if __name__ == '__main__':
             all_ew = []
             all_chisq = []
             all_ids = []
+            all_los = []
             
             for j in range(len(fr200)):
 
@@ -124,6 +109,7 @@ if __name__ == '__main__':
                     all_ew.extend(hf[f'ew_{fr200[j]}r200'][:])
                     all_chisq.extend(hf[f'chisq_{fr200[j]}r200'][:])
                     all_ids.extend(hf[f'ids_{fr200[j]}r200'][:])
+                    all_los.extend(hf[f'LOS_pos_{fr200[j]}r200'][:])
 
             all_N = np.array(all_N)
             all_b = np.array(all_b)
@@ -131,23 +117,31 @@ if __name__ == '__main__':
             all_ew = np.array(all_ew)
             all_chisq = np.array(all_chisq)
             all_ids = np.array(all_ids)
+            all_los = np.array(all_los)
 
             mask = (all_N > logN_min) * (all_chisq < chisq_lim[l])
             all_N = all_N[mask]
             all_b = all_b[mask]
             all_l = all_l[mask]
             all_ew = all_ew[mask]
+            all_los = all_los[mask]
 
             overall_mask = (all_N > logN_min) & (all_N < bins_logN[-1])
-            dX = compute_dX(model, wind, snap, lines, len(all_N[overall_mask]), path_lengths)[0]
+            dX = compute_dX(len(all_N[overall_mask]), [line], path_lengths, 
+                            redshift=redshift, hubble_parameter=hubble_parameter, 
+                            hubble_constant=hubble_constant)[0]
 
             plot_data[f'cddf_all'] = np.zeros(len(plot_logN))
 
-            for j in range(len(plot_logN)):
-                N_mask = (all_N > logN_min + j*delta_logN) & (all_N < logN_min + (j+1)*delta_logN)
+            for j in range(len(bins_logN) -1):
+                N_mask = (all_N > bins_logN[j]) & (all_N < bins_logN[j+1])
                 plot_data[f'cddf_all'][j] = len(all_N[N_mask])
             plot_data[f'cddf_all'] /= (delta_N * dX)
             plot_data[f'cddf_all'] = np.log10(plot_data[f'cddf_all'])
+
+            plot_data[f'cddf_all_cv_mean_{ncells}'], plot_data[f'cddf_all_cv_{ncells}'] = \
+                    get_cosmic_variance_cddf(all_N, all_los, boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells, 
+                                             redshift=redshift, hubble_parameter=hubble_parameter, hubble_constant=hubble_constant)
 
             for i in range(len(inner_outer)):
 
@@ -195,13 +189,13 @@ if __name__ == '__main__':
 
                 overall_mask = (all_N > logN_min) & (all_N < bins_logN[-1]) 
 
-                dX_all = compute_dX(model, wind, snap, lines, len(all_ids[overall_mask]), path_lengths)[0]
-                dX_sf = compute_dX(model, wind, snap, lines, len(all_ids[sf_mask*overall_mask]), path_lengths)[0]
-                dX_gv = compute_dX(model, wind, snap, lines, len(all_ids[gv_mask*overall_mask]), path_lengths)[0]
-                dX_q = compute_dX(model, wind, snap, lines, len(all_ids[q_mask*overall_mask]), path_lengths)[0]
+                dX_all = compute_dX(len(all_ids[overall_mask]), [line], path_lengths)[0]
+                dX_sf = compute_dX(len(all_ids[sf_mask*overall_mask]), [line], path_lengths)[0]
+                dX_gv = compute_dX(len(all_ids[gv_mask*overall_mask]), [line], path_lengths)[0]
+                dX_q = compute_dX(len(all_ids[q_mask*overall_mask]), [line], path_lengths)[0]
 
-                for j in range(len(plot_logN)):
-                    N_mask = (all_N > logN_min + j*delta_logN) & (all_N < logN_min + (j+1)*delta_logN)
+                for j in range(len(bins_logN)-1):
+                    N_mask = (all_N > bins_logN[j]) & (all_N < bins_logN[j+1])
                     plot_data[f'cddf_all_{labels[i]}'][j] = len(all_N[N_mask])
                     plot_data[f'cddf_sf_{labels[i]}'][j] = len(all_N[N_mask*sf_mask])
                     plot_data[f'cddf_gv_{labels[i]}'][j] = len(all_N[N_mask*gv_mask])

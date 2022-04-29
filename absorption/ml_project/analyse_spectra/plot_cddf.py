@@ -44,6 +44,7 @@ if __name__ == '__main__':
     rho_lw = [1, 1.5, 2]
     logN_min = 11.
     x = [0.81, 0.77, 0.8, 0.785, 0.785, 0.79]
+    ncells = 16
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
 
@@ -73,7 +74,8 @@ if __name__ == '__main__':
 
         ax[i+1][j].axhline(0, c='k', lw=0.8, ls='-')
 
-        ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all'], c=ssfr_colors[0], ls=rho_ls[0], lw=1)
+        ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c=ssfr_colors[0], yerr=plot_data[f'cddf_all_cv_{ncells}'], 
+                          capsize=4, ls=rho_ls[0], lw=1)
 
         for k in range(len(labels)):
 
@@ -123,7 +125,7 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_compressed_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_compressed_chisqion_{ncells}.png')
     plt.show()
     plt.close()
 

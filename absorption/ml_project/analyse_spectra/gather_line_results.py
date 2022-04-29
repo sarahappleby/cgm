@@ -46,6 +46,7 @@ if __name__ == '__main__':
     all_Z = []
     all_Nspec = []
     all_vpec = []
+    all_los = []
 
     all_pos_dv = []
 
@@ -85,6 +86,8 @@ if __name__ == '__main__':
                     all_Nspec.append(np.log10(spectrum['col_density'][index]))
                     all_vpec.append(spectrum['vpec'][index])
 
+                    all_los.extend(spectrum['LOS_pos'][:2])
+                
                 all_pos_dv.extend(np.array(wave_to_vel(spectrum['line_list']['l'][line_mask], spectrum['lambda_rest'], redshift)) - spectrum['gal_velocity_pos'])
 
                 all_chisq.extend(spectrum['line_list']['Chisq'][line_mask])
@@ -93,7 +96,9 @@ if __name__ == '__main__':
                 all_l.extend(spectrum['line_list']['l'][line_mask])
                 all_ew.extend(spectrum['line_list']['EW'][line_mask])
                 all_ids.extend([gal_ids[i]] * len(spectrum['line_list']['N'][line_mask]))
-    
+   
+    all_los = np.reshape(all_los, (int(len(all_los)*0.5), 2))
+
     with h5py.File(results_file, 'a') as hf:
         if not f'log_rho_{fr200}r200' in hf.keys():
             hf.create_dataset(f'log_rho_{fr200}r200', data=np.array(all_rho))
@@ -105,6 +110,8 @@ if __name__ == '__main__':
             hf.create_dataset(f'log_Nspec_{fr200}r200', data=np.array(all_Nspec))
         if not f'vpec_{fr200}r200' in hf.keys():
             hf.create_dataset(f'vpec_{fr200}r200', data=np.array(all_vpec))
+        if not f'LOS_pos_{fr200}r200' in hf.keys():
+            hf.create_dataset(f'LOS_pos_{fr200}r200', data=np.array(all_los))
         if not f'pos_dv_{fr200}r200' in hf.keys():
             hf.create_dataset(f'pos_dv_{fr200}r200', data=np.array(all_pos_dv))
         if not f'log_N_{fr200}r200' in hf.keys():
