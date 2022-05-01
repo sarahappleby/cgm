@@ -35,7 +35,6 @@ if __name__ == '__main__':
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
 
-    inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
     labels = ['inner', 'outer']
     rho_labels = ['All CGM', 'Inner CGM', 'Outer CGM']
     ssfr_labels = ['All', 'Star forming', 'Green valley', 'Quenched']
@@ -72,6 +71,7 @@ if __name__ == '__main__':
 
         plot_data = read_h5_into_dict(cddf_file)
 
+
         ax[i+1][j].axhline(0, c='k', lw=0.8, ls='-')
 
         ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c=ssfr_colors[0], yerr=plot_data[f'cddf_all_cv_{ncells}'], 
@@ -95,6 +95,9 @@ if __name__ == '__main__':
                             c=ssfr_colors[2], ls=rho_ls[k+1], lw=rho_lw[k+1])
             ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_q_{labels[k]}'] - plot_data[f'cddf_all']), 
                             c=ssfr_colors[3], ls=rho_ls[k+1], lw=rho_lw[k+1])
+        
+        ax_top = ax[i][j].secondary_xaxis('top')
+        ax_top.set_xticks(np.arange(logN_min, 18), labels=[])
 
         ax[i][j].set_xlim(logN_min, 18)
         #ax[i][j].set_ylim(-19, -9)

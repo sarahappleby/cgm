@@ -83,8 +83,7 @@ if __name__ == '__main__':
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
         cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
 
-        #if os.path.isfile(cddf_file):
-        if 1 == 0:
+        if os.path.isfile(cddf_file):
             continue
 
         else:
