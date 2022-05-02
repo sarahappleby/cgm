@@ -19,11 +19,7 @@ if __name__ == '__main__':
     plot_lines = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
     line_ev = np.log10([13.6, 15.04, 24.38, 33.49, 64.49, 138.1]) # in eV
     adjust_x = [0.015, 0.025, 0.02, 0.025, 0.02, 0.02]
-    chisq_lim_dict = {'snap_151': [4., 50., 15.8, 39.8, 8.9, 4.5],
-                      'snap_137': [3.5, 28.2, 10., 35.5, 8.0, 4.5],
-                      'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6],
-                      'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
-    chisq_lim = chisq_lim_dict[f'snap_{snap}']
+    chisq_lim = [4.5, 20., 20., 20., 7.1, 2.8]
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
@@ -59,7 +55,7 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/{model}_{wind}_{snap}_log_frad_1_fit_lines_{line}.h5' 
 
         weighted_D = np.zeros(len(fr200))
         weighted_D_25 = np.zeros(len(fr200))
@@ -138,5 +134,5 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Nweighted_deltaTZ_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sats_Nweighted_deltaTZ_chisqion.png')
     plt.clf()

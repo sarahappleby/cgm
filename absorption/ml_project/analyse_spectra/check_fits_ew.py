@@ -61,7 +61,7 @@ if __name__ == '__main__':
         all_chisq = np.array(all_chisq)
         print(line, np.nanmedian(all_chisq))
 
-        mask = (np.log10(all_chisq) < max_chisq)
+        mask = (np.log10(all_chisq) < max_chisq) * (all_ew >= 0.)
         all_ew = all_ew[mask]
         all_chisq = all_chisq[mask]
 

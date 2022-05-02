@@ -33,7 +33,7 @@ if __name__ == '__main__':
     model = sys.argv[1]
     wind = sys.argv[2]
 
-    snaps = ['125', '137', '151']
+    snaps = ['105', '125', '137', '151']
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
     labels = ['inner', 'outer']
     rho_labels = ['All CGM', 'Inner CGM', 'Outer CGM']
-    redshift_labels = [r'$z = 0.5$', r'$z = 0.25$', r'$z = 0$']
+    redshift_labels = [r'$z = 1$', r'$z = 0.5$', r'$z = 0.25$', r'$z = 0$']
     redshift_colors = make_color_list(plt.get_cmap('plasma'), len(snaps))
     rho_ls = ['-', '--', ':']
     logN_min = 11.
@@ -63,12 +63,12 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        redshift_zero_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_151_{line}_cddf.h5'
+        redshift_zero_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_151_{line}_cddf_chisqion.h5'
         redshift_zero_data = read_h5_into_dict(redshift_zero_file)
 
         for s, snap in enumerate(snaps):
 
-            cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf.h5'
+            cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
             plot_data = read_h5_into_dict(cddf_file)
 
             ax[i+1][j].axhline(0, c='k', lw=1, ls=':')

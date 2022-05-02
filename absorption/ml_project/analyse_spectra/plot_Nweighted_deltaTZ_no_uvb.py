@@ -15,15 +15,11 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
 
-    lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
-    plot_lines = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
-    line_ev = np.log10([13.6, 15.04, 24.38, 33.49, 64.49, 138.1]) # in eV
-    adjust_x = [0.015, 0.025, 0.02, 0.025, 0.02, 0.02]
-    chisq_lim_dict = {'snap_151': [4., 50., 15.8, 39.8, 8.9, 4.5],
-                      'snap_137': [3.5, 28.2, 10., 35.5, 8.0, 4.5],
-                      'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6],
-                      'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
-    chisq_lim = chisq_lim_dict[f'snap_{snap}']
+    lines = ["MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
+    plot_lines = ['MgII', 'CII', 'SiIII', 'CIV', 'OVI']
+    line_ev = np.log10([15.04, 24.38, 33.49, 64.49, 138.1]) # in eV
+    adjust_x = [0.025, 0.02, 0.025, 0.02, 0.02]
+    chisq_lim = [4.5, 20., 20., 20., 7.1, 2.8]
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
@@ -32,7 +28,7 @@ if __name__ == '__main__':
     cosmic_rho = rho_crit * float(s.cosmology.Omega_b)
 
     N_min = 12.
-    zsolar = [0.0134, 7.14e-4, 2.38e-3, 6.71e-4, 2.38e-3, 5.79e-3]
+    zsolar = [7.14e-4, 2.38e-3, 6.71e-4, 2.38e-3, 5.79e-3]
     deltath = 2.046913
     Tth = 5.
 
@@ -59,7 +55,7 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{line}.h5'
 
         weighted_D = np.zeros(len(fr200))
         weighted_D_25 = np.zeros(len(fr200))
@@ -87,6 +83,9 @@ if __name__ == '__main__':
             all_D = all_D[mask]
             all_ids = all_ids[mask]
             all_N = all_N[mask]
+
+            if len(all_N) == 0:
+                continue
 
             order = np.argsort(all_D)
             weighted_D[i] = all_D[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
@@ -117,15 +116,15 @@ if __name__ == '__main__':
             else:
                 ax[2].scatter(line_ev[l], weighted_Z[i], color=colors[i])
 
-        ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D - 0.35)))
+        ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D[weighted_D != 0.] - 0.45)))
 
     ax[0].axhline(deltath, ls=':', c='k', lw=1)
     ax[1].axhline(Tth, ls=':', c='k', lw=1)
 
     ax[2].legend(loc=4, fontsize=12)
     
-    ax[0].set_ylim(1, 4.)
-    ax[1].set_ylim(4, 5.7)
+    ax[0].set_ylim(1.5, 5.)
+    ax[1].set_ylim(3, 5.5)
     ax[2].set_ylim(-1.5, )
 
     ax[2].set_xlabel(r'${\rm log }(E / {\rm eV})$')
@@ -138,5 +137,5 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Nweighted_deltaTZ_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_no_uvb_Nweighted_deltaTZ_chisqion.png')
     plt.clf()

@@ -36,8 +36,12 @@ if __name__ == '__main__':
                r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
     x = [0.83, 0.78, 0.81, 0.79, 0.79, 0.8]
     x = [0.04]* 6
-    #chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5] limits with old fitting procedure
-    chisq_lim = [4., 50., 15.8, 39.8, 8.9, 4.5]
+    chisq_lim_dict = {'snap_151': [4., 50., 15.8, 39.8, 8.9, 4.5],
+                      'snap_137': [3.5, 28.2, 10., 35.5, 8.0, 4.5],
+                      'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6],
+                      'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
+    chisq_lim = chisq_lim_dict[f'snap_{snap}']
+
 
     dT = 0.1
     T_min = 3.

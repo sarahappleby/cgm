@@ -42,16 +42,23 @@ if __name__ == '__main__':
     cbar_labels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$']
     N_min = [12., 11., 12.]
     x = [0.79, 0.75, 0.78]
-    #chisq_lim = [4.5, 63.1, 20.0]
-    chisq_lim = [4., 50., 15.8]
+    chisq_lim_dict = {'snap_151': [4., 50., 15.8],
+                      'snap_137': [3.5, 28.2, 10.],
+                      'snap_125': [3.5, 31.6, 15.8],
+                      'snap_105': [4.5, 25.1, 25.1],}
+    chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
     #lines = ["SiIII1206", "CIV1548", "OVI1031"]
     #plot_lines = [r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
     #cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
     #N_min = [11., 12., 12.]
     #x = [0.765, 0.765, 0.77]
-    #chisq_lim = [70.8, 15.8, 4.5]
-    #chisq_lim = [39.8, 8.9, 4.5]
+    #chisq_lim_dict = {'snap_151': [39.8, 8.9, 4.5],
+    #                  'snap_137': [35.5, 8.0, 4.5],
+    #                  'snap_125': [39.8, 10., 5.6],
+    #                  'snap_105': [34.5, 10., 7.1],}
+    #chisq_lim = chisq_lim_dict[f'snap_{snap}']
+
 
     #width = 0.258
     #height = 0.015

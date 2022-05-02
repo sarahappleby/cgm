@@ -35,7 +35,11 @@ if __name__ == '__main__':
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
     #chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5] limits with old fitting procedure
-    chisq_lim = [4., 50., 15.8, 39.8, 8.9, 4.5]
+    chisq_lim_dict = {'snap_151': [4., 50., 15.8, 39.8, 8.9, 4.5],
+                      'snap_137': [3.5, 28.2, 10., 35.5, 8.0, 4.5],
+                      'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6], 
+                      'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
+    chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
@@ -118,7 +122,7 @@ if __name__ == '__main__':
             all_ids = np.array(all_ids)
             all_los = np.array(all_los)
 
-            mask = (all_N > logN_min) * (all_chisq < chisq_lim[l])
+            mask = (all_N > logN_min) * (all_chisq < chisq_lim[l]) * (all_ew >= 0.)
             all_N = all_N[mask]
             all_b = all_b[mask]
             all_l = all_l[mask]

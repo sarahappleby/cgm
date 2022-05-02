@@ -37,12 +37,17 @@ def wave_to_z(wave, lambda_rest):
 def get_redshift(wave, wave_rest): 
     return (wave - lambda_rest) / lambda_rest
 
-def compute_dX(model, wind, snap, lines, nspectra, path_lengths):
+
+def get_hubbles(model, wind, snap):
     sim = caesar.load(f'/home/rad/data/{model}/{wind}/Groups/{model}_{snap}.hdf5')
     redshift = sim.simulation.redshift
     co = Cosmology(hubble_constant=sim.simulation.hubble_constant, omega_matter=sim.simulation.omega_matter, omega_lambda=sim.simulation.omega_lambda)
     hubble_parameter = co.hubble_parameter(sim.simulation.redshift).in_units('km/s/Mpc')
     hubble_constant = co.hubble_parameter(0).in_units('km/s/Mpc')
+    return hubble_parameter, hubble_constant
+
+
+def compute_dX(nspectra, lines, path_lengths, redshift=0., hubble_parameter=68., hubble_constant=68.):
 
     idx = np.argmin(path_lengths['redshifts'] - redshift)
     all_dX = np.zeros(len(lines))
