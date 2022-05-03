@@ -8,7 +8,7 @@ import pygad as pg
 import sys
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=13)
+plt.rc('font', family='serif', size=15)
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
         cmap_list = cmap(np.linspace(minval, maxval, n))
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     cmap = truncate_colormap(cmap, 0.0, .6)
 
     lines = ["H1215", "MgII2796", "CII1334"]
-    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$']
+    plot_lines = [r'${\rm HI}\ 1215$', r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$']
     cbar_labels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$']
     N_min = [12., 11., 12.]
     x = [0.79, 0.75, 0.78]
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
     #lines = ["SiIII1206", "CIV1548", "OVI1031"]
-    #plot_lines = [r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    #plot_lines = [r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
     #cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
     #N_min = [11., 12., 12.]
     #x = [0.765, 0.765, 0.77]
@@ -58,7 +58,6 @@ if __name__ == '__main__':
     #                  'snap_125': [39.8, 10., 5.6],
     #                  'snap_105': [34.5, 10., 7.1],}
     #chisq_lim = chisq_lim_dict[f'snap_{snap}']
-
 
     #width = 0.258
     #height = 0.015
@@ -168,14 +167,14 @@ if __name__ == '__main__':
             if i == 0:
                 cax = plt.axes([horizontal_position[l], vertical_position, width, height])
                 cbar = fig.colorbar(im, cax=cax, label=cbar_labels[l], orientation='horizontal')
+                ax[i][l].annotate(plot_lines[l], xy=(0.04, 0.07), xycoords='axes fraction', bbox=dict(boxstyle="round", fc="w", lw=0.75))
             if l == len(lines) -1:
                 if i == 0:
-                    ax[i][l].annotate(rho_labels[i], xy=(0.71, 0.87), xycoords='axes fraction', fontsize=13, bbox=dict(boxstyle="round", fc="w", lw=0.75))
+                    ax[i][l].annotate(rho_labels[i], xy=(0.69, 0.87), xycoords='axes fraction', bbox=dict(boxstyle="round", fc="w", lw=0.75))
                 elif i == 1:
-                    ax[i][l].annotate(rho_labels[i], xy=(0.7, 0.87), xycoords='axes fraction', fontsize=13, bbox=dict(boxstyle="round", fc="w", lw=0.75))
+                    ax[i][l].annotate(rho_labels[i], xy=(0.68, 0.87), xycoords='axes fraction', bbox=dict(boxstyle="round", fc="w", lw=0.75))
             if i == 1:
                 ax[i][l].set_xlabel(r'${\rm log }\delta$')
-                ax[i][l].annotate(plot_lines[l], xy=(x[l], 0.09), xycoords='axes fraction', fontsize=13, bbox=dict(boxstyle="round", fc="w", lw=0.75))
             if l == 0:
                 ax[i][l].set_ylabel(r'${\rm log } (T / {\rm K})$')
 

@@ -28,17 +28,17 @@ if __name__ == '__main__':
     cmap = truncate_colormap(cmap, 0.0, .6)
 
     lines = ["H1215", "MgII2796", "CII1334"]
-    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$']
+    plot_lines = [r'${\rm HI}\ 1215$', r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$']
     cbar_labels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$']
     N_min = [12., 11., 12.]
-    x = [0.79, 0.75, 0.78]
+    x = [0.04]*3
     chisq_lim = [4.5, 20., 20.]
 
     #lines = ["SiIII1206", "CIV1548", "OVI1031"]
-    #plot_lines = [r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    #plot_lines = [r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
     #cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
     #N_min = [11., 12., 12.]
-    #x = [0.765, 0.765, 0.77]
+    #x = [0.04]* 3
     #chisq_lim = [20, 7.1, 2.8]
 
     #width = 0.258
@@ -150,6 +150,6 @@ if __name__ == '__main__':
 
     ax[0].set_ylabel(r'${\rm log } (T / {\rm K})$')
 
-    fig.subplots_adjust(wspace=0., hspace=0.)
+    fig.subplots_adjust(wspace=0.,)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_no_uvb_deltaTN_{lines[0]}_{lines[1]}_{lines[2]}_chisqion_all_r200.png')
     plt.close()

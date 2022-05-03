@@ -6,7 +6,7 @@ import pygad as pg
 import sys
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=13)
+plt.rc('font', family='serif', size=15)
 
 cb_blue = '#5289C7'
 cb_green = '#90C987'
@@ -30,8 +30,8 @@ if __name__ == '__main__':
     snap = sys.argv[3]
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
-    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
-                  r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    plot_lines = [r'${\rm HI}\ 1215$', r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$',
+                  r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
     Nlabels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$', 
                r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
     x = [0.83, 0.78, 0.81, 0.79, 0.79, 0.8]
@@ -176,7 +176,7 @@ if __name__ == '__main__':
         ax[i][j].set_xlim(delta_rho_min, delta_rho_max)
 
         ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[lines.index(line)], 0.06), xycoords='axes fraction', 
-                          fontsize=12, bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
+                          bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
         
         if line in ["SiIII1206", "CIV1548", "OVI1031"]:
             ax[i][j].set_xlabel(r'${\rm log }\delta$')
@@ -283,7 +283,7 @@ if __name__ == '__main__':
         ax[i][j].set_xlim(T_min, T_max)
 
         ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[lines.index(line)], 0.06), xycoords='axes fraction',
-                          fontsize=12, bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
+                          bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
 
         ax_top = ax[i][j].secondary_xaxis('top')
         ax_top.set_xticks(np.arange(3, 6, 0.5), labels=[])

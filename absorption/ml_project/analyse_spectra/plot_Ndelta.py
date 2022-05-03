@@ -10,7 +10,7 @@ sys.path.append('/disk04/sapple/tools')
 import plotmedian as pm
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=12)
+plt.rc('font', family='serif', size=15)
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
         cmap_list = cmap(np.linspace(minval, maxval, n))
@@ -41,10 +41,10 @@ if __name__ == '__main__':
     cmap = truncate_colormap(cmap, 0.1, 1.0)
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
-    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
-                  r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    plot_lines = [r'${\rm HI}\ 1215$', r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$',
+                  r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
 
-    x = [0.1]*6
+    x = [0.06]*6
     chisq_lim = [4., 50., 15.8, 39.8, 8.9, 4.5]
     N_min = [12, 11, 12, 11, 12, 12]
     deltath = 2.046913
@@ -68,6 +68,7 @@ if __name__ == '__main__':
         gal_ids = sf['gal_ids'][:]
         all_ssfr = sf['ssfr'][:]
 
+    """
     fig, ax = plt.subplots(len(lines), len(fr200), figsize=(14, 13), sharey='row', sharex='col')
 
     for l, line in enumerate(lines):
@@ -121,6 +122,7 @@ if __name__ == '__main__':
 
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Ndelta_ssfr.png')
     plt.close()
+    """
 
     cmap = cm.get_cmap('viridis')
     cmap = truncate_colormap(cmap, 0.1, 0.9)
@@ -193,7 +195,7 @@ if __name__ == '__main__':
         ax[l][0].set_ylabel(r'${\rm log }\delta$')
         
         ax[l][0].annotate(plot_lines[lines.index(line)], xy=(x[l], 0.1), xycoords='axes fraction',
-                              bbox=dict(boxstyle="round", fc="w", lw=0.75))
+                          fontsize=14, bbox=dict(boxstyle="round", fc="w", lw=0.75))
 
         for i in range(3):
             ax[l][i].set_xlim(np.min(N_min), 18)
@@ -201,7 +203,7 @@ if __name__ == '__main__':
             ax[l][i].axhline(deltath, ls=':', c='k', lw=1)
 
     fig.subplots_adjust(right=0.8)
-    cbar_ax = fig.add_axes([0.82, 0.15, 0.02, 0.7])
+    cbar_ax = fig.add_axes([0.82, 0.24, 0.02, 0.51])
     fig.colorbar(im, cax=cbar_ax, ticks=fr200, label=r'$\rho / r_{200}$')
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Ndelta_r200.png')

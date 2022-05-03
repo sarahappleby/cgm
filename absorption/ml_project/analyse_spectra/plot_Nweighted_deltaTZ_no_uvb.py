@@ -7,7 +7,7 @@ import pygad as pg
 import sys
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=13)
+plt.rc('font', family='serif', size=15)
 
 if __name__ == '__main__':
 
@@ -116,7 +116,7 @@ if __name__ == '__main__':
             else:
                 ax[2].scatter(line_ev[l], weighted_Z[i], color=colors[i])
 
-        ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D[weighted_D != 0.] - 0.45)))
+        ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D[weighted_D != 0.] - 0.45)), fontsize=13)
 
     ax[0].axhline(deltath, ls=':', c='k', lw=1)
     ax[1].axhline(Tth, ls=':', c='k', lw=1)
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     
     ax[0].set_ylim(1.5, 5.)
     ax[1].set_ylim(3, 5.5)
-    ax[2].set_ylim(-1.5, )
+    ax[2].set_ylim(-1.75, )
 
     ax[2].set_xlabel(r'${\rm log }(E / {\rm eV})$')
     ax[0].set_ylabel(r'${\rm log }\delta$')

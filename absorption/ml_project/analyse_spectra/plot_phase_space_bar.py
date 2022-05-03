@@ -6,7 +6,7 @@ import pygad as pg
 import sys
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=13)
+plt.rc('font', family='serif', size=14)
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
         cmap_list = cmap(np.linspace(minval, maxval, n))
@@ -64,13 +64,13 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     handles = [plt.Rectangle((10,10), 0.8, 0.8, color=colors[l]) for l in range(len(lines))]
-    leg = ax.legend(handles, plot_lines, loc=2, fontsize=9.5)
+    leg = ax.legend(handles, plot_lines, loc=2, fontsize=12)
     ax.add_artist(leg)
 
     handles = []
     handles.append(plt.Rectangle((10,10), 0.8, 0.8, color='dimgrey', edgecolor='dimgrey', alpha=0.6))
     handles.append(plt.Rectangle((10,10), 0.8, 0.8, color='dimgrey', edgecolor='dimgrey', fill=False, hatch='///'))
-    leg = ax.legend(handles, rho_labels, loc=1, fontsize=9.5)
+    leg = ax.legend(handles, rho_labels, loc=1, fontsize=12)
     ax.add_artist(leg)
 
     for l, line in enumerate(lines):
@@ -117,6 +117,7 @@ if __name__ == '__main__':
         whim = (all_T > Tth) & (all_delta_rho < deltath)
         diffuse = (all_T < Tth) & (all_delta_rho < deltath)
         
+        """
         total_absorption = np.nansum(10**all_N)
 
         inner_fracs = np.zeros(4)
@@ -149,7 +150,6 @@ if __name__ == '__main__':
         outer_fracs[2] = np.nansum(all_N[~r200_mask*diffuse])
         outer_fracs[3] = np.nansum(all_N[~r200_mask*whim])
         outer_fracs /= total_absorption
-        """
 
         ax.bar(np.arange(len(phase_labels))+(l*0.13), inner_fracs, width=0.13, align='edge', 
                color=colors[l], edgecolor=colors[l], alpha=0.6)
@@ -159,10 +159,11 @@ if __name__ == '__main__':
     #ax.set_yscale('log')
     #ax.set_ylim(7e-4, 6)
     ax.set_ylim(0, 1)
-    ax.set_ylabel('%')
+    ax.set_ylabel(r'$\sum {\rm log}N_{\rm phase} / \sum {\rm log}N_{\rm CGM}$')
+    #ax.set_ylabel(r'$\sum N_{\rm phase} / \sum N_{\rm CGM}$')
     ax.set_xticks(np.arange(0.43, 4.43, 1), phase_labels)
     
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_phase_bar_N.png')
-    plt.show()
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_phase_bar_logN.png')
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_phase_bar_N.png')
     plt.close()

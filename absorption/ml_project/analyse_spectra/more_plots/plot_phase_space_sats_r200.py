@@ -41,6 +41,7 @@ if __name__ == '__main__':
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$']
     cbar_labels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$']
     N_min = [12., 11., 12.]
+    N_max = [18, 16, 16]
     x = [0.79, 0.75, 0.78]
     chisq_lim = [4.5, 20., 20.]
 
@@ -48,6 +49,7 @@ if __name__ == '__main__':
     #plot_lines = [r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
     #cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
     #N_min = [11., 12., 12.]
+    #N_max = [16, 16, 16]
     #x = [0.765, 0.765, 0.77]
     #chisq_lim = [20, 7.1, 2.8]
 
@@ -126,7 +128,7 @@ if __name__ == '__main__':
             all_chisq = np.array(all_chisq)
             all_ids = np.array(all_ids)
 
-            mask = (all_N > N_min[l]) * (all_chisq < chisq_lim[l])
+            mask = (all_N < N_max[l]) * (all_N > N_min[l]) * (all_chisq < chisq_lim[l])
             all_T = all_T[mask]
             all_delta_rho = all_rho[mask] - np.log10(cosmic_rho)
             all_ids = all_ids[mask]

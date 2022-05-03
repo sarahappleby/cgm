@@ -10,7 +10,7 @@ sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
 from utils import read_h5_into_dict, write_dict_to_h5
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=13)
+plt.rc('font', family='serif', size=14)
 
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
@@ -33,15 +33,12 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
 
-    cmap = plt.get_cmap('magma')
-    cmap = truncate_colormap(cmap, 0.25, .9)
-
     sim = caesar.load(f'/home/rad/data/{model}/{wind}/Groups/{model}_{snap}.hdf5')
     redshift = sim.simulation.redshift
 
     lines = ["MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
-    plot_lines = [r'${\rm MgII}2796$', r'${\rm CII}1334$',
-                  r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    plot_lines = [r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$',
+                  r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 01031$']
     plot_quantities = ['med', 'per25', 'per75',]
     norients = 8
     delta_fr200 = 0.25 
@@ -55,7 +52,9 @@ if __name__ == '__main__':
     mass_bins = np.arange(min_m, min_m+(nbins_m+1)*delta_m, delta_m)
     bin_label = '10.5-11.0'
 
-    colors = make_color_list(cmap, len(lines))
+    cmap = plt.get_cmap('magma')
+    cmap = truncate_colormap(cmap, 0.25, .9)
+    colors = make_color_list(cmap, len(lines)+1)[1:]
 
     normal_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
     results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/'
@@ -99,7 +98,7 @@ if __name__ == '__main__':
             plt.fill_between(plot_data['fr200'], plot_data[f'{bin_label}_per75'], plot_data[f'{bin_label}_per25'], 
                                alpha=0.3, color=colors[l])
 
-    plt.ylim(-2., 0.5)
+    plt.ylim(-2., 0.25)
     plt.axhline(0., c='k', ls='--', lw=1)
 
     plt.ylabel(r'${\rm log }( {\rm EW}_{\rm Collisional} / {\rm EW}_{\rm Collisional + UVB} )$')

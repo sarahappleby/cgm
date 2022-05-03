@@ -8,7 +8,7 @@ import pygad as pg
 import sys
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=13)
+plt.rc('font', family='serif', size=15)
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
         cmap_list = cmap(np.linspace(minval, maxval, n))
@@ -44,12 +44,12 @@ if __name__ == '__main__':
     min_fr200 = 0.25
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
-    
-    idelta = 0.8 / (len(fr200) -1)
-    icolor = np.arange(0.1, 0.9+idelta, idelta)
+   
+    idelta = 1. / (len(snaps) -1)
+    icolor = np.arange(0., 1.+idelta, idelta)
     cmap = cm.get_cmap('magma')
-    cmap = truncate_colormap(cmap, 0.2, .95)
-    colors = [cmap(i) for i in icolor]
+    cmap = truncate_colormap(cmap, 0.25, .9)
+    redshift_colors = [cmap(i) for i in icolor]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
@@ -115,29 +115,32 @@ if __name__ == '__main__':
             weighted_Z_75 = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
     
             if i == 0:
-                ax[0].errorbar(line_ev[l], weighted_D, color=colors[i], yerr=np.array([[weighted_D - weighted_D_25, weighted_D_75 - weighted_D,]]).T,
+                ax[0].errorbar(line_ev[l], weighted_D, color=redshift_colors[i], yerr=np.array([[weighted_D - weighted_D_25, weighted_D_75 - weighted_D,]]).T,
                                   lw=1, ls='None', marker='None', capsize=2)
-                ax[1].errorbar(line_ev[l], weighted_T, color=colors[i], yerr=np.array([[weighted_T - weighted_T_25, weighted_T_75 - weighted_T,]]).T,
+                ax[1].errorbar(line_ev[l], weighted_T, color=redshift_colors[i], yerr=np.array([[weighted_T - weighted_T_25, weighted_T_75 - weighted_T,]]).T,
                                   lw=1, ls='None', marker='None', capsize=2)
-                ax[2].errorbar(line_ev[l], weighted_Z, color=colors[i], yerr=np.array([[weighted_Z - weighted_Z_25, weighted_Z_75 - weighted_Z,]]).T,
+                ax[2].errorbar(line_ev[l], weighted_Z, color=redshift_colors[i], yerr=np.array([[weighted_Z - weighted_Z_25, weighted_Z_75 - weighted_Z,]]).T,
                                   lw=1, ls='None', marker='None', capsize=2)
 
-            ax[0].scatter(line_ev[l], weighted_D, color=colors[i])
-            ax[1].scatter(line_ev[l], weighted_T, color=colors[i])
+            ax[0].scatter(line_ev[l], weighted_D, color=redshift_colors[i])
+            ax[1].scatter(line_ev[l], weighted_T, color=redshift_colors[i])
             if l == 0:
-                ax[2].scatter(line_ev[l], weighted_Z, color=colors[i], label=redshift_labels[i])
+                ax[2].scatter(line_ev[l], weighted_Z, color=redshift_colors[i], label=redshift_labels[i])
             else:
-                ax[2].scatter(line_ev[l], weighted_Z, color=colors[i])
+                ax[2].scatter(line_ev[l], weighted_Z, color=redshift_colors[i])
 
             if i == len(snaps) -1:
-                ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D - 0.35)))
+                if line == 'H1215':
+                    ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], 0.75), fontsize=13)
+                else:
+                    ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D - 0.4)), fontsize=13)
 
     ax[0].axhline(deltath, ls=':', c='k', lw=1)
     ax[1].axhline(Tth, ls=':', c='k', lw=1)
 
     ax[2].legend(loc=4, fontsize=12)
     
-    ax[0].set_ylim(1, 4.)
+    ax[0].set_ylim(0.7, 4.25)
     ax[1].set_ylim(4, 5.7)
     ax[2].set_ylim(-1.5, )
 

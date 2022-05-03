@@ -9,7 +9,7 @@ from utils import *
 from physics import *
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=13)
+plt.rc('font', family='serif', size=16)
 
 cb_blue = '#5289C7'
 cb_green = '#90C987'
@@ -32,17 +32,17 @@ if __name__ == '__main__':
     snap = sys.argv[3]
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
-    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
-                  r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
+    plot_lines = [r'${\rm HI}\ 1215$', r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$',
+                  r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
 
     labels = ['inner', 'outer']
     rho_labels = ['All CGM', 'Inner CGM', 'Outer CGM']
-    ssfr_labels = ['All', 'Star forming', 'Green valley', 'Quenched']
+    ssfr_labels = ['All galaxies', 'Star forming', 'Green valley', 'Quenched']
     ssfr_colors = ['dimgrey', cb_blue, cb_green, cb_red]
     rho_ls = ['-', '--', ':']
     rho_lw = [1, 1.5, 2]
     logN_min = 11.
-    x = [0.81, 0.77, 0.8, 0.785, 0.785, 0.79]
+    x = [0.79, 0.74, 0.77, 0.75, 0.755, 0.76]
     ncells = 16
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
@@ -52,14 +52,14 @@ if __name__ == '__main__':
     ssfr_lines = []
     for i in range(len(ssfr_colors)):
         ssfr_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[i]))
-    leg = ax[0][0].legend(ssfr_lines, ssfr_labels, loc=3, fontsize=12)
+    leg = ax[0][0].legend(ssfr_lines, ssfr_labels, loc=3, fontsize=14)
     ax[0][0].add_artist(leg)
 
     rho_lines = []
     for i in range(len(rho_ls)):
         rho_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[0], ls=rho_ls[i], lw=rho_lw[i]))
-    leg = ax[0][0].legend(rho_lines, rho_labels, loc=1, fontsize=12)
-    ax[0][0].add_artist(leg)
+    leg = ax[0][1].legend(rho_lines, rho_labels, loc=3, fontsize=14)
+    ax[0][1].add_artist(leg)
 
     i = 0
     j = 0
@@ -76,6 +76,7 @@ if __name__ == '__main__':
 
         ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c=ssfr_colors[0], yerr=plot_data[f'cddf_all_cv_{ncells}'], 
                           capsize=4, ls=rho_ls[0], lw=1)
+        ax[i][j].axvline(plot_data['completeness'], c='k', ls='--', lw=1)
 
         for k in range(len(labels)):
 
@@ -111,10 +112,8 @@ if __name__ == '__main__':
         if line in ['H1215', "SiIII1206"]:
             ax[i][j].set_ylabel(r'${\rm log }(\delta^2 n / \delta X \delta N )$')
             ax[i+1][j].set_ylabel(r'${\rm CDDF} / {\rm CDDF}_{\rm All}$')
-        if line == 'H1215':
-            ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[l], 0.05), xycoords='axes fraction')
-        else:
-            ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[l], 0.9), xycoords='axes fraction')
+        ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[l], 0.86), xycoords='axes fraction',
+                          bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
 
         if line in ['SiIII1206', 'CIV1548']:
             ax[i][j].set_xticks(range(11, 18))
@@ -129,6 +128,5 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_compressed_chisqion_{ncells}.png')
-    plt.show()
     plt.close()
 
