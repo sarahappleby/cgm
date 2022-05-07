@@ -31,6 +31,25 @@ def cell_indices_2d(los_array, boxsize, ncells=9):
     return indices
 
 
+def get_cosmic_variance_ew(ew, los, boxsize, ncells=9):
+    indices = cell_indices_2d(los, boxsize, ncells=ncells)
+    ignore = np.arange(ncells) 
+    medians = np.zeros(ncells)
+
+    for i in range(ncells):
+        using_mask = np.zeros(len(los), dtype=bool)
+        for j in range(ncells):
+            if j == ignore[i]: continue
+            else:
+                using_mask[indices[f'indices_{j}']] = True
+        
+        medians[i] = np.nanmedian(ew[using_mask])
+
+    mean = np.nansum(medians) / ncells
+    cosmic_std = np.sqrt(variance_jk(medians, mean))
+    return mean, cosmic_std 
+
+
 def get_cosmic_variance_cddf(N, los, boxsize, line, bins_logN, delta_N, path_lengths, ncells=9, redshift=0., hubble_parameter=68., hubble_constant=68.):
     indices = cell_indices_2d(los, boxsize, ncells=ncells)
     cddf = np.zeros((ncells, len(bins_logN)-1))

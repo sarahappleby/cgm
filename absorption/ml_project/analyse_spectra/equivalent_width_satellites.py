@@ -46,9 +46,10 @@ if __name__ == '__main__':
 
         for i in range(len(fr200)):
 
-            if not f'ew_wave_{fr200[i]}r200' in all_keys:
+            if not (f'ew_wave_{fr200[i]}r200' in all_keys) & (f'LOS_pos_{fr200[i]}r200' in all_keys):
 
                 all_ew = np.zeros((len(gal_ids), len(orients)))
+                all_los = np.zeros((len(gal_ids) * len(orients), 2))
 
                 for j, gal in enumerate(gal_ids):
             
@@ -61,7 +62,11 @@ if __name__ == '__main__':
                         flux = spec['fluxes'][vel_mask]
                         pixel_size = spec['wavelengths'][1] - spec['wavelengths'][0]
                         all_ew[j][o] = equivalent_width(flux, pixel_size)
+                        all_los[j*o+o] = spec['LOS_pos'][:2]
 
-                with h5py.File(results_file, 'a') as f:
-                    f.create_dataset(f'ew_wave_{fr200[i]}r200', data=np.array(all_ew))
-            
+                with h5py.File(results_file, 'a') as hf:
+                    if not f'ew_wave_{fr200[i]}r200' in hf.keys():
+                        hf.create_dataset(f'ew_wave_{fr200[i]}r200', data=np.array(all_ew))
+                    if not f'LOS_pos_{fr200[i]}r200' in hf.keys():
+                        hf.create_dataset(f'LOS_pos_{fr200[i]}r200', data=np.array(all_los))
+

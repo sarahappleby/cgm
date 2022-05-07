@@ -139,12 +139,18 @@ if __name__ == '__main__':
             for j in range(len(bins_logN) -1):
                 N_mask = (all_N > bins_logN[j]) & (all_N < bins_logN[j+1])
                 plot_data[f'cddf_all'][j] = len(all_N[N_mask])
+
+            plot_data[f'cddf_all_poisson'] = np.sqrt(plot_data[f'cddf_all'])
+            plot_data[f'cddf_all_poisson'] /= (plot_data[f'cddf_all'] * np.log(10.))
+
             plot_data[f'cddf_all'] /= (delta_N * dX)
             plot_data[f'cddf_all'] = np.log10(plot_data[f'cddf_all'])
 
             plot_data[f'cddf_all_cv_mean_{ncells}'], plot_data[f'cddf_all_cv_{ncells}'] = \
                     get_cosmic_variance_cddf(all_N, all_los, boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells, 
                                              redshift=redshift, hubble_parameter=hubble_parameter, hubble_constant=hubble_constant)
+
+            plot_data['cddf_all_err'] = np.sqrt(plot_data[f'cddf_all_poisson']**2. + plot_data[f'cddf_all_cv_{ncells}']**2.)
 
             for i in range(len(inner_outer)):
 

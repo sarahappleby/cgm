@@ -31,7 +31,7 @@ if __name__ == '__main__':
     ncells = 16
     start = [13.75, 12.75, 13.75, 12.75, 13.75, 13.75]
     end = [15.5, 14.5, 15.5, 14.5, 15.5, 14.5]
-    logN = np.arange(11, 18, 0.01)
+    logN = np.arange(9, 18, 0.01)
 
     fig, ax = plt.subplots(2, 3, figsize=(15, 7.1), sharey='row', sharex='col')
 
@@ -48,10 +48,12 @@ if __name__ == '__main__':
         ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c='dimgrey', yerr=plot_data[f'cddf_all_cv_{ncells}'],
                           capsize=4, ls='', lw=1)
 
-        start_i = int(np.where(plot_data['plot_logN'] == start[l])[0])
-        start_j = int(np.where(plot_data['plot_logN'] == end[l])[0])
+        mask = ~np.isinf(plot_data['cddf_all'])
+        logN_use = plot_data['plot_logN'][mask]
+        data_use = plot_data['cddf_all'][mask]
+        start_i = np.argmax(data_use)
 
-        popt, pcov = curve_fit(power_law, plot_data['plot_logN'][start_i:start_j+1], plot_data['cddf_all'][start_i:start_j+1])
+        popt, pcov = curve_fit(power_law, logN_use[start_i:], data_use[start_i:])
         power_law_fit = logN*popt[0]+ popt[1]
         ax[i][j].plot(logN, power_law_fit, c='tab:pink', lw=1, ls='--')
 
@@ -71,7 +73,9 @@ if __name__ == '__main__':
         if line in ['H1215', "SiIII1206"]:
             ax[i][j].set_ylabel(r'${\rm log }(\delta^2 n / \delta X \delta N )$')
 
-        plot_data['completeness'] = logN[np.argmin(np.abs((10**cddf_extra / 10**power_law_fit ) - 0.5))]
+        end_i = np.argmax(cddf_extra) + 10
+
+        plot_data['completeness'] = logN[np.argmin(np.abs((10**cddf_extra[:end_i] / 10**power_law_fit[:end_i] ) - 0.5))]
         ax[i][j].axvline(plot_data['completeness'], c='k', ls='--', lw=1)
 
         write_dict_to_h5(plot_data, cddf_file)
