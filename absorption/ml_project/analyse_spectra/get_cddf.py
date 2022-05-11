@@ -60,7 +60,7 @@ if __name__ == '__main__':
     inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
     labels = ['inner', 'outer']
 
-    ncells=4
+    ncells=16
     logN_min = 11.
     logN_max = 18.
     delta_logN = 0.5
@@ -87,13 +87,66 @@ if __name__ == '__main__':
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
         cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
 
-        if os.path.isfile(cddf_file):
-            continue
+        plot_data = {}
+        plot_data['plot_logN'] = plot_logN.copy()
+        plot_data['bin_edges_logN'] = bins_logN.copy()
 
-        else:
+        all_N = []
+        all_b = []
+        all_l = []
+        all_ew = []
+        all_chisq = []
+        all_ids = []
+        all_los = []
+            
+        for j in range(len(fr200)):
 
-            plot_data = {}
-            plot_data['plot_logN'] = plot_logN.copy()
+            with h5py.File(results_file, 'r') as hf:
+                all_N.extend(hf[f'log_N_{fr200[j]}r200'][:])
+                all_b.extend(hf[f'b_{fr200[j]}r200'][:])
+                all_l.extend(hf[f'l_{fr200[j]}r200'][:])
+                all_ew.extend(hf[f'ew_{fr200[j]}r200'][:])
+                all_chisq.extend(hf[f'chisq_{fr200[j]}r200'][:])
+                all_ids.extend(hf[f'ids_{fr200[j]}r200'][:])
+                all_los.extend(hf[f'LOS_pos_{fr200[j]}r200'][:])
+
+        all_N = np.array(all_N)
+        all_b = np.array(all_b)
+        all_l = np.array(all_l)
+        all_ew = np.array(all_ew)
+        all_chisq = np.array(all_chisq)
+        all_ids = np.array(all_ids)
+        all_los = np.array(all_los)
+
+        mask = (all_N > logN_min) * (all_chisq < chisq_lim[l]) * (all_ew >= 0.)
+        all_N = all_N[mask]
+        all_b = all_b[mask]
+        all_l = all_l[mask]
+        all_ew = all_ew[mask]
+        all_los = all_los[mask]
+
+        overall_mask = (all_N > logN_min) & (all_N < bins_logN[-1])
+        dX = compute_dX(len(all_N[overall_mask]), [line], path_lengths, 
+                        redshift=redshift, hubble_parameter=hubble_parameter, 
+                        hubble_constant=hubble_constant)[0]
+
+        plot_data[f'cddf_all'] = np.zeros(len(plot_logN))
+
+        for j in range(len(bins_logN) -1):
+            N_mask = (all_N > bins_logN[j]) & (all_N < bins_logN[j+1])
+            plot_data[f'cddf_all'][j] = len(all_N[N_mask])
+
+        plot_data[f'cddf_all_poisson'] = np.sqrt(plot_data[f'cddf_all'])
+        plot_data[f'cddf_all_poisson'] /= (plot_data[f'cddf_all'] * np.log(10.))
+
+        plot_data[f'cddf_all'] /= (delta_N * dX)
+        plot_data[f'cddf_all'] = np.log10(plot_data[f'cddf_all'])
+
+        plot_data[f'cddf_all_cv_mean_{ncells}'], plot_data[f'cddf_all_cv_{ncells}'] = \
+                get_cosmic_variance_cddf(all_N, all_los, boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells, 
+                                         redshift=redshift, hubble_parameter=hubble_parameter, hubble_constant=hubble_constant)
+
+        for i in range(len(inner_outer)):
 
             all_N = []
             all_b = []
@@ -101,18 +154,16 @@ if __name__ == '__main__':
             all_ew = []
             all_chisq = []
             all_ids = []
-            all_los = []
-            
-            for j in range(len(fr200)):
 
+            for j in range(len(inner_outer[i])):
+                
                 with h5py.File(results_file, 'r') as hf:
-                    all_N.extend(hf[f'log_N_{fr200[j]}r200'][:])
-                    all_b.extend(hf[f'b_{fr200[j]}r200'][:])
-                    all_l.extend(hf[f'l_{fr200[j]}r200'][:])
-                    all_ew.extend(hf[f'ew_{fr200[j]}r200'][:])
-                    all_chisq.extend(hf[f'chisq_{fr200[j]}r200'][:])
-                    all_ids.extend(hf[f'ids_{fr200[j]}r200'][:])
-                    all_los.extend(hf[f'LOS_pos_{fr200[j]}r200'][:])
+                    all_N.extend(hf[f'log_N_{inner_outer[i][j]}r200'][:])
+                    all_b.extend(hf[f'b_{inner_outer[i][j]}r200'][:])
+                    all_l.extend(hf[f'l_{inner_outer[i][j]}r200'][:])
+                    all_ew.extend(hf[f'ew_{inner_outer[i][j]}r200'][:])
+                    all_chisq.extend(hf[f'chisq_{inner_outer[i][j]}r200'][:])
+                    all_ids.extend(hf[f'ids_{inner_outer[i][j]}r200'][:])
 
             all_N = np.array(all_N)
             all_b = np.array(all_b)
@@ -120,104 +171,47 @@ if __name__ == '__main__':
             all_ew = np.array(all_ew)
             all_chisq = np.array(all_chisq)
             all_ids = np.array(all_ids)
-            all_los = np.array(all_los)
 
-            mask = (all_N > logN_min) * (all_chisq < chisq_lim[l]) * (all_ew >= 0.)
+            mask = (all_N > logN_min) * (all_chisq < chisq_lim[l])
             all_N = all_N[mask]
             all_b = all_b[mask]
             all_l = all_l[mask]
             all_ew = all_ew[mask]
-            all_los = all_los[mask]
+                
+            all_ids = all_ids[mask]
+            idx = np.array([np.where(gal_ids == j)[0] for j in all_ids]).flatten()
+            all_mass = mass[idx]
+            all_ssfr = ssfr[idx]
 
-            overall_mask = (all_N > logN_min) & (all_N < bins_logN[-1])
-            dX = compute_dX(len(all_N[overall_mask]), [line], path_lengths, 
-                            redshift=redshift, hubble_parameter=hubble_parameter, 
-                            hubble_constant=hubble_constant)[0]
+            sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
 
-            plot_data[f'cddf_all'] = np.zeros(len(plot_logN))
+            plot_data[f'cddf_all_{labels[i]}'] = np.zeros(len(plot_logN))
+            plot_data[f'cddf_sf_{labels[i]}'] = np.zeros(len(plot_logN))
+            plot_data[f'cddf_gv_{labels[i]}'] = np.zeros(len(plot_logN))
+            plot_data[f'cddf_q_{labels[i]}'] = np.zeros(len(plot_logN))
 
-            for j in range(len(bins_logN) -1):
+            overall_mask = (all_N > logN_min) & (all_N < bins_logN[-1]) 
+
+            dX_all = compute_dX(len(all_ids[overall_mask]), [line], path_lengths)[0]
+            dX_sf = compute_dX(len(all_ids[sf_mask*overall_mask]), [line], path_lengths)[0]
+            dX_gv = compute_dX(len(all_ids[gv_mask*overall_mask]), [line], path_lengths)[0]
+            dX_q = compute_dX(len(all_ids[q_mask*overall_mask]), [line], path_lengths)[0]
+
+            for j in range(len(bins_logN)-1):
                 N_mask = (all_N > bins_logN[j]) & (all_N < bins_logN[j+1])
-                plot_data[f'cddf_all'][j] = len(all_N[N_mask])
+                plot_data[f'cddf_all_{labels[i]}'][j] = len(all_N[N_mask])
+                plot_data[f'cddf_sf_{labels[i]}'][j] = len(all_N[N_mask*sf_mask])
+                plot_data[f'cddf_gv_{labels[i]}'][j] = len(all_N[N_mask*gv_mask])
+                plot_data[f'cddf_q_{labels[i]}'][j] = len(all_N[N_mask*q_mask])
 
-            plot_data[f'cddf_all_poisson'] = np.sqrt(plot_data[f'cddf_all'])
-            plot_data[f'cddf_all_poisson'] /= (plot_data[f'cddf_all'] * np.log(10.))
+            plot_data[f'cddf_all_{labels[i]}'] /= (delta_N * dX_all)
+            plot_data[f'cddf_sf_{labels[i]}'] /= (delta_N * dX_sf)
+            plot_data[f'cddf_gv_{labels[i]}'] /= (delta_N * dX_gv)
+            plot_data[f'cddf_q_{labels[i]}'] /= (delta_N * dX_q)
 
-            plot_data[f'cddf_all'] /= (delta_N * dX)
-            plot_data[f'cddf_all'] = np.log10(plot_data[f'cddf_all'])
-
-            plot_data[f'cddf_all_cv_mean_{ncells}'], plot_data[f'cddf_all_cv_{ncells}'] = \
-                    get_cosmic_variance_cddf(all_N, all_los, boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells, 
-                                             redshift=redshift, hubble_parameter=hubble_parameter, hubble_constant=hubble_constant)
-
-            plot_data['cddf_all_err'] = np.sqrt(plot_data[f'cddf_all_poisson']**2. + plot_data[f'cddf_all_cv_{ncells}']**2.)
-
-            for i in range(len(inner_outer)):
-
-                all_N = []
-                all_b = []
-                all_l = []
-                all_ew = []
-                all_chisq = []
-                all_ids = []
-
-                for j in range(len(inner_outer[i])):
-                
-                    with h5py.File(results_file, 'r') as hf:
-                        all_N.extend(hf[f'log_N_{inner_outer[i][j]}r200'][:])
-                        all_b.extend(hf[f'b_{inner_outer[i][j]}r200'][:])
-                        all_l.extend(hf[f'l_{inner_outer[i][j]}r200'][:])
-                        all_ew.extend(hf[f'ew_{inner_outer[i][j]}r200'][:])
-                        all_chisq.extend(hf[f'chisq_{inner_outer[i][j]}r200'][:])
-                        all_ids.extend(hf[f'ids_{inner_outer[i][j]}r200'][:])
-
-                all_N = np.array(all_N)
-                all_b = np.array(all_b)
-                all_l = np.array(all_l)
-                all_ew = np.array(all_ew)
-                all_chisq = np.array(all_chisq)
-                all_ids = np.array(all_ids)
-
-                mask = (all_N > logN_min) * (all_chisq < chisq_lim[l])
-                all_N = all_N[mask]
-                all_b = all_b[mask]
-                all_l = all_l[mask]
-                all_ew = all_ew[mask]
-                
-                all_ids = all_ids[mask]
-                idx = np.array([np.where(gal_ids == j)[0] for j in all_ids]).flatten()
-                all_mass = mass[idx]
-                all_ssfr = ssfr[idx]
-
-                sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
-
-                plot_data[f'cddf_all_{labels[i]}'] = np.zeros(len(plot_logN))
-                plot_data[f'cddf_sf_{labels[i]}'] = np.zeros(len(plot_logN))
-                plot_data[f'cddf_gv_{labels[i]}'] = np.zeros(len(plot_logN))
-                plot_data[f'cddf_q_{labels[i]}'] = np.zeros(len(plot_logN))
-
-                overall_mask = (all_N > logN_min) & (all_N < bins_logN[-1]) 
-
-                dX_all = compute_dX(len(all_ids[overall_mask]), [line], path_lengths)[0]
-                dX_sf = compute_dX(len(all_ids[sf_mask*overall_mask]), [line], path_lengths)[0]
-                dX_gv = compute_dX(len(all_ids[gv_mask*overall_mask]), [line], path_lengths)[0]
-                dX_q = compute_dX(len(all_ids[q_mask*overall_mask]), [line], path_lengths)[0]
-
-                for j in range(len(bins_logN)-1):
-                    N_mask = (all_N > bins_logN[j]) & (all_N < bins_logN[j+1])
-                    plot_data[f'cddf_all_{labels[i]}'][j] = len(all_N[N_mask])
-                    plot_data[f'cddf_sf_{labels[i]}'][j] = len(all_N[N_mask*sf_mask])
-                    plot_data[f'cddf_gv_{labels[i]}'][j] = len(all_N[N_mask*gv_mask])
-                    plot_data[f'cddf_q_{labels[i]}'][j] = len(all_N[N_mask*q_mask])
-
-                plot_data[f'cddf_all_{labels[i]}'] /= (delta_N * dX_all)
-                plot_data[f'cddf_sf_{labels[i]}'] /= (delta_N * dX_sf)
-                plot_data[f'cddf_gv_{labels[i]}'] /= (delta_N * dX_gv)
-                plot_data[f'cddf_q_{labels[i]}'] /= (delta_N * dX_q)
-
-                plot_data[f'cddf_all_{labels[i]}'] = np.log10(plot_data[f'cddf_all_{labels[i]}'])
-                plot_data[f'cddf_sf_{labels[i]}'] = np.log10(plot_data[f'cddf_sf_{labels[i]}'])
-                plot_data[f'cddf_gv_{labels[i]}'] = np.log10(plot_data[f'cddf_gv_{labels[i]}'])
-                plot_data[f'cddf_q_{labels[i]}'] = np.log10(plot_data[f'cddf_q_{labels[i]}'])
+            plot_data[f'cddf_all_{labels[i]}'] = np.log10(plot_data[f'cddf_all_{labels[i]}'])
+            plot_data[f'cddf_sf_{labels[i]}'] = np.log10(plot_data[f'cddf_sf_{labels[i]}'])
+            plot_data[f'cddf_gv_{labels[i]}'] = np.log10(plot_data[f'cddf_gv_{labels[i]}'])
+            plot_data[f'cddf_q_{labels[i]}'] = np.log10(plot_data[f'cddf_q_{labels[i]}'])
 
             write_dict_to_h5(plot_data, cddf_file)

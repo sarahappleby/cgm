@@ -52,6 +52,7 @@ if __name__ == '__main__':
     sf_height = [1.1, 1.2, 1.6, 2.1, 2.6]
     gv_height = [0.3, 0.3, 0.5, 0.7, 1.1]
     q_height = [-0.7, -0.7, -0.5, -0.3, 0.]
+    q_height = [-3.05]*5
     ylims = [1.5, 1.75, 2., 2.5, 3.0]
 
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
@@ -141,14 +142,14 @@ if __name__ == '__main__':
 
     plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
     plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
-    plt.text(11.55, sf_height[snap_index], 'SF')
+    plt.text(11.56, sf_height[snap_index], 'SF')
     plt.text(11.55, gv_height[snap_index], 'GV')
-    plt.text(11.55, q_height[snap_index], 'Q')
+    plt.text(11.575, q_height[snap_index], 'Q')
     for i in range(nbins_m + 1):
         plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
-    im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=np.abs(np.cos(alpha)), cmap=cmap, s=5, marker='o')
+    im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=np.abs(np.cos(alpha)), cmap=cmap, s=5, marker='o', vmin=0, vmax=1)
     plt.colorbar(im, label=r'$\vert{\rm cos}\ i\vert$')
-    plt.clim(1, 0)
+    #plt.clim(1, 0)
     plt.xlim(9.75,11.75)
     plt.ylim(-3.5, ylims[snap_index])
     plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')

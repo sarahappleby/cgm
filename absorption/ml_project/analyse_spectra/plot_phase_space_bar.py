@@ -36,7 +36,7 @@ if __name__ == '__main__':
                       'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6],
                       'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
-    N_min = [12., 11., 12., 11., 12., 12.]
+    N_min = [12.7, 11.5, 12.8, 11.7, 12.8, 13.2]
 
     deltath = 2.046913
     Tth = 5.
@@ -62,18 +62,11 @@ if __name__ == '__main__':
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
 
-    #fig, ax = plt.subplots(2, 3, figsize=(15, 7.1), sharey='row', sharex='col')
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(2, 1, figsize=(7, 10), sharey='row', sharex='col')
 
     handles = [plt.Rectangle((10,10), 0.8, 0.8, color=colors[i]) for i in range(len(phase_labels))]
-    leg = ax.legend(handles, phase_labels, loc=1, fontsize=11)
-    ax.add_artist(leg)
-
-    #handles = []
-    #handles.append(plt.Rectangle((10,10), 0.8, 0.8, color='dimgrey', edgecolor='dimgrey', alpha=0.6))
-    #handles.append(plt.Rectangle((10,10), 0.8, 0.8, color='dimgrey', edgecolor='dimgrey', fill=False, hatch='///'))
-    #leg = ax.legend(handles, rho_labels, loc=(0.69, 0.55), fontsize=11)
-    #ax.add_artist(leg)
+    leg = ax[0].legend(handles, phase_labels, loc=1, fontsize=11.5)
+    ax[0].add_artist(leg)
 
     for l, line in enumerate(lines):
 
@@ -135,33 +128,22 @@ if __name__ == '__main__':
         outer_fracs[3] = np.nansum(10**all_N[~r200_mask*whim])
         outer_fracs /= total_absorption
 
-        ax.bar(np.arange(0.15, 0.65, 0.15) + l, inner_fracs, width=0.15, align='edge',
-               color=colors, edgecolor=colors, alpha=0.6)
-        ax.bar(np.arange(0.15, 0.65, 0.15) + l, outer_fracs, width=0.15, align='edge', bottom=inner_fracs,
-               color=colors, edgecolor=colors, fill=False, hatch='///')
+        ax[0].bar(np.arange(0.15, 0.65, 0.15) + l, inner_fracs, width=0.15, align='edge',
+                  color=colors, edgecolor=colors, alpha=0.6)
+        ax[0].bar(np.arange(0.15, 0.65, 0.15) + l, outer_fracs, width=0.15, align='edge', bottom=inner_fracs,
+                  color=colors, edgecolor=colors, fill=False, hatch='///')
 
     #ax.set_yscale('log')
     #ax.set_ylim(7e-4, 6)
-    ax.set_ylim(0, 1)
-    ax.set_ylabel(r'$\sum N_{\rm phase} / \sum N_{\rm CGM}$')
-    ax.set_xticks(np.arange(0.43, 6.43, 1), plot_lines)
+    ax[0].set_ylim(0, 1)
+    ax[0].set_ylabel(r'$\sum N_{\rm phase} / \sum N_{\rm CGM}$')
+    ax[0].set_xticks(np.arange(0.43, 6.43, 1), plot_lines)
     
-    fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_phase_bar_N.png')
-    plt.close()
-
-    #fig, ax = plt.subplots(2, 3, figsize=(15, 7.1), sharey='row', sharex='col')
-    fig, ax = plt.subplots()
-
-    #handles = [plt.Rectangle((10,10), 0.8, 0.8, color=colors[i]) for i in range(len(phase_labels))]
-    #leg = ax.legend(handles, phase_labels, loc=1, fontsize=11)
-    #ax.add_artist(leg)
-
     handles = []
     handles.append(plt.Rectangle((10,10), 0.8, 0.8, color='dimgrey', edgecolor='dimgrey', alpha=0.6))
     handles.append(plt.Rectangle((10,10), 0.8, 0.8, color='dimgrey', edgecolor='dimgrey', fill=False, hatch='///'))
-    leg = ax.legend(handles, rho_labels, loc=1, fontsize=11)
-    ax.add_artist(leg)
+    leg = ax[1].legend(handles, rho_labels, loc=1, fontsize=11.5)
+    ax[1].add_artist(leg)
 
     for l, line in enumerate(lines):
 
@@ -223,17 +205,18 @@ if __name__ == '__main__':
         outer_fracs[3] = len(all_N[~r200_mask*whim])
         outer_fracs /= total_absorbers
 
-        ax.bar(np.arange(0.15, 0.65, 0.15) + l, inner_fracs, width=0.15, align='edge',
-               color=colors, edgecolor=colors, alpha=0.6)
-        ax.bar(np.arange(0.15, 0.65, 0.15) + l, outer_fracs, width=0.15, align='edge', bottom=inner_fracs,
-               color=colors, edgecolor=colors, fill=False, hatch='///')
+        ax[1].bar(np.arange(0.15, 0.65, 0.15) + l, inner_fracs, width=0.15, align='edge',
+                  color=colors, edgecolor=colors, alpha=0.6)
+        ax[1].bar(np.arange(0.15, 0.65, 0.15) + l, outer_fracs, width=0.15, align='edge', bottom=inner_fracs,
+                  color=colors, edgecolor=colors, fill=False, hatch='///')
 
     #ax.set_yscale('log')
-    ax.set_ylim(0, 1)
-    ax.set_ylabel(r'$\sum n_{\rm phase} / \sum n_{\rm CGM}$')
-    ax.set_xticks(np.arange(0.43, 6.43, 1), plot_lines)
-
+    ax[1].set_ylim(0, 1)
+    ax[1].set_ylabel(r'$\sum n_{\rm phase} / \sum n_{\rm CGM}$')
+    ax[1].set_xticks(np.arange(0.43, 6.43, 1), plot_lines)
+    
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_phase_bar_n.png')
+    plt.tight_layout()
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_phase_bar_nN.pdf', format='pdf')
     plt.close()
 

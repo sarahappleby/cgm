@@ -49,7 +49,7 @@ if __name__ == '__main__':
     delta_rho_min = -1.
     delta_rho_max = 5
     ddelta = 0.2
-    N_min = [12, 11, 12, 11, 12, 12]
+    N_min = [12.7, 11.5, 12.8, 11.7, 12.8, 13.2]
     N_max = 18.
     dN = 0.2
     T_bins = np.arange(T_min, T_max+dT, dT)
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     ax[1][0].set_ylim(0, 1.2)
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_chisqion.png', dpi=300)
     plt.close()
 
     #### Temperature histograms
@@ -308,7 +308,7 @@ if __name__ == '__main__':
     ax[1][0].set_ylim(0, 2.3)
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_chisqion.png', dpi=300)
     plt.close()
 
 

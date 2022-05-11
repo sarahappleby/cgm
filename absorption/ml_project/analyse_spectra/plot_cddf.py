@@ -70,12 +70,18 @@ if __name__ == '__main__':
         cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
 
         plot_data = read_h5_into_dict(cddf_file)
+        completeness = plot_data['completeness']
+        print(f'Line {line}: {completeness}')
 
+        xerr = np.zeros(len(plot_data['plot_logN']))
+        for k in range(len(plot_data['plot_logN'])):
+            xerr[k] = (plot_data['bin_edges_logN'][k+1] - plot_data['bin_edges_logN'][k])*0.5
 
         ax[i+1][j].axhline(0, c='k', lw=0.8, ls='-')
 
-        ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c=ssfr_colors[0], yerr=plot_data[f'cddf_all_cv_{ncells}'], 
-                          capsize=4, ls=rho_ls[0], lw=1)
+        plot_data[f'cddf_all_err'] = np.sqrt(plot_data[f'cddf_all_cv_{ncells}']**2. + plot_data[f'cddf_all_poisson']**2.)
+        ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c=ssfr_colors[0], yerr=plot_data[f'cddf_all_err'], 
+                          xerr=xerr, capsize=4, ls=rho_ls[0], lw=1)
         ax[i][j].axvline(plot_data['completeness'], c='k', ls='--', lw=1)
 
         for k in range(len(labels)):
@@ -127,6 +133,6 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_compressed_chisqion_{ncells}.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_compressed_chisqion_{ncells}.pdf', format='pdf')
     plt.close()
 

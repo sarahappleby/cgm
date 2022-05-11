@@ -31,7 +31,7 @@ if __name__ == '__main__':
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
     cosmic_rho = rho_crit * float(s.cosmology.Omega_b)
 
-    N_min = 12.
+    N_min = [12.7, 11.5, 12.8, 11.7, 12.8, 13.2]
     zsolar = [0.0134, 7.14e-4, 2.38e-3, 6.71e-4, 2.38e-3, 5.79e-3]
     deltath = 2.046913
     Tth = 5.
@@ -81,7 +81,7 @@ if __name__ == '__main__':
                 all_chisq = hf[f'chisq_{fr200[i]}r200'][:]
                 all_ids = hf[f'ids_{fr200[i]}r200'][:]
 
-            mask = (all_N > N_min) * (all_chisq < chisq_lim[l])
+            mask = (all_N > N_min[l]) * (all_chisq < chisq_lim[l])
             all_Z = all_Z[mask]
             all_T = all_T[mask]
             all_D = all_D[mask]
@@ -138,5 +138,5 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Nweighted_deltaTZ_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Nweighted_deltaTZ_chisqion.pdf', format='pdf')
     plt.clf()

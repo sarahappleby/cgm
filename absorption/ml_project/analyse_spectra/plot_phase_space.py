@@ -40,7 +40,7 @@ if __name__ == '__main__':
     lines = ["H1215", "MgII2796", "CII1334"]
     plot_lines = [r'${\rm HI}\ 1215$', r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$']
     cbar_labels = [r'${\rm log }(N\ {\rm HI} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm MgII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CII} / {\rm cm}^{-2})$']
-    N_min = [12., 11., 12.]
+    N_min = [12.7, 11.5, 12.8]
     x = [0.79, 0.75, 0.78]
     chisq_lim_dict = {'snap_151': [4., 50., 15.8],
                       'snap_137': [3.5, 28.2, 10.],
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     #lines = ["SiIII1206", "CIV1548", "OVI1031"]
     #plot_lines = [r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
     #cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
-    #N_min = [11., 12., 12.]
+    #N_min = [11.7, 12.8, 13.2]
     #x = [0.765, 0.765, 0.77]
     #chisq_lim_dict = {'snap_151': [39.8, 8.9, 4.5],
     #                  'snap_137': [35.5, 8.0, 4.5],
@@ -159,7 +159,7 @@ if __name__ == '__main__':
             if line == 'H1215':
                 im = ax[i][l].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=16)
             else:
-                im = ax[i][l].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=15)
+                im = ax[i][l].scatter(all_delta_rho, all_T, c=all_N, cmap='magma', s=1, vmin=N_min[l], vmax=14.5)
             
             ax[i][l].set_xlim(-1, 5)
             ax[i][l].set_ylim(3, 7)
@@ -185,5 +185,5 @@ if __name__ == '__main__':
 
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN_{lines[0]}_{lines[1]}_{lines[2]}_chisqion.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN_{lines[0]}_{lines[1]}_{lines[2]}_chisqion.pdf', format='pdf')
     plt.close()
