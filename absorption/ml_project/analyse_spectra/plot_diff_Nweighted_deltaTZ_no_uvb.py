@@ -8,70 +8,86 @@ import pygad as pg
 import sys
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=15)
+plt.rc('font', family='serif', size=13.5)
 
-def plot_nweighted(ax, results_file, line, inner_outer, line_ev, zsolar, cosmic_rho, N_min, chisq_lim, colors, marker='o'):
+def plot_nweighted(results_file, line, inner_outer, line_ev, zsolar, cosmic_rho, N_min, chisq_lim):
 
-        for i in range(len(inner_outer)):
+    weighted = {}
 
-            all_Z = []
-            all_T = []
-            all_D = []
-            all_ids = []
-            all_chisq = []
-            all_N = []
+    weighted['D'] = np.zeros(2)
+    weighted['D_25'] = np.zeros(2)
+    weighted['D_75'] = np.zeros(2)
+    weighted['T'] = np.zeros(2)
+    weighted['T_25'] = np.zeros(2)
+    weighted['T_75'] = np.zeros(2)
+    weighted['Z'] = np.zeros(2)
+    weighted['Z_25'] = np.zeros(2)
+    weighted['Z_75'] = np.zeros(2)
 
-            for j in range(len(inner_outer[i])):
+    for i in range(len(inner_outer)):
 
-                with h5py.File(results_file, 'r') as hf:
-                    all_Z.extend(hf[f'log_Z_{inner_outer[i][j]}r200'][:] - np.log10(zsolar))
-                    all_T.extend(hf[f'log_T_{inner_outer[i][j]}r200'][:])
-                    all_D.extend(hf[f'log_rho_{inner_outer[i][j]}r200'][:] - np.log10(cosmic_rho))
-                    all_N.extend(hf[f'log_N_{inner_outer[i][j]}r200'][:])
-                    all_chisq.extend(hf[f'chisq_{inner_outer[i][j]}r200'][:])
-                    all_ids.extend(hf[f'ids_{inner_outer[i][j]}r200'][:])
+        all_Z = []
+        all_T = []
+        all_D = []
+        all_ids = []
+        all_chisq = []
+        all_N = []
 
-            all_Z = np.array(all_Z)
-            all_T = np.array(all_T)
-            all_D = np.array(all_D)
-            all_ids = np.array(all_ids)
-            all_chisq = np.array(all_chisq)
-            all_N = np.array(all_N)
+        for j in range(len(inner_outer[i])):
 
-            mask = (all_N > N_min) * (all_chisq < chisq_lim)
-            all_Z = all_Z[mask]
-            all_T = all_T[mask]
-            all_D = all_D[mask]
-            all_ids = all_ids[mask]
-            all_N = all_N[mask]
+            with h5py.File(results_file, 'r') as hf:
+                all_Z.extend(hf[f'log_Z_{inner_outer[i][j]}r200'][:] - np.log10(zsolar))
+                all_T.extend(hf[f'log_T_{inner_outer[i][j]}r200'][:])
+                all_D.extend(hf[f'log_rho_{inner_outer[i][j]}r200'][:] - np.log10(cosmic_rho))
+                all_N.extend(hf[f'log_N_{inner_outer[i][j]}r200'][:])
+                all_chisq.extend(hf[f'chisq_{inner_outer[i][j]}r200'][:])
+                all_ids.extend(hf[f'ids_{inner_outer[i][j]}r200'][:])
 
-            if len(all_N) == 0:
-                continue
+        all_Z = np.array(all_Z)
+        all_T = np.array(all_T)
+        all_D = np.array(all_D)
+        all_ids = np.array(all_ids)
+        all_chisq = np.array(all_chisq)
+        all_N = np.array(all_N)
 
-            order = np.argsort(all_D)
-            weighted_D = all_D[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
-            weighted_D_25 = all_D[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
-            weighted_D_75 = all_D[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
-            order = np.argsort(all_T)
-            weighted_T = all_T[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
-            weighted_T_25 = all_T[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
-            weighted_T_75 = all_T[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
-            order = np.argsort(all_Z)
-            weighted_Z = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
-            weighted_Z_25 = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
-            weighted_Z_75 = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
+        mask = (all_N > N_min) * (all_chisq < chisq_lim)
+        all_Z = all_Z[mask]
+        all_T = all_T[mask]
+        all_D = all_D[mask]
+        all_ids = all_ids[mask]
+        all_N = all_N[mask]
 
-            if i == 0:
-                ax[0].errorbar(line_ev, weighted_D, color=colors[i], yerr=np.array([[weighted_D - weighted_D_25, weighted_D_75 - weighted_D,]]).T,
-                                  lw=1, ls='None', marker='None', capsize=2)
-                ax[1].errorbar(line_ev, weighted_T, color=colors[i], yerr=np.array([[weighted_T - weighted_T_25, weighted_T_75 - weighted_T,]]).T,
-                                  lw=1, ls='None', marker='None', capsize=2)
-                ax[2].errorbar(line_ev, weighted_Z, color=colors[i], yerr=np.array([[weighted_Z - weighted_Z_25, weighted_Z_75 - weighted_Z,]]).T,
-                                  lw=1, ls='None', marker='None', capsize=2)
+        if len(all_N) == 0:
+            continue
 
-            ax[0].scatter(line_ev, weighted_D, color=colors[i], marker=marker)
-            ax[1].scatter(line_ev, weighted_T, color=colors[i], marker=marker)
-            ax[2].scatter(line_ev, weighted_Z, color=colors[i], marker=marker)
+        order = np.argsort(all_D)
+        weighted['D'][i] = all_D[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
+        weighted['D_25'][i] = all_D[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
+        weighted['D_75'][i] = all_D[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
+        order = np.argsort(all_T)
+        weighted['T'][i] = all_T[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
+        weighted['T_25'][i] = all_T[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
+        weighted['T_75'][i] = all_T[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
+        order = np.argsort(all_Z)
+        weighted['Z'][i] = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.5))]
+        weighted['Z_25'][i] = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.25))]
+        weighted['Z_75'][i] = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
+
+        """
+        if i == 0:
+            ax[0].errorbar(line_ev, weighted_D, color=colors[i], yerr=np.array([[weighted_D - weighted_D_25, weighted_D_75 - weighted_D,]]).T,
+                              lw=1, ls='None', marker='None', capsize=2)
+            ax[1].errorbar(line_ev, weighted_T, color=colors[i], yerr=np.array([[weighted_T - weighted_T_25, weighted_T_75 - weighted_T,]]).T,
+                              lw=1, ls='None', marker='None', capsize=2)
+            ax[2].errorbar(line_ev, weighted_Z, color=colors[i], yerr=np.array([[weighted_Z - weighted_Z_25, weighted_Z_75 - weighted_Z,]]).T,
+                              lw=1, ls='None', marker='None', capsize=2)
+
+        ax[0].scatter(line_ev, weighted_D, color=colors[i], marker=marker)
+        ax[1].scatter(line_ev, weighted_T, color=colors[i], marker=marker)
+        ax[2].scatter(line_ev, weighted_Z, color=colors[i], marker=marker)
+        """
+
+    return weighted 
 
 if __name__ == '__main__':
 
@@ -83,6 +99,7 @@ if __name__ == '__main__':
     plot_lines = ['MgII', 'CII', 'SiIII', 'CIV', 'OVI']
     line_ev = np.log10([15.04, 24.38, 33.49, 64.49, 138.1]) # in eV
     adjust_x = [0.025, 0.02, 0.025, 0.02, 0.02]
+    y = [0.06, 0.3, 0.64, 0.13, 0.24]
     chisq_lim = [4.5, 20., 20., 20., 7.1, 2.8]
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
@@ -108,6 +125,8 @@ if __name__ == '__main__':
     cmap = cm.get_cmap('viridis')
     colors = [cmap(i) for i in icolor]
 
+    phys = ['D', 'T', 'Z']
+
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
 
@@ -122,39 +141,47 @@ if __name__ == '__main__':
     rho_lines = []
     for i in range(len(colors)):
         rho_lines.append(Line2D([0,1],[0,1], color=colors[i], ls='-', lw=1))
-    leg = ax[2].legend(rho_lines, rho_labels, loc=3, fontsize=12)
-    ax[2].add_artist(leg)
-
-    uvb_lines = []
-    uvb_lines.append(Line2D([0,1],[0,1], color='dimgrey', ls='', marker='x'))
-    uvb_lines.append(Line2D([0,1],[0,1], color='dimgrey', ls='', marker='o'))
-    leg = ax[2].legend(uvb_lines, ['Collisional+UVB', 'Collisional'], loc=4, fontsize=12)
-    ax[2].add_artist(leg)
+    leg = ax[0].legend(rho_lines, rho_labels, loc=1, fontsize=12)
+    ax[0].add_artist(leg)
 
     for l, line in enumerate(lines):
+
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{line}.h5'
-        plot_nweighted(ax, results_file, line, inner_outer, line_ev[l], zsolar[l], cosmic_rho, N_min[l], chisq_lim[l], colors, marker='o')
+        weighted_uvb = plot_nweighted(results_file, line, inner_outer, line_ev[l], zsolar[l], cosmic_rho, N_min[l], chisq_lim[l])
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-        plot_nweighted(ax, results_file, line, inner_outer, line_ev[l], zsolar[l], cosmic_rho, N_min[l], chisq_lim[l], colors, marker='x')
+        weighted_norm = plot_nweighted(results_file, line, inner_outer, line_ev[l], zsolar[l], cosmic_rho, N_min[l], chisq_lim[l])
 
-    #ax[0].annotate(plot_lines, xy=(line_ev - adjust_x, np.min(weighted_D[weighted_D != 0.] - 0.45)), fontsize=13)
-    ax[0].axhline(deltath, ls=':', c='k', lw=1)
-    ax[1].axhline(Tth, ls=':', c='k', lw=1)
+        for i in range(len(phys)):
 
-    ax[0].set_ylim(1, 5.)
-    ax[1].set_ylim(3.5, 5.7)
-    ax[2].set_ylim(-1.75, )
+            diff = weighted_uvb[phys[i]] - weighted_norm[phys[i]]
+            
+            err_uvb = np.array([weighted_uvb[f'{phys[i]}'] - weighted_uvb[f'{phys[i]}_25'], weighted_uvb[f'{phys[i]}_75'] - weighted_uvb[f'{phys[i]}']])
+            err_norm = np.array([weighted_norm[f'{phys[i]}'] - weighted_norm[f'{phys[i]}_25'], weighted_norm[f'{phys[i]}_75'] - weighted_norm[f'{phys[i]}']])
+       
+            err = np.sqrt(err_uvb**2 + err_norm**2)
+            err = err.T
+
+            for j in range(2):
+                ax[i].errorbar(line_ev[l], diff[j], color=colors[j], yerr=np.reshape(err[j], (2, 1)),
+                                lw=1, ls='None', marker='o', capsize=2)
+            
+            if i == 0:
+                bottom = diff - err[:, 0]
+                ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], y[l]), fontsize=13)
+    
+    ax[0].axhline(0, ls=':', c='k', lw=1)
+    ax[1].axhline(0, ls=':', c='k', lw=1)
+    ax[2].axhline(0, ls=':', c='k', lw=1)
 
     ax[2].set_xlabel(r'${\rm log }(E / {\rm eV})$')
-    ax[0].set_ylabel(r'${\rm log }\delta$')
-    ax[1].set_ylabel(r'${\rm log } (T / {\rm K})$')
-    ax[2].set_ylabel(r'${\rm log} (Z / Z_{\odot})$')
+    ax[0].set_ylabel(r'${\rm log }(\delta_{\rm No UVB} / \delta_{\rm UVB})$')
+    ax[1].set_ylabel(r'${\rm log } (T_{\rm No UVB} / T_{\rm UVB})$')
+    ax[2].set_ylabel(r'${\rm log} (Z_{\rm No UVB} / Z_{\rm UVB})$')
 
     ax[0].xaxis.set_minor_locator(AutoMinorLocator(4))
     ax[1].xaxis.set_minor_locator(AutoMinorLocator(4))
 
-    plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_no_uvb_Nweighted_deltaTZ_chisqion.pdf', format='pdf')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_no_uvb_diff_Nweighted_deltaTZ.pdf', format='pdf')
     plt.show()
     plt.close()
