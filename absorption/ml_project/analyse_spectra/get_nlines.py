@@ -36,7 +36,7 @@ if __name__ == '__main__':
     else:
         all_keys = []
 
-    if not f'ew_wave_{fr200[i]}r200' in all_keys:
+    if not f'ew_wave_{fr200}r200' in all_keys:
 
         for i in range(len(gal_ids)):
             for o, orient in enumerate(orients):
@@ -47,7 +47,7 @@ if __name__ == '__main__':
                     spectrum['line_list'] = {}
                     spectrum['line_list']['N'] = []
 
-                all_n[i][o] = len(spectrum['line_list']) 
+                all_n[i][o] = len(spectrum['line_list']['N']) 
    
         with h5py.File(results_file, 'a') as hf:
             if not f'nlines_{fr200}r200' in hf.keys():

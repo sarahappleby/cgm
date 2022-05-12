@@ -256,7 +256,7 @@ if __name__ == '__main__':
 
         for i in range(3):
             ax[l][i].set_xlim(np.min(N_min), 18)
-            ax[l][i].set_ylim(-1, 5)
+            ax[l][i].set_ylim(0, 4)
             ax[l][i].axhline(deltath, ls=':', c='k', lw=1)
 
     fig.subplots_adjust(right=0.8)

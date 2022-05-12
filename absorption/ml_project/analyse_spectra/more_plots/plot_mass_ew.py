@@ -64,6 +64,7 @@ if __name__ == '__main__':
             ew = fitN_dict[f'ew_wave_{fr200[i]}r200'].flatten()
 
             im = ax[l][i].scatter(mass_long, np.log10(ew), c=ssfr_long, cmap=cmap, s=1.5, vmin=-2.5, vmax=0)
+            
             if l == len(lines)-1:
                 ax[l][i].set_xlabel(r'$\log\ (M_{*} / M_{\odot})$')
             if i == 0:
@@ -74,9 +75,10 @@ if __name__ == '__main__':
                 ax[l][i].set_title(r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
             ax[l][i].set_ylim(-2, 1)
    
-    fig.subplots_adjust(right=0.8, bottom=0.1, top=0.9)
-    cbar_ax = fig.add_axes([0.9, 0.15, 0.05, 0.7])
-    cbar = fig.colorbar(im,ax=cbar_ax, shrink=.6, label=r'$\log\ ({\rm sSFR} / {\rm Gyr}^{-1})$')        
+    fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.7])
+    fig.colorbar(im, cax=cbar_ax, label=r'$\log\ ({\rm sSFR} / {\rm Gyr}^{-1})$')
+    fig.subplots_adjust(wspace=0., hspace=0.3)
 
     #plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
