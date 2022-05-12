@@ -60,6 +60,7 @@ if __name__ == '__main__':
     rho_labels = ['Inner CGM', 'Outer CGM']
     rho_ls = ['--', ':']
     rho_lw = [1, 2]
+    rho_y = [0.8, 0.9]
     ssfr_labels = ['Star forming', 'Green valley', 'Quenched']
     ssfr_colors = [cb_blue, cb_green, cb_red]
     
@@ -169,9 +170,9 @@ if __name__ == '__main__':
         ax[i][j].hist(all_delta_rho[q_mask], bins=delta_rho_bins, stacked=True, density=True, color=ssfr_colors[2], ls='-', lw=1, histtype='step')
        
         for k in range(len(inner_outer)):
-            ax[i][j].axvline(sf_median[k], ymin=.8, color=ssfr_colors[0], ls=rho_ls[k], lw=rho_lw[k])
-            ax[i][j].axvline(gv_median[k], ymin=.8, color=ssfr_colors[1], ls=rho_ls[k], lw=rho_lw[k])
-            ax[i][j].axvline(q_median[k], ymin=.8, color=ssfr_colors[2], ls=rho_ls[k], lw=rho_lw[k])
+            ax[i][j].axvline(sf_median[k], ymin=rho_y[k], color=ssfr_colors[0], ls=rho_ls[k], lw=rho_lw[k])
+            ax[i][j].axvline(gv_median[k], ymin=rho_y[k], color=ssfr_colors[1], ls=rho_ls[k], lw=rho_lw[k])
+            ax[i][j].axvline(q_median[k], ymin=rho_y[k], color=ssfr_colors[2], ls=rho_ls[k], lw=rho_lw[k])
 
         ax[i][j].set_xlim(delta_rho_min, delta_rho_max)
 
@@ -276,9 +277,9 @@ if __name__ == '__main__':
         ax[i][j].hist(all_T[q_mask], bins=T_bins, stacked=True, density=True, color=ssfr_colors[2], ls='-', lw=1, histtype='step')
 
         for k in range(len(inner_outer)):
-            ax[i][j].axvline(sf_median[k], ymin=.8, color=ssfr_colors[0], ls=rho_ls[k], lw=rho_lw[k])
-            ax[i][j].axvline(gv_median[k], ymin=.8, color=ssfr_colors[1], ls=rho_ls[k], lw=rho_lw[k])
-            ax[i][j].axvline(q_median[k], ymin=.8, color=ssfr_colors[2], ls=rho_ls[k], lw=rho_lw[k])
+            ax[i][j].axvline(sf_median[k], ymin=rho_y[k], color=ssfr_colors[0], ls=rho_ls[k], lw=rho_lw[k])
+            ax[i][j].axvline(gv_median[k], ymin=rho_y[k], color=ssfr_colors[1], ls=rho_ls[k], lw=rho_lw[k])
+            ax[i][j].axvline(q_median[k], ymin=rho_y[k], color=ssfr_colors[2], ls=rho_ls[k], lw=rho_lw[k])
 
         ax[i][j].set_xlim(T_min, T_max)
 

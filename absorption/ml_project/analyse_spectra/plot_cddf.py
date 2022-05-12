@@ -55,11 +55,11 @@ if __name__ == '__main__':
     leg = ax[0][0].legend(ssfr_lines, ssfr_labels, loc=3, fontsize=14)
     ax[0][0].add_artist(leg)
 
-    rho_lines = []
-    for i in range(len(rho_ls)):
-        rho_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[0], ls=rho_ls[i], lw=rho_lw[i]))
-    leg = ax[0][1].legend(rho_lines, rho_labels, loc=3, fontsize=14)
-    ax[0][1].add_artist(leg)
+    #rho_lines = []
+    #for i in range(len(rho_ls)):
+    #    rho_lines.append(Line2D([0,1],[0,1], color=ssfr_colors[0], ls=rho_ls[i], lw=rho_lw[i]))
+    #leg = ax[0][1].legend(rho_lines, rho_labels, loc=3, fontsize=14)
+    #ax[0][1].add_artist(leg)
 
     i = 0
     j = 0
@@ -84,25 +84,32 @@ if __name__ == '__main__':
                           xerr=xerr, capsize=4, ls=rho_ls[0], lw=1)
         ax[i][j].axvline(plot_data['completeness'], c='k', ls='--', lw=1)
 
-        for k in range(len(labels)):
+        #for k in range(len(labels)):
 
-            #plot_data[f'cddf_all_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_all_{labels[k]}'])
-            #plot_data[f'cddf_sf_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_sf_{labels[k]}'])
-            #plot_data[f'cddf_gv_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_gv_{labels[k]}'])
-            #plot_data[f'cddf_q_{labels[k]}'] = stop_array_after_inf(plot_data[f'cddf_q_{labels[k]}'])
+        #    ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all_{labels[k]}'], c=ssfr_colors[0], ls=rho_ls[k+1], lw=1.5)
+        #    ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_sf_{labels[k]}'], c=ssfr_colors[1], ls=rho_ls[k+1], lw=rho_lw[k+1])
+        #    ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_gv_{labels[k]}'], c=ssfr_colors[2], ls=rho_ls[k+1], lw=rho_lw[k+1])
+        #    ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_q_{labels[k]}'], c=ssfr_colors[3], ls=rho_ls[k+1], lw=rho_lw[k+1])
 
-            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all_{labels[k]}'], c=ssfr_colors[0], ls=rho_ls[k+1], lw=1.5)
-            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_sf_{labels[k]}'], c=ssfr_colors[1], ls=rho_ls[k+1], lw=rho_lw[k+1])
-            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_gv_{labels[k]}'], c=ssfr_colors[2], ls=rho_ls[k+1], lw=rho_lw[k+1])
-            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_q_{labels[k]}'], c=ssfr_colors[3], ls=rho_ls[k+1], lw=rho_lw[k+1])
+        #    ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_sf_{labels[k]}'] - plot_data[f'cddf_all']), 
+        #                    c=ssfr_colors[1], ls=rho_ls[k+1], lw=rho_lw[k+1])
+        #    ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_gv_{labels[k]}'] - plot_data[f'cddf_all']), 
+        #                    c=ssfr_colors[2], ls=rho_ls[k+1], lw=rho_lw[k+1])
+        #    ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_q_{labels[k]}'] - plot_data[f'cddf_all']), 
+        #                    c=ssfr_colors[3], ls=rho_ls[k+1], lw=rho_lw[k+1])
+       
+        ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_sf'], c=ssfr_colors[1], ls='-', lw=1)
+        ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_gv'], c=ssfr_colors[2], ls='-', lw=1)
+        ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_q'], c=ssfr_colors[3], ls='-', lw=1)
 
-            ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_sf_{labels[k]}'] - plot_data[f'cddf_all']), 
-                            c=ssfr_colors[1], ls=rho_ls[k+1], lw=rho_lw[k+1])
-            ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_gv_{labels[k]}'] - plot_data[f'cddf_all']), 
-                            c=ssfr_colors[2], ls=rho_ls[k+1], lw=rho_lw[k+1])
-            ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_q_{labels[k]}'] - plot_data[f'cddf_all']), 
-                            c=ssfr_colors[3], ls=rho_ls[k+1], lw=rho_lw[k+1])
-        
+        ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_sf'] - plot_data[f'cddf_all']),
+                        c=ssfr_colors[1], ls='-', lw=1)
+        ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_gv'] - plot_data[f'cddf_all']),
+                        c=ssfr_colors[2], ls='-', lw=1)
+        ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_q'] - plot_data[f'cddf_all']),
+                        c=ssfr_colors[3], ls='-', lw=1)
+ 
+
         ax_top = ax[i][j].secondary_xaxis('top')
         ax_top.set_xticks(np.arange(logN_min, 18), labels=[])
 

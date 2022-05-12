@@ -79,7 +79,6 @@ if __name__ == '__main__':
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
-        mass = sf['mass'][:]
         ssfr = sf['ssfr'][:]
     
     for l, line in enumerate(lines):
@@ -125,22 +124,49 @@ if __name__ == '__main__':
         all_ew = all_ew[mask]
         all_los = all_los[mask]
 
+        all_ids = all_ids[mask]
+        idx = np.array([np.where(gal_ids == j)[0] for j in all_ids]).flatten()
+        all_ssfr = ssfr[idx]
+
+        sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
+
         overall_mask = (all_N > logN_min) & (all_N < bins_logN[-1])
         dX = compute_dX(len(all_N[overall_mask]), [line], path_lengths, 
                         redshift=redshift, hubble_parameter=hubble_parameter, 
                         hubble_constant=hubble_constant)[0]
+        dX_sf = compute_dX(len(all_N[overall_mask*sf_mask]), [line], path_lengths,
+                        redshift=redshift, hubble_parameter=hubble_parameter,
+                        hubble_constant=hubble_constant)[0]
+        dX_gv = compute_dX(len(all_N[overall_mask*gv_mask]), [line], path_lengths,
+                        redshift=redshift, hubble_parameter=hubble_parameter,
+                        hubble_constant=hubble_constant)[0]
+        dX_q = compute_dX(len(all_N[overall_mask*q_mask]), [line], path_lengths,
+                        redshift=redshift, hubble_parameter=hubble_parameter,
+                        hubble_constant=hubble_constant)[0]
 
         plot_data[f'cddf_all'] = np.zeros(len(plot_logN))
+        plot_data[f'cddf_sf'] = np.zeros(len(plot_logN))
+        plot_data[f'cddf_gv'] = np.zeros(len(plot_logN))
+        plot_data[f'cddf_q'] = np.zeros(len(plot_logN))
 
         for j in range(len(bins_logN) -1):
             N_mask = (all_N > bins_logN[j]) & (all_N < bins_logN[j+1])
             plot_data[f'cddf_all'][j] = len(all_N[N_mask])
+            plot_data[f'cddf_sf'][j] = len(all_N[N_mask*sf_mask])
+            plot_data[f'cddf_gv'][j] = len(all_N[N_mask*gv_mask])
+            plot_data[f'cddf_q'][j] = len(all_N[N_mask*q_mask])
 
         plot_data[f'cddf_all_poisson'] = np.sqrt(plot_data[f'cddf_all'])
         plot_data[f'cddf_all_poisson'] /= (plot_data[f'cddf_all'] * np.log(10.))
 
         plot_data[f'cddf_all'] /= (delta_N * dX)
+        plot_data[f'cddf_sf'] /= (delta_N * dX_sf)
+        plot_data[f'cddf_gv'] /= (delta_N * dX_gv)
+        plot_data[f'cddf_q'] /= (delta_N * dX_q)
         plot_data[f'cddf_all'] = np.log10(plot_data[f'cddf_all'])
+        plot_data[f'cddf_sf'] = np.log10(plot_data[f'cddf_sf'])
+        plot_data[f'cddf_gv'] = np.log10(plot_data[f'cddf_gv'])
+        plot_data[f'cddf_q'] = np.log10(plot_data[f'cddf_q'])
 
         plot_data[f'cddf_all_cv_mean_{ncells}'], plot_data[f'cddf_all_cv_{ncells}'] = \
                 get_cosmic_variance_cddf(all_N, all_los, boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells, 
@@ -180,7 +206,6 @@ if __name__ == '__main__':
                 
             all_ids = all_ids[mask]
             idx = np.array([np.where(gal_ids == j)[0] for j in all_ids]).flatten()
-            all_mass = mass[idx]
             all_ssfr = ssfr[idx]
 
             sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
@@ -192,10 +217,18 @@ if __name__ == '__main__':
 
             overall_mask = (all_N > logN_min) & (all_N < bins_logN[-1]) 
 
-            dX_all = compute_dX(len(all_ids[overall_mask]), [line], path_lengths)[0]
-            dX_sf = compute_dX(len(all_ids[sf_mask*overall_mask]), [line], path_lengths)[0]
-            dX_gv = compute_dX(len(all_ids[gv_mask*overall_mask]), [line], path_lengths)[0]
-            dX_q = compute_dX(len(all_ids[q_mask*overall_mask]), [line], path_lengths)[0]
+            dX_all = compute_dX(len(all_ids[overall_mask]), [line], path_lengths,
+                                redshift=redshift, hubble_parameter=hubble_parameter,
+                                hubble_constant=hubble_constant)[0]
+            dX_sf = compute_dX(len(all_ids[sf_mask*overall_mask]), [line], path_lengths,
+                                redshift=redshift, hubble_parameter=hubble_parameter,
+                                hubble_constant=hubble_constant)[0]
+            dX_gv = compute_dX(len(all_ids[gv_mask*overall_mask]), [line], path_lengths,
+                                redshift=redshift, hubble_parameter=hubble_parameter,
+                                hubble_constant=hubble_constant)[0]
+            dX_q = compute_dX(len(all_ids[q_mask*overall_mask]), [line], path_lengths,
+                                redshift=redshift, hubble_parameter=hubble_parameter,
+                                hubble_constant=hubble_constant)[0]
 
             for j in range(len(bins_logN)-1):
                 N_mask = (all_N > bins_logN[j]) & (all_N < bins_logN[j+1])
