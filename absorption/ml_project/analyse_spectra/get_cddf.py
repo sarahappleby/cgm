@@ -32,15 +32,13 @@ if __name__ == '__main__':
 
     vel_range = 600.
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
-    plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
-                  r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
-    #chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5] limits with old fitting procedure
     chisq_lim_dict = {'snap_151': [4., 50., 15.8, 39.8, 8.9, 4.5],
                       'snap_137': [3.5, 28.2, 10., 35.5, 8.0, 4.5],
                       'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6], 
                       'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
+    norients = 8
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     boxsize = float(s.boxsize.in_units_of('ckpc/h_0'))
@@ -81,6 +79,25 @@ if __name__ == '__main__':
         gal_ids = sf['gal_ids'][:]
         ssfr = sf['ssfr'][:]
     
+    gal_sf_mask, gal_gv_mask, gal_q_mask = ssfr_type_check(quench, ssfr) 
+    nlos_all = len(gal_ids) * len(fr200) * norients
+    nlos_sf = len(gal_ids[gal_sf_mask]) * len(fr200) * norients
+    nlos_gv = len(gal_ids[gal_gv_mask]) * len(fr200) * norients
+    nlos_q = len(gal_ids[gal_q_mask]) * len(fr200) * norients
+
+    dX_all = compute_dX(nlos_all, lines, path_lengths,
+                    redshift=redshift, hubble_parameter=hubble_parameter,
+                    hubble_constant=hubble_constant)[0]
+    dX_sf = compute_dX(nlos_sf, lines, path_lengths,
+                    redshift=redshift, hubble_parameter=hubble_parameter,
+                    hubble_constant=hubble_constant)[0]
+    dX_gv = compute_dX(nlos_gv, lines, path_lengths,
+                    redshift=redshift, hubble_parameter=hubble_parameter,
+                    hubble_constant=hubble_constant)[0]
+    dX_q = compute_dX(nlos_q, lines, path_lengths,
+                    redshift=redshift, hubble_parameter=hubble_parameter,
+                    hubble_constant=hubble_constant)[0]
+
     for l, line in enumerate(lines):
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
@@ -130,20 +147,6 @@ if __name__ == '__main__':
 
         sf_mask, gv_mask, q_mask = ssfr_type_check(quench, all_ssfr)
 
-        overall_mask = (all_N > logN_min) & (all_N < bins_logN[-1])
-        dX = compute_dX(len(all_N[overall_mask]), [line], path_lengths, 
-                        redshift=redshift, hubble_parameter=hubble_parameter, 
-                        hubble_constant=hubble_constant)[0]
-        dX_sf = compute_dX(len(all_N[overall_mask*sf_mask]), [line], path_lengths,
-                        redshift=redshift, hubble_parameter=hubble_parameter,
-                        hubble_constant=hubble_constant)[0]
-        dX_gv = compute_dX(len(all_N[overall_mask*gv_mask]), [line], path_lengths,
-                        redshift=redshift, hubble_parameter=hubble_parameter,
-                        hubble_constant=hubble_constant)[0]
-        dX_q = compute_dX(len(all_N[overall_mask*q_mask]), [line], path_lengths,
-                        redshift=redshift, hubble_parameter=hubble_parameter,
-                        hubble_constant=hubble_constant)[0]
-
         plot_data[f'cddf_all'] = np.zeros(len(plot_logN))
         plot_data[f'cddf_sf'] = np.zeros(len(plot_logN))
         plot_data[f'cddf_gv'] = np.zeros(len(plot_logN))
@@ -159,7 +162,7 @@ if __name__ == '__main__':
         plot_data[f'cddf_all_poisson'] = np.sqrt(plot_data[f'cddf_all'])
         plot_data[f'cddf_all_poisson'] /= (plot_data[f'cddf_all'] * np.log(10.))
 
-        plot_data[f'cddf_all'] /= (delta_N * dX)
+        plot_data[f'cddf_all'] /= (delta_N * dX_all)
         plot_data[f'cddf_sf'] /= (delta_N * dX_sf)
         plot_data[f'cddf_gv'] /= (delta_N * dX_gv)
         plot_data[f'cddf_q'] /= (delta_N * dX_q)
@@ -172,7 +175,26 @@ if __name__ == '__main__':
                 get_cosmic_variance_cddf(all_N, all_los, boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells, 
                                          redshift=redshift, hubble_parameter=hubble_parameter, hubble_constant=hubble_constant)
 
+        """
         for i in range(len(inner_outer)):
+
+            nlos_all = len(gal_ids) * len(inner_outer[i]) * norients
+            nlos_sf = len(gal_ids[gal_sf_mask]) * len(inner_outer[i]) * norients
+            nlos_gv = len(gal_ids[gal_gv_mask]) * len(inner_outer[i]) * norients
+            nlos_q = len(gal_ids[gal_q_mask]) * len(inner_outer[i]) * norients
+
+            dX_all = compute_dX(nlos_all, [line], path_lengths,
+                                redshift=redshift, hubble_parameter=hubble_parameter,
+                                hubble_constant=hubble_constant)[0]
+            dX_sf = compute_dX(nlos_sf, [line], path_lengths,
+                                redshift=redshift, hubble_parameter=hubble_parameter,
+                                hubble_constant=hubble_constant)[0]
+            dX_gv = compute_dX(nlos_gv, [line], path_lengths,
+                                redshift=redshift, hubble_parameter=hubble_parameter,
+                                hubble_constant=hubble_constant)[0]
+            dX_q = compute_dX(nlos_q, [line], path_lengths,
+                                redshift=redshift, hubble_parameter=hubble_parameter,
+                                hubble_constant=hubble_constant)[0]
 
             all_N = []
             all_b = []
@@ -215,21 +237,6 @@ if __name__ == '__main__':
             plot_data[f'cddf_gv_{labels[i]}'] = np.zeros(len(plot_logN))
             plot_data[f'cddf_q_{labels[i]}'] = np.zeros(len(plot_logN))
 
-            overall_mask = (all_N > logN_min) & (all_N < bins_logN[-1]) 
-
-            dX_all = compute_dX(len(all_ids[overall_mask]), [line], path_lengths,
-                                redshift=redshift, hubble_parameter=hubble_parameter,
-                                hubble_constant=hubble_constant)[0]
-            dX_sf = compute_dX(len(all_ids[sf_mask*overall_mask]), [line], path_lengths,
-                                redshift=redshift, hubble_parameter=hubble_parameter,
-                                hubble_constant=hubble_constant)[0]
-            dX_gv = compute_dX(len(all_ids[gv_mask*overall_mask]), [line], path_lengths,
-                                redshift=redshift, hubble_parameter=hubble_parameter,
-                                hubble_constant=hubble_constant)[0]
-            dX_q = compute_dX(len(all_ids[q_mask*overall_mask]), [line], path_lengths,
-                                redshift=redshift, hubble_parameter=hubble_parameter,
-                                hubble_constant=hubble_constant)[0]
-
             for j in range(len(bins_logN)-1):
                 N_mask = (all_N > bins_logN[j]) & (all_N < bins_logN[j+1])
                 plot_data[f'cddf_all_{labels[i]}'][j] = len(all_N[N_mask])
@@ -246,5 +253,6 @@ if __name__ == '__main__':
             plot_data[f'cddf_sf_{labels[i]}'] = np.log10(plot_data[f'cddf_sf_{labels[i]}'])
             plot_data[f'cddf_gv_{labels[i]}'] = np.log10(plot_data[f'cddf_gv_{labels[i]}'])
             plot_data[f'cddf_q_{labels[i]}'] = np.log10(plot_data[f'cddf_q_{labels[i]}'])
+        """
 
-            write_dict_to_h5(plot_data, cddf_file)
+        write_dict_to_h5(plot_data, cddf_file)

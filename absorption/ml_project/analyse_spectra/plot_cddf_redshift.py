@@ -52,7 +52,7 @@ if __name__ == '__main__':
     idelta = 1. / (len(snaps) -1)
     icolor = np.arange(0., 1.+idelta, idelta)
     cmap = cm.get_cmap('magma')
-    cmap = truncate_colormap(cmap, 0.25, .9)
+    cmap = truncate_colormap(cmap, 0.3, .8)
     redshift_colors = [cmap(i) for i in icolor]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
@@ -104,6 +104,8 @@ if __name__ == '__main__':
             ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[l], 0.86), xycoords='axes fraction',
                               bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
 
+        ax[i+1][j].set_ylim(-1, 1)
+
         j += 1
         if line == 'CII1334':
             i += 2
@@ -111,7 +113,6 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_redshift_cddf_compressed.png')
-    plt.show()
+    plt.savefig(f'{plot_dir}{model}_{wind}_redshift_cddf_compressed.pdf', format='pdf')
     plt.close()
 

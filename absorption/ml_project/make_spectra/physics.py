@@ -47,21 +47,21 @@ def get_hubbles(model, wind, snap):
     return hubble_parameter, hubble_constant
 
 
-def compute_dX(nspectra, lines, path_lengths, redshift=0., hubble_parameter=68., hubble_constant=68.):
+def compute_dX(nlos, lines, path_lengths, redshift=0., hubble_parameter=68., hubble_constant=68.):
 
-    idx = np.argmin(path_lengths['redshifts'] - redshift)
+    idx = np.argmin(np.abs(path_lengths['redshifts'] - redshift))
     all_dX = np.zeros(len(lines))
 
     for i in range(len(lines)):
-        dz = path_lengths[f'dz_{lines[i]}'][idx] * nspectra
-        all_dX[i] = dz * (hubble_parameter / hubble_constant) * ((1 + redshift) **2.)
+        dz = path_lengths[f'dz_{lines[i]}'][idx] * nlos
+        all_dX[i] = dz * (hubble_constant / hubble_parameter) * ((1 + redshift) **2.)
     
     return all_dX
 
 
 def create_path_length_file(vel_range, lines, redshifts, path_length_file):
     import pygad as pg
-    lambda_rest = [float(pg.analysis.absorption_spectra.lines[i]['l'].split(' ')[0]) for i in lines]
+    lambda_rest = [float(pg.UnitQty(pg.analysis.absorption_spectra.lines[i]['l'])) for i in lines]
     c = float(pg.physics.c.in_units_of('km/s'))
 
     with h5py.File(path_length_file, 'a') as hf:

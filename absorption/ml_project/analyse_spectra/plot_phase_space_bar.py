@@ -6,7 +6,7 @@ import pygad as pg
 import sys
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=16)
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
         cmap_list = cmap(np.linspace(minval, maxval, n))
@@ -53,6 +53,8 @@ if __name__ == '__main__':
     cmap = truncate_colormap(cmap, 0.1, .9)
     colors = make_color_list(cmap, len(phase_labels))
 
+    colors = ['#a50162', '#d362a4', '#ff9956', '#d52d00'] # sapphic colour palette
+
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
@@ -64,8 +66,8 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots(2, 1, figsize=(7, 10), sharey='row', sharex='col')
 
-    handles = [plt.Rectangle((10,10), 0.8, 0.8, color=colors[i]) for i in range(len(phase_labels))]
-    leg = ax[0].legend(handles, phase_labels, loc=1, fontsize=11.5)
+    handles = [plt.Rectangle((10,10), 0.8, 0.8, color=colors[i], alpha=0.55) for i in range(len(phase_labels))]
+    leg = ax[0].legend(handles, phase_labels, loc=1, fontsize=13)
     ax[0].add_artist(leg)
 
     for l, line in enumerate(lines):
@@ -129,7 +131,7 @@ if __name__ == '__main__':
         outer_fracs /= total_absorption
 
         ax[0].bar(np.arange(0.15, 0.65, 0.15) + l, inner_fracs, width=0.15, align='edge',
-                  color=colors, edgecolor=colors, alpha=0.6)
+                  color=colors, edgecolor=colors, alpha=0.55)
         ax[0].bar(np.arange(0.15, 0.65, 0.15) + l, outer_fracs, width=0.15, align='edge', bottom=inner_fracs,
                   color=colors, edgecolor=colors, fill=False, hatch='///')
 
@@ -142,7 +144,7 @@ if __name__ == '__main__':
     handles = []
     handles.append(plt.Rectangle((10,10), 0.8, 0.8, color='dimgrey', edgecolor='dimgrey', alpha=0.6))
     handles.append(plt.Rectangle((10,10), 0.8, 0.8, color='dimgrey', edgecolor='dimgrey', fill=False, hatch='///'))
-    leg = ax[1].legend(handles, rho_labels, loc=1, fontsize=11.5)
+    leg = ax[1].legend(handles, rho_labels, loc=1, fontsize=13)
     ax[1].add_artist(leg)
 
     for l, line in enumerate(lines):
@@ -206,7 +208,7 @@ if __name__ == '__main__':
         outer_fracs /= total_absorbers
 
         ax[1].bar(np.arange(0.15, 0.65, 0.15) + l, inner_fracs, width=0.15, align='edge',
-                  color=colors, edgecolor=colors, alpha=0.6)
+                  color=colors, edgecolor=colors, alpha=0.55)
         ax[1].bar(np.arange(0.15, 0.65, 0.15) + l, outer_fracs, width=0.15, align='edge', bottom=inner_fracs,
                   color=colors, edgecolor=colors, fill=False, hatch='///')
 
@@ -217,6 +219,6 @@ if __name__ == '__main__':
     
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.tight_layout()
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_phase_bar_nN.pdf', format='pdf')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_phase_bar_nN_sapphic.pdf', format='pdf')
     plt.close()
 

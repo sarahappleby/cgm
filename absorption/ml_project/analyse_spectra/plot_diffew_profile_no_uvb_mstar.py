@@ -4,6 +4,7 @@ import sys
 import os
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+from matplotlib.lines import Line2D
 import caesar
 
 sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
@@ -39,7 +40,7 @@ if __name__ == '__main__':
     lines = ["MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$',
                   r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 01031$']
-    plot_quantities = ['med', 'per25', 'per75',]
+    plot_quantities = ['med', 'per25', 'per75', 'ndata']
     norients = 8
     delta_fr200 = 0.25 
     min_fr200 = 0.25 
@@ -51,6 +52,7 @@ if __name__ == '__main__':
     nbins_m = 1
     mass_bins = np.arange(min_m, min_m+(nbins_m+1)*delta_m, delta_m)
     bin_label = '10.5-11.0'
+    ndata_min = 8
 
     cmap = plt.get_cmap('magma')
     cmap = truncate_colormap(cmap, 0.25, .9)
@@ -63,47 +65,68 @@ if __name__ == '__main__':
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         mass_long = np.repeat(sf['mass'][:], norients)
 
+    fig, ax = plt.subplots(1, 1)
+    
+    ion_lines = []
+    for i in range(len(lines)):
+        ion_lines.append(Line2D([0,1],[0,1], color=colors[i], ls='-', lw=1))
+    leg = ax.legend(ion_lines, plot_lines, loc=1, fontsize=12)
+    ax.add_artist(leg)
+
     for l, line in enumerate(lines):
 
         profile_file = f'{results_dir}{model}_{wind}_{snap}_{line}_uvb_median_ew_profile.h5'
 
-        if os.path.isfile(profile_file):
-            plot_data = read_h5_into_dict(profile_file)
-     
-        else:
+        plot_data = {}
+        plot_data['fr200'] = fr200.copy()
+        for pq in plot_quantities:
+            plot_data[f'{bin_label}_{pq}'] = np.zeros(len(fr200))
 
-            plot_data = {}
-            plot_data['fr200'] = fr200.copy()
-            for pq in plot_quantities:
-                plot_data[f'{bin_label}_{pq}'] = np.zeros(len(fr200))
+        no_uvb_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_no_uvb_ew_{line}.h5')
+        with_uvb_dict = read_h5_into_dict(f'{normal_dir}{model}_{wind}_{snap}_ew_{line}.h5')
 
-            no_uvb_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_no_uvb_ew_{line}.h5')
-            with_uvb_dict = read_h5_into_dict(f'{normal_dir}{model}_{wind}_{snap}_ew_{line}.h5')
+        no_uvb_nlines_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_no_uvb_nlines_{line}.h5')
+        with_uvb_nlines_dict = read_h5_into_dict(f'{normal_dir}{model}_{wind}_{snap}_nlines_{line}.h5')
 
-            mask = (mass_long > mass_bins[0]) & (mass_long < mass_bins[1])
+        mask = (mass_long > mass_bins[0]) & (mass_long < mass_bins[1])
 
-            for j in range(len(fr200)):
+        print(line)
+
+        for j in range(len(fr200)):
                         
-                ew_no_uvb = no_uvb_dict[f'ew_wave_{fr200[j]}r200'].flatten()
-                ew_with_uvb = with_uvb_dict[f'ew_wave_{fr200[j]}r200'].flatten()
-                        
-                plot_data[f'{bin_label}_med'][j] = np.nanmedian(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]))
-                plot_data[f'{bin_label}_per25'][j] = np.nanpercentile(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]), 25.)
-                plot_data[f'{bin_label}_per75'][j] = np.nanpercentile(np.log10(ew_no_uvb[mask]) - np.log10(ew_with_uvb[mask]), 75)
+            ew_no_uvb = no_uvb_dict[f'ew_wave_{fr200[j]}r200'].flatten()
+            ew_with_uvb = with_uvb_dict[f'ew_wave_{fr200[j]}r200'].flatten()
 
-            write_dict_to_h5(plot_data, profile_file)
+            nlines_no_uvb = no_uvb_nlines_dict[f'nlines_{fr200[j]}r200'].flatten()
+            nlines_with_uvb = with_uvb_nlines_dict[f'nlines_{fr200[j]}r200'].flatten()
+            detect_mask = (nlines_no_uvb > 0.) & (nlines_with_uvb > 0.)
 
-        plt.plot(plot_data['fr200'], plot_data[f'{bin_label}_med'], ls='-', c=colors[l], lw=1.5, label=plot_lines[l])
+            print(f'NLOS: {len(ew_with_uvb[mask*detect_mask])}')
+
+            plot_data[f'{bin_label}_ndata'][j] = len(ew_no_uvb[mask*detect_mask])
+            plot_data[f'{bin_label}_med'][j] = np.nanmedian(np.log10(ew_no_uvb[mask*detect_mask]) - np.log10(ew_with_uvb[mask*detect_mask]))
+            plot_data[f'{bin_label}_per25'][j] = np.nanpercentile(np.log10(ew_no_uvb[mask*detect_mask]) - np.log10(ew_with_uvb[mask*detect_mask]), 25.)
+            plot_data[f'{bin_label}_per75'][j] = np.nanpercentile(np.log10(ew_no_uvb[mask*detect_mask]) - np.log10(ew_with_uvb[mask*detect_mask]), 75)
+        
+        print('\n')
+
+        write_dict_to_h5(plot_data, profile_file)
+
+        ndata_mask = plot_data[f'{bin_label}_ndata'] > ndata_min
+        ax.plot(plot_data['fr200'][ndata_mask], plot_data[f'{bin_label}_med'][ndata_mask], ls='-', c=colors[l], lw=1.5, label=plot_lines[l])
+        if False in ndata_mask:
+            start = np.where(~ndata_mask)[0][0] - 1
+            ax.plot(plot_data['fr200'][start:], plot_data[f'{bin_label}_med'][start:], ls='--', c=colors[l], lw=1.5, label=plot_lines[l]) 
+
         if line == 'OVI1031':
-            plt.fill_between(plot_data['fr200'], plot_data[f'{bin_label}_per75'], plot_data[f'{bin_label}_per25'], 
+            ax.fill_between(plot_data['fr200'], plot_data[f'{bin_label}_per75'], plot_data[f'{bin_label}_per25'], 
                                alpha=0.3, color=colors[l])
 
-    plt.ylim(-2., 0.25)
-    plt.axhline(0., c='k', ls='--', lw=1)
+    ax.set_ylim(-1.5, 0.5)
+    ax.axhline(0., c='k', ls='--', lw=1)
 
-    plt.ylabel(r'${\rm log }( {\rm EW}_{\rm Collisional} / {\rm EW}_{\rm Collisional + UVB} )$')
-    plt.xlabel(r'$\rho / r_{200}$')
-    plt.legend(loc=4)
+    ax.set_ylabel(r'${\rm log }( {\rm EW}_{\rm Collisional} / {\rm EW}_{\rm Collisional + UVB} )$')
+    ax.set_xlabel(r'$\rho / r_{200}$')
 
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_uvb_test_ew_profile_mstar.png')
     plt.show()
