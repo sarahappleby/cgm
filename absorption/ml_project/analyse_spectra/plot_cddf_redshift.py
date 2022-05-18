@@ -62,7 +62,7 @@ if __name__ == '__main__':
     redshift_lines = []
     for i in range(len(redshift_colors)):
         redshift_lines.append(Line2D([0,1],[0,1], color=redshift_colors[i]))
-    leg = ax[0][0].legend(redshift_lines, redshift_labels, loc=3, fontsize=14)
+    leg = ax[0][0].legend(redshift_lines, redshift_labels, loc=3, fontsize=15)
     ax[0][0].add_artist(leg)
 
     i = 0
@@ -78,15 +78,27 @@ if __name__ == '__main__':
             cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
             plot_data = read_h5_into_dict(cddf_file)
 
+            ax[i][j].axvline(redshift_zero_data['completeness'], c='k', ls=':', lw=1)
+            ax[i+1][j].axvline(redshift_zero_data['completeness'], c='k', ls=':', lw=1)
             ax[i+1][j].axhline(0, c='k', lw=1, ls=':')
 
-            if snap is not '151':
-                ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_all'] - redshift_zero_data[f'cddf_all']), 
-                                c=redshift_colors[s], ls='-', lw=1)
-                ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all'], c=redshift_colors[s], ls=rho_ls[0], lw=1)
-            else:
+            xerr = np.zeros(len(plot_data['plot_logN']))
+            for k in range(len(plot_data['plot_logN'])):
+                xerr[k] = (plot_data['bin_edges_logN'][k+1] - plot_data['bin_edges_logN'][k])*0.5
+
+            if snap is '151':
+                ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all'], c=redshift_colors[s],
+                              ls=rho_ls[0], lw=1)
+            elif snap is '105':
+                yerr = np.sqrt(plot_data[f'cddf_all_cv_{ncells}']**2. + redshift_zero_data[f'cddf_all_cv_{ncells}']**2.)
+                ax[i+1][j].errorbar(plot_data['plot_logN'], (plot_data[f'cddf_all'] - redshift_zero_data[f'cddf_all']), 
+                                    xerr=xerr, yerr=yerr, c=redshift_colors[s], capsize=4, ls='-', lw=1)
                 ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c=redshift_colors[s], yerr=plot_data[f'cddf_all_cv_{ncells}'],
-                                  capsize=4, ls=rho_ls[0], lw=1)
+                                    xerr=xerr, capsize=4, ls=rho_ls[0], lw=1)
+            else:
+                ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_all'] - redshift_zero_data[f'cddf_all']),
+                                    c=redshift_colors[s], ls='-', lw=1)
+                ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all'], c=redshift_colors[s], ls=rho_ls[0], lw=1)
 
             ax[i][j].set_xlim(logN_min, 18)
             ax[i][j].set_ylim(-19, -9)
@@ -99,7 +111,7 @@ if __name__ == '__main__':
 
             if line in ['H1215', "SiIII1206"]:
                 ax[i][j].set_ylabel(r'${\rm log }(\delta^2 n / \delta X \delta N )$')
-                ax[i+1][j].set_ylabel(r'${\rm CDDF} / {\rm CDDF}_{\rm All}$')
+                ax[i+1][j].set_ylabel(r'${\rm log}\ f_{{\rm CDDF}\ z=0}$')
             
             ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[l], 0.86), xycoords='axes fraction',
                               bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))

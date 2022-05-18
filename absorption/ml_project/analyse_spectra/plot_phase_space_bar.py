@@ -64,87 +64,16 @@ if __name__ == '__main__':
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
 
-    fig, ax = plt.subplots(2, 1, figsize=(7, 10), sharey='row', sharex='col')
+    fig, ax = plt.subplots(2, 1, figsize=(7, 8.5), sharey='row', sharex='col')
 
-    handles = [plt.Rectangle((10,10), 0.8, 0.8, color=colors[i], alpha=0.55) for i in range(len(phase_labels))]
-    leg = ax[0].legend(handles, phase_labels, loc=1, fontsize=13)
-    ax[0].add_artist(leg)
-
-    for l, line in enumerate(lines):
-
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-
-        all_T = []
-        all_rho = []
-        all_N = []
-        all_chisq = []
-        all_r = []
-
-        for i in range(len(fr200)):
-
-            with h5py.File(results_file, 'r') as hf:
-                all_T.extend(hf[f'log_T_{fr200[i]}r200'][:])
-                all_rho.extend(hf[f'log_rho_{fr200[i]}r200'][:])
-                all_N.extend(hf[f'log_N_{fr200[i]}r200'][:])
-                all_chisq.extend(hf[f'chisq_{fr200[i]}r200'][:])
-                all_r.extend([fr200[i]] * len(hf[f'ids_{fr200[i]}r200'][:]))
-
-        all_T = np.array(all_T)
-        all_rho = np.array(all_rho)
-        all_N = np.array(all_N)
-        all_chisq = np.array(all_chisq)
-        all_r = np.array(all_r)
-
-        mask = (all_N > N_min[lines.index(line)]) * (all_chisq < chisq_lim[lines.index(line)])
-        all_T = all_T[mask]
-        all_delta_rho = all_rho[mask] - np.log10(cosmic_rho)
-        all_N = all_N[mask]
-        all_r = all_r[mask]
-       
-        if line == 'MgII2796':
-            mask = all_T < 5.
-            all_T = all_T[mask]
-            all_delta_rho = all_delta_rho[mask]
-            all_N = all_N[mask]
-            all_r = all_r[mask]
-
-        r200_mask = all_r < 1.0
-        condensed = (all_T < Tth) & (all_delta_rho > deltath)
-        hot_halo = (all_T > Tth) & (all_delta_rho > deltath)
-        whim = (all_T > Tth) & (all_delta_rho < deltath)
-        diffuse = (all_T < Tth) & (all_delta_rho < deltath)
-        
-        total_absorption = np.nansum(10**all_N)
-
-        inner_fracs = np.zeros(4)
-        inner_fracs[0] = np.nansum(10**all_N[r200_mask*condensed])
-        inner_fracs[1] = np.nansum(10**all_N[r200_mask*diffuse])
-        inner_fracs[2] = np.nansum(10**all_N[r200_mask*hot_halo])
-        inner_fracs[3] = np.nansum(10**all_N[r200_mask*whim])
-        inner_fracs /= total_absorption
-
-        outer_fracs = np.zeros(4)
-        outer_fracs[0] = np.nansum(10**all_N[~r200_mask*condensed])
-        outer_fracs[1] = np.nansum(10**all_N[~r200_mask*diffuse])
-        outer_fracs[2] = np.nansum(10**all_N[~r200_mask*hot_halo])
-        outer_fracs[3] = np.nansum(10**all_N[~r200_mask*whim])
-        outer_fracs /= total_absorption
-
-        ax[0].bar(np.arange(0.15, 0.65, 0.15) + l, inner_fracs, width=0.15, align='edge',
-                  color=colors, edgecolor=colors, alpha=0.55)
-        ax[0].bar(np.arange(0.15, 0.65, 0.15) + l, outer_fracs, width=0.15, align='edge', bottom=inner_fracs,
-                  color=colors, edgecolor=colors, fill=False, hatch='///')
-
-    #ax.set_yscale('log')
-    #ax.set_ylim(7e-4, 6)
-    ax[0].set_ylim(0, 1)
-    ax[0].set_ylabel(r'$\sum N_{\rm phase} / \sum N_{\rm CGM}$')
-    ax[0].set_xticks(np.arange(0.43, 6.43, 1), plot_lines)
-    
     handles = []
     handles.append(plt.Rectangle((10,10), 0.8, 0.8, color='dimgrey', edgecolor='dimgrey', alpha=0.6))
     handles.append(plt.Rectangle((10,10), 0.8, 0.8, color='dimgrey', edgecolor='dimgrey', fill=False, hatch='///'))
-    leg = ax[1].legend(handles, rho_labels, loc=1, fontsize=13)
+    leg = ax[0].legend(handles, rho_labels, loc=1, fontsize=13)
+    ax[0].add_artist(leg)
+
+    handles = [plt.Rectangle((10,10), 0.8, 0.8, color=colors[i], alpha=0.55) for i in range(len(phase_labels))]
+    leg = ax[1].legend(handles, phase_labels, loc=1, fontsize=13)
     ax[1].add_artist(leg)
 
     for l, line in enumerate(lines):
@@ -207,18 +136,97 @@ if __name__ == '__main__':
         outer_fracs[3] = len(all_N[~r200_mask*whim])
         outer_fracs /= total_absorbers
 
-        ax[1].bar(np.arange(0.15, 0.65, 0.15) + l, inner_fracs, width=0.15, align='edge',
+        ax[0].bar(np.arange(0.05, 0.95, 0.225) + l, inner_fracs, width=0.225, align='edge',
                   color=colors, edgecolor=colors, alpha=0.55)
-        ax[1].bar(np.arange(0.15, 0.65, 0.15) + l, outer_fracs, width=0.15, align='edge', bottom=inner_fracs,
+        ax[0].bar(np.arange(0.05, 0.95, 0.225) + l, outer_fracs, width=0.225, align='edge', bottom=inner_fracs,
+                  color=colors, edgecolor=colors, fill=False, hatch='///')
+
+    ax_right = ax[0].secondary_yaxis('right')
+    ax_right.set_yticks(np.arange(0, 1.2, 0.2), labels=[])
+
+    #ax.set_yscale('log')
+    ax[0].set_ylim(0, 1)
+    ax[0].set_ylabel(r'$\sum n_{\rm phase} / \sum n_{\rm CGM}$')
+    ax[0].set_xticks(np.arange(0.43, 6.43, 1), plot_lines)
+
+
+    for l, line in enumerate(lines):
+
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+
+        all_T = []
+        all_rho = []
+        all_N = []
+        all_chisq = []
+        all_r = []
+
+        for i in range(len(fr200)):
+
+            with h5py.File(results_file, 'r') as hf:
+                all_T.extend(hf[f'log_T_{fr200[i]}r200'][:])
+                all_rho.extend(hf[f'log_rho_{fr200[i]}r200'][:])
+                all_N.extend(hf[f'log_N_{fr200[i]}r200'][:])
+                all_chisq.extend(hf[f'chisq_{fr200[i]}r200'][:])
+                all_r.extend([fr200[i]] * len(hf[f'ids_{fr200[i]}r200'][:]))
+
+        all_T = np.array(all_T)
+        all_rho = np.array(all_rho)
+        all_N = np.array(all_N)
+        all_chisq = np.array(all_chisq)
+        all_r = np.array(all_r)
+
+        mask = (all_N > N_min[lines.index(line)]) * (all_chisq < chisq_lim[lines.index(line)])
+        all_T = all_T[mask]
+        all_delta_rho = all_rho[mask] - np.log10(cosmic_rho)
+        all_N = all_N[mask]
+        all_r = all_r[mask]
+       
+        if line == 'MgII2796':
+            mask = all_T < 5.
+            all_T = all_T[mask]
+            all_delta_rho = all_delta_rho[mask]
+            all_N = all_N[mask]
+            all_r = all_r[mask]
+
+        r200_mask = all_r < 1.0
+        condensed = (all_T < Tth) & (all_delta_rho > deltath)
+        hot_halo = (all_T > Tth) & (all_delta_rho > deltath)
+        whim = (all_T > Tth) & (all_delta_rho < deltath)
+        diffuse = (all_T < Tth) & (all_delta_rho < deltath)
+        
+        total_absorption = np.nansum(10**all_N)
+
+        inner_fracs = np.zeros(4)
+        inner_fracs[0] = np.nansum(10**all_N[r200_mask*condensed])
+        inner_fracs[1] = np.nansum(10**all_N[r200_mask*diffuse])
+        inner_fracs[2] = np.nansum(10**all_N[r200_mask*hot_halo])
+        inner_fracs[3] = np.nansum(10**all_N[r200_mask*whim])
+        inner_fracs /= total_absorption
+
+        outer_fracs = np.zeros(4)
+        outer_fracs[0] = np.nansum(10**all_N[~r200_mask*condensed])
+        outer_fracs[1] = np.nansum(10**all_N[~r200_mask*diffuse])
+        outer_fracs[2] = np.nansum(10**all_N[~r200_mask*hot_halo])
+        outer_fracs[3] = np.nansum(10**all_N[~r200_mask*whim])
+        outer_fracs /= total_absorption
+
+        ax[1].bar(np.arange(0.05, 0.95, 0.225) + l, inner_fracs, width=0.225, align='edge',
+                  color=colors, edgecolor=colors, alpha=0.55)
+        ax[1].bar(np.arange(0.05, 0.95, 0.225) + l, outer_fracs, width=0.225, align='edge', bottom=inner_fracs,
                   color=colors, edgecolor=colors, fill=False, hatch='///')
 
     #ax.set_yscale('log')
+    #ax.set_ylim(7e-4, 6)
     ax[1].set_ylim(0, 1)
-    ax[1].set_ylabel(r'$\sum n_{\rm phase} / \sum n_{\rm CGM}$')
+    ax[1].set_ylabel(r'$\sum N_{\rm phase} / \sum N_{\rm CGM}$')
     ax[1].set_xticks(np.arange(0.43, 6.43, 1), plot_lines)
-    
+    ax[1].set_yticks(np.arange(0., 1., 0.2))
+
+    ax_right = ax[1].secondary_yaxis('right')
+    ax_right.set_yticks(np.arange(0, 1.2, 0.2), labels=[])
+
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.tight_layout()
+    #plt.tight_layout()
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_phase_bar_nN_sapphic.pdf', format='pdf')
     plt.close()
 

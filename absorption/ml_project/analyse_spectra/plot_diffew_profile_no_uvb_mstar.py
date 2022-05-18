@@ -125,9 +125,10 @@ if __name__ == '__main__':
     ax.set_ylim(-1.5, 0.5)
     ax.axhline(0., c='k', ls='--', lw=1)
 
-    ax.set_ylabel(r'${\rm log }( {\rm EW}_{\rm Collisional} / {\rm EW}_{\rm Collisional + UVB} )$')
+    #ax.set_ylabel(r'${\rm log }( {\rm EW}_{\rm Collisional} / {\rm EW}_{\rm Collisional + UVB} )$')
+    ax.set_ylabel(r'${\rm log }\ f {\rm EW}_{\rm Collisional}$')
     ax.set_xlabel(r'$\rho / r_{200}$')
 
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_uvb_test_ew_profile_mstar.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_uvb_test_ew_profile_mstar.pdf', format='pdf')
     plt.show()
     plt.close()

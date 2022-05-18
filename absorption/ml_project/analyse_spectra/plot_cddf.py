@@ -82,7 +82,8 @@ if __name__ == '__main__':
         plot_data[f'cddf_all_err'] = np.sqrt(plot_data[f'cddf_all_cv_{ncells}']**2. + plot_data[f'cddf_all_poisson']**2.)
         ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c=ssfr_colors[0], yerr=plot_data[f'cddf_all_err'], 
                           xerr=xerr, capsize=4, ls=rho_ls[0], lw=1)
-        ax[i][j].axvline(plot_data['completeness'], c='k', ls='--', lw=1)
+        ax[i][j].axvline(plot_data['completeness'], c='k', ls=':', lw=1)
+        ax[i+1][j].axvline(plot_data['completeness'], c='k', ls=':', lw=1)
 
         #for k in range(len(labels)):
 
@@ -124,7 +125,7 @@ if __name__ == '__main__':
 
         if line in ['H1215', "SiIII1206"]:
             ax[i][j].set_ylabel(r'${\rm log }(\delta^2 n / \delta X \delta N )$')
-            ax[i+1][j].set_ylabel(r'${\rm CDDF} / {\rm CDDF}_{\rm All}$')
+            ax[i+1][j].set_ylabel(r'${\rm log}\ f_{\rm CDDF\ All}$')
         ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[l], 0.86), xycoords='axes fraction',
                           bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
 
