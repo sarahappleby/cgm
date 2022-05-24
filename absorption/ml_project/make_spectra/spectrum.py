@@ -174,7 +174,8 @@ class Spectrum(object):
 
 
     def main(self, vel_range, do_continuum_buffer=True, nbuffer=50, 
-             snr_default=30., chisq_unacceptable=25, chisq_asym_thresh=-3., write_lines=False, plot_fit=False):
+             snr_default=30., chisq_unacceptable=25, chisq_asym_thresh=-3., 
+             do_regions=False, do_fit=True, write_lines=False, plot_fit=False):
    
         print('getting initial window')
         i_start, i_end, N = self.get_initial_window(vel_range) 
@@ -208,25 +209,32 @@ class Spectrum(object):
             snr = snr_default
         noise = np.asarray([1./snr] * len(flux))
 
-        print('Fitting...')
-        if self.ion_name == 'H1215':
-            logN_bounds = [12, 19]
-        else:
-            logN_bounds = [11, 17]
-        b_bounds=None
-        
-        self.line_list = pg.analysis.fit_profiles(self.ion_name, waves, flux, noise,
-                                                  chisq_lim=2.5, chisq_unacceptable=chisq_unacceptable, 
-                                                  chisq_asym_thresh=chisq_asym_thresh, 
-                                                  max_lines=10, logN_bounds=logN_bounds, 
-                                                  b_bounds=b_bounds, mode='Voigt')
+        if do_regions:
+            self.line_list = {}
+            regions_l, regions_i = pg.analysis.find_regions(waves, flux, noise, min_region_width=2, extend=True)
+            self.line_list['region'] = np.arange(len(regions_l))
+
+        if do_fit:
+            print('Fitting...')
+            if self.ion_name == 'H1215':
+                logN_bounds = [12, 19]
+            else:
+                logN_bounds = [11, 17]
+            b_bounds=None
+         
+            self.line_list = pg.analysis.fit_profiles(self.ion_name, waves, flux, noise,
+                                                      chisq_lim=2.5, chisq_unacceptable=chisq_unacceptable, 
+                                                      chisq_asym_thresh=chisq_asym_thresh, 
+                                                      max_lines=10, logN_bounds=logN_bounds, 
+                                                      b_bounds=b_bounds, mode='Voigt')
        
-        # adjust the output lines to cope with wrapping
-        for i in range(len(self.line_list['l'])):
-            if self.line_list['l'][i] > self.wavelengths[-1]:
-                self.line_list['l'][i]  -= (wave_boxsize + dl)
-            elif self.line_list['l'][i] < self.wavelengths[0]:
-                self.line_list['l'][i] += (wave_boxsize + dl)
+            # adjust the output lines to cope with wrapping
+            for i in range(len(self.line_list['l'])):
+                if self.line_list['l'][i] > self.wavelengths[-1]:
+                    self.line_list['l'][i]  -= (wave_boxsize + dl)
+                elif self.line_list['l'][i] < self.wavelengths[0]:
+                    self.line_list['l'][i] += (wave_boxsize + dl)
+
 
         print(self.line_list)
         if write_lines:

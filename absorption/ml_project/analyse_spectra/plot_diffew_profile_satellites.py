@@ -5,9 +5,18 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import caesar
+from cosmic_variance import get_cosmic_variance_ew
 
 sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
 from utils import read_h5_into_dict, write_dict_to_h5
+
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif', size=16)
+
+def convert_to_log(y, yerr):
+    yerr /= (y*np.log(10.))
+    y = np.log10(y)
+    return y, yerr
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
         cmap_list = cmap(np.linspace(minval, maxval, n))
@@ -15,11 +24,6 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
         new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
                                                             cmap_list)
         return new_cmap
-
-
-plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
-
 
 def make_color_list(cmap, nbins):
     dc = 0.9 / (nbins -1)
@@ -35,11 +39,12 @@ if __name__ == '__main__':
 
     sim = caesar.load(f'/home/rad/data/{model}/{wind}/Groups/{model}_{snap}.hdf5')
     redshift = sim.simulation.redshift
+    boxsize = float(sim.simulation.boxsize.in_units('kpc/h'))
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm HI}\ 1215$', r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$',
                   r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
-    plot_quantities = ['med', 'per25', 'per75',]
+    plot_quantities = ['med', 'per25', 'per75', 'per16', 'per64']
     norients = 8
     delta_fr200 = 0.25 
     min_fr200 = 0.25 
@@ -70,60 +75,75 @@ if __name__ == '__main__':
 
         profile_file = f'{results_dir}{model}_{wind}_{snap}_{line}_sat_median_ew_profile.h5'
 
-        if os.path.isfile(profile_file):
-            plot_data = read_h5_into_dict(profile_file)
-     
-        else:
-
-            normal_dict = read_h5_into_dict(f'{normal_dir}{model}_{wind}_{snap}_ew_{line}.h5')
-            mask = (mass_long > mass_bins[0]) & (mass_long < mass_bins[1])
+        normal_dict = read_h5_into_dict(f'{normal_dir}{model}_{wind}_{snap}_ew_{line}.h5')
+        nlines_dict = read_h5_into_dict(f'{normal_dir}{model}_{wind}_{snap}_nlines_{line}.h5')
+        mask = (mass_long > mass_bins[0]) & (mass_long < mass_bins[1])
     
-            plot_data = {}
-            plot_data['fr200'] = fr200.copy()
-            for i in range(len(log_frad)):
-                for pq in plot_quantities:
-                    plot_data[f'log_frad_{log_frad[i]}_{bin_label}_{pq}'] = np.zeros(len(fr200))
-
-            for i in range(len(log_frad)):
-
-                sat_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_{log_frad[i]}log_frad_ew_{line}.h5')
-
-                for j in range(len(fr200)):
-                        
-                    ew_norm = normal_dict[f'ew_wave_{fr200[j]}r200'].flatten()
-                    ew_sat = sat_dict[f'ew_wave_{fr200[j]}r200'].flatten()
-                        
-                    plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'][j] = np.nanmedian(np.log10(ew_sat[mask]) - np.log10(ew_norm[mask]))
-                    plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per25'][j] = np.nanpercentile(np.log10(ew_sat[mask]) - np.log10(ew_norm[mask]), 25.)
-                    plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per75'][j] = np.nanpercentile(np.log10(ew_sat[mask]) - np.log10(ew_norm[mask]), 75)
-
-            write_dict_to_h5(plot_data, profile_file)
+        plot_data = {}
+        plot_data['fr200'] = fr200.copy()
+        for i in range(len(log_frad)):
+            for pq in plot_quantities:
+                plot_data[f'log_frad_{log_frad[i]}_{bin_label}_{pq}'] = np.zeros(len(fr200))
+            if log_frad[i] == '1.0':
+                plot_data[f'log_frad_{log_frad[i]}_{bin_label}_cv'] = np.zeros(len(fr200))
 
         for i in range(len(log_frad)):
 
-            ax[l].plot(plot_data['fr200'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'], 
-                       ls='-', c=colors[i], label=r'${{\rm log}} f_{{r_{{\rm half}} \star}} = {{{}}}$'.format(log_frad[i]), lw=1.5)
-            if log_frad[i] == '1.0':
-                ax[l].fill_between(plot_data['fr200'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per75'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per25'], 
-                                      alpha=0.2, color=colors[i])
+            sat_dict = read_h5_into_dict(f'{results_dir}{model}_{wind}_{snap}_{log_frad[i]}log_frad_ew_{line}.h5')
 
-        ax[l].set_ylim(-1.5, 0)
+            for j in range(len(fr200)):
+                        
+                ew_norm = normal_dict[f'ew_wave_{fr200[j]}r200'].flatten()
+                ew_sat = sat_dict[f'ew_wave_{fr200[j]}r200'].flatten()
+                nlines = nlines_dict[f'nlines_{fr200[j]}r200'].flatten()
+                detect_mask = (nlines > 0.)
+
+                plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'][j] = np.nanmedian(np.log10(ew_sat[mask*detect_mask] / ew_norm[mask*detect_mask]))
+                plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per25'][j] = np.nanpercentile(np.log10(ew_sat[mask*detect_mask] / ew_norm[mask*detect_mask]), 25.)
+                plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per75'][j] = np.nanpercentile(np.log10(ew_sat[mask*detect_mask] / ew_norm[mask*detect_mask]), 75.)
+                    
+                if log_frad[i] == '1.0':
+                    los = sat_dict[f'LOS_pos_{fr200[j]}r200']
+                    # do cosmic variance errors
+                    _, cv_sat = get_cosmic_variance_ew(ew_sat[mask], los[mask], boxsize, ncells=16)
+                    _, cv_sat = convert_to_log(np.nanmedian(ew_sat[mask]), cv_sat) 
+                    _, cv_norm = get_cosmic_variance_ew(ew_norm[mask], los[mask], boxsize, ncells=16)
+                    _, cv_norm = convert_to_log(np.nanmedian(ew_norm[mask]), cv_norm)
+                    plot_data[f'log_frad_{log_frad[i]}_{bin_label}_cv'][j] = np.sqrt(cv_sat**2. + cv_norm**2.)
+
+        write_dict_to_h5(plot_data, profile_file)
+
+        for i in range(len(log_frad)):
+
+            if log_frad[i] == '1.0':
+                ax[l].plot(plot_data['fr200'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'], 
+                           ls='-', c=colors[i], label=r'${{\rm log}} f_{{r_{{\rm half}} \star}} = {{{}}}$'.format(log_frad[i]), lw=1.5)
+                
+                #low = plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'] - plot_data[f'log_frad_{log_frad[i]}_{bin_label}_cv']
+                #high = plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'] + plot_data[f'log_frad_{log_frad[i]}_{bin_label}_cv']
+                #ax[l].fill_between(plot_data['fr200'], low, high, alpha=0.2, color=colors[i])
+                ax[l].fill_between(plot_data['fr200'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per25'] , plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per75'] , alpha=0.2, color=colors[i])
+            else:
+                ax[l].plot(plot_data['fr200'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'],
+                           ls='--', c=colors[i], label=r'${{\rm log}} f_{{r_{{\rm half}} \star}} = {{{}}}$'.format(log_frad[i]), lw=1.5)
+
+
+        ax[l].set_ylim(-2, 0)
         ax[l].annotate(plot_lines[l], xy=(0.04, 0.06), xycoords='axes fraction',
                        bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
 
         if l in [0, 3]:
             ax[l].set_ylabel(r'${\rm log }( {\rm EW}_{\rm sat} / {\rm EW}_{\rm total} )$')
-        if l == 2:
-            ax[l].legend(loc=4)
+        if l == 1:
+            ax[l].legend(loc=4, fontsize=14.5)
         if l in [3, 4, 5]:
             ax[l].set_xlabel(r'$\rho / r_{200}$')
         #if l ==1:
         #    ax[l].set_title('Profiles for galaxies with ' + mass_title)
    
-    ax[3].set_yticks(np.arange(-1.5, 0, 0.25))
+    ax[3].set_yticks(np.arange(-2, 0, 0.5))
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sat_test_ew_profile_mstar.png')
-    plt.show()
-    plt.clf()
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sat_test_ew_profile_mstar.pdf', format='pdf')
+    plt.close()

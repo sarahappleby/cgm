@@ -11,7 +11,7 @@ sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
 from utils import read_h5_into_dict, write_dict_to_h5
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=14)
+plt.rc('font', family='serif', size=15)
 
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
     for j in range(3):
         ax[j].axhline(0., c='k', ls='--', lw=1)
-        ax[j].set_title(mass_plot_titles[j], fontsize=13)
+        ax[j].set_title(mass_plot_titles[j], fontsize=14)
         ax[j].set_xlabel(r'$\rho / r_{200}$')
 
     fig.subplots_adjust(wspace=0., hspace=0.)
