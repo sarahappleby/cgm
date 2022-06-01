@@ -11,7 +11,7 @@ sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
 from utils import read_h5_into_dict, write_dict_to_h5
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
+plt.rc('font', family='serif', size=15)
 
 def convert_to_log(y, yerr):
     yerr /= (y*np.log(10.))
@@ -135,7 +135,7 @@ if __name__ == '__main__':
         if l in [0, 3]:
             ax[l].set_ylabel(r'${\rm log }( {\rm EW}_{\rm sat} / {\rm EW}_{\rm total} )$')
         if l == 1:
-            ax[l].legend(loc=4, fontsize=14.5)
+            ax[l].legend(loc=4, fontsize=12.5)
         if l in [3, 4, 5]:
             ax[l].set_xlabel(r'$\rho / r_{200}$')
         #if l ==1:
