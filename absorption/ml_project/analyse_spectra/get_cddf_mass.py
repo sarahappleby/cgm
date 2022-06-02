@@ -122,10 +122,12 @@ if __name__ == '__main__':
         all_ew = np.array(all_ew)
         all_chisq = np.array(all_chisq)
         all_ids = np.array(all_ids)
-
+        all_los = np.array(all_los)
+    
         mask = (all_N > logN_min) * (all_chisq < chisq_lim[l]) * (all_ew >= 0.)
         all_N = all_N[mask]
         all_ew = all_ew[mask]
+        all_los = all_los[mask]
 
         all_ids = all_ids[mask]
         idx = np.array([np.where(gal_ids == j)[0] for j in all_ids]).flatten()
@@ -139,6 +141,10 @@ if __name__ == '__main__':
         plot_data[f'cddf_all_poisson'] /= (plot_data[f'cddf_all'] * np.log(10.))
         plot_data[f'cddf_all'] /= (delta_N * dX_all)
         plot_data[f'cddf_all'] = np.log10(plot_data[f'cddf_all'])
+
+        plot_data[f'cddf_all_cv_mean_{ncells}'], plot_data[f'cddf_all_cv_{ncells}'] = \
+                get_cosmic_variance_cddf(all_N, all_los, boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells,
+                                         redshift=redshift, hubble_parameter=hubble_parameter, hubble_constant=hubble_constant)
 
         for j in range(len(mass_bin_labels)):
             

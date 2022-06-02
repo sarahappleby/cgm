@@ -75,7 +75,7 @@ if __name__ == '__main__':
         data_c = np.log10(all_chisq)
         data_c[np.isnan(data_c)] = 3
 
-        ax[i][j].scatter(data_x, data_y, c=data_c, s=1)
+        im = ax[i][j].scatter(data_x, data_y, c=data_c, s=1)
     
         mask = (data_y > 10) & (data_y < 15)
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         linear_fit = logew*popt[0]+ popt[1]
         ax[i][j].plot(logew, linear_fit, c='tab:pink', lw=1, ls='--')
 
-        ax[i][j].set_xlim(-3.1, 1)
+        ax[i][j].set_xlim(-3, 1)
         ax[i][j].set_ylim(11, 19)
 
         ax[i][j].annotate(plot_lines[lines.index(line)], xy=(0.05, 0.9), xycoords='axes fraction',
@@ -101,7 +101,13 @@ if __name__ == '__main__':
             i += 1
             j = 0
 
-    plt.tight_layout()
+    ax[0][0].set_yticks(np.arange(12, 20, 1))
+    ax[1][0].set_xticks(np.arange(-3, 1))
+    ax[1][1].set_xticks(np.arange(-3, 1))
+
+    cax = plt.axes([horizontal_position, vertical_position, width, height])
+    fig.colorbar(im, cax=cax, label=r'${\rm log}\ \chi^2_r$')
+
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_fits_ew_N.png')
     plt.close()

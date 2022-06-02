@@ -47,6 +47,7 @@ if __name__ == '__main__':
 
     logN_min = 11.
     x = [0.79, 0.74, 0.77, 0.75, 0.755, 0.76]
+    ncells = 16
 
     delta_m = 0.5
     min_m = 10.
@@ -61,7 +62,7 @@ if __name__ == '__main__':
 
     idelta = 1. / (len(mass_bins) -1)
     icolor = np.arange(0., 1.+idelta, idelta)
-    cmap = cm.get_cmap('magma')
+    cmap = cm.get_cmap('plasma')
     cmap = truncate_colormap(cmap, 0.2, .8)
     mass_colors = [cmap(i) for i in icolor]
 
@@ -85,11 +86,21 @@ if __name__ == '__main__':
         cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_mass.h5'
 
         plot_data = read_h5_into_dict(cddf_file)
+        completeness = plot_data['completeness']
+        print(f'Line {line}: {completeness}')
+
+        xerr = np.zeros(len(plot_data['plot_logN']))
+        for k in range(len(plot_data['plot_logN'])):
+            xerr[k] = (plot_data['bin_edges_logN'][k+1] - plot_data['bin_edges_logN'][k])*0.5
 
         ax[i+1][j].axhline(0, c='k', lw=0.8, ls='-')
 
-        ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all'], c='dimgrey', ls='-', lw=1)
-      
+        plot_data[f'cddf_all_err'] = np.sqrt(plot_data[f'cddf_all_cv_{ncells}']**2. + plot_data[f'cddf_all_poisson']**2.)
+        ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c='dimgrey', yerr=plot_data[f'cddf_all_err'],
+                          xerr=xerr, capsize=4, ls='-', lw=1)
+        ax[i][j].axvline(plot_data['completeness'], c='k', ls=':', lw=1)
+        ax[i+1][j].axvline(plot_data['completeness'], c='k', ls=':', lw=1)
+
         for k in range(len(mass_bin_labels)):
             ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_{mass_bin_labels[k]}'], c=mass_colors[k], ls='-', lw=1)
 
