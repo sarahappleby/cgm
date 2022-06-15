@@ -50,7 +50,7 @@ if __name__ == '__main__':
     min_fr200 = 0.25 
     nbins_fr200 = 5 
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
-    log_frad = ['0.0', '0.5', '1.0', '1.5', '2.0', '2.5'] 
+    log_frad = ['0.0', '0.5', '1.0', '1.5', '2.0'] 
 
     delta_m = 0.5
     min_m = 10.5
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     bin_label = '10.5-11.0'
     mass_title = f'{mass_bins[0]}'+ r'$ < \textrm{log} (M_* / M_{\odot}) < $' + f'{mass_bins[1]}'
 
-    colors = make_color_list(truncate_colormap(plt.get_cmap('magma'), 0., 1.0), len(log_frad))
+    colors = make_color_list(truncate_colormap(plt.get_cmap('magma_r'), 0.2, .9), len(log_frad))
 
     results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/'
     normal_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
@@ -98,9 +98,9 @@ if __name__ == '__main__':
                 nlines = nlines_dict[f'nlines_{fr200[j]}r200'].flatten()
                 detect_mask = (nlines > 0.)
 
-                plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'][j] = np.nanmedian(np.log10(ew_sat[mask*detect_mask] / ew_norm[mask*detect_mask]))
-                plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per25'][j] = np.nanpercentile(np.log10(ew_sat[mask*detect_mask] / ew_norm[mask*detect_mask]), 25.)
-                plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per75'][j] = np.nanpercentile(np.log10(ew_sat[mask*detect_mask] / ew_norm[mask*detect_mask]), 75.)
+                plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'][j] = np.nanmedian(np.log10(ew_sat[detect_mask] / ew_norm[detect_mask]))
+                plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per25'][j] = np.nanpercentile(np.log10(ew_sat[detect_mask] / ew_norm[detect_mask]), 25.)
+                plot_data[f'log_frad_{log_frad[i]}_{bin_label}_per75'][j] = np.nanpercentile(np.log10(ew_sat[detect_mask] / ew_norm[detect_mask]), 75.)
                     
                 if log_frad[i] == '1.0':
                     los = sat_dict[f'LOS_pos_{fr200[j]}r200']
@@ -145,5 +145,5 @@ if __name__ == '__main__':
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sat_test_ew_profile_mstar.pdf', format='pdf')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_sat_test_ew_profile.pdf', format='pdf')
     plt.close()

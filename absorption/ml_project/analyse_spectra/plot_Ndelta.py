@@ -2,9 +2,11 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib import colors
 from matplotlib import cm
+import matplotlib.patheffects as mpe
 import numpy as np
 import h5py
 import pygad as pg
+from scipy.optimize import curve_fit
 import sys
 
 sys.path.append('/disk04/sapple/tools')
@@ -12,6 +14,9 @@ import plotmedian as pm
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=15)
+
+def linear(x, a, b):
+    return a*x + b
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
         cmap_list = cmap(np.linspace(minval, maxval, n))
@@ -38,6 +43,7 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
 
+    outline = mpe.withStroke(linewidth=3, foreground='white')
     cmap = plt.get_cmap('jet_r')
     cmap = truncate_colormap(cmap, 0.1, 1.0)
 
@@ -50,8 +56,9 @@ if __name__ == '__main__':
     N_min = [12.7, 11.5, 12.8, 11.7, 12.8, 13.2]
     deltath = 2.046913
 
+    logN = np.arange(12.7, 18, 0.1)
     inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
-    rho_labels = ['Inner CGM', 'Outer CGM']
+    rho_labels = ['All CGM best fit', 'Inner CGM', 'Outer CGM']
     nmin = 15
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -79,6 +86,7 @@ if __name__ == '__main__':
     cmap = colors.ListedColormap([cb_blue, cb_green, cb_red])
     norm = colors.BoundaryNorm(np.arange(0., 4., 1.), 3.)
 
+    """
     fig, ax = plt.subplots(len(lines), len(inner_outer), figsize=(10, 13), sharey='row', sharex='col')
 
     ssfr_lines = []
@@ -166,6 +174,8 @@ if __name__ == '__main__':
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Ndelta_ssfr.png', format='png')
     plt.close()
 
+    """
+
     cmap = cm.get_cmap('viridis')
     cmap = truncate_colormap(cmap, 0.1, 0.9)
     norm = colors.BoundaryNorm(np.arange(0.125, 1.625, 0.25), cmap.N)
@@ -173,8 +183,9 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(len(lines), 3, figsize=(14, 13), sharey='row', sharex='col')
 
     rho_lines = []
-    rho_lines.append(Line2D([0,1],[0,1], color='plum', ls='--', lw=2))
-    rho_lines.append(Line2D([0,1],[0,1], color='plum', ls='-', lw=2))
+    rho_lines.append(Line2D([0,1],[0,1], color='orchid', ls='-', lw=1.25))
+    rho_lines.append(Line2D([0,1],[0,1], color='mediumorchid', ls='--', lw=1.5))
+    rho_lines.append(Line2D([0,1],[0,1], color='mediumorchid', ls='-.', lw=1.5))
     leg = ax[0][0].legend(rho_lines, rho_labels, loc=4, fontsize=12)
     ax[0][0].add_artist(leg)
 
@@ -215,30 +226,52 @@ if __name__ == '__main__':
 
         inner_mask = all_r < 1.0
         silly_mask = N < 18.
+        fit_mask = N < 15. 
 
         plot_order = np.arange(len(N[sf_mask]))
         np.random.shuffle(plot_order)
-        im = ax[l][0].scatter(N[sf_mask][plot_order], delta_rho[sf_mask][plot_order], c=all_r[sf_mask][plot_order], cmap=cmap, norm=norm, s=1.5)
+        im = ax[l][0].scatter(N[sf_mask][plot_order], delta_rho[sf_mask][plot_order], c=all_r[sf_mask][plot_order], cmap=cmap, norm=norm, s=1, alpha=0.6)
         bin_cent,ymean,ysiglo,ysighi,ndata = pm.runningmedian(N[sf_mask*inner_mask*silly_mask], delta_rho[sf_mask*inner_mask*silly_mask], stat='median')
-        ax[l][0].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='plum', lw=2, ls='--')
+        ax[l][0].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='mediumorchid', lw=1.5, ls='--', path_effects=[outline])
         bin_cent,ymean,ysiglo,ysighi,ndata = pm.runningmedian(N[sf_mask*~inner_mask*silly_mask], delta_rho[sf_mask*~inner_mask*silly_mask], stat='median')
-        ax[l][0].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='plum', lw=2, ls='-')
+        ax[l][0].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='mediumorchid', lw=1.5, ls='-.', path_effects=[outline])
+        
+        if line == 'H1215':
+            popt, pcov = curve_fit(linear, N[sf_mask * fit_mask], delta_rho[sf_mask * fit_mask])
+            delta_fit = logN*popt[0] + popt[1]
+            ax[l][0].plot(logN[logN<=15], delta_fit[logN<=15], c='orchid', lw=1.25, ls='-', path_effects=[outline])
+            ax[l][0].plot(logN[logN>=15], delta_fit[logN>=15], c='orchid', lw=2, ls=':', path_effects=[outline])
+            print(f'Star forming {popt}')
 
         plot_order = np.arange(len(N[gv_mask]))
         np.random.shuffle(plot_order)
-        im = ax[l][1].scatter(N[gv_mask][plot_order], delta_rho[gv_mask][plot_order], c=all_r[gv_mask][plot_order], cmap=cmap, norm=norm, s=1.5)
+        im = ax[l][1].scatter(N[gv_mask][plot_order], delta_rho[gv_mask][plot_order], c=all_r[gv_mask][plot_order], cmap=cmap, norm=norm, s=1, alpha=0.6)
         bin_cent,ymean,ysiglo,ysighi,ndata = pm.runningmedian(N[gv_mask*inner_mask*silly_mask], delta_rho[gv_mask*inner_mask*silly_mask], stat='median')
-        ax[l][1].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='plum', lw=2, ls='--')
+        ax[l][1].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='mediumorchid', lw=1.5, ls='--', path_effects=[outline])
         bin_cent,ymean,ysiglo,ysighi,ndata = pm.runningmedian(N[gv_mask*~inner_mask*silly_mask], delta_rho[gv_mask*~inner_mask*silly_mask], stat='median')
-        ax[l][1].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='plum', lw=2, ls='-')
+        ax[l][1].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='mediumorchid', lw=1.5, ls='-.', path_effects=[outline])
+
+        if line == 'H1215':
+            popt, pcov = curve_fit(linear, N[gv_mask * fit_mask], delta_rho[gv_mask * fit_mask])
+            delta_fit = logN*popt[0] + popt[1]
+            ax[l][1].plot(logN[logN<=15], delta_fit[logN<=15], c='orchid', lw=1.25, ls='-', path_effects=[outline])
+            ax[l][1].plot(logN[logN>=15], delta_fit[logN>=15], c='orchid', lw=2, ls=':', path_effects=[outline])
+            print(f'Green valley {popt}')
 
         plot_order = np.arange(len(N[q_mask]))
         np.random.shuffle(plot_order)
-        im = ax[l][2].scatter(N[q_mask][plot_order], delta_rho[q_mask][plot_order], c=all_r[q_mask][plot_order], cmap=cmap, norm=norm, s=1.5)
+        im = ax[l][2].scatter(N[q_mask][plot_order], delta_rho[q_mask][plot_order], c=all_r[q_mask][plot_order], cmap=cmap, norm=norm, s=1, alpha=0.6)
         bin_cent,ymean,ysiglo,ysighi,ndata = pm.runningmedian(N[q_mask*inner_mask*silly_mask], delta_rho[q_mask*inner_mask*silly_mask], stat='median')
-        ax[l][2].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='plum', lw=2, ls='--')
+        ax[l][2].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='mediumorchid', lw=1.5, ls='--', path_effects=[outline])
         bin_cent,ymean,ysiglo,ysighi,ndata = pm.runningmedian(N[q_mask*~inner_mask*silly_mask], delta_rho[q_mask*~inner_mask*silly_mask], stat='median')
-        ax[l][2].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='plum', lw=2, ls='-')
+        ax[l][2].plot(bin_cent[ndata>nmin], ymean[ndata>nmin], c='mediumorchid', lw=1.5, ls='-.', path_effects=[outline])
+
+        if line == 'H1215':
+            popt, pcov = curve_fit(linear, N[q_mask * fit_mask], delta_rho[q_mask * fit_mask])
+            delta_fit = logN*popt[0] + popt[1]
+            ax[l][2].plot(logN[logN<=15], delta_fit[logN<=15], c='orchid', lw=1.25, ls='-', path_effects=[outline])
+            ax[l][2].plot(logN[logN>=15], delta_fit[logN>=15], c='orchid', lw=2, ls=':', path_effects=[outline])
+            print(f'Quenched {popt}')
 
         if l == 0:
             ax[l][0].set_title('Star forming')
@@ -258,6 +291,11 @@ if __name__ == '__main__':
             ax[l][i].set_xlim(np.min(N_min), 18)
             ax[l][i].set_ylim(0, 4)
             ax[l][i].axhline(deltath, ls=':', c='k', lw=1)
+
+        if l == 0:
+            ax[l][0].set_yticks(np.arange(0, 5, 1))
+        else:
+            ax[l][0].set_yticks(np.arange(0, 4, 1))
 
     fig.subplots_adjust(right=0.8)
     cbar_ax = fig.add_axes([0.82, 0.24, 0.02, 0.51])
