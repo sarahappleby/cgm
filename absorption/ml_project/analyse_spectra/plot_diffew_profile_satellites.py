@@ -137,7 +137,7 @@ if __name__ == '__main__':
         if l == 1:
             ax[l].legend(loc=4, fontsize=12.5)
         if l in [3, 4, 5]:
-            ax[l].set_xlabel(r'$\rho / r_{200}$')
+            ax[l].set_xlabel(r'$r_\perp / r_{200}$')
         #if l ==1:
         #    ax[l].set_title('Profiles for galaxies with ' + mass_title)
    

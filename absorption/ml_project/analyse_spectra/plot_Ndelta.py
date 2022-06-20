@@ -300,7 +300,7 @@ if __name__ == '__main__':
 
     fig.subplots_adjust(right=0.8)
     cbar_ax = fig.add_axes([0.82, 0.24, 0.02, 0.51])
-    fig.colorbar(im, cax=cbar_ax, ticks=fr200, label=r'$\rho / r_{200}$')
+    fig.colorbar(im, cax=cbar_ax, ticks=fr200, label=r'$r_\perp / r_{200}$')
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Ndelta_r200.pdf', format='pdf')
     plt.close()

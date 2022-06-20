@@ -115,16 +115,16 @@ if __name__ == '__main__':
     
             if i == 0:
                 ax[0].errorbar(line_ev[l], weighted_D[i], color=color_list[i], yerr=np.array([[weighted_D[i] - weighted_D_25[i], weighted_D_75[i] - weighted_D[i],]]).T,
-                                  lw=1, ls='None', marker='None', capsize=2)
+                                  lw=1, ls='None', marker='None', capsize=2, alpha=0.6)
                 ax[1].errorbar(line_ev[l], weighted_T[i], color=color_list[i], yerr=np.array([[weighted_T[i] - weighted_T_25[i], weighted_T_75[i] - weighted_T[i],]]).T,
-                                  lw=1, ls='None', marker='None', capsize=2)
+                                  lw=1, ls='None', marker='None', capsize=2, alpha=0.6)
                 ax[2].errorbar(line_ev[l], weighted_Z[i], color=color_list[i], yerr=np.array([[weighted_Z[i] - weighted_Z_25[i], weighted_Z_75[i] - weighted_Z[i],]]).T,
-                                  lw=1, ls='None', marker='None', capsize=2)
+                                  lw=1, ls='None', marker='None', capsize=2, alpha=0.6)
 
 
-        im = ax[0].scatter(np.repeat(line_ev[l], len(fr200)), weighted_D, c=fr200, cmap=cmap, norm=norm, marker='o')
-        ax[1].scatter(np.repeat(line_ev[l], len(fr200)), weighted_T, c=fr200, cmap=cmap, norm=norm, marker='o')
-        ax[2].scatter(np.repeat(line_ev[l], len(fr200)), weighted_Z, c=fr200, cmap=cmap, norm=norm, marker='o')
+        im = ax[0].scatter(np.repeat(line_ev[l], len(fr200)), weighted_D, c=fr200, cmap=cmap, norm=norm, marker='o', alpha=0.6)
+        ax[1].scatter(np.repeat(line_ev[l], len(fr200)), weighted_T, c=fr200, cmap=cmap, norm=norm, marker='o', alpha=0.6)
+        ax[2].scatter(np.repeat(line_ev[l], len(fr200)), weighted_Z, c=fr200, cmap=cmap, norm=norm, marker='o', alpha=0.6)
 
         ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D - 0.375)), fontsize=13)
 
@@ -146,7 +146,7 @@ if __name__ == '__main__':
     fig.subplots_adjust(top=0.8)
     cbar_ax = fig.add_axes([0.125, 0.8, 0.775, 0.02])
     cbar = fig.colorbar(im, cax=cbar_ax, ticks=fr200, orientation='horizontal')
-    cbar.set_label(r'$\rho / r_{200}$', labelpad=8)
+    cbar.set_label(r'$r_\perp / r_{200}$', labelpad=8)
     cbar.ax.xaxis.set_ticks_position('top')
     cbar.ax.xaxis.set_label_position('top')
     

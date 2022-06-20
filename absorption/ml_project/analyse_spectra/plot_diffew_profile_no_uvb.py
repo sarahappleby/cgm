@@ -69,7 +69,7 @@ if __name__ == '__main__':
     mass_plot_titles = []
     for i in range(nbins_m):
         mass_bin_labels.append(f'{mass_bins[i]}-{mass_bins[i+1]}')
-        mass_plot_titles.append(f'{mass_bins[i]}'+ r'$ < \textrm{log} (M_* / M_{\odot}) < $' + f'{mass_bins[i+1]}')
+        mass_plot_titles.append(f'{mass_bins[i]}'+ r'$ < \textrm{log} (M_\star / M_{\odot}) < $' + f'{mass_bins[i+1]}')
 
     cmap = plt.get_cmap('magma')
     cmap = truncate_colormap(cmap, 0.25, .9)
@@ -154,7 +154,7 @@ if __name__ == '__main__':
     for j in range(3):
         ax[j].axhline(0., c='k', ls='--', lw=1)
         ax[j].set_title(mass_plot_titles[j], fontsize=14)
-        ax[j].set_xlabel(r'$\rho / r_{200}$')
+        ax[j].set_xlabel(r'$r_\perp / r_{200}$')
 
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_uvb_test_ew_profile.pdf', format='pdf')
