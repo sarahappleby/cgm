@@ -40,6 +40,11 @@ if __name__ == '__main__':
                       'snap_137': [3.5, 28.2, 10., 35.5, 8.0, 4.5],
                       'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6],
                       'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
+    #chisq_lim_dict = {'snap_151': [200]*6,
+    #                  'snap_137': [200]*6,
+    #                  'snap_125': [200]*6,
+    #                  'snap_105': [200]*6,}
+
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
 
@@ -56,7 +61,7 @@ if __name__ == '__main__':
     delta_rho_bins = np.arange(delta_rho_min, delta_rho_max+ddelta, ddelta)
     N_bins = np.arange(np.min(N_min), N_max+dN, dN)
 
-    inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]		
+    inner_outer = [[0.25, 0.5], [0.75, 1.0, 1.25]]		
     rho_labels = ['Inner CGM', 'Outer CGM']
     rho_ls = ['--', ':']
     rho_lw = [1, 2]
@@ -205,6 +210,7 @@ if __name__ == '__main__':
 
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_chisqion.png', dpi=300)
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_nochisq.png', dpi=300)
     plt.close()
 
     #### Temperature histograms
@@ -310,6 +316,7 @@ if __name__ == '__main__':
 
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_chisqion.png', dpi=300)
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_nochisq.png', dpi=300)
     plt.close()
 
 
@@ -405,5 +412,6 @@ if __name__ == '__main__':
 
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_hist_chisqion.png')
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_hist_nochisq.png')
     plt.close()
 

@@ -114,13 +114,15 @@ if __name__ == '__main__':
             all_N = all_N[mask]
             all_r = all_r[mask]
 
-        r200_mask = all_r < 1.0
+        r200_mask = all_r < 0.75
         condensed = (all_T < Tth) & (all_delta_rho > deltath)
         hot_halo = (all_T > Tth) & (all_delta_rho > deltath)
         whim = (all_T > Tth) & (all_delta_rho < deltath)
         diffuse = (all_T < Tth) & (all_delta_rho < deltath)
 
         total_absorbers = len(all_N)
+
+        print('Condensed; diffuse; hot halo; WHIM')
 
         inner_fracs = np.zeros(4)
         inner_fracs[0] = len(all_N[r200_mask*condensed])
@@ -135,12 +137,14 @@ if __name__ == '__main__':
         outer_fracs[2] = len(all_N[~r200_mask*hot_halo])
         outer_fracs[3] = len(all_N[~r200_mask*whim])
         outer_fracs /= total_absorbers
-
+        
+        print(line, inner_fracs, outer_fracs)
         ax[0].bar(np.arange(0.05, 0.95, 0.225) + l, inner_fracs, width=0.225, align='edge',
                   color=colors, edgecolor=colors, alpha=0.55)
         ax[0].bar(np.arange(0.05, 0.95, 0.225) + l, outer_fracs, width=0.225, align='edge', bottom=inner_fracs,
                   color=colors, edgecolor=colors, fill=False, hatch='///')
 
+    print('\n')
     ax_right = ax[0].secondary_yaxis('right')
     ax_right.set_yticks(np.arange(0, 1.2, 0.2), labels=[])
 
@@ -188,13 +192,15 @@ if __name__ == '__main__':
             all_N = all_N[mask]
             all_r = all_r[mask]
 
-        r200_mask = all_r < 1.0
+        r200_mask = all_r < 0.75
         condensed = (all_T < Tth) & (all_delta_rho > deltath)
         hot_halo = (all_T > Tth) & (all_delta_rho > deltath)
         whim = (all_T > Tth) & (all_delta_rho < deltath)
         diffuse = (all_T < Tth) & (all_delta_rho < deltath)
         
         total_absorption = np.nansum(10**all_N)
+
+        print('Condensed; diffuse; hot halo; WHIM')
 
         inner_fracs = np.zeros(4)
         inner_fracs[0] = np.nansum(10**all_N[r200_mask*condensed])
@@ -210,11 +216,13 @@ if __name__ == '__main__':
         outer_fracs[3] = np.nansum(10**all_N[~r200_mask*whim])
         outer_fracs /= total_absorption
 
+        print(line, inner_fracs, outer_fracs)
         ax[1].bar(np.arange(0.05, 0.95, 0.225) + l, inner_fracs, width=0.225, align='edge',
                   color=colors, edgecolor=colors, alpha=0.55)
         ax[1].bar(np.arange(0.05, 0.95, 0.225) + l, outer_fracs, width=0.225, align='edge', bottom=inner_fracs,
                   color=colors, edgecolor=colors, fill=False, hatch='///')
 
+    print('\n')
     #ax.set_yscale('log')
     #ax.set_ylim(7e-4, 6)
     ax[1].set_ylim(0, 1)

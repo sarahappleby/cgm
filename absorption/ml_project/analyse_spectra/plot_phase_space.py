@@ -48,16 +48,16 @@ if __name__ == '__main__':
                       'snap_105': [4.5, 25.1, 25.1],}
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
-    #lines = ["SiIII1206", "CIV1548", "OVI1031"]
-    #plot_lines = [r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
-    #cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
-    #N_min = [11.7, 12.8, 13.2]
-    #x = [0.765, 0.765, 0.77]
-    #chisq_lim_dict = {'snap_151': [39.8, 8.9, 4.5],
-    #                  'snap_137': [35.5, 8.0, 4.5],
-    #                  'snap_125': [39.8, 10., 5.6],
-    #                  'snap_105': [34.5, 10., 7.1],}
-    #chisq_lim = chisq_lim_dict[f'snap_{snap}']
+    lines = ["SiIII1206", "CIV1548", "OVI1031"]
+    plot_lines = [r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
+    cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
+    N_min = [11.7, 12.8, 13.2]
+    x = [0.765, 0.765, 0.77]
+    chisq_lim_dict = {'snap_151': [39.8, 8.9, 4.5],
+                      'snap_137': [35.5, 8.0, 4.5],
+                      'snap_125': [39.8, 10., 5.6],
+                      'snap_105': [34.5, 10., 7.1],}
+    chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
     #width = 0.258
     #height = 0.015
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     deltath = 2.046913
     Tth = 5.
 
-    inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
+    inner_outer = [[0.25, 0.5], [0.75, 1.0, 1.25]]
     rho_labels = ['Inner CGM', 'Outer CGM']
     ssfr_labels = ['All', 'Star forming', 'Green valley', 'Quenched']
 

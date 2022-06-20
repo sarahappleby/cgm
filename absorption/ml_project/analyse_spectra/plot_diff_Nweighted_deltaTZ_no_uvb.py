@@ -113,15 +113,15 @@ if __name__ == '__main__':
     deltath = 2.046913
     Tth = 5.
 
-    inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
+    inner_outer = [[0.25, 0.5], [0.75, 1.0, 1.25]]
     rho_labels = ['Inner CGM', 'Outer CGM']
     delta_fr200 = 0.25
     min_fr200 = 0.25
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
     
-    idelta = 0.7
-    icolor = np.arange(0.15, 0.85+idelta, idelta)
+    idelta = 0.6
+    icolor = np.arange(0.15, 0.75+idelta, idelta)
     cmap = cm.get_cmap('viridis')
     colors = [cmap(i) for i in icolor]
 
@@ -140,7 +140,7 @@ if __name__ == '__main__':
    
     rho_lines = []
     for i in range(len(colors)):
-        rho_lines.append(Line2D([0,1],[0,1], color=colors[i], ls='-', lw=1))
+        rho_lines.append(Line2D([0,1],[0,1], color=colors[i], ls='-', lw=1, alpha=0.6))
     leg = ax[0].legend(rho_lines, rho_labels, loc=1, fontsize=12)
     ax[0].add_artist(leg)
 
@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
             for j in range(2):
                 ax[i].errorbar(line_ev[l], diff[j], color=colors[j], yerr=np.reshape(err[j], (2, 1)),
-                                lw=1, ls='None', marker='o', capsize=2)
+                                lw=1, ls='None', marker='o', capsize=2, alpha=0.6)
             
             if i == 0:
                 bottom = diff - err[:, 0]

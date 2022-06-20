@@ -13,7 +13,7 @@ sys.path.append('/disk04/sapple/tools')
 import plotmedian as pm
 
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=15)
+plt.rc('font', family='serif', size=14.5)
 
 def linear(x, a, b):
     return a*x + b
@@ -57,8 +57,9 @@ if __name__ == '__main__':
     deltath = 2.046913
 
     logN = np.arange(12.7, 18, 0.1)
-    inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]
-    rho_labels = ['All CGM best fit', 'Inner CGM', 'Outer CGM']
+    dave1999 = 0.7 * logN - 8.5
+    inner_outer = [[0.25, 0.5], [0.75, 1.0, 1.25]]
+    rho_labels = ['All HI best fit', 'Inner CGM', 'Outer CGM']
     nmin = 15
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -183,7 +184,7 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(len(lines), 3, figsize=(14, 13), sharey='row', sharex='col')
 
     rho_lines = []
-    rho_lines.append(Line2D([0,1],[0,1], color='orchid', ls='-', lw=1.25))
+    rho_lines.append(Line2D([0,1],[0,1], color='mediumorchid', ls='-', lw=1.25))
     rho_lines.append(Line2D([0,1],[0,1], color='mediumorchid', ls='--', lw=1.5))
     rho_lines.append(Line2D([0,1],[0,1], color='mediumorchid', ls='-.', lw=1.5))
     leg = ax[0][0].legend(rho_lines, rho_labels, loc=4, fontsize=12)
@@ -224,7 +225,7 @@ if __name__ == '__main__':
         ssfr = all_ssfr[idx]
         sf_mask, gv_mask, q_mask = ssfr_type_check(quench, ssfr)
 
-        inner_mask = all_r < 1.0
+        inner_mask = all_r < 0.75
         silly_mask = N < 18.
         fit_mask = N < 15. 
 
@@ -239,8 +240,8 @@ if __name__ == '__main__':
         if line == 'H1215':
             popt, pcov = curve_fit(linear, N[sf_mask * fit_mask], delta_rho[sf_mask * fit_mask])
             delta_fit = logN*popt[0] + popt[1]
-            ax[l][0].plot(logN[logN<=15], delta_fit[logN<=15], c='orchid', lw=1.25, ls='-', path_effects=[outline])
-            ax[l][0].plot(logN[logN>=15], delta_fit[logN>=15], c='orchid', lw=2, ls=':', path_effects=[outline])
+            ax[l][0].plot(logN[logN<=15], delta_fit[logN<=15], c='mediumorchid', lw=1.25, ls='-', path_effects=[outline])
+            ax[l][0].plot(logN[logN>=15], delta_fit[logN>=15], c='mediumorchid', lw=2, ls=':', path_effects=[outline])
             print(f'Star forming {popt}')
 
         plot_order = np.arange(len(N[gv_mask]))
@@ -254,8 +255,8 @@ if __name__ == '__main__':
         if line == 'H1215':
             popt, pcov = curve_fit(linear, N[gv_mask * fit_mask], delta_rho[gv_mask * fit_mask])
             delta_fit = logN*popt[0] + popt[1]
-            ax[l][1].plot(logN[logN<=15], delta_fit[logN<=15], c='orchid', lw=1.25, ls='-', path_effects=[outline])
-            ax[l][1].plot(logN[logN>=15], delta_fit[logN>=15], c='orchid', lw=2, ls=':', path_effects=[outline])
+            ax[l][1].plot(logN[logN<=15], delta_fit[logN<=15], c='mediumorchid', lw=1.25, ls='-', path_effects=[outline])
+            ax[l][1].plot(logN[logN>=15], delta_fit[logN>=15], c='mediumorchid', lw=2, ls=':', path_effects=[outline])
             print(f'Green valley {popt}')
 
         plot_order = np.arange(len(N[q_mask]))
@@ -269,8 +270,8 @@ if __name__ == '__main__':
         if line == 'H1215':
             popt, pcov = curve_fit(linear, N[q_mask * fit_mask], delta_rho[q_mask * fit_mask])
             delta_fit = logN*popt[0] + popt[1]
-            ax[l][2].plot(logN[logN<=15], delta_fit[logN<=15], c='orchid', lw=1.25, ls='-', path_effects=[outline])
-            ax[l][2].plot(logN[logN>=15], delta_fit[logN>=15], c='orchid', lw=2, ls=':', path_effects=[outline])
+            ax[l][2].plot(logN[logN<=15], delta_fit[logN<=15], c='mediumorchid', lw=1.25, ls='-', path_effects=[outline])
+            ax[l][2].plot(logN[logN>=15], delta_fit[logN>=15], c='mediumorchid', lw=2, ls=':', path_effects=[outline])
             print(f'Quenched {popt}')
 
         if l == 0:
