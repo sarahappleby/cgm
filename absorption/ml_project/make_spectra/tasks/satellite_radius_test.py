@@ -1,3 +1,5 @@
+# Visualise the impact of different definitions of satellite gas using the satellite rhalf from stars
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 from matplotlib.collections import PatchCollection

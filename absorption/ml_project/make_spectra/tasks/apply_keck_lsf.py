@@ -1,3 +1,4 @@
+## Apply the Keck LSF to the MgII spectra (already generated at this point; current spectrum generation pipeline now does this)
 
 import pygad as pg
 import os

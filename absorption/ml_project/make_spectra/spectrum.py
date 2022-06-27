@@ -1,3 +1,5 @@
+# Classily written spectrum fitting routines :) 
+
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
@@ -24,6 +26,8 @@ class Spectrum(object):
 
     def get_initial_window(self, vel_range, v_central=None, v_boxsize=10000.):
 
+        # get the portion of the CGM spectrum that we want to fit
+
         def _find_nearest(array, value):
             return np.abs(array - value).argmin()
 
@@ -46,6 +50,8 @@ class Spectrum(object):
 
 
     def extend_to_continuum(self, i_start, i_end, N, contin_level=None):
+
+        # from the initial velocity window, extend the start and end back to the level of the continuum of the input spectrum/
 
         if contin_level is None:
             contin_level = self.continuum[0]
@@ -73,6 +79,8 @@ class Spectrum(object):
 
     def buffer_with_continuum(self, waves, flux, nbuffer=50, snr_default=30.):
 
+        # add a buffer to either end of the velocity window at the continuum level to aid the voigt fitting.
+
         if hasattr(self, 'snr'):
             snr = self.snr
         else:
@@ -92,6 +100,8 @@ class Spectrum(object):
 
     def fit_spectrum_old(self, vel_range=600., nbuffer=20):
 
+        # old fitting routine - not required
+
         contin_level = self.continuum[0]
         self.extend_to_continuum(vel_range, contin_level)
 
@@ -108,6 +118,8 @@ class Spectrum(object):
 
     def fit_periodic_spectrum(self):
 
+        # the fitting approach for periodic spectra, i.e. those which span the length of the Simba volume
+
         wrap_flux, wrap_noise, wrap_start = pg.analysis.periodic_wrap(self.wavelengths, self.fluxes, self.noise)
         self.line_list = pg.analysis.fit_profiles(self.ion_name, self.wavelengths, wrap_flux, wrap_noise,
                                          chisq_lim=2.5, max_lines=10, logN_bounds=[12,17], b_bounds=[3,100], mode='Voigt')
@@ -121,6 +133,9 @@ class Spectrum(object):
 
 
     def get_tau_model(self):
+
+        # compute the total optical depth of the model from the individual lines
+
         self.tau_model = np.zeros(len(self.wavelengths))
         for i in range(len(self.line_list["N"])):
             p = np.array([self.line_list["N"][i], self.line_list["b"][i], self.line_list["l"][i]])
@@ -128,11 +143,16 @@ class Spectrum(object):
 
     
     def get_fluxes_model(self):
+
+        # compute the total flux from the individual lines
+
         self.get_tau_model()
         self.fluxes_model = tau_to_flux(self.tau_model)
 
 
     def write_line_list(self):
+
+        # save the components of the fit in h5 format to the original input file
 
         with h5py.File(self.spectrum_file, 'a') as hf:
             if 'line_list' in hf.keys():
@@ -145,6 +165,8 @@ class Spectrum(object):
 
 
     def plot_fit(self, ax=None, vel_range=600., filename=None):
+
+        # plot the results :)
 
         if ax is None:
             fig, ax = plt.subplots()
@@ -177,16 +199,21 @@ class Spectrum(object):
              snr_default=30., chisq_unacceptable=25, chisq_asym_thresh=-3., 
              do_regions=False, do_fit=True, write_lines=False, plot_fit=False):
    
+        # cut out the portion of the spectrum that we want within some velocity range, making sure the section we cut out 
+        # goes back up to the conintuum level (no dicontinuities)
+
         print('getting initial window')
         i_start, i_end, N = self.get_initial_window(vel_range) 
         print(i_start, i_end)
         i_start, i_end, N = self.extend_to_continuum(i_start, i_end, N)
         print(i_start, i_end)
 
+        # cope with spectra that go beyond the left hand edge of the box (periodic wrapping)
         if i_start < 0:
             i_start += len(self.wavelengths)
             i_end += len(self.wavelengths)
 
+        # extract the wavelengths and fluxes for fitting
         waves = self.wavelengths.take(range(i_start, i_end), mode='wrap')
         flux = self.fluxes.take(range(i_start, i_end), mode='wrap')
 
@@ -199,21 +226,25 @@ class Spectrum(object):
             waves[i_wrap:] += wave_boxsize + dl
             # then for any fitted lines with position outwith the right-most box limits: subtract dl + wave_boxsize
 
+        # add a buffer of continuum to either side to help the voigt fitter identify where to fit
         print('Doing continuum buffer')
         if do_continuum_buffer is True:
             waves, flux = self.buffer_with_continuum(waves, flux, nbuffer=nbuffer)
 
+        # get the noise level
         if hasattr(self, 'snr'):
             snr = self.snr
         else:
             snr = snr_default
         noise = np.asarray([1./snr] * len(flux))
 
+        # to identify the region boundaries only:
         if do_regions:
             self.line_list = {}
             regions_l, regions_i = pg.analysis.find_regions(waves, flux, noise, min_region_width=2, extend=True)
             self.line_list['region'] = np.arange(len(regions_l))
 
+        # to perform the voigt fitting:
         if do_fit:
             print('Fitting...')
             if self.ion_name == 'H1215':
@@ -235,7 +266,7 @@ class Spectrum(object):
                 elif self.line_list['l'][i] < self.wavelengths[0]:
                     self.line_list['l'][i] += (wave_boxsize + dl)
 
-
+        # keep the fit, save to the original spectrum file
         print(self.line_list)
         if write_lines:
             self.write_line_list()

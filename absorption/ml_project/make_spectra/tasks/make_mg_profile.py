@@ -1,3 +1,5 @@
+# Produce radial profiles of MgII metallicity for the sample galaxies
+
 import numpy as np
 import h5py
 import os

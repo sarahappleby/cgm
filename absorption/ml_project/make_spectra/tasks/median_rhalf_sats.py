@@ -1,3 +1,5 @@
+# Get the typical rhalf of the galaxies in a mass range
+
 import caesar
 import h5py
 import numpy as np

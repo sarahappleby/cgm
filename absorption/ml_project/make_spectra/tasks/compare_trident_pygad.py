@@ -1,5 +1,4 @@
-# Our main pipeline script to run pygad on each LOS
-# Run using sub_line_pipeline.sh and sub_pipeline.sh
+# Do a test spectrum generation comparing trident and pygad.
 
 import sys
 import os

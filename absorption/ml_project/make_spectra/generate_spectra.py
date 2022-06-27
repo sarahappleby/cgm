@@ -1,4 +1,4 @@
-# Calling pygad to generate synthetic spectra.
+# Routines to call pygad to generate and save synthetic spectra.
 
 import matplotlib.pyplot as plt
 import numpy as np 

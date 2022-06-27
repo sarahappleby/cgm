@@ -8,12 +8,11 @@ if __name__ == '__main__':
     model = sys.argv[1]
     wind = sys.argv[2]
     snap = sys.argv[3]
-    log_frad = sys.argv[4]
-    i = int(sys.argv[5])
+    i = int(sys.argv[4])
 
+    log_frad = 1.0
     vel_range = 600.
     chisq_asym_thresh = -3.
-    chisq_unacceptable = 25.
 
     spec_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/{model}_{wind}_{snap}/log_frad_{log_frad}/'
     spec_file = sorted(os.listdir(spec_dir))[i]
@@ -21,8 +20,7 @@ if __name__ == '__main__':
     print(spec_file)
 
     spec = Spectrum(f'{spec_dir}{spec_file}')
-    
     if hasattr(spec, 'line_list'):
         sys.exit()
     else:
-        spec.main(vel_range=vel_range, do_regions=True, do_fit=False, plot_fit=False, write_lines=True)
+        spec.main(vel_range=vel_range, chisq_asym_thresh=-3., write_lines=True)

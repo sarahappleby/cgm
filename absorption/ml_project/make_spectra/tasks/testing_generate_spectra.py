@@ -1,3 +1,5 @@
+# spectrum generation from pygad vs trident
+
 import matplotlib.pyplot as plt
 import numpy as np
 import h5py

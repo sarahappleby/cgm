@@ -1,0 +1,26 @@
+This directory contains scripts for generating the spectra and absorber sample for the 'Physical Conditions in the CGM' paper and resulting 
+machine learning project. We divide Mstar-sSFR space into 18 sections and select 12 Simba galaxies from each section, then generate synthetic 
+spectra in their CGM at a range of impact parameters and angles for HI and selected metals: MgII, CII, SiIII, CIV, OVI.
+
+Step 1) get_galaxy_sample.py - selects the underlying galaxy sample randomly from the regions in phase space and saves out the galaxy ids and 
+properties.
+
+Step 2) plot_galaxy_sample.py - generates plots of the galaxy sample.
+
+Step 3) select_los_particles.py - identifies a particle list for each galaxy in the sample, of gas particles whose smoothing lengths intersect
+with the line of sight. Each galaxy has 40 lines of sight (8 angles and 5 impact parameters).
+
+Step 4) save_new_dataset.py - using the list of LOS gas particles, save out a new snapfile from the original Simba snapfile containing only the
+LOS particles.
+
+Step 5) pipeline.py - the main pipeline for generating the spectra for each line of sight. Uses the methods in generate_spectra.py
+
+Step 6) fit_profiles.py - do the actual fitting, one spectrum file at a time. Checks whether the file already has a fit saved and if not, uses 
+spectrum.py to call the pygad voigt profile fitting.
+
+Submission files live in the 'submission' directory.
+
+Scripts with 'satellites' are used to perform the same tasks but for the satellite-only test. Similarly 'no_uvb' scripts are for the test without
+the UV photoionising background.
+
+Miscellaneous scripts live in the 'tasks' directory.

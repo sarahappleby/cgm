@@ -1,3 +1,5 @@
+# Incomplete; at one point I wanted to compute the angular momentum of each sample galaxy from their halo particles.
+
 import numba
 import numpy as np
 import h5py

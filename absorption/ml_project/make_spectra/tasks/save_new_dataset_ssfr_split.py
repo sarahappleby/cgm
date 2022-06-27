@@ -1,6 +1,4 @@
-# Script for creating subsets of particles from gizmo sims
-# Based on scripts by Sydney Lower and Chris Lovell
-# https://gist.github.com/christopherlovell/5a504c2c9d26efb6e073324d80c755a6 
+# Save out new snapfiles using only particles from star forming/green valley/quenched galaxies
 
 import h5py
 import caesar

@@ -1,3 +1,5 @@
+# Plot the spectra for each galaxy
+
 import matplotlib.pyplot as plt
 import h5py
 import numpy as np
@@ -27,6 +29,7 @@ if __name__ == '__main__':
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
+    completeness_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}_completeness/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -39,6 +42,9 @@ if __name__ == '__main__':
 
             spec_name = f'sample_galaxy_{gal_id}_{line}_{orient}_{fr200}r200'
             spectrum = read_h5_into_dict(f'{spectra_dir}{spec_name}.h5')
+            spectrum_snr100 = read_h5_into_dict(f'{completeness_dir}{spec_name}.h5')
+            spectrum['line_list'] = spectrum_snr100['line_list']
+
 
             ax[i][0].plot(spectrum['velocities'], spectrum['fluxes'], c=cb_blue, ls='-', lw=1)
             ax[i][0].annotate(plot_lines[i], xy=(0.75, 0.05), xycoords='axes fraction')
@@ -63,7 +69,7 @@ if __name__ == '__main__':
 
         plt.tight_layout()
         fig.subplots_adjust(hspace=0.)
-        plt.savefig(f'align_plots/sample_galaxy_{gal_id}_{orient}_{fr200}r200_chisq_lim_{chisq_lim}.png')
+        plt.savefig(f'align_plots/sample_galaxy_{gal_id}_{orient}_{fr200}r200_chisq_lim_{chisq_lim}_snr100.png')
         plt.close()
 
 

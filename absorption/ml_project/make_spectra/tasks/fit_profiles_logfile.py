@@ -1,3 +1,5 @@
+# Didn't end up using this but considered saving a logfile of the fits that are already complete 
+
 import os
 import sys
 import numpy as np

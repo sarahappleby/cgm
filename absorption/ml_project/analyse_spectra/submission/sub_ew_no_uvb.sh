@@ -4,7 +4,7 @@ model=m100n1024
 wind=s50
 snap=151
 declare -a uvb=("with_uvb" "no_uvb")
-declare -a minT=("4.0" "4.5" "5.0" "5.5")
+declare -a minT=("6.0")
 
 for u in "${uvb[@]}"
 do

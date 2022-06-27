@@ -1,3 +1,5 @@
+# Saving out the halo temperature properties of the sample galaxies
+
 import numpy as np
 import h5py
 import sys

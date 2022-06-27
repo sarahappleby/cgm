@@ -1,3 +1,5 @@
+# Just plot the Keck LSF shape
+
 from astropy.convolution import convolve, Gaussian1DKernel
 
 pixel_size = 2.5 # km/s

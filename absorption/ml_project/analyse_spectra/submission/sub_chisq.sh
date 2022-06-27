@@ -5,12 +5,12 @@ declare -a lines=("H1215" "MgII2796" "CII1334" "SiIII1206" "CIV1548" "OVI1031")
 
 model=m100n1024
 wind=s50
-snap=137
+snap=125
 for f in "${fr200[@]}"
 do
 	for l in "${lines[@]}"
 	do
 
-		python gather_line_results.py $model $wind $snap $f $l 
+		python gather_total_results.py $model $wind $snap $f $l 
 	done
 done

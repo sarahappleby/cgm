@@ -1,3 +1,6 @@
+# Switched from a Belfiore+18 definition of star forming/green valley galaxies, so needed to redefine which were SF/GV/Q 
+# and pick new Simba galaxies for bins which now didn't have enough.
+
 import caesar
 import yt
 import numpy as np

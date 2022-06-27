@@ -1,3 +1,6 @@
+# Starting from the snapfile containing only LOS particles, save out a new snapfile containing only particles
+# within a temperature range (used for the collisional ionisation contribution tests).
+
 import numpy as np
 from pygadgetreader import readsnap
 from save_new_dataset import make_new_dataset, prepare_out_file  
@@ -9,7 +12,7 @@ if __name__ == '__main__':
     wind = 's50'
     snap = '151'
     verbose = 2
-    minT = 5.5
+    minT = 6.0
     
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     snapfile = f'{sample_dir}{model}_{wind}_{snap}.hdf5'

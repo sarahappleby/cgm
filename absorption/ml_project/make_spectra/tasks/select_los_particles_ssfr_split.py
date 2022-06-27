@@ -1,8 +1,4 @@
-# Script to identify LOS particles for a given selected galaxy, for LOS parallel to the z axis of the simulation
-# Run using sub_los_particles.sh
-
-# for each galaxy in the sample, identify particles that contribute towards the line of sight using the smoothing length of each particle
-# save new dataset containing only these particles using Chris's approach
+# As in select los particles, but for only galaxies of a certain type.
 
 from pygadgetreader import readsnap
 import numpy as np

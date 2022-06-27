@@ -1,3 +1,5 @@
+# Playing with definitions of star forming, green valley, quenched
+
 import caesar
 import numpy as np
 import h5py

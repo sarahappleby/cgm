@@ -1,3 +1,5 @@
+# Testing the spectrum generation from pygad vs trident
+
 import pygad as pg
 import numpy as np
 import h5py 

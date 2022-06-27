@@ -1,3 +1,5 @@
+# Plot a test spectrum with and without the UVB.
+
 import matplotlib.pyplot as plt
 from spectrum import Spectrum
 

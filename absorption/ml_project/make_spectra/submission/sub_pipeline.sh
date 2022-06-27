@@ -6,7 +6,7 @@ model=m100n1024
 wind=s50
 snap=151
 
-for ii in {0..212}
+for ii in {0..216}
 do
    echo Submitting job $ii
    python $pipeline_path/pipeline.py $model $wind $snap $ii $line

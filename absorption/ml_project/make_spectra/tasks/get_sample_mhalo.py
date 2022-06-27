@@ -1,3 +1,5 @@
+# Forgot to save out the Mhalo of the galaxy sample :)
+
 import numpy as np
 import h5py
 import sys

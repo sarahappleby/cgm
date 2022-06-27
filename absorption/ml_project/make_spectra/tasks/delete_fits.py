@@ -1,3 +1,5 @@
+# Deleting the fits that already exist in the spectrum files to run the fitting again.
+
 import os
 import sys
 import h5py

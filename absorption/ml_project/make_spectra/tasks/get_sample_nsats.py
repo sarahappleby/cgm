@@ -1,3 +1,5 @@
+# Saving out the number of satellites each sample galaxy has :) 
+
 import numpy as np
 import h5py
 import sys
