@@ -1,3 +1,6 @@
+# Plot the EW of the fit against N, and get an expression for fitted EW against N. Use to estimate how much absorption
+# is missing from the fitted sample.
+
 import numpy as np
 import h5py
 import sys

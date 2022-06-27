@@ -1,3 +1,5 @@
+# Plot the EW from directly summing spectra vs the EW from the voigt fitting.
+
 import matplotlib.pyplot as plt
 import h5py
 import numpy as np
@@ -5,10 +7,6 @@ import sys
 sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
 from utils import *
 from physics import *
-
-def get_total_ew(fitted_ews):
-    ew = 10**fitted_ews
-    return np.log10(np.sum(ew))
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=13)
@@ -75,6 +73,7 @@ if __name__ == '__main__':
         sum_ew_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
         sum_ew_dict = read_h5_into_dict(sum_ew_file)
 
+        """
         # for 0.25 r200 only:
         data_x = np.log10(sum_ew_dict[f'ew_wave_{fr200_choose}r200']+1e-3).flatten()
         data_y = np.log10(fit_ew_dict[f'fit_ew_{fr200_choose}r200'] + 1e-3).flatten()
@@ -82,7 +81,7 @@ if __name__ == '__main__':
         data_c[np.isnan(data_c)] = 3.
 
         make_comparison_plots(data_x, data_y, data_c, f'{plot_dir}{model}_{wind}_{snap}_{line}_{fr200_choose}r200')
-
+        """
 
         # for all impact parameters:
         all_fit_data = np.zeros(( len(fr200), len(sum_ew_dict[f'ew_wave_{fr200_choose}r200']) * norients))

@@ -1,3 +1,5 @@
+# Make plots of the spectrum fits for LOS within a range of chisq values to compare the quality of the fits.
+
 import matplotlib.pyplot as plt
 import h5py
 import numpy as np
@@ -69,9 +71,11 @@ if __name__ == '__main__':
     chisq_dict = read_h5_into_dict(chisq_file)
     max_chisq = chisq_dict[f'max_chisq_{fr200}r200'] 
 
-    make_chisq_range_plots(max_chisq, 2.9, 3.1, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_2.9_3.1/')
-    make_chisq_range_plots(max_chisq, 3.9, 4.1, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_3.9_4.1/')
-    make_chisq_range_plots(max_chisq, 4.9, 5.1, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_4.9_5.1/')
+    make_chisq_range_plots(max_chisq, 20, 500, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_min_20/')
+
+    #make_chisq_range_plots(max_chisq, 2.9, 3.1, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_2.9_3.1/')
+    #make_chisq_range_plots(max_chisq, 3.9, 4.1, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_3.9_4.1/')
+    #make_chisq_range_plots(max_chisq, 4.9, 5.1, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_4.9_5.1/')
 
     #make_chisq_range_plots(max_chisq, 0., 2.5, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_0_2.5/')
     #make_chisq_range_plots(max_chisq, 2.5, 5., gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_2.5_5/')

@@ -1,0 +1,9 @@
+This directory contains scripts for analysing the absorber sample in the 'Physical conditions in the CGM' paper
+
+- Scripts with 'equivalent_width' compute the total equivalent width for each LOS (directly from the spectra).
+- Scripts with 'gather_' group the fitted absorption information from each spectrum file into one file containing
+all absorber information.
+- Scripts with 'get_' are used to compute results/ save information.
+- Scripts with 'plot_' are used for plotting.
+
+- Scripts used in Appleby+22 are also set aside in the 'appleby_2022' directory for clarity :) 

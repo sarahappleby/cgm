@@ -1,3 +1,5 @@
+# Plot histograms (+cumulative histograms) of the chisq for absorbers in the sample
+
 import matplotlib.pyplot as plt
 import h5py
 import numpy as np

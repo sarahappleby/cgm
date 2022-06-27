@@ -1,3 +1,5 @@
+# Plot the fraction of EW recovered as a function of chisq.
+
 import numpy as np
 import h5py
 import sys
