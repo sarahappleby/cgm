@@ -39,14 +39,25 @@ if __name__ == '__main__':
     for i in range(len(lines)):
         
         dataset[f'EW_{lines_short[i]}'] = np.zeros(ngals*norients*nbins_fr200)
+        dataset[f'los_rho_{lines_short[i]}'] = np.zeros(ngals*norients*nbins_fr200)
+        dataset[f'los_T_{lines_short[i]}'] = np.zeros(ngals*norients*nbins_fr200)
+        dataset[f'los_Z_{lines_short[i]}'] = np.zeros(ngals*norients*nbins_fr200)
+
         sum_ew_file = f'{data_dir}{model}_{wind}_{snap}_ew_{lines[i]}.h5'
         sum_ew_dict = read_h5_into_dict(sum_ew_file)
+        los_rhoTZ_file = f'{data_dir}{model}_{wind}_{snap}_Nweighted_rhoTZ_{lines[i]}.h5'
+        los_rhoTZ_dict = read_h5_into_dict(los_rhoTZ_file)
 
         for j in range(ngals):
             i_start = j*norients*nbins_fr200
 
             for k in range(nbins_fr200):
+
                 dataset[f'EW_{lines_short[i]}'][i_start:i_start+norients] = sum_ew_dict[f'ew_wave_{fr200[k]}r200'][j]
+                dataset[f'los_rho_{lines_short[i]}'][i_start:i_start+norients] = los_rhoTZ_dict[f'los_rho_{fr200[k]}r200'][j]
+                dataset[f'los_T_{lines_short[i]}'][i_start:i_start+norients] = los_rhoTZ_dict[f'los_T_{fr200[k]}r200'][j]]
+                dataset[f'los_Z_{lines_short[i]}'][i_start:i_start+norients] = los_rhoTZ_dict[f'los_Z_{fr200[k]}r200'][j]
+
                 i_start += norients
 
     input_df = pd.DataFrame(dataframe)
