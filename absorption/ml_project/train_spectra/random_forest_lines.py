@@ -22,7 +22,7 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
     
-    line = 'H1215'
+    line = sys.argv[4]
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     lines_short = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
