@@ -38,17 +38,24 @@ if __name__ == '__main__':
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     data_dir = f'/home/rad/data/{model}/{wind}/'
     snapfile = f'{data_dir}snap_{model}_{snap}.hdf5'
+    
+    #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
+    #particle_file = f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5'
+
+    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
+    particle_file = f'{sample_dir}{model}_{wind}_{snap}_particle_selection_extras.h5'
+
     sim =  caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5')
     h = sim.simulation.hubble_constant
     redshift = sim.simulation.redshift
 
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as f:
+    with h5py.File(sample_file, 'r') as f:
         gal_id = f['gal_ids'][:].astype('int')[sample_gal]
         pos = f['position'][:][sample_gal] * (1.+redshift) # already in kpc/h, factor of 1+z for comoving
         r200 = f['halo_r200'][:][sample_gal] * (1.+redshift) # already in kpc/h, factor of 1+z for comoving
 
-    if os.path.isfile(f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5'):
-        with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5', 'r') as hf:
+    if os.path.isfile(particle_file):
+        with h5py.File(particle_file, 'r') as hf:
             if f'plist_{gal_id}' in hf.keys():
                 sys.exit()
 
@@ -77,7 +84,7 @@ if __name__ == '__main__':
             del partids_los
 
     partids = np.unique(np.sort(partids))
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5', 'a') as f:
+    with h5py.File(particle_file, 'a') as f:
         f.create_dataset(f'plist_{gal_id}', data=np.array(partids))
     del partids
 

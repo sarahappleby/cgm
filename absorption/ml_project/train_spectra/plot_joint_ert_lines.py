@@ -31,13 +31,13 @@ if __name__ == '__main__':
 
     model_dir = f'/disk04/sapple/cgm/absorption/ml_project/train_spectra/models/'
 
-    random_forest, features, predictors, feature_scaler, predictor_scaler, df_full = \
-                pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF.model', 'rb'))
+    etree, features, predictors, feature_scaler, predictor_scaler, df_full = \
+                pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_ERT.model', 'rb'))
     train = df_full['train_mask']
 
     test_data = df_full[~train]; del df_full
     test_data = test_data.reset_index(drop=True)
-    prediction = pd.DataFrame(predictor_scaler.inverse_transform(random_forest.predict(feature_scaler.transform(test_data[features]))),
+    prediction = pd.DataFrame(predictor_scaler.inverse_transform(etree.predict(feature_scaler.transform(test_data[features]))),
                               columns=[pred+'_pred' for pred in predictors])
     data = pd.concat([test_data[predictors], prediction], axis=1); del prediction
 
@@ -75,5 +75,5 @@ if __name__ == '__main__':
         pos = matplotlib.transforms.Bbox([[pos.xmin+0.04, pos.ymin], [pos.xmax+0.04, pos.ymax]])
         g.figure.axes[2].set_position(pos)
         """
-        plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_joint_{pred}.png')
+        plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_ERT_joint_{pred}.png')
         plt.close()

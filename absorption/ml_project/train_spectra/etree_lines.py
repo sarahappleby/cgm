@@ -1,4 +1,4 @@
-### Routine to apply the sklearn randomm forest to the line by line absorption data
+### Routine to apply the sklearn extremely randomised trees to the line by line absorption data
 
 import h5py
 import numpy as np
@@ -100,22 +100,22 @@ if __name__ == '__main__':
 
     # Step 4) Cross validation of the random forest using Kfold
     ss = KFold(n_splits=5, shuffle=True)
-    tuned_parameters = {'n_estimators':[10, 50, 75, 100, 125],
-                        #'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
-                        'min_samples_split': [5,15,25,35], 
-                        'min_samples_leaf': [2,4,6,8], 
-                        } 
+    tuned_parameters = {
+                    'n_estimators': [25,35,45,55],
+                    'min_samples_split': [5,15,25,35], 
+                    'min_samples_leaf': [2,4,6,8], 
+                    } 
 
-    random_forest = GridSearchCV(RandomForestRegressor(), param_grid=tuned_parameters, cv=None, n_jobs=4)
+    etree = GridSearchCV(ExtraTreesRegressor(), param_grid=tuned_parameters, cv=None, n_jobs=4)
 
-    # Step 5) Run and save the random forest routine
-    random_forest.fit(feature_scaler.transform(df_full[train][features]), predictor_scaler.transform(df_full[train][predictors]))
-    print(random_forest.best_params_)    
-    pickle.dump([random_forest, features, predictors, feature_scaler, predictor_scaler, df_full], 
-                open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF.model', 'wb'))
+    # Step 5) Run and save the extremely randomised trees routine
+    etree.fit(feature_scaler.transform(df_full[train][features]), predictor_scaler.transform(df_full[train][predictors]))
+    print(etree.best_params_)    
+    pickle.dump([etree, features, predictors, feature_scaler, predictor_scaler, df_full], 
+                open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_ERT.model', 'wb'))
 
     # Step 6) Predict conditions
-    conditions_pred = pd.DataFrame(predictor_scaler.inverse_transform(random_forest.predict(feature_scaler.transform(df_full[~train][features]))),columns=predictors)
+    conditions_pred = pd.DataFrame(predictor_scaler.inverse_transform(etree.predict(feature_scaler.transform(df_full[~train][features]))),columns=predictors)
     conditions_true = pd.DataFrame(df_full[~train],columns=predictors)
 
     # Step 7) Evaluate performance
@@ -128,9 +128,8 @@ if __name__ == '__main__':
     for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
         err[_scorer.__name__] = _scorer(df_full[~train][predictors],
                                         conditions_pred, multioutput='raw_values')
-    print(err)
 
     # Step 8) Feature importance
-    importance_rf = random_forest.best_estimator_.feature_importances_
+    importance_rf = etree.best_estimator_.feature_importances_
     idx = importance_rf.argsort()[::-1]
     print(np.asarray(features)[idx])
