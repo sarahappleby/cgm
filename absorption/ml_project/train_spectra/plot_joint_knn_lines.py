@@ -5,8 +5,10 @@ import numpy as np
 import pandas as pd
 import pickle
 import sys
+
 from scipy.stats import pearsonr
 from sklearn.metrics import r2_score, explained_variance_score, mean_squared_log_error, mean_squared_error
+
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=16)
@@ -33,14 +35,14 @@ if __name__ == '__main__':
 
     model_dir = f'/disk04/sapple/cgm/absorption/ml_project/train_spectra/models/'
 
-    random_forest, features, predictors, feature_scaler, predictor_scaler, df_full = \
-                pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF.model', 'rb'))
+    knn, features, predictors, feature_scaler, predictor_scaler, df_full = \
+                pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_KNN.model', 'rb'))
     train = df_full['train_mask']
     pred_str = [p+'_pred' for p in predictors]
 
     test_data = df_full[~train]; del df_full
     test_data = test_data.reset_index(drop=True)
-    prediction = pd.DataFrame(predictor_scaler.inverse_transform(random_forest.predict(feature_scaler.transform(test_data[features]))),
+    prediction = pd.DataFrame(predictor_scaler.inverse_transform(knn.predict(feature_scaler.transform(test_data[features]))),
                               columns=[pred+'_pred' for pred in predictors])
     data = pd.concat([test_data[predictors], prediction], axis=1); del prediction
 
@@ -74,9 +76,8 @@ if __name__ == '__main__':
                               transform=g.figure.axes[0].transAxes)
 
         cax = g.figure.add_axes([x[p], .6, .02, .2])
-        g.figure.colorbar(mpl.cm.ScalarMappable(norm=g.figure.axes[0].collections[0].norm, cmap=g.figure.axes[0].collections[0].cmap),
-                          cax=cax, label=r'$n$')
-
+        cbar = g.figure.colorbar(mpl.cm.ScalarMappable(norm=g.figure.axes[0].collections[0].norm, cmap=g.figure.axes[0].collections[0].cmap),
+                                 cax=cax, label=r'$n$')
         """
         pos = g.figure.axes[1].get_position()
         pos = matplotlib.transforms.Bbox([[pos.xmin, pos.ymin+0.025], [pos.xmax, pos.ymax+0.025]])
@@ -86,17 +87,18 @@ if __name__ == '__main__':
         pos = matplotlib.transforms.Bbox([[pos.xmin+0.04, pos.ymin], [pos.xmax+0.04, pos.ymax]])
         g.figure.axes[2].set_position(pos)
         """
-        plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_joint_{pred}.png')
+        plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_KNN_joint_{pred}.png')
         plt.close()
 
     # Evaluate performance
     pearson = []
     for p in predictors:
         pearson.append(round(pearsonr(data[p],data[f'{p}_pred'])[0],3))
-    err_rf = pd.DataFrame({'Predictors': predictors, 'Pearson': pearson})
+    err_knn = pd.DataFrame({'Predictors': predictors, 'Pearson': pearson})
 
     scores = {}
     for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
-        err_rf[_scorer.__name__] = _scorer(data[predictors],
+        err_knn[_scorer.__name__] = _scorer(data[predictors],
                                             data[pred_str], multioutput='raw_values')
-    print(err_rf)
+    print(err_knn)
+

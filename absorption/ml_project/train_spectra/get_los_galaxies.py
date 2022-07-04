@@ -14,6 +14,9 @@ def handle_periodic_mask(sample_gal_vpos, gal_vpos, vel_range, vel_boxsize):
     dv_right_edge = vel_boxsize - sample_gal_vpos
     if dv_right_edge < vel_range: 
         mask = mask | (gal_vpos < vel_range - dv_right_edge)
+    dv_left_edge = sample_gal_vpos - vel_range
+    if dv_left_edge < 0:
+        mask = mask | (gal_vpos > vel_boxsize - np.abs(dv_left_edge))
     return mask
 
 def move_edge_galaxies(los, gal_pos, rho, boxsize):
@@ -97,12 +100,8 @@ if __name__ == '__main__':
         for j in range(len(fr200)):
 
             rho = sample_gal_r200[i] * fr200[j]
-            vel_mask = (gal_vpos > sample_gal_vpos[i] - vel_range) & (gal_vpos < sample_gal_vpos[i] + vel_range) 
-            # handle periodic boundaries
-            dv_right_edge = vel_boxsize - sample_gal_vpos[i]
-            if dv_right_edge < vel_range:
-                vel_mask = vel_mask | (gal_vpos  < vel_range - dv_right_edge)
-   
+            vel_mask = handle_periodic_mask(sample_gal_vpos[i], gal_vpos, vel_range, vel_boxsize)
+
             los = np.tile(sample_gal_pos[i][:2], len(orients)).reshape(len(orients), 2)
             los[0][0] += rho # orient 0 degrees
             los[1][0] += (rho / sqrt2); los[1][1] += (rho / sqrt2) # orient 45 degrees 

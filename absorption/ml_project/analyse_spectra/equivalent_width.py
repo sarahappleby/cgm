@@ -24,6 +24,7 @@ if __name__ == '__main__':
     lines = ['H1215', 'MgII2796', 'CII1334', 'SiIII1206', 'CIV1548', 'OVI1031']
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg']
     vel_range = 600. #km/s
+    vel_boxsize = 10000. # km/s
     bin_size = 6. # km/s 
     c = 2.98e8 # km/s
    
@@ -56,7 +57,19 @@ if __name__ == '__main__':
                         spec_name = f'sample_galaxy_{gal_ids[j]}_{line}_{orient}_{fr200[i]}r200'
                         spec = read_h5_into_dict(f'{spectra_dir}{spec_name}.h5')
 
+                        if spec['gal_velocity_pos'] > vel_boxsize:
+                            spec['gal_velocity_pos'] -= vel_boxsize
+                        elif spec['gal_velocity_pos'] < 0:
+                            spec['gal_velocity_pos'] += vel_boxsize
+        
                         vel_mask = (spec['velocities'] < spec['gal_velocity_pos'] + vel_range) & (spec['velocities'] > spec['gal_velocity_pos'] - vel_range)
+                        dv_right_edge = vel_boxsize - spec['gal_velocity_pos']
+                        if dv_right_edge < vel_range:
+                            vel_mask = vel_mask | (spec['velocities'] < vel_range - dv_right_edge)
+                        dv_left_edge = spec['gal_velocity_pos'] - vel_range
+                        if dv_left_edge < 0:
+                            vel_mask = vel_mask | (spec['velocities'] > vel_boxsize - np.abs(dv_left_edge))
+
                         flux = spec['fluxes'][vel_mask]
                         pixel_size = spec['wavelengths'][1] - spec['wavelengths'][0]
                         all_ew[j][o] = equivalent_width(flux, pixel_size)

@@ -1,4 +1,4 @@
-### Routine to apply the sklearn randomm forest to the line by line absorption data
+### Routine to apply the autokeras structured data regressor to the line by line absorption data
 
 import h5py
 import numpy as np
@@ -6,12 +6,9 @@ import pandas as pd
 import pickle
 import sys
 
-from sklearn.neural_network import MLPRegressor
-from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
-from sklearn.model_selection import GridSearchCV, KFold
+import autokeras as ak
 from sklearn import preprocessing
 from sklearn.metrics import r2_score, explained_variance_score, mean_squared_log_error, mean_squared_error
-
 from scipy.stats import pearsonr
 
 np.random.seed(1)
@@ -23,6 +20,10 @@ if __name__ == '__main__':
     snap = sys.argv[3]
     
     line = sys.argv[4]
+
+    # AK params
+    max_trials = 5
+    epochs = 10
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     lines_short = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
@@ -98,34 +99,24 @@ if __name__ == '__main__':
     print("train / test:", np.sum(train), np.sum(~train))
 
     feature_scaler = preprocessing.StandardScaler().fit(df_full[train][features])
-    predictor_scaler = preprocessing.StandardScaler().fit(df_full[train][predictors])
+    predictor_scaler = preprocessing.StandardScaler().fit(df_full[train][predictors]) 
+   
+    features_scaled = pd.DataFrame(feature_scaler.transform(df_full[train][features]), columns=features)
+    predictors_scaled = pd.DataFrame(predictor_scaler.transform(df_full[train][predictors]), columns=predictors)
 
-    # Step 4) Cross validation of the random forest using Kfold
-    ss = KFold(n_splits=5, shuffle=True)
-    tuned_parameters = {'n_estimators':[10, 50, 75, 100, 125],
-                        'criterion':['squared_error', 'absolute_error', 'poisson'],
-                        'min_samples_split': [5,15,25,35], 
-                        'min_samples_leaf': [2,4,6,8], 
-                        } 
+    # Step 4) Run and save the regression routine
+    
+    reg = ak.StructuredDataRegressor(overwrite=True, seed=1, max_trials=max_trials)
+    reg.fit(features_scaled, predictors_scaled, epochs=epochs)
+    pickle.dump([reg, features, predictors, feature_scaler, predictor_scaler, df_full], 
+                open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_AK_SDR.model', 'wb'))
 
-    tuned_parameters = {'n_estimators':np.arange(50, 100), 
-                        'min_samples_split': [5],
-                        'min_samples_leaf': [2]
-                        }
-
-    random_forest = GridSearchCV(RandomForestRegressor(), param_grid=tuned_parameters, refit=True, cv=None, n_jobs=4)
-
-    # Step 5) Run and save the random forest routine
-    random_forest.fit(feature_scaler.transform(df_full[train][features]), predictor_scaler.transform(df_full[train][predictors]))
-    print(random_forest.best_params_)    
-    pickle.dump([random_forest, features, predictors, feature_scaler, predictor_scaler, df_full], 
-                open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF.model', 'wb'))
-
-    # Step 6) Predict conditions
-    conditions_pred = pd.DataFrame(predictor_scaler.inverse_transform(random_forest.predict(feature_scaler.transform(df_full[~train][features]))),columns=predictors)
+    # Step 5) Predict conditions
+    conditions_pred = reg.predict(df_full[features][~train])
+    conditions_pred = pd.DataFrame(conditions_pred, columns=predictors)
     conditions_true = pd.DataFrame(df_full[~train],columns=predictors)
 
-    # Step 7) Evaluate performance
+    # Step 6) Evaluate performance
     pearson = []
     for p in predictors:
         pearson.append(round(pearsonr(df_full[~train][p],conditions_pred[p])[0],3))
@@ -136,8 +127,3 @@ if __name__ == '__main__':
         err[_scorer.__name__] = _scorer(df_full[~train][predictors],
                                         conditions_pred, multioutput='raw_values')
     print(err)
-
-    # Step 8) Feature importance
-    importance_rf = random_forest.best_estimator_.feature_importances_
-    idx = importance_rf.argsort()[::-1]
-    print(np.asarray(features)[idx])
