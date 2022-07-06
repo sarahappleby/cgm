@@ -5,10 +5,8 @@ import numpy as np
 import pandas as pd
 import pickle
 import sys
-
 from scipy.stats import pearsonr
 from sklearn.metrics import r2_score, explained_variance_score, mean_squared_log_error, mean_squared_error
-
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=16)
@@ -20,6 +18,8 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
     line = sys.argv[4]
+
+    predictors = ['rho', 'T', 'Z']
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     lines_short = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI'] 
@@ -35,22 +35,31 @@ if __name__ == '__main__':
 
     model_dir = f'/disk04/sapple/cgm/absorption/ml_project/train_spectra/models/'
 
-    knn, features, predictors, feature_scaler, predictor_scaler, df_full = \
-                pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_AK_SDR.model', 'rb'))
-    train = df_full['train_mask']
-    pred_str = [p+'_pred' for p in predictors]
-
-    test_data = df_full[~train]; del df_full
-    test_data = test_data.reset_index(drop=True)
-    prediction = pd.DataFrame(predictor_scaler.inverse_transform(knn.predict(feature_scaler.transform(test_data[features]))),
-                              columns=[pred+'_pred' for pred in predictors])
-    data = pd.concat([test_data[predictors], prediction], axis=1); del prediction
-
     diff = {pred: None for pred in predictors}
-    for pred in predictors:
-        diff[pred] = np.array(data[pred]) - np.array(data[f'{pred}_pred'])
+    err = pd.DataFrame(columns=['Predictor', 'Pearson', 'r2_score', 'explained_variance_score', 'mean_squared_error'])
 
     for p, pred in enumerate(predictors):
+
+        random_forest, features, _, feature_scaler, predictor_scaler, df_full = \
+                    pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_{pred}.model', 'rb'))
+        train = df_full['train_mask']
+        pred_str = pred+'_pred'
+
+        test_data = df_full[~train]; del df_full
+        test_data = test_data.reset_index(drop=True)
+        prediction = pd.DataFrame(predictor_scaler.inverse_transform( np.array(random_forest.predict(feature_scaler.transform(test_data[features])).reshape(-1, 1) )),
+                                  columns=[pred+'_pred'])
+        data = pd.concat([test_data[pred], prediction], axis=1); del prediction
+
+        diff[pred] = np.array(data[pred]) - np.array(data[f'{pred}_pred'])
+        
+        scores = {}
+        scores['Predictor'] = pred
+        scores['Pearson'] = round(pearsonr(data[pred],data[pred+'_pred'])[0],3)
+        for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
+            scores[_scorer.__name__] = float(_scorer(data[pred],
+                                               data[pred_str], multioutput='raw_values'))
+        err = err.append(scores, ignore_index=True) 
 
         bins = np.arange(limits[p][0], limits[p][1]+0.2, 0.2)
 
@@ -71,20 +80,9 @@ if __name__ == '__main__':
                               transform=g.figure.axes[0].transAxes)
 
         cax = g.figure.add_axes([x[p], .6, .02, .2])
-        cbar = g.figure.colorbar(mpl.cm.ScalarMappable(norm=g.figure.axes[0].collections[0].norm, cmap=g.figure.axes[0].collections[0].cmap),
-                                 cax=cax, label=r'$n$')
-        plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_AK_SDR_joint_{pred}.png')
+        g.figure.colorbar(mpl.cm.ScalarMappable(norm=g.figure.axes[0].collections[0].norm, cmap=g.figure.axes[0].collections[0].cmap),
+                          cax=cax, label=r'$n$')
+
+        plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_joint_single_{pred}.png')
         plt.close()
-
-    # Evaluate performance
-    pearson = []
-    for p in predictors:
-        pearson.append(round(pearsonr(data[p],data[f'{p}_pred'])[0],3))
-    err_ak = pd.DataFrame({'Predictors': predictors, 'Pearson': pearson})
-
-    scores = {}
-    for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
-        err_ak[_scorer.__name__] = _scorer(data[predictors],
-                                            data[pred_str], multioutput='raw_values')
-    print(err_ak)
 

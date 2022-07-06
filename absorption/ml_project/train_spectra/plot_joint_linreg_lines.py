@@ -35,14 +35,14 @@ if __name__ == '__main__':
 
     model_dir = f'/disk04/sapple/cgm/absorption/ml_project/train_spectra/models/'
 
-    knn, features, predictors, feature_scaler, predictor_scaler, df_full = \
-                pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_AK_SDR.model', 'rb'))
+    reg, features, predictors, feature_scaler, predictor_scaler, df_full = \
+                pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_LR.model', 'rb'))
     train = df_full['train_mask']
     pred_str = [p+'_pred' for p in predictors]
 
     test_data = df_full[~train]; del df_full
     test_data = test_data.reset_index(drop=True)
-    prediction = pd.DataFrame(predictor_scaler.inverse_transform(knn.predict(feature_scaler.transform(test_data[features]))),
+    prediction = pd.DataFrame(predictor_scaler.inverse_transform(reg.predict(feature_scaler.transform(test_data[features]))),
                               columns=[pred+'_pred' for pred in predictors])
     data = pd.concat([test_data[predictors], prediction], axis=1); del prediction
 
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         g = sns.jointplot(data=data[mask], x=pred, y=f'{pred}_pred', 
                           kind="hex", joint_kws=dict(bins='log', alpha=0.8), xlim=[limits[p][0], limits[p][1]], ylim=[limits[p][0], limits[p][1]],
                           marginal_ticks=True, marginal_kws=dict(bins=bins, fill=False, stat='probability'))
-
+        
         g.figure.axes[0].plot(bins, bins, ls=':', lw=2, c='k')
         g.set_axis_labels(xlabel=xlabels[p], ylabel=ylabels[p])
 
@@ -73,18 +73,18 @@ if __name__ == '__main__':
         cax = g.figure.add_axes([x[p], .6, .02, .2])
         cbar = g.figure.colorbar(mpl.cm.ScalarMappable(norm=g.figure.axes[0].collections[0].norm, cmap=g.figure.axes[0].collections[0].cmap),
                                  cax=cax, label=r'$n$')
-        plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_AK_SDR_joint_{pred}.png')
+        plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_LR_joint_{pred}.png')
         plt.close()
 
     # Evaluate performance
     pearson = []
     for p in predictors:
         pearson.append(round(pearsonr(data[p],data[f'{p}_pred'])[0],3))
-    err_ak = pd.DataFrame({'Predictors': predictors, 'Pearson': pearson})
+    err_lr = pd.DataFrame({'Predictors': predictors, 'Pearson': pearson})
 
     scores = {}
     for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
-        err_ak[_scorer.__name__] = _scorer(data[predictors],
+        err_lr[_scorer.__name__] = _scorer(data[predictors],
                                             data[pred_str], multioutput='raw_values')
-    print(err_ak)
+    print(err_lr)
 
