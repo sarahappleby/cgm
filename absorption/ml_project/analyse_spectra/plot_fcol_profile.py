@@ -129,6 +129,8 @@ if __name__ == '__main__':
             #ax.errorbar(fr200, fcol[j], yerr=poisson[j], color=mass_colors[j], ls=linestyles[l], marker=markers[l], lw=1.5, capsize=4)
             plt.plot(fr200, fcol[j], color=mass_colors[j], ls=linestyles[l], marker=markers[l], lw=1.5)
 
+        print(fcol)
+
     plt.ylim(-0.05, 1)
     plt.ylabel(r'$\sum N_{\rm col} / \sum N_{\rm total}$')
     plt.xlabel(r'$r_\perp / r_{200}$')

@@ -40,13 +40,14 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
         cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
+        #cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_mass.h5'
+        #cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion_extras.h5'
+        #cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_mass_extras.h5'
 
         plot_data = read_h5_into_dict(cddf_file)
 
-        ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c='dimgrey', yerr=plot_data[f'cddf_all_cv_{ncells}'],
-                          capsize=4, ls='', lw=1)
+        ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_all'], c='dimgrey', ls='', lw=1)
 
         mask = ~np.isinf(plot_data['cddf_all'])
         logN_use = plot_data['plot_logN'][mask]
@@ -73,9 +74,15 @@ if __name__ == '__main__':
         if line in ['H1215', "SiIII1206"]:
             ax[i][j].set_ylabel(r'${\rm log }(\delta^2 n / \delta X \delta N )$')
 
-        end_i = np.argmax(cddf_extra) + 10
+        if ('extras' in cddf_file) & (line == 'CIV1548'):
+            mask = (logN >= 11.75)
+        else:
+            mask = np.ones(len(logN)).astype(bool)
 
-        plot_data['completeness'] = logN[np.argmin(np.abs((10**cddf_extra[:end_i] / 10**power_law_fit[:end_i] ) - 0.5))]
+        end_i = np.argmax(cddf_extra[mask]) + 10
+
+        plot_data['completeness'] = logN[mask][np.argmin(np.abs((10**cddf_extra[mask][:end_i] / 10**power_law_fit[mask][:end_i] ) - 0.5))]
+        print(plot_data['completeness'])
         ax[i][j].axvline(plot_data['completeness'], c='k', ls='--', lw=1)
 
         write_dict_to_h5(plot_data, cddf_file)
@@ -88,5 +95,6 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_completeness.png')
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_completeness_extras.png')
     plt.show()
     plt.close()

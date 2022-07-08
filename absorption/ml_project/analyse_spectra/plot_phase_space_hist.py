@@ -40,6 +40,7 @@ if __name__ == '__main__':
                       'snap_137': [3.5, 28.2, 10., 35.5, 8.0, 4.5],
                       'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6],
                       'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
+    #chisq_lim_dict = {'snap_151': [3.5, 28.2, 15.8, 31.6, 5., 4.]} # for the extras sample
     #chisq_lim_dict = {'snap_151': [200]*6,
     #                  'snap_137': [200]*6,
     #                  'snap_125': [200]*6,
@@ -83,8 +84,10 @@ if __name__ == '__main__':
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
+    #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
 
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
+    with h5py.File(sample_file, 'r') as sf:
         gal_ids = sf['gal_ids'][:]
         mass = sf['mass'][:]
         ssfr = sf['ssfr'][:]
@@ -115,6 +118,7 @@ if __name__ == '__main__':
     for line in lines:
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         #ax[i][j].step(bin_edges, delta_rho_hist, c=ssfr_colors[0], lw=1, ls=rho_ls[0])
         
@@ -210,7 +214,7 @@ if __name__ == '__main__':
 
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_chisqion.png', dpi=300)
-    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_nochisq.png', dpi=300)
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_extras.png', dpi=300)
     plt.close()
 
     #### Temperature histograms
@@ -223,6 +227,7 @@ if __name__ == '__main__':
     for line in lines:
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         #ax[i][j].step(T_bins[:-1] + T_bins[1] - T_bins[0], temp_hist, c=ssfr_colors[0], lw=1, ls='-')
 
@@ -316,7 +321,7 @@ if __name__ == '__main__':
 
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_chisqion.png', dpi=300)
-    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_nochisq.png', dpi=300)
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_extras.png', dpi=300)
     plt.close()
 
 
@@ -330,6 +335,7 @@ if __name__ == '__main__':
     for line in lines:
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         #ax[i][j].step(T_bins[:-1] + T_bins[1] - T_bins[0], temp_hist, c=ssfr_colors[0], lw=1, ls='-')
 
@@ -412,6 +418,6 @@ if __name__ == '__main__':
 
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_hist_chisqion.png')
-    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_hist_nochisq.png')
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_hist_extras.png')
     plt.close()
 

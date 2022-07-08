@@ -34,10 +34,11 @@ if __name__ == '__main__':
                       'snap_137': [3.5, 28.2, 10., 35.5, 8.0, 4.5],
                       'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6],
                       'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
-    chisq_lim_dict = {'snap_151': [200]*6,
-                      'snap_137': [200]*6,
-                      'snap_125': [200]*6,
-                      'snap_105': [200]*6,}
+    chisq_lim_dict = {'snap_151': [3.5, 28.2, 15.8, 31.6, 5., 4.]} # for the extras sample
+    #chisq_lim_dict = {'snap_151': [200]*6,
+    #                  'snap_137': [200]*6,
+    #                  'snap_125': [200]*6,
+    #                  'snap_105': [200]*6,}
 
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     delta_rho_bins = np.arange(delta_rho_min, delta_rho_max+ddelta, ddelta)
     N_bins = np.arange(np.min(N_min), N_max+dN, dN)
 
-    inner_outer = [[0.25, 0.5, 0.75], [1.0, 1.25]]		
+    inner_outer = [[0.25, 0.5], [0.75, 1.0, 1.25]]		
     rho_labels = ['Inner CGM', 'Outer CGM']
     rho_ls = ['--', ':']
     rho_lw = [1, 2]
@@ -67,11 +68,11 @@ if __name__ == '__main__':
     mass_bins = np.arange(min_m, min_m+(nbins_m+1)*delta_m, delta_m)
     mass_plot_titles = []
     for i in range(nbins_m):
-        mass_plot_titles.append(f'{mass_bins[i]}'+ r'$ < \textrm{log} (M_* / M_{\odot}) < $' + f'{mass_bins[i+1]}')
+        mass_plot_titles.append(f'{mass_bins[i]}'+ r'$ < \textrm{log} (M_\star / M_{\odot}) < $' + f'{mass_bins[i+1]}')
 
     idelta = 1. / (len(mass_bins) -1)
     icolor = np.arange(0., 1.+idelta, idelta)
-    cmap = cm.get_cmap('magma')
+    cmap = cm.get_cmap('plasma')
     cmap = truncate_colormap(cmap, 0.2, .8)
     mass_colors = [cmap(i) for i in icolor]
 
@@ -88,8 +89,10 @@ if __name__ == '__main__':
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
+    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
 
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
+    with h5py.File(sample_file, 'r') as sf:
         gal_ids = sf['gal_ids'][:]
         mass = sf['mass'][:]
 
@@ -100,7 +103,7 @@ if __name__ == '__main__':
     mass_lines = []
     for i in range(len(mass_colors)):
         mass_lines.append(Line2D([0,1],[0,1], color=mass_colors[i]))
-    leg = ax[0][1].legend(mass_lines, mass_plot_titles, loc=2, fontsize=14)
+    leg = ax[0][1].legend(mass_lines, mass_plot_titles, loc=2, fontsize=12)
     ax[0][1].add_artist(leg)
 
     rho_lines = []		
@@ -118,7 +121,8 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         all_delta_rho = np.array([])
         all_ids = np.array([])
@@ -206,19 +210,33 @@ if __name__ == '__main__':
     ax[1][0].set_ylim(0, 1.2)
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_mass.png', dpi=300)
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_mass.png', dpi=300)
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_delta_hist_mass_extras.png', dpi=300)
     plt.close()
 
     #### Temperature histograms
 
     fig, ax = plt.subplots(2, 3, figsize=(15, 7.1), sharey='row', sharex='col')
 
+    mass_lines = []
+    for i in range(len(mass_colors)):
+        mass_lines.append(Line2D([0,1],[0,1], color=mass_colors[i]))
+    leg = ax[1][2].legend(mass_lines, mass_plot_titles, loc=2, fontsize=12)
+    ax[1][2].add_artist(leg)
+
+    rho_lines = []
+    for i in range(len(rho_ls)):
+        rho_lines.append(Line2D([0,1],[0,1], color='dimgrey', ls=rho_ls[i], lw=rho_lw[i]))
+    leg = ax[0][0].legend(rho_lines, rho_labels, loc=1, fontsize=12)
+    ax[0][0].add_artist(leg)
+
     i = 0
     j = 0
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         all_T = np.array([])
         all_ids = np.array([])
@@ -280,8 +298,12 @@ if __name__ == '__main__':
 
         ax[i][j].set_xlim(T_min, T_max)
 
-        ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[lines.index(line)], 0.06), xycoords='axes fraction',
-                          bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
+        if line in ['OVI1031']:
+            ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[lines.index(line)], 0.06), xycoords='axes fraction',
+                              bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
+        else:
+            ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[lines.index(line)], 0.89), xycoords='axes fraction',
+                              bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
 
         ax_top = ax[i][j].secondary_xaxis('top')
         ax_top.set_xticks(np.arange(3, 6, 0.5), labels=[])
@@ -302,11 +324,12 @@ if __name__ == '__main__':
             i += 1
             j = 0
 
-    ax[0][0].set_ylim(0, 2.3)
-    ax[1][0].set_ylim(0, 2.3)
+    ax[0][0].set_ylim(0, 2.7)
+    ax[1][0].set_ylim(0, 2.7)
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_mass.png', dpi=300)
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_mass.png', dpi=300)
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_temp_hist_mass_extras.png', dpi=300)
     plt.close()
 
 
@@ -319,7 +342,8 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         all_N = np.array([])
         all_ids = np.array([])
@@ -394,5 +418,6 @@ if __name__ == '__main__':
             j = 0
 
     fig.subplots_adjust(wspace=0., hspace=0.)
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_hist_mass.png')
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_hist_mass.png')
+    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_N_hist_mass_extras.png')
     plt.close()

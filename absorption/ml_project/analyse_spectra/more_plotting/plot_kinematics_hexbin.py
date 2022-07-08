@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     model = 'm100n1024'
     wind = 's50'
-    snap = '151'
+    snap = '125'
 
     cmap = plt.get_cmap('jet_r')
     cmap = truncate_colormap(cmap, 0.1, 1.0)

@@ -111,13 +111,13 @@ if __name__ == '__main__':
                     _, cv_norm = convert_to_log(np.nanmedian(ew_norm[mask]), cv_norm)
                     plot_data[f'log_frad_{log_frad[i]}_{bin_label}_cv'][j] = np.sqrt(cv_sat**2. + cv_norm**2.)
 
-        write_dict_to_h5(plot_data, profile_file)
+        #write_dict_to_h5(plot_data, profile_file)
 
         for i in range(len(log_frad)):
 
             if log_frad[i] == '1.0':
                 ax[l].plot(plot_data['fr200'], plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'], 
-                           ls='-', c=colors[i], label=r'${{\rm log}} f_{{r_{{\rm half}} \star}} = {{{}}}$'.format(log_frad[i]), lw=1.5)
+                           ls='-', c=colors[i], label=r'${{\rm log}} f_{{r_{{\rm half}} \star}} = {{{}}}$'.format(log_frad[i]), lw=2)
                 
                 #low = plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'] - plot_data[f'log_frad_{log_frad[i]}_{bin_label}_cv']
                 #high = plot_data[f'log_frad_{log_frad[i]}_{bin_label}_med'] + plot_data[f'log_frad_{log_frad[i]}_{bin_label}_cv']
@@ -135,7 +135,7 @@ if __name__ == '__main__':
         if l in [0, 3]:
             ax[l].set_ylabel(r'${\rm log }( {\rm EW}_{\rm sat} / {\rm EW}_{\rm total} )$')
         if l == 1:
-            ax[l].legend(loc=4, fontsize=12.5)
+            ax[l].legend(loc=4, fontsize=14)
         if l in [3, 4, 5]:
             ax[l].set_xlabel(r'$r_\perp / r_{200}$')
         #if l ==1:

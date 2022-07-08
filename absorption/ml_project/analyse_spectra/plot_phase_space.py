@@ -46,8 +46,10 @@ if __name__ == '__main__':
                       'snap_137': [3.5, 28.2, 10.],
                       'snap_125': [3.5, 31.6, 15.8],
                       'snap_105': [4.5, 25.1, 25.1],}
+    #chisq_lim_dict = {'snap_151': [3.5, 28.2, 15.8]} # for the extras sample
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
+    """
     lines = ["SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
     cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
@@ -57,7 +59,9 @@ if __name__ == '__main__':
                       'snap_137': [35.5, 8.0, 4.5],
                       'snap_125': [39.8, 10., 5.6],
                       'snap_105': [34.5, 10., 7.1],}
+    #chisq_lim_dict = {'snap_151': [31.6, 5., 4.]} # for the extras sample
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
+    """
 
     #width = 0.258
     #height = 0.015
@@ -98,8 +102,10 @@ if __name__ == '__main__':
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
+    #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
 
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
+    with h5py.File(sample_file, 'r') as sf:
         gal_ids = sf['gal_ids'][:]
         mass = sf['mass'][:]
         ssfr = sf['ssfr'][:]
@@ -110,6 +116,7 @@ if __name__ == '__main__':
     for l, line in enumerate(lines):
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         for i in range(len(inner_outer)):
 
@@ -186,4 +193,5 @@ if __name__ == '__main__':
 
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN_{lines[0]}_{lines[1]}_{lines[2]}_chisqion.pdf', format='pdf')
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_deltaTN_{lines[0]}_{lines[1]}_{lines[2]}_chisqion_extras.pdf', format='pdf')
     plt.close()

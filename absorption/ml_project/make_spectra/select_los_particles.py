@@ -39,11 +39,11 @@ if __name__ == '__main__':
     data_dir = f'/home/rad/data/{model}/{wind}/'
     snapfile = f'{data_dir}snap_{model}_{snap}.hdf5'
     
-    #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
-    #particle_file = f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5'
+    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
+    particle_file = f'{sample_dir}{model}_{wind}_{snap}_particle_selection.h5'
 
-    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
-    particle_file = f'{sample_dir}{model}_{wind}_{snap}_particle_selection_extras.h5'
+    #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
+    #particle_file = f'{sample_dir}{model}_{wind}_{snap}_particle_selection_extras.h5'
 
     sim =  caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5')
     h = sim.simulation.hubble_constant

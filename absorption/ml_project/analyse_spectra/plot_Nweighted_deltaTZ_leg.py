@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 from matplotlib import cm
-from matplotlib import colors
 from matplotlib.ticker import AutoMinorLocator
 import numpy as np
 import h5py
@@ -9,15 +8,6 @@ import sys
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=15)
-
-
-def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
-        cmap_list = cmap(np.linspace(minval, maxval, n))
-        cmap_list[:, -1] = alpha
-        new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
-                                                            cmap_list)
-        return new_cmap
-
 
 if __name__ == '__main__':
 
@@ -28,12 +18,11 @@ if __name__ == '__main__':
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
     line_ev = np.log10([13.6, 15.04, 24.38, 33.49, 64.49, 138.1]) # in eV
-    adjust_x = [0.02, 0.03, 0.025, 0.03, 0.025, 0.025]
+    adjust_x = [0.015, 0.025, 0.02, 0.025, 0.02, 0.02]
     chisq_lim_dict = {'snap_151': [4., 50., 15.8, 39.8, 8.9, 4.5],
                       'snap_137': [3.5, 28.2, 10., 35.5, 8.0, 4.5],
                       'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6],
                       'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
-    #chisq_lim_dict = {'snap_151': [3.5, 28.2, 15.8, 31.6, 5., 4.]} # for the extras sample
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
@@ -55,11 +44,15 @@ if __name__ == '__main__':
     idelta = 0.8 / (len(fr200) -1)
     icolor = np.arange(0.1, 0.9+idelta, idelta)
     cmap = cm.get_cmap('viridis')
-    cmap = truncate_colormap(cmap, 0.1, 0.9)
-    color_list = [cmap(i) for i in icolor]
-    norm = colors.BoundaryNorm(np.arange(0.125, 1.625, 0.25), cmap.N)
+    colors = [cmap(i) for i in icolor]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
+    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+
+    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
+        gal_ids = sf['gal_ids'][:]
+        mass = sf['mass'][:]
+        ssfr = sf['ssfr'][:]
     
     fig, ax = plt.subplots(3, 1, figsize=(7, 6.5), sharey='row', sharex='col')
     ax = ax.flatten()
@@ -67,7 +60,6 @@ if __name__ == '__main__':
     for l, line in enumerate(lines):
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         weighted_D = np.zeros(len(fr200))
         weighted_D_25 = np.zeros(len(fr200))
@@ -110,26 +102,31 @@ if __name__ == '__main__':
             weighted_Z_75[i] = all_Z[order][np.argmin(np.abs(np.nancumsum(all_N[order]) / np.nansum(all_N) - 0.75))]
     
             if i == 0:
-                ax[0].errorbar(line_ev[l], weighted_D[i], color=color_list[i], yerr=np.array([[weighted_D[i] - weighted_D_25[i], weighted_D_75[i] - weighted_D[i],]]).T,
-                                  lw=1, ls='None', marker='None', capsize=2, alpha=0.6)
-                ax[1].errorbar(line_ev[l], weighted_T[i], color=color_list[i], yerr=np.array([[weighted_T[i] - weighted_T_25[i], weighted_T_75[i] - weighted_T[i],]]).T,
-                                  lw=1, ls='None', marker='None', capsize=2, alpha=0.6)
-                ax[2].errorbar(line_ev[l], weighted_Z[i], color=color_list[i], yerr=np.array([[weighted_Z[i] - weighted_Z_25[i], weighted_Z_75[i] - weighted_Z[i],]]).T,
-                                  lw=1, ls='None', marker='None', capsize=2, alpha=0.6)
+                ax[0].errorbar(line_ev[l], weighted_D[i], color=colors[i], yerr=np.array([[weighted_D[i] - weighted_D_25[i], weighted_D_75[i] - weighted_D[i],]]).T,
+                                  lw=1, ls='None', marker='None', capsize=2)
+                ax[1].errorbar(line_ev[l], weighted_T[i], color=colors[i], yerr=np.array([[weighted_T[i] - weighted_T_25[i], weighted_T_75[i] - weighted_T[i],]]).T,
+                                  lw=1, ls='None', marker='None', capsize=2)
+                ax[2].errorbar(line_ev[l], weighted_Z[i], color=colors[i], yerr=np.array([[weighted_Z[i] - weighted_Z_25[i], weighted_Z_75[i] - weighted_Z[i],]]).T,
+                                  lw=1, ls='None', marker='None', capsize=2)
 
 
-        im = ax[0].scatter(np.repeat(line_ev[l], len(fr200)), weighted_D, c=fr200, cmap=cmap, norm=norm, marker='o', alpha=0.6)
-        ax[1].scatter(np.repeat(line_ev[l], len(fr200)), weighted_T, c=fr200, cmap=cmap, norm=norm, marker='o', alpha=0.6)
-        ax[2].scatter(np.repeat(line_ev[l], len(fr200)), weighted_Z, c=fr200, cmap=cmap, norm=norm, marker='o', alpha=0.6)
+            ax[0].scatter(line_ev[l], weighted_D[i], color=colors[i])
+            ax[1].scatter(line_ev[l], weighted_T[i], color=colors[i])
+            if l == 0:
+                ax[2].scatter(line_ev[l], weighted_Z[i], color=colors[i], label=r'$\rho / r_{{200}} = {{{}}}$'.format(fr200[i]))
+            else:
+                ax[2].scatter(line_ev[l], weighted_Z[i], color=colors[i])
 
-        ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D - 0.375)), fontsize=13)
+        ax[0].annotate(plot_lines[l], xy=(line_ev[l] - adjust_x[l], np.min(weighted_D - 0.35)), fontsize=13)
 
     ax[0].axhline(deltath, ls=':', c='k', lw=1)
     ax[1].axhline(Tth, ls=':', c='k', lw=1)
 
+    ax[2].legend(loc=4, fontsize=12)
+    
     ax[0].set_ylim(1, 4.)
     ax[1].set_ylim(4, 5.7)
-    ax[2].set_ylim(-1, )
+    ax[2].set_ylim(-1.75, )
 
     ax[2].set_xlabel(r'${\rm log }(E / {\rm eV})$')
     ax[0].set_ylabel(r'${\rm log }\delta$')
@@ -139,14 +136,7 @@ if __name__ == '__main__':
     ax[0].xaxis.set_minor_locator(AutoMinorLocator(4))
     ax[1].xaxis.set_minor_locator(AutoMinorLocator(4))
 
-    fig.subplots_adjust(top=0.8)
-    cbar_ax = fig.add_axes([0.125, 0.8, 0.775, 0.02])
-    cbar = fig.colorbar(im, cax=cbar_ax, ticks=fr200, orientation='horizontal')
-    cbar.set_label(r'$r_\perp / r_{200}$', labelpad=8)
-    cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.xaxis.set_label_position('top')
-    
+    plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Nweighted_deltaTZ_chisqion.pdf', format='pdf')
-    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Nweighted_deltaTZ_chisqion_extras.pdf', format='pdf')
-    plt.close()
+    plt.clf()

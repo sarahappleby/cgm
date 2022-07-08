@@ -57,7 +57,7 @@ if __name__ == '__main__':
     mass_plot_titles = []
     for i in range(nbins_m):
         mass_bin_labels.append(f'{mass_bins[i]}-{mass_bins[i+1]}')
-        mass_plot_titles.append(f'{mass_bins[i]}'+ r'$ < \textrm{log} (M_* / M_{\odot}) < $' + f'{mass_bins[i+1]}')
+        mass_plot_titles.append(f'{mass_bins[i]}'+ r'$ < \textrm{log} (M_\star / M_{\odot}) < $' + f'{mass_bins[i+1]}')
     mass_plot_titles.insert(0, 'All galaxies')
 
     idelta = 1. / (len(mass_bins) -1)
@@ -85,6 +85,9 @@ if __name__ == '__main__':
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
         cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_mass.h5'
 
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
+        #cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_mass_extras.h5'
+
         plot_data = read_h5_into_dict(cddf_file)
         completeness = plot_data['completeness']
         print(f'Line {line}: {completeness}')
@@ -111,10 +114,10 @@ if __name__ == '__main__':
         ax_top.set_xticks(np.arange(logN_min, 18), labels=[])
 
         ax[i][j].set_xlim(logN_min, 18)
-        #ax[i][j].set_ylim(-19, -9)
+        ax[i][j].set_ylim(-19, -9)
 
         ax[i+1][j].set_xlim(logN_min, 18)
-        #ax[i+1][j].set_ylim(-0.75, 0.75)
+        ax[i+1][j].set_ylim(-0.75, 0.75)
 
         if line in ["SiIII1206", "CIV1548", "OVI1031"]:
             ax[i+1][j].set_xlabel(r'${\rm log }(N / {\rm cm}^{-2})$')
@@ -138,5 +141,6 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_mass.pdf', format='pdf')
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_mass_extras.pdf', format='pdf')
     plt.close()
 

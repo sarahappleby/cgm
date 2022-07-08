@@ -35,6 +35,7 @@ if __name__ == '__main__':
                       'snap_137': [3.5, 28.2, 10., 35.5, 8.0, 4.5],
                       'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6],
                       'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
+    #chisq_lim_dict = {'snap_151': [3.5, 28.2, 15.8, 31.6, 5., 4.]} # for the extras sample
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
     N_min = [12.7, 11.5, 12.8, 11.7, 12.8, 13.2]
 
@@ -79,6 +80,7 @@ if __name__ == '__main__':
     for l, line in enumerate(lines):
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         all_T = []
         all_rho = []
@@ -153,10 +155,10 @@ if __name__ == '__main__':
     ax[0].set_ylabel(r'$\sum n_{\rm phase} / \sum n_{\rm CGM}$')
     ax[0].set_xticks(np.arange(0.43, 6.43, 1), plot_lines)
 
-
     for l, line in enumerate(lines):
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         all_T = []
         all_rho = []
@@ -236,5 +238,6 @@ if __name__ == '__main__':
     fig.subplots_adjust(wspace=0., hspace=0.)
     #plt.tight_layout()
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_phase_bar_nN_sapphic.pdf', format='pdf')
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_phase_bar_nN_sapphic_extras.pdf', format='pdf')
     plt.close()
 

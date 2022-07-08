@@ -32,16 +32,17 @@ line = sys.argv[5]
 lambda_rest = float(re.findall(r'\d+', line)[0])
 
 snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+#snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_extras.hdf5'
 s = pg.Snapshot(snapfile)
 
 sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-#save_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-save_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/no_uvb/{model}_{wind}_{snap}/'
+save_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 
 with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
-    
+#with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5', 'r') as sf:
+
     gal_id = sf['gal_ids'][:][num]
     # we can't have the line of sight as a pygad UnitArr because it can't convert between kpc/h and ckpc/h_0
     # so instead we convert to default units of s['pos']

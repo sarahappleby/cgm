@@ -69,6 +69,9 @@ if __name__ == '__main__':
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
         cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
 
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
+        #cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion_extras.h5'
+
         plot_data = read_h5_into_dict(cddf_file)
         completeness = plot_data['completeness']
         print(f'Line {line}: {completeness}')
@@ -115,10 +118,10 @@ if __name__ == '__main__':
         ax_top.set_xticks(np.arange(logN_min, 18), labels=[])
 
         ax[i][j].set_xlim(logN_min, 18)
-        #ax[i][j].set_ylim(-19, -9)
+        ax[i][j].set_ylim(-19, -9)
 
         ax[i+1][j].set_xlim(logN_min, 18)
-        #ax[i+1][j].set_ylim(-0.75, 0.75)
+        ax[i+1][j].set_ylim(-1.25, 1.25)
 
         if line in ["SiIII1206", "CIV1548", "OVI1031"]:
             ax[i+1][j].set_xlabel(r'${\rm log }(N / {\rm cm}^{-2})$')
@@ -142,5 +145,6 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_compressed_chisqion_{ncells}.pdf', format='pdf')
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_cddf_compressed_chisqion_{ncells}_extras.pdf', format='pdf')
     plt.close()
 

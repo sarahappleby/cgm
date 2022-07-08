@@ -68,10 +68,14 @@ if __name__ == '__main__':
     snapfile = f'{data_dir}snap_{model}_{snap}.hdf5'
 
     output_dir = '/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    output_file = output_dir + model+'_'+wind+'_'+snap+'.hdf5'
+    output_file = f'{output_dir}{model}_{wind}_{snap}.hdf5'
+    particle_file = f'{output_dir}{model}_{wind}_{snap}_particle_selection.h5'
+
+    #output_file = f'{output_dir}{model}_{wind}_{snap}_extras.hdf5'
+    #particle_file = f'{output_dir}{model}_{wind}_{snap}_particle_selection_extras.h5'
 
     plist = np.array([])
-    with h5py.File(f'{output_dir}{model}_{wind}_{snap}_particle_selection.h5', 'r') as f:
+    with h5py.File(particle_file, 'r') as f:
         for k in f.keys():
             if 'plist' in k:
                 plist = np.append(plist, np.array(f[k][:], dtype='int'))

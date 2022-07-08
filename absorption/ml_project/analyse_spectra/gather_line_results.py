@@ -30,15 +30,21 @@ if __name__ == '__main__':
 
     vel_range = 600. #km/s
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg'] 
+    orients = [0, 45, 90, 135, 180, 225, 270, 315]
 
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
     results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+    #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
     s = pg.Snapshot(f'{sample_dir}{model}_{wind}_{snap}.hdf5')
+    #s = pg.Snapshot(f'{sample_dir}{model}_{wind}_{snap}_extras.hdf5')
     redshift = s.redshift
 
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
+    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
+    #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
+
+    with h5py.File(sample_file, 'r') as sf:
         gal_ids = sf['gal_ids'][:]
 
     all_rho = []
@@ -47,6 +53,7 @@ if __name__ == '__main__':
     all_Nspec = []
     all_vpec = []
     all_los = []
+    all_orient = []
 
     all_pos_dv = []
 
@@ -59,7 +66,7 @@ if __name__ == '__main__':
 
     for i in range(len(gal_ids)):
         for o, orient in enumerate(orients):
-            spec_name = f'sample_galaxy_{gal_ids[i]}_{line}_{orient}_{fr200}r200'
+            spec_name = f'sample_galaxy_{gal_ids[i]}_{line}_{orient}_deg_{fr200}r200'
             spectrum = read_h5_into_dict(f'{spectra_dir}{spec_name}.h5')
 
             if not 'line_list' in spectrum.keys():
@@ -87,7 +94,8 @@ if __name__ == '__main__':
                     all_vpec.append(spectrum['vpec'][index])
 
                     all_los.extend(spectrum['LOS_pos'][:2])
-                
+                    all_orient.append(orient)
+
                 all_pos_dv.extend(np.array(wave_to_vel(spectrum['line_list']['l'][line_mask], spectrum['lambda_rest'], redshift)) - spectrum['gal_velocity_pos'])
 
                 all_chisq.extend(spectrum['line_list']['Chisq'][line_mask])
@@ -96,7 +104,7 @@ if __name__ == '__main__':
                 all_l.extend(spectrum['line_list']['l'][line_mask])
                 all_ew.extend(spectrum['line_list']['EW'][line_mask])
                 all_ids.extend([gal_ids[i]] * len(spectrum['line_list']['N'][line_mask]))
-   
+
     all_los = np.reshape(all_los, (int(len(all_los)*0.5), 2))
 
     with h5py.File(results_file, 'a') as hf:
@@ -112,6 +120,8 @@ if __name__ == '__main__':
             hf.create_dataset(f'vpec_{fr200}r200', data=np.array(all_vpec))
         if not f'LOS_pos_{fr200}r200' in hf.keys():
             hf.create_dataset(f'LOS_pos_{fr200}r200', data=np.array(all_los))
+        if not f'orient_{fr200}r200' in hf.keys():
+            hf.create_dataset(f'orient_{fr200}r200', data=np.array(all_orient))
         if not f'pos_dv_{fr200}r200' in hf.keys():
             hf.create_dataset(f'pos_dv_{fr200}r200', data=np.array(all_pos_dv))
         if not f'log_N_{fr200}r200' in hf.keys():

@@ -52,14 +52,22 @@ if __name__ == '__main__':
 
     line_a = 'H1215'
     line_b = "CII1334" 
-    
+   
+    lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
+    chisq_lim_dict = {'snap_151': [4., 50., 15.8, 39.8, 8.9, 4.5],
+                      'snap_137': [3.5, 28.2, 10., 35.5, 8.0, 4.5],
+                      'snap_125': [3.5, 31.6, 15.8, 39.8, 10., 5.6],
+                      'snap_105': [4.5, 25.1, 25.1, 34.5, 10., 7.1],}
+    chisq_lim = chisq_lim_dict[f'snap_{snap}']
+    chisq_lim_a = chisq_lim[lines.index(line_a)]
+    chisq_lim_b = chisq_lim[lines.index(line_b)]
+
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
  
     vel_range = 600.
     vel_boxsize = 10000.
-    chisq_lim = 20
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg']
 
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
@@ -99,8 +107,8 @@ if __name__ == '__main__':
             spectrum_a['line_list']['v'] = np.array(wave_to_vel(spectrum_a['line_list']['l'], spectrum_a['lambda_rest'], redshift))
             spectrum_b['line_list']['v'] = np.array(wave_to_vel(spectrum_b['line_list']['l'], spectrum_b['lambda_rest'], redshift))
                     
-            spectrum_a = mask_outlying_lines(spectrum_a, vel_range, vel_boxsize, chisq_lim)                
-            spectrum_b = mask_outlying_lines(spectrum_b, vel_range, vel_boxsize, chisq_lim)
+            spectrum_a = mask_outlying_lines(spectrum_a, vel_range, vel_boxsize, chisq_lim_a)                
+            spectrum_b = mask_outlying_lines(spectrum_b, vel_range, vel_boxsize, chisq_lim_b)
 
             if not (len(spectrum_a['line_list']['l']) > 0) & (len(spectrum_b['line_list']['l']) > 0):
                 continue

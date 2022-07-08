@@ -11,6 +11,6 @@ do
 	for l in "${lines[@]}"
 	do
 
-		python gather_line_results.py $model $wind $snap $f $l 
+		python ../gather_line_results.py $model $wind $snap $f $l 
 	done
 done

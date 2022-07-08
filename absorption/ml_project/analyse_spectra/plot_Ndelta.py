@@ -53,6 +53,7 @@ if __name__ == '__main__':
 
     x = [0.74, 0.68, 0.715, 0.69, 0.695, 0.7]
     chisq_lim = [4., 50., 15.8, 39.8, 8.9, 4.5]
+    #chisq_lim = [3.5, 28.2, 15.8, 31.6, 5., 4.] # for the extras sample
     N_min = [12.7, 11.5, 12.8, 11.7, 12.8, 13.2]
     deltath = 2.046913
 
@@ -75,8 +76,10 @@ if __name__ == '__main__':
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
+    #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
 
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
+    with h5py.File(sample_file, 'r') as sf:
         gal_ids = sf['gal_ids'][:]
         all_ssfr = sf['ssfr'][:]
 
@@ -193,7 +196,8 @@ if __name__ == '__main__':
     for l, line in enumerate(lines):
 
         results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-
+        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
+        
         N = []
         rho = []
         chisq = []
@@ -303,4 +307,5 @@ if __name__ == '__main__':
     fig.colorbar(im, cax=cbar_ax, ticks=fr200, label=r'$r_\perp / r_{200}$')
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Ndelta_r200.pdf', format='pdf')
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_Ndelta_r200_extras.pdf', format='pdf')
     plt.close()

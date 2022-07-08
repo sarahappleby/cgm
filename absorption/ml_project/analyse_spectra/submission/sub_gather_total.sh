@@ -5,7 +5,7 @@ declare -a lines=("H1215" "MgII2796" "CII1334" "SiIII1206" "CIV1548" "OVI1031")
 
 model=m100n1024
 wind=s50
-snap=125
+snap=151
 for f in "${fr200[@]}"
 do
 	for l in "${lines[@]}"
