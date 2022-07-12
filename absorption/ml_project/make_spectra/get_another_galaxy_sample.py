@@ -99,7 +99,7 @@ for i in range(nbins_m):
         gal_ids[gal_id_range[0:len(gals_possible)]] = gals_possible
 
     # get the green valley galaxies:
-    mask = gal_cent * mass_mask * gv_mask * r200_mask
+    mask = gal_cent * mass_mask * gv_mask * r200_mask * current_gal_mask
     gals_possible = np.arange(len(sim.galaxies))[mask]
     if len(gals_possible) >= ngals_each:
         gal_ids[gal_id_range[ngals_each:2*ngals_each]] = choose_gals(gals_possible, ngals_each)
@@ -108,7 +108,7 @@ for i in range(nbins_m):
         gal_ids[gal_id_range[ngals_each:ngals_each+len(gals_possible)]] = gals_possible
 
     # get the quenched galaxies:
-    mask = gal_cent * mass_mask * q_mask * r200_mask
+    mask = gal_cent * mass_mask * q_mask * r200_mask * current_gal_mask
     gals_possible = np.arange(len(sim.galaxies))[mask]
     if len(gals_possible) >= ngals_each:
         gal_ids[gal_id_range[2*ngals_each:3*ngals_each]] = choose_gals(gals_possible, ngals_each)
