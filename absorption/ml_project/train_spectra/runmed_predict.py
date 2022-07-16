@@ -11,20 +11,14 @@ import pandas as pd
 import seaborn as sns
 import h5py
 import pygad as pg
+import sys
 from scipy.optimize import curve_fit
 
 from scipy.stats import pearsonr
 from sklearn.metrics import r2_score, explained_variance_score, mean_squared_log_error, mean_squared_error
 
-import sys
-sys.path.append('/disk04/sapple/tools')
-import plotmedian as pm
-
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14.5)
-
-def linear(x, a, b):
-    return a*x + b
 
 def quench_thresh(z): # in units of yr^-1
     return -1.8  + 0.3*z -9.
@@ -35,6 +29,38 @@ def ssfr_type_check(ssfr_thresh, ssfr):
     gv_mask = (ssfr < ssfr_thresh) & (ssfr > ssfr_thresh -1)
     q_mask = ssfr == -14.0
     return sf_mask, gv_mask, q_mask
+
+
+def bin_data(x, y, xbins):
+    digitized = np.digitize(x, xbins)
+    return np.array([y[digitized == i] for i in range(1, len(xbins))])
+
+
+def runningmedian(x, y, xlolim=-1.e20, ylolim=-1.e20, low_per=15.9, high_per=84.1, bins=10):
+    
+    xp = x[(x>xlolim)&(y>ylolim)]
+    yp = y[(x>xlolim)&(y>ylolim)]
+    hist,bin_edges=np.histogram(xp,bins)
+
+    ymed = np.zeros(bins)
+    yperlo = np.zeros(bins)
+    yperhi = np.zeros(bins)
+    ndata = np.zeros(bins)
+    ystd = np.zeros(bins)
+
+    for i in range(0,len(bin_edges[:-1])):
+
+        ysub = yp[(xp > bin_edges[i]) * (xp < bin_edges[i+1])]
+
+        ymed[i] = np.nanmedian(ysub)
+        yperlo[i] = np.nanpercentile(ysub, low_per)
+        yperhi[i] = np.nanpercentile(ysub, high_per)
+        ndata = len(ysub)
+        ystd[i] = np.nanstd(ysub)
+
+    bin_cent = 0.5*(bin_edges[1:]+bin_edges[:-1])
+    
+    return bin_edges, bin_cent, ymed, yperlo, yperhi, ystd, ndata
 
 
 if __name__ == '__main__':
@@ -127,17 +153,38 @@ if __name__ == '__main__':
 
     for i in range(3):
         mask = masks[i].astype(bool)
+        data = {}
 
-        data = pd.DataFrame({'N':N[mask], 
-                             'delta_rho':delta_rho[mask]})
+        bin_edges, bin_cent, ymed, yperlo, yperhi, ystd, ndata = runningmedian(N[mask], delta_rho[mask])
+        ysiglo = ymed - yperlo
+        ysighi = yperhi - ymed
+        ysig = (ysiglo + ysighi) * 0.5
+        binned_N = bin_data(N[mask], N[mask], bin_edges)
+        binned_delta_rho = bin_data(N[mask], delta_rho[mask], bin_edges)
+        size = np.sum([len(k) for k in binned_N])
+        
+        data['delta_rho_pred'] = np.zeros(size)
+        data['N'] = np.zeros(size)
+        data['delta_rho'] = np.zeros(size)
+        
+        i_start = 0
+        for j in range(len(bin_cent)):
+            i_end = i_start + len(binned_N[j])
+            
 
-        popt, pcov = curve_fit(linear, data['N'], data['delta_rho'])
-        delta_fit = logN*popt[0] + popt[1]
-        print(popt, pcov)
+            #lower_gauss = np.random.normal(loc=ymed[j], scale=yperlo[j], size=2*len(binned_N[j]))
+            #upper_gauss = np.random.normal(loc=ymed[j], scale=yperhi[j], size=2*len(binned_N[j]))
+            #gauss = np.concatenate((lower_gauss[lower_gauss < ymed[j]], upper_gauss[upper_gauss > ymed[j]]))
+            #data['delta_rho_pred'][i_start:i_end] = np.random.choice(gauss, size=len(binned_N[j]), replace=False)
+            data['delta_rho_pred'][i_start:i_end] = np.random.normal(loc=ymed[j], scale=ystd[j], size=len(binned_N[j]))
 
-        a_gauss = np.random.normal(loc=popt[0], scale=pcov[0][0], size=len(N[mask]))
-        b_gauss = np.random.normal(loc=popt[1], scale=pcov[1][1], size=len(N[mask]))
-        data['delta_rho_pred'] = (a_gauss * N[mask] ) + b_gauss
+            data['N'][i_start:i_end] = binned_N[j]
+            data['delta_rho'][i_start:i_end] = binned_delta_rho[j]
+
+            i_start += len(binned_N[j])
+
+        data = pd.DataFrame(data)
+
         plot_mask = (data['delta_rho'] > delta_min) & (data['delta_rho'] < delta_max)
         
         diff[galtypes[i]] = np.array(data['delta_rho']) - np.array(data['delta_rho_pred'])
@@ -164,13 +211,13 @@ if __name__ == '__main__':
 
         g.figure.axes[0].text(0.57, 0.05, 'Predictions within\n 0.2 dex: {}\%'.format(diff_within),
                               transform=g.figure.axes[0].transAxes)
-        g.figure.axes[0].text(0.29, 0.93, 'Best-fit, {}'.format(galtypes_long[i]),
+        g.figure.axes[0].text(0.29, 0.93, 'Running median, {}'.format(galtypes_long[i]),
                               transform=g.figure.axes[0].transAxes)
 
         cax = g.figure.add_axes([x, .6, .02, .2])
         g.figure.colorbar(mpl.cm.ScalarMappable(norm=g.figure.axes[0].collections[0].norm, cmap=g.figure.axes[0].collections[0].cmap),
                           cax=cax, label=r'$n$')
 
-        plt.savefig(f'{plot_dir}/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_bestfit_{galtypes[i]}.png')
+        plt.savefig(f'{plot_dir}/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_runmed_{galtypes[i]}.png')
         plt.close()
 
