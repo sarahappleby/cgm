@@ -55,6 +55,7 @@ def make_main_gal_df(gal_idx, gal_id, fr200, norients, lines, lines_short, lines
 
     gal_df['orient'] = np.tile(orients, len(fr200))
     gal_df['fr200'] = np.repeat(fr200, norients)
+    gal_df['fr200_main_gal'] = np.repeat(fr200, norients)
 
     for line in lines:
 
@@ -71,7 +72,7 @@ def make_main_gal_df(gal_idx, gal_id, fr200, norients, lines, lines_short, lines
 
 
 def make_assoc_gal_df(gal_idx, gal_id, assoc_gal_id, main_gal, 
-                      fr200, orients, orient_idx, 
+                      fr200_main_gal, fr200, orients, orient_idx, 
                       lines, lines_short, lines_dir,
                       model='m100n1024', wind='s50', snap='151'):
 
@@ -82,6 +83,7 @@ def make_assoc_gal_df(gal_idx, gal_id, assoc_gal_id, main_gal,
     gal_df['main_gal'] = [False]
 
     gal_df['orient'] = [orients[orient_idx]]
+    gal_df['fr200_main_gal'] = [fr200_main_gal]
     gal_df['fr200'] = [fr200]
 
     for line in lines:
@@ -89,7 +91,7 @@ def make_assoc_gal_df(gal_idx, gal_id, assoc_gal_id, main_gal,
         ew_dict = read_h5_into_dict(f'{lines_dir}{model}_{wind}_{snap}_ew_{line}.h5')
 
         gal_df[f'EW_{lines_short[lines.index(line)]}'] = \
-                [ew_dict[f'ew_wave_{fr200}r200'][gal_idx][orient_idx]]
+                [ew_dict[f'ew_wave_{fr200_main_gal}r200'][gal_idx][orient_idx]]
 
     return pd.DataFrame(gal_df)
 
@@ -111,7 +113,7 @@ if __name__ == '__main__':
     lines_short = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
 
     columns = ['EW_HI', 'EW_MgII', 'EW_CII', 'EW_SiIII', 'EW_CIV', 'EW_OVI',
-               'associated_with', 'gal_id', 'main_gal', 'orient', 'fr200']
+               'associated_with', 'gal_id', 'main_gal', 'orient', 'fr200', 'fr200_main_gal']
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -160,6 +162,7 @@ if __name__ == '__main__':
     associated_gal_ids = []
     all_fr200 = []
     all_orients = []
+    all_actual_fr200 = []
 
     for i, gal in enumerate(sample_gal_ids):
 
@@ -180,18 +183,28 @@ if __name__ == '__main__':
     
             for k in range(len(los)):
                 ids = los_galaxies(los[k], gal_pos, rho, boxsize, vel_mask)
+                
                 if len(ids > 0):
                     ids = np.delete(ids, np.where(ids == gal)[0])
+                
                 if len(ids > 0):
+
+                    x = gal_pos[ids][:, 0]
+                    y = gal_pos[ids][:, 1]
+                    dr = np.sqrt((x - los[k][0])**2. + (y - los[k][1])**2.)
+
                     gal_ids_long.extend(np.repeat(gal, len(ids)))
                     associated_gal_ids.extend(ids)
                     all_fr200.extend(np.repeat(fr200[j], len(ids)))
                     all_orients.extend(np.repeat(orients[k], len(ids)))
+                    
+                    all_actual_fr200.extend(dr / sample_gal_r200[i])
 
     gal_ids_long = np.array(gal_ids_long)
     associated_gal_ids = np.array(associated_gal_ids)
     all_fr200 = np.array(all_fr200)
     all_orients = np.array(all_orients)
+    all_actual_fr200 = np.array(all_actual_fr200)
 
     ## match up the sample galaxies and associated galaxies with the LOS EWs
 
@@ -212,7 +225,7 @@ if __name__ == '__main__':
         if len(where) > 0.:
             for j in range(len(where)):
                 dataframes.append(make_assoc_gal_df(i, gal, associated_gal_ids[where[j]], False, 
-                                                    fr200[fr200_idx[where[j]]], orients, orient_idx[where[j]], 
+                                                    fr200[fr200_idx[where[j]]], all_actual_fr200[where[j]], orients, orient_idx[where[j]], 
                                                     lines, lines_short, lines_dir ))
 
         data = pd.concat(dataframes, ignore_index=True)
@@ -222,5 +235,9 @@ if __name__ == '__main__':
     data['mass'] = gal_sm[np.array(data['gal_id']).astype(int)] 
     data['ssfr'] = gal_ssfr[np.array(data['gal_id']).astype(int)]
     data['kappa_rot'] = gal_kappa_rot[np.array(data['gal_id']).astype(int)]
+
+    split = 0.8
+    train = np.random.rand(len(df_full)) < split
+    df_full['train_mask'] = train
 
     data.to_csv(f'data/{model}_{wind}_{snap}_ew.csv')

@@ -1,4 +1,4 @@
-### Routine to apply the sklearn randomm forest to the line by line absorption data
+### Routine to apply the sklearn randomm forest to the total EW absorption data
 
 import h5py
 import numpy as np
@@ -22,29 +22,25 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
     
-    line = sys.argv[4]
-
-    lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
-    lines_short = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
-
-    features = ['N', 'b', 'EW', 'dv', 'r_perp', 'mass', 'ssfr', 'kappa_rot']
-    predictor = 'Z'
+    features = ['EW_HI', 'EW_MgII', 'EW_CII', 'EW_SiIII', 'EW_CIV', 'EW_OVI', 'fr200', 'mass', 'ssfr', 'kappa_rot']
+    predictor = 'fgas_warm'
     model_dir = f'/disk04/sapple/cgm/absorption/ml_project/train_spectra/models/'
-    
-    # Step 1) read in the training data
-    df_full = pd.read_csv(f'data/{model}_{wind}_{snap}_{line}_lines.csv')
-    train = df_full['train_mask']
+    mstar_min = 9.
 
+    # Step 1) read in the training data
+    df_full = pd.read_csv(f'data/{model}_{wind}_{snap}_ew.csv')
+    train = df_full['train_mask']
+    
     # Step 2) Scale the data such that means are zero and variance is 1
     feature_scaler = preprocessing.StandardScaler().fit(df_full[train][features])
     predictor_scaler = preprocessing.StandardScaler().fit(np.array(df_full[train][predictor]).reshape(-1, 1) )
 
     # Step 3) Cross validation of the random forest using Kfold
     ss = KFold(n_splits=5, shuffle=True)
-    tuned_parameters = {'n_estimators':[10, 50, 75, 100, 125],
-                        'min_samples_split': [5,15,25,35], 
-                        'min_samples_leaf': [2,4,6,8], 
-                        } 
+    tuned_parameters = {'n_estimators':np.arange(10, 155, 5),
+                        'min_samples_split': np.arange(5, 55, 5),
+                        'min_samples_leaf': np.arange(2, 12, 2),
+                        }
 
     random_forest = GridSearchCV(RandomForestRegressor(), param_grid=tuned_parameters, refit=True, cv=None, n_jobs=4)
 
@@ -52,7 +48,7 @@ if __name__ == '__main__':
     random_forest.fit(feature_scaler.transform(df_full[train][features]), predictor_scaler.transform(np.array(df_full[train][predictor]).reshape(-1, 1) ))
     print(random_forest.best_params_)    
     pickle.dump([random_forest, features, predictor, feature_scaler, predictor_scaler, df_full], 
-                open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_{predictor}.model', 'wb'))
+                open(f'{model_dir}{model}_{wind}_{snap}_ew_RF_{predictor}.model', 'wb'))
 
     # Step 5) Predict conditions
     conditions_pred = predictor_scaler.inverse_transform(np.array( random_forest.predict(feature_scaler.transform(df_full[~train][features]))).reshape(-1, 1) )
