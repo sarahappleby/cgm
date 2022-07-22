@@ -108,6 +108,7 @@ if __name__ == '__main__':
     boxsize = 100000. # kpc/h
     orients = [0, 45, 90, 135, 180, 225, 270, 315]
     norients = 8
+    mlim = 9.
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     lines_short = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
@@ -236,8 +237,12 @@ if __name__ == '__main__':
     data['ssfr'] = gal_ssfr[np.array(data['gal_id']).astype(int)]
     data['kappa_rot'] = gal_kappa_rot[np.array(data['gal_id']).astype(int)]
 
+    mass_mask = data['mass'] > mlim
+
+    data = data[mass_mask]
+
     split = 0.8
-    train = np.random.rand(len(df_full)) < split
-    df_full['train_mask'] = train
+    train = np.random.rand(len(data)) < split
+    data['train_mask'] = train
 
     data.to_csv(f'data/{model}_{wind}_{snap}_ew.csv')

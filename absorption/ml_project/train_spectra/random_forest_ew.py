@@ -23,13 +23,19 @@ if __name__ == '__main__':
     snap = sys.argv[3]
     
     features = ['EW_HI', 'EW_MgII', 'EW_CII', 'EW_SiIII', 'EW_CIV', 'EW_OVI', 'fr200', 'mass', 'ssfr', 'kappa_rot']
-    predictor = 'fgas_warm'
+    features = ['EW_HI', 'EW_MgII', 'EW_CII', 'EW_SiIII', 'EW_CIV', 'EW_OVI', 'fr200']
+    predictor = 'log_fgas_cool'
     model_dir = f'/disk04/sapple/cgm/absorption/ml_project/train_spectra/models/'
-    mstar_min = 9.
+    model_name = f'{model_dir}{model}_{wind}_{snap}_ew_gal_features_RF_{predictor}.model'
+    model_name = f'{model_dir}{model}_{wind}_{snap}_ew_RF_{predictor}.model'
+    n_jobs = 10
 
     # Step 1) read in the training data
     df_full = pd.read_csv(f'data/{model}_{wind}_{snap}_ew.csv')
     train = df_full['train_mask']
+    df_full['log_fgas_cool'] = np.log10(df_full['fgas_cool'] + 1e-4)
+    df_full['log_fgas_warm'] = np.log10(df_full['fgas_warm'] + 1e-4)
+    df_full['log_fgas_hot'] = np.log10(df_full['fgas_hot'])
     
     # Step 2) Scale the data such that means are zero and variance is 1
     feature_scaler = preprocessing.StandardScaler().fit(df_full[train][features])
@@ -42,13 +48,13 @@ if __name__ == '__main__':
                         'min_samples_leaf': np.arange(2, 12, 2),
                         }
 
-    random_forest = GridSearchCV(RandomForestRegressor(), param_grid=tuned_parameters, refit=True, cv=None, n_jobs=4)
+    random_forest = GridSearchCV(RandomForestRegressor(), param_grid=tuned_parameters, refit=True, cv=None, n_jobs=n_jobs)
 
     # Step 4) Run and save the random forest routine
     random_forest.fit(feature_scaler.transform(df_full[train][features]), predictor_scaler.transform(np.array(df_full[train][predictor]).reshape(-1, 1) ))
     print(random_forest.best_params_)    
     pickle.dump([random_forest, features, predictor, feature_scaler, predictor_scaler, df_full], 
-                open(f'{model_dir}{model}_{wind}_{snap}_ew_RF_{predictor}.model', 'wb'))
+                open(model_name, 'wb'))
 
     # Step 5) Predict conditions
     conditions_pred = predictor_scaler.inverse_transform(np.array( random_forest.predict(feature_scaler.transform(df_full[~train][features]))).reshape(-1, 1) )

@@ -23,12 +23,12 @@ if __name__ == '__main__':
     snap = sys.argv[3]
     
     line = sys.argv[4]
+    predictor = sys.argv[5]
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     lines_short = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
 
     features = ['N', 'b', 'EW', 'dv', 'r_perp', 'mass', 'ssfr', 'kappa_rot']
-    predictor = 'rho'
     model_dir = f'/disk04/sapple/cgm/absorption/ml_project/train_spectra/models/'
     n_jobs = 10
     
