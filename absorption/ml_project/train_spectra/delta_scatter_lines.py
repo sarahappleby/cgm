@@ -22,43 +22,73 @@ np.random.seed(1)
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=14)
 
+
+def get_prediction_scatter(data, predicted_data, points):
+    
+    coords = np.transpose(np.array([data, predicted_data]))
+    d_perp = np.cross(points[1] - points[0], points[0] - coords) / np.linalg.norm(points[1]-points[0])
+    return np.nanstd(d_perp)
+
+
 if __name__ == '__main__':
 
     model = sys.argv[1]
     wind = sys.argv[2]
     snap = sys.argv[3]
+    line = sys.argv[4]
 
-    features = ['EW_HI', 'EW_MgII', 'EW_CII', 'EW_SiIII', 'EW_CIV', 'EW_OVI', 'fr200', 'mass', 'ssfr', 'kappa_rot']
-    features_pretty = [r'${\rm EW}_{\rm HI}$', r'${\rm EW}_{\rm MgII}$', r'${\rm EW}_{\rm CII}$',
-                       r'${\rm EW}_{\rm SiIII}$', r'${\rm EW}_{\rm CIV}$', r'${\rm EW}_{\rm OVI}$',
-                       r'$f_{r200}$', r'$M_\star$',
+    features = ['N', 'b', 'EW', 'dv', 'r_perp', 'mass', 'ssfr', 'kappa_rot'] 
+    predictors = ['rho', 'T', 'Z']
+
+    features_pretty = [r'${\rm log} N$', r'$b$', r'${\rm log\ EW}$', 
+                       r'${\rm d}v$', r'$f_{r200}$', r'${\rm log} M_\star$',
                        r'${\rm sSFR}$', r'$\kappa_{\rm rot}$']
 
-    features = ['EW_HI', 'EW_MgII', 'EW_CII', 'EW_SiIII', 'EW_CIV', 'EW_OVI', 'fr200']
-    features_pretty = [r'${\rm EW}_{\rm HI}$', r'${\rm EW}_{\rm MgII}$', r'${\rm EW}_{\rm CII}$',
-                       r'${\rm EW}_{\rm SiIII}$', r'${\rm EW}_{\rm CIV}$', r'${\rm EW}_{\rm OVI}$',
-                       r'$f_{r200}$']
+    predictors_pretty = [r'${\rm log}\ \delta$', r'${\rm log}\ T$', r'${\rm log}\ Z$']
 
-    predictors = ['log_fgas_cool', 'log_fgas_warm', 'log_fgas_hot']
-    predictors_pretty = [r'${\rm log}\ f_{\rm cool}$', r'${\rm log}\ f_{\rm warm}$', r'${\rm log}\ f_{\rm hot}$']
+    limit_dict = {}
+    limit_dict['rho'] = [[0, 4], [2, 4], [2, 4], [1.5, 4], [1, 3.5], [0.5, 3.5]]
+    limit_dict['T'] = [[3, 6.5], [3.5, 5], [4, 5], [4, 5], [4, 5.5], [4, 6]]
+    limit_dict['Z'] = [[-4, 1], [-1, 1], [-1, 1], [-1, 1], [-1, 1], [-1, 1]]
+
+    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    s = pg.Snapshot(snapfile)
+    redshift = s.redshift
+    rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
+    cosmic_rho = rho_crit * float(s.cosmology.Omega_b)
+
+    lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
+    lines_short = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
+    zsolar = [0.0134, 7.14e-4, 2.38e-3, 6.71e-4, 2.38e-3, 5.79e-3]
 
     model_dir = f'/disk04/sapple/cgm/absorption/ml_project/train_spectra/models/'
 
+    #cmap = matplotlib.cm.viridis
+    #cmap.set_bad(color='white')
+
     cmap = sns.color_palette("flare_r", as_cmap=True)
+    cmap = sns.diverging_palette(220, 20, as_cmap=True)
 
     fig, ax = plt.subplots(1, 3, figsize=(18, 9))
     fig.subplots_adjust(right=0.8)
     cbar_ax = fig.add_axes([0.82, 0.295, 0.02, 0.4])
 
-    importance = np.zeros((3, len(features), len(features)))
+    delta_scatter = np.zeros((3, len(features), len(features)))
 
     for p, pred in enumerate(predictors):
 
-        gridsearch, _, _, _, _, df_full = \
-                    pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_ew_RF_{pred}.model', 'rb'))
+        err = pd.DataFrame(columns=['Feature removed', 'Pearson', 'r2_score', 'explained_variance_score', 'mean_squared_error', 'sigma_perp'])
+
+        limits = limit_dict[pred][lines.index(line)]
+        points = np.repeat(limits, 2).reshape(2, 2)
+
+        gridsearch, _, _, feature_scaler, predictor_scaler, df_full = \
+                    pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_{pred}.model', 'rb'))
         train = df_full['train_mask']
 
-        err = pd.DataFrame(columns=['Feature removed', 'Pearson', 'r2_score', 'explained_variance_score', 'mean_squared_error'])
+        conditions_pred = predictor_scaler.inverse_transform(np.array( gridsearch.predict(feature_scaler.transform(df_full[~train][features]))).reshape(-1, 1) )
+        conditions_true = pd.DataFrame(df_full[~train],columns=[pred]).values
+        scatter_orig = get_prediction_scatter(conditions_true.flatten(), conditions_pred.flatten(), points)
 
         for i in range(len(features)):
             
@@ -73,13 +103,13 @@ if __name__ == '__main__':
                                                   min_samples_leaf=gridsearch.best_params_['min_samples_leaf'],)
             random_forest.fit(feature_scaler.transform(df_full[train][features_use]), predictor_scaler.transform(np.array(df_full[train][pred]).reshape(-1, 1) ))
 
-            importance[p][i][idx] = random_forest.feature_importances_
-
             conditions_pred = predictor_scaler.inverse_transform(np.array( random_forest.predict(feature_scaler.transform(df_full[~train][features_use]))).reshape(-1, 1) )
             conditions_true = pd.DataFrame(df_full[~train],columns=[pred]).values
 
             conditions_pred = conditions_pred.flatten()
             conditions_true = conditions_true.flatten()
+
+            delta_scatter[p][i][idx] = scatter_orig - get_prediction_scatter(conditions_true, conditions_pred, points)
 
             if pred == 'rho':
                 conditions_pred -= np.log10(cosmic_rho)
@@ -92,6 +122,7 @@ if __name__ == '__main__':
             scores = {}
             scores['Feature removed'] = features[i]
             scores['Pearson'] = round(pearsonr(conditions_true, conditions_pred)[0],3)
+            scores['sigma_perp'] = round(np.nanstd(d_perp), 3)
             for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
                 scores[_scorer.__name__] = float(_scorer(conditions_pred,
                                                          conditions_true, multioutput='raw_values'))
@@ -99,30 +130,24 @@ if __name__ == '__main__':
 
         print(pred, err)
 
-        ### plot importance matrix
-
-        importance_use = np.transpose(importance[p])
-        mask = importance_use == 0
+        scatter_use = np.transpose(delta_scatter[p])
+        mask = scatter_use == 0
 
         if p == len(predictors) - 1:
-            g = sns.heatmap(importance_use, mask=mask, cmap=cmap, vmax=1, vmin=0, annot=True, annot_kws={'fontsize':12.5}, ax=ax[p], 
-                            square=True, linewidths=.5, cbar_ax=cbar_ax)
+            g = sns.heatmap(scatter_use, mask=mask, cmap=cmap, vmin=-0.05, vmax=0.05, annot=True, ax=ax[p], square=True, linewidths=.5, 
+                            cbar_ax=cbar_ax)
         else:
-            g = sns.heatmap(importance_use, mask=mask, cmap=cmap, vmax=1, vmin=0, annot=True, annot_kws={'fontsize':12.5}, ax=ax[p], 
-                            square=True, linewidths=.5, cbar=False)
+            g = sns.heatmap(scatter_use, mask=mask, cmap=cmap, vmin=-0.05, vmax=0.05, annot=True, ax=ax[p], square=True, linewidths=.5,
+                            cbar=False)
 
         g.figure.axes[p].set_xticklabels(features_pretty, rotation='vertical', fontsize=13)
         g.figure.axes[p].set_yticklabels(features_pretty, rotation='horizontal', fontsize=13)
 
         g.figure.axes[p].set_xlabel('Removed feature')
         if p == 0:
-            g.figure.axes[p].set_ylabel('Feature importance')
+            g.figure.axes[p].set_ylabel('Remaining features')
 
         g.figure.axes[p].set_title(predictors_pretty[p])
 
-        ### with pyplot:
-        #masked_array = np.ma.masked_where(np.transpose(importance) == value, np.transpose(importance))
-        #plt.imshow(masked_array, cmap=cmap)
-
-    plt.savefig(f'plots/{model}_{wind}_{snap}_ew_RF_importance.png')
+    plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_delta_scatter.png')
     plt.close()

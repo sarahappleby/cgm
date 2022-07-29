@@ -22,9 +22,9 @@ if __name__ == '__main__':
     predictors = ['log_fgas_cool', 'log_fgas_warm', 'log_fgas_hot']
 
     limit_dict = {}
-    limit_dict['log_fgas_cool'] = [-4, 0]
-    limit_dict['log_fgas_warm'] = [-3, 0]
-    limit_dict['log_fgas_hot'] = [-1, 0]
+    limit_dict['log_fgas_cool'] = [-3, 0]
+    limit_dict['log_fgas_warm'] = [-2, 0]
+    limit_dict['log_fgas_hot'] = [-0.5, 0]
     nbins = 20
 
     xlabels = [r'${\rm log}\ f_{\rm cool, True}$',

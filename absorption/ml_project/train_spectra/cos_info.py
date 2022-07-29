@@ -57,5 +57,5 @@ for i in range(len(werk14_cldy)):
   
     keys = list(cos['igm_sys']['components'].keys())
     end = keys[0].split('_')[1]
-
-
+    
+    
