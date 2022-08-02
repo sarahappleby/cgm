@@ -39,7 +39,10 @@ if __name__ == '__main__':
     ylabels = [r'${\rm log}\ \delta_{\rm Pred}$', 
                r'${\rm log}\ (T/{\rm K})_{\rm Pred}$', 
                r'${\rm log}\ (Z/{\rm Z}_{\odot})_{\rm Pred}$']
-    x = [0.22, 0.17, .2]
+    x_dict = {}
+    x_dict['rho'] = [0.18, 0.2, 0.2, 0.18, 0.18, 0.18]
+    x_dict['T'] = [0.18, 0.18, 0.18, 0.18, 0.18, 0.2]
+    x_dict['Z'] = [0.18, 0.23, 0.23, 0.23, 0.23, 0.23]
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
@@ -95,7 +98,7 @@ if __name__ == '__main__':
         bins = np.arange(limits[0], limits[1]+dx, dx)
 
         mask = (data[pred] > bins[0]) & (data[pred] < bins[-1])
-        diff_within = round(100* np.sum(diff[pred] < 0.2) / len(diff[pred]) )
+        diff_within = round(100* np.sum(diff[pred] <= 0.2) / len(diff[pred]) )
 
         g = sns.jointplot(data=data[mask], x=pred, y=f'{pred}_pred', 
                           kind="hex", joint_kws=dict(bins='log', alpha=0.8), xlim=[limits[0], limits[1]], ylim=[limits[0], limits[1]],
@@ -107,10 +110,17 @@ if __name__ == '__main__':
         g.figure.axes[1].set_yticks([0.1])
         g.figure.axes[2].set_xticks([0.1])
 
-        annotation = r'$\sigma_\perp = $'+f'{scores["sigma_perp"]}\n'+r'$ \rho_r = $'+' {}\nPredictions within\n 0.2 dex: {}\%'.format(scores['Pearson'], diff_within)
-        g.figure.axes[0].text(0.56, 0.05, annotation, transform=g.figure.axes[0].transAxes)
+        #annotation = r'$\sigma_\perp = $'+f'{scores["sigma_perp"]}\n'+r'$ \rho_r = $'+' {}\nPredictions within\n 0.2 dex: {}\%'.format(scores['Pearson'], diff_within)
+        annotation = r'$\sigma_\perp = $'\
+                     f' {scores["sigma_perp"]}\n'\
+                     r'$\rho_r = $'\
+                     f' {scores["Pearson"]}\n'\
+                     r'$f_{\leq 0.2 \rm dex} = $'\
+                     f' {diff_within}'\
 
-        cax = g.figure.add_axes([x[p], .6, .02, .2])
+        g.figure.axes[0].text(0.7, 0.05, annotation, transform=g.figure.axes[0].transAxes)
+
+        cax = g.figure.add_axes([x_dict[pred][lines.index(line)], .6, .02, .2])
         g.figure.colorbar(mpl.cm.ScalarMappable(norm=g.figure.axes[0].collections[0].norm, cmap=g.figure.axes[0].collections[0].cmap),
                           cax=cax, label=r'$n$')
 

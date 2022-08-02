@@ -35,7 +35,11 @@ if __name__ == '__main__':
     model = sys.argv[1]
     wind = sys.argv[2]
     snap = sys.argv[3]
-    line = sys.argv[4]
+
+    lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
+    lines_short = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
+    plot_lines = [r'${\rm HI}\ 1215$', r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$',
+                  r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
 
     features = ['N', 'b', 'EW', 'dv', 'r_perp', 'mass', 'ssfr', 'kappa_rot'] 
     predictors = ['rho', 'T', 'Z']
@@ -63,91 +67,77 @@ if __name__ == '__main__':
 
     model_dir = f'/disk04/sapple/cgm/absorption/ml_project/train_spectra/models/'
 
-    #cmap = matplotlib.cm.viridis
-    #cmap.set_bad(color='white')
-
     cmap = sns.color_palette("flare_r", as_cmap=True)
     cmap = sns.diverging_palette(220, 20, as_cmap=True)
 
-    fig, ax = plt.subplots(1, 3, figsize=(18, 9))
-    fig.subplots_adjust(right=0.8)
-    cbar_ax = fig.add_axes([0.82, 0.295, 0.02, 0.4])
+    fig, ax = plt.subplots(2, 3, figsize=(15, 7.1), sharey='row', sharex='col')
+    cax = plt.axes([0.15, 0.9, 0.7, 0.05])
 
-    delta_scatter = np.zeros((3, len(features), len(features)))
+    delta_scatter = np.zeros((len(lines), 3, len(features)))
 
-    for p, pred in enumerate(predictors):
+    i = 0
+    j = 0
 
-        err = pd.DataFrame(columns=['Feature removed', 'Pearson', 'r2_score', 'explained_variance_score', 'mean_squared_error', 'sigma_perp'])
+    for l, line in enumerate(lines):
 
-        limits = limit_dict[pred][lines.index(line)]
-        points = np.repeat(limits, 2).reshape(2, 2)
+        for p, pred in enumerate(predictors):
 
-        gridsearch, _, _, feature_scaler, predictor_scaler, df_full = \
-                    pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_{pred}.model', 'rb'))
-        train = df_full['train_mask']
+            limits = limit_dict[pred][lines.index(line)]
+            points = np.repeat(limits, 2).reshape(2, 2)
 
-        conditions_pred = predictor_scaler.inverse_transform(np.array( gridsearch.predict(feature_scaler.transform(df_full[~train][features]))).reshape(-1, 1) )
-        conditions_true = pd.DataFrame(df_full[~train],columns=[pred]).values
-        scatter_orig = get_prediction_scatter(conditions_true.flatten(), conditions_pred.flatten(), points)
+            gridsearch, _, _, feature_scaler, predictor_scaler, df_full = \
+                        pickle.load(open(f'{model_dir}{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_{pred}.model', 'rb'))
+            train = df_full['train_mask']
 
-        for i in range(len(features)):
-            
-            features_use = np.delete(features, i)
-            idx = np.delete(np.arange(len(features)), i)
-
-            feature_scaler = preprocessing.StandardScaler().fit(df_full[train][features_use])
-            predictor_scaler = preprocessing.StandardScaler().fit(np.array(df_full[train][pred]).reshape(-1, 1) )
-
-            random_forest = RandomForestRegressor(n_estimators=gridsearch.best_params_['n_estimators'],
-                                                  min_samples_split=gridsearch.best_params_['min_samples_split'],
-                                                  min_samples_leaf=gridsearch.best_params_['min_samples_leaf'],)
-            random_forest.fit(feature_scaler.transform(df_full[train][features_use]), predictor_scaler.transform(np.array(df_full[train][pred]).reshape(-1, 1) ))
-
-            conditions_pred = predictor_scaler.inverse_transform(np.array( random_forest.predict(feature_scaler.transform(df_full[~train][features_use]))).reshape(-1, 1) )
+            conditions_pred = predictor_scaler.inverse_transform(np.array( gridsearch.predict(feature_scaler.transform(df_full[~train][features]))).reshape(-1, 1) )
             conditions_true = pd.DataFrame(df_full[~train],columns=[pred]).values
+            scatter_orig = get_prediction_scatter(conditions_true.flatten(), conditions_pred.flatten(), points)
 
-            conditions_pred = conditions_pred.flatten()
-            conditions_true = conditions_true.flatten()
+            for k in range(len(features)):
+            
+                features_use = np.delete(features, k)
+                idx = np.delete(np.arange(len(features)), k)
 
-            delta_scatter[p][i][idx] = scatter_orig - get_prediction_scatter(conditions_true, conditions_pred, points)
+                feature_scaler = preprocessing.StandardScaler().fit(df_full[train][features_use])
+                predictor_scaler = preprocessing.StandardScaler().fit(np.array(df_full[train][pred]).reshape(-1, 1) )
 
-            if pred == 'rho':
-                conditions_pred -= np.log10(cosmic_rho)
-                conditions_true -= np.log10(cosmic_rho)
+                random_forest = RandomForestRegressor(n_estimators=gridsearch.best_params_['n_estimators'],
+                                                      min_samples_split=gridsearch.best_params_['min_samples_split'],
+                                                      min_samples_leaf=gridsearch.best_params_['min_samples_leaf'],)
+                random_forest.fit(feature_scaler.transform(df_full[train][features_use]), predictor_scaler.transform(np.array(df_full[train][pred]).reshape(-1, 1) ))
 
-            if pred == 'Z':
-                conditions_pred -= np.log10(zsolar[lines.index(line)])
-                conditions_true -= np.log10(zsolar[lines.index(line)])
+                conditions_pred = predictor_scaler.inverse_transform(np.array( random_forest.predict(feature_scaler.transform(df_full[~train][features_use]))).reshape(-1, 1) )
+                conditions_true = pd.DataFrame(df_full[~train],columns=[pred]).values
 
-            scores = {}
-            scores['Feature removed'] = features[i]
-            scores['Pearson'] = round(pearsonr(conditions_true, conditions_pred)[0],3)
-            scores['sigma_perp'] = round(np.nanstd(d_perp), 3)
-            for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
-                scores[_scorer.__name__] = float(_scorer(conditions_pred,
-                                                         conditions_true, multioutput='raw_values'))
-            err = err.append(scores, ignore_index=True)
+                conditions_pred = conditions_pred.flatten()
+                conditions_true = conditions_true.flatten()
 
-        print(pred, err)
+                delta_scatter[l][p][k] = scatter_orig - get_prediction_scatter(conditions_true, conditions_pred, points)
 
-        scatter_use = np.transpose(delta_scatter[p])
-        mask = scatter_use == 0
+        scatter_use = delta_scatter[l]
 
-        if p == len(predictors) - 1:
-            g = sns.heatmap(scatter_use, mask=mask, cmap=cmap, vmin=-0.05, vmax=0.05, annot=True, ax=ax[p], square=True, linewidths=.5, 
-                            cbar_ax=cbar_ax)
+        if (l == 0):
+            g = sns.heatmap(scatter_use, cmap=cmap, vmin=-0.05, vmax=0.05, annot=False, ax=ax[i][j], square=True, linewidths=.5, 
+                            cbar_ax=cax, cbar_kws={'label':r'$\Delta \sigma$', 'orientation':'horizontal'})
         else:
-            g = sns.heatmap(scatter_use, mask=mask, cmap=cmap, vmin=-0.05, vmax=0.05, annot=True, ax=ax[p], square=True, linewidths=.5,
+            g = sns.heatmap(scatter_use, cmap=cmap, vmin=-0.05, vmax=0.05, annot=False, ax=ax[i][j], square=True, linewidths=.5,
                             cbar=False)
 
-        g.figure.axes[p].set_xticklabels(features_pretty, rotation='vertical', fontsize=13)
-        g.figure.axes[p].set_yticklabels(features_pretty, rotation='horizontal', fontsize=13)
+        ax[i][j].set_title(plot_lines[l])
 
-        g.figure.axes[p].set_xlabel('Removed feature')
-        if p == 0:
-            g.figure.axes[p].set_ylabel('Remaining features')
+        j += 1
+        if line == 'CII1334':
+            i += 1
+            j = 0
 
-        g.figure.axes[p].set_title(predictors_pretty[p])
+    for i in range(2):
+        ax[i][0].set_yticklabels(predictors_pretty, rotation='horizontal', fontsize=13)
+        ax[i][0].set_ylabel('Predictors')
 
-    plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_delta_scatter.png')
+    for j in range(3):
+        ax[1][j].set_xticklabels(features_pretty, rotation='vertical', fontsize=13)
+        ax[1][j].set_xlabel('Removed feature')
+
+    fig.subplots_adjust(wspace=0.1, hspace=-0.35)
+    plt.savefig(f'plots/{model}_{wind}_{snap}_lines_RF_delta_scatter.png')
     plt.close()
