@@ -112,13 +112,13 @@ if __name__ == '__main__':
                 conditions_pred = conditions_pred.flatten()
                 conditions_true = conditions_true.flatten()
 
-                delta_scatter[l][p][k] = scatter_orig - get_prediction_scatter(conditions_true, conditions_pred, points)
+                delta_scatter[l][p][k] = get_prediction_scatter(conditions_true, conditions_pred, points) - scatter_orig
 
         scatter_use = delta_scatter[l]
 
         if (l == 0):
             g = sns.heatmap(scatter_use, cmap=cmap, vmin=-0.05, vmax=0.05, annot=False, ax=ax[i][j], square=True, linewidths=.5, 
-                            cbar_ax=cax, cbar_kws={'label':r'$\Delta \sigma$', 'orientation':'horizontal'})
+                            cbar_ax=cax, cbar_kws={'label':r'$\Delta \sigma_\perp$', 'orientation':'horizontal'})
         else:
             g = sns.heatmap(scatter_use, cmap=cmap, vmin=-0.05, vmax=0.05, annot=False, ax=ax[i][j], square=True, linewidths=.5,
                             cbar=False)
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 
     for i in range(2):
         ax[i][0].set_yticklabels(predictors_pretty, rotation='horizontal', fontsize=13)
-        ax[i][0].set_ylabel('Predictors')
+        ax[i][0].set_ylabel('Target')
 
     for j in range(3):
         ax[1][j].set_xticklabels(features_pretty, rotation='vertical', fontsize=13)

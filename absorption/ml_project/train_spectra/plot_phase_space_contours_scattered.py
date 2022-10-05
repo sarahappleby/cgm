@@ -68,7 +68,18 @@ if __name__ == '__main__':
 
         ax[i][j].annotate(plot_lines[lines.index(line)], xy=(x[lines.index(line)], 0.06), xycoords='axes fraction', 
                           bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
-        
+       
+        sigma_bias_delta_rho = data["sigma_bias_delta_rho"][0]
+        sigma_bias_T = data["sigma_bias_T"][0]
+
+        sigma_annotation = r'$\sigma_\delta =$'\
+                           f' {sigma_bias_delta_rho:.2f}\n'\
+                           r'$\sigma_T =$'\
+                           f' {sigma_bias_T:.2f}'\
+
+        ax[i][j].annotate(sigma_annotation, xy=(0.06, 0.06), xycoords='axes fraction',
+                          bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
+
         if line in ["SiIII1206", "CIV1548", "OVI1031"]:
             ax[i][j].set_xlabel(r'${\rm log }\delta$')
         
@@ -82,7 +93,7 @@ if __name__ == '__main__':
 
     fig.subplots_adjust(right=0.8)
     cbar_ax = fig.add_axes([0.82, 0.11, 0.02, 0.77])
-    cbar = fig.colorbar(im, cax=cbar_ax, label=r'${\rm log} \sigma$')
+    cbar = fig.colorbar(im, cax=cbar_ax, label=r'${\rm log} \sigma_{\rm phase}$')
 
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_lines_deltaT_pred_scattered.png', dpi=300)

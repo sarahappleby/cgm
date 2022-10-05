@@ -87,8 +87,8 @@ if __name__ == '__main__':
 
         scores = {}
         scores['Predictor'] = pred
-        scores['Pearson'] = round(pearsonr(data[pred],data[pred+'_pred'])[0], 2)
-        scores['sigma_perp'] = round(np.nanstd(d_perp), 3)
+        scores['Pearson'] = round(pearsonr(data[pred],data[pred+'_pred'])[0], 5)
+        scores['sigma_perp'] = round(np.nanstd(d_perp), 5)
         for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
             scores[_scorer.__name__] = float(_scorer(data[pred],
                                                data[pred_str], multioutput='raw_values'))
@@ -98,7 +98,7 @@ if __name__ == '__main__':
         bins = np.arange(limits[0], limits[1]+dx, dx)
 
         mask = (data[pred] > bins[0]) & (data[pred] < bins[-1])
-        diff_within = round(100* np.sum(diff[pred] <= 0.2) / len(diff[pred]) )
+        diff_within = np.sum(diff[pred] <= 0.2) / len(diff[pred])
 
         g = sns.jointplot(data=data[mask], x=pred, y=f'{pred}_pred', 
                           kind="hex", joint_kws=dict(bins='log', alpha=0.8), xlim=[limits[0], limits[1]], ylim=[limits[0], limits[1]],
@@ -112,17 +112,20 @@ if __name__ == '__main__':
 
         #annotation = r'$\sigma_\perp = $'+f'{scores["sigma_perp"]}\n'+r'$ \rho_r = $'+' {}\nPredictions within\n 0.2 dex: {}\%'.format(scores['Pearson'], diff_within)
         annotation = r'$\sigma_\perp = $'\
-                     f' {scores["sigma_perp"]}\n'\
+                     f' {scores["sigma_perp"]:.2f}\n'\
                      r'$\rho_r = $'\
-                     f' {scores["Pearson"]}\n'\
-                     r'$f_{\leq 0.2 \rm dex} = $'\
-                     f' {diff_within}'\
+                     f' {scores["Pearson"]:.2f}\n'\
+                     r'${\rm MSE} = $'\
+                     f' {scores["mean_squared_error"]:.2f}'\
+                     #r'$f_{\leq 0.2 \rm dex} = $'\
+                     #f' {diff_within:.2f}'\
 
-        g.figure.axes[0].text(0.7, 0.05, annotation, transform=g.figure.axes[0].transAxes)
+        g.figure.axes[0].text(0.66, 0.05, annotation, transform=g.figure.axes[0].transAxes)
 
         cax = g.figure.add_axes([x_dict[pred][lines.index(line)], .6, .02, .2])
-        g.figure.colorbar(mpl.cm.ScalarMappable(norm=g.figure.axes[0].collections[0].norm, cmap=g.figure.axes[0].collections[0].cmap),
-                          cax=cax, label=r'$n$')
+        cbar = g.figure.colorbar(mpl.cm.ScalarMappable(norm=g.figure.axes[0].collections[0].norm, cmap=g.figure.axes[0].collections[0].cmap),
+                                 cax=cax)
+        cbar.set_label(r'$n$', rotation='horizontal')
 
         plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_joint_single_{pred}.png')
         plt.close()

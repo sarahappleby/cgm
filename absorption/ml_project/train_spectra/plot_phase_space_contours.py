@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     fig.subplots_adjust(right=0.8)
     cbar_ax = fig.add_axes([0.82, 0.11, 0.02, 0.77])
-    cbar = fig.colorbar(im, cax=cbar_ax, label=r'${\rm log} \sigma$')
+    cbar = fig.colorbar(im, cax=cbar_ax, label=r'${\rm log} \sigma_{\rm phase}$')
 
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_lines_deltaT_pred.png', dpi=300)

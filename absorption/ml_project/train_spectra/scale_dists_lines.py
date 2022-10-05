@@ -40,10 +40,14 @@ if __name__ == '__main__':
     xlabels = [r'${\rm log}\ \delta_{\rm True}$', 
                r'${\rm log}\ (T/{\rm K})_{\rm True}$', 
                r'${\rm log}\ (Z/{\rm Z}_{\odot})_{\rm True}$']
+    xlabels = [r'${\rm log}\ \delta$',
+               r'${\rm log}\ (T/{\rm K})$',]
     ylabels = [r'${\rm log}\ \delta_{\rm Pred}$', 
                r'${\rm log}\ (T/{\rm K})_{\rm Pred}$', 
                r'${\rm log}\ (Z/{\rm Z}_{\odot})_{\rm Pred}$']
-    x = [0.22, 0.17, .2]
+    x_dict = {}
+    x_dict['delta_rho'] = [0.18, 0.2, 0.2, 0.18, 0.18, 0.18]
+    x_dict['T'] = [0.18, 0.18, 0.18, 0.18, 0.18, 0.2]
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
@@ -57,6 +61,11 @@ if __name__ == '__main__':
     err = pd.DataFrame(columns=['Predictor', 'Pearson', 'r2_score', 'explained_variance_score', 'mean_squared_error'])
 
     data = pd.DataFrame()
+
+    #cmap = sns.color_palette("crest", as_cmap=True)
+    colors = ['#00629B', '#009988', '#CC6677']
+
+    fig, ax = plt.subplots(1, 2, figsize=(10, 7))
 
     for p, pred in enumerate(predictors):
 
@@ -97,8 +106,8 @@ if __name__ == '__main__':
         if sigma_pred < 0:
             sigma_pred *= -1
 
-        sigma_bias = np.sqrt(sigma_true**2 - sigma_pred**2)
-        new_scatter = np.random.normal(0, sigma_bias, size=len(data[pred]))
+        data[f'sigma_bias_{pred}'] = np.sqrt(sigma_true**2 - sigma_pred**2)
+        new_scatter = np.random.normal(0, data[f'sigma_bias_{pred}'], size=len(data[pred]))
         
         delta_pred = np.abs(data[pred].values - data[f'{pred}_pred'].values) / data[pred].values 
         mask = delta_pred > 0.2
@@ -112,8 +121,8 @@ if __name__ == '__main__':
 
         scores = {}
         scores['Predictor'] = pred
-        scores['Pearson'] = round(pearsonr(data[pred], data[pred+'_new'])[0], 2)
-        scores['sigma_perp'] = round(np.nanstd(d_perp), 3)
+        scores['Pearson'] = round(pearsonr(data[pred], data[pred+'_new'])[0], 5)
+        scores['sigma_perp'] = round(np.nanstd(d_perp), 5)
         for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
             scores[_scorer.__name__] = float(_scorer(data[pred],
                                                data[f'{pred}_new'], multioutput='raw_values'))
@@ -123,8 +132,20 @@ if __name__ == '__main__':
         bins = np.arange(limits[0], limits[1]+dx, dx)
    
         mask = (data[pred] > bins[0]) & (data[pred] < bins[-1])
-        diff_within = round(100* np.sum(diff[pred] < 0.2) / len(diff[pred]) )
+        diff_within = np.sum(diff[pred] < 0.2) / len(diff[pred])
 
+        ax[p].hist(data[pred], bins=bins, stacked=True, density=True, color=colors[0], ls='-', lw=1.25, histtype='step',
+                   label='Original Data')
+        ax[p].hist(data[f'{pred}_pred'], bins=bins, stacked=True, density=True, color=colors[1], ls='-', lw=1.25, histtype='step',
+                   label='Prediction')
+        ax[p].hist(data[f'{pred}_new'], bins=bins, stacked=True, density=True, color=colors[2], ls='-', lw=1.25, histtype='step',
+                   label='Prediction+Scatter') 
+
+        ax[p].legend(fontsize=13.5, loc=4)
+        ax[p].set_xlabel(xlabels[p])
+        ax[p].set_ylabel('Frequency')
+
+        """
         g = sns.jointplot(data=data[mask], x=pred, y=f'{pred}_new',
                           kind="hex", joint_kws=dict(bins='log', alpha=0.8), xlim=[limits[0], limits[1]], ylim=[limits[0], limits[1]],
                           marginal_ticks=True, marginal_kws=dict(bins=bins, fill=False, stat='probability'))
@@ -135,14 +156,25 @@ if __name__ == '__main__':
         g.figure.axes[1].set_yticks([0.1])
         g.figure.axes[2].set_xticks([0.1])
 
-        annotation = r'$\sigma_\perp = $'+f'{scores["sigma_perp"]}\n'+r'$ \rho_r = $'+' {}\nPredictions within\n 0.2 dex: {}\%'.format(scores['Pearson'], diff_within)
-        g.figure.axes[0].text(0.56, 0.05, annotation, transform=g.figure.axes[0].transAxes)
+        annotation = r'$\sigma_\perp = $'\
+                     f' {scores["sigma_perp"]:.2f}\n'\
+                     r'$\rho_r = $'\
+                     f' {scores["Pearson"]:.2f}\n'\
+                     r'$f_{\leq 0.2 \rm dex} = $'\
+                     f' {diff_within:.2f}'\
 
-        cax = g.figure.add_axes([x[p], .6, .02, .2])
-        g.figure.colorbar(mpl.cm.ScalarMappable(norm=g.figure.axes[0].collections[0].norm, cmap=g.figure.axes[0].collections[0].cmap),
-                          cax=cax, label=r'$n$')
+
+        g.figure.axes[0].text(0.66, 0.05, annotation, transform=g.figure.axes[0].transAxes)
+
+        cax = g.figure.add_axes([x_dict[pred][lines.index(line)], .6, .02, .2])
+        cbar = g.figure.colorbar(mpl.cm.ScalarMappable(norm=g.figure.axes[0].collections[0].norm, cmap=g.figure.axes[0].collections[0].cmap),
+                                 cax=cax)
+        cbar.set_label(r'$n$', rotation='horizontal')
 
         plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_joint_single_{pred}_scatter_bias.png')
         plt.close()
+        """
+    plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_scatter_bias.png')
+    plt.close()
 
-    data.to_csv(f'data/{model}_{wind}_{snap}_{line}_lines_scattered.csv')
+    #data.to_csv(f'data/{model}_{wind}_{snap}_{line}_lines_scattered.csv')

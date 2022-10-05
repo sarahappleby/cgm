@@ -115,10 +115,10 @@ if __name__ == '__main__':
         mask = importance_use == 0
 
         if p == len(predictors) - 1:
-            g = sns.heatmap(importance_use, mask=mask, cmap=cmap, vmax=1, vmin=0, annot=True, ax=ax[p], square=True, linewidths=.5, 
-                            cbar_ax=cbar_ax)
+            g = sns.heatmap(importance_use, mask=mask, cmap=cmap, vmax=1, vmin=0, annot=False, ax=ax[p], square=True, linewidths=.5, 
+                            cbar_ax=cbar_ax, cbar_kws={'label': 'Importance'})
         else:
-            g = sns.heatmap(importance_use, mask=mask, cmap=cmap, vmax=1, vmin=0, annot=True, ax=ax[p], square=True, linewidths=.5,
+            g = sns.heatmap(importance_use, mask=mask, cmap=cmap, vmax=1, vmin=0, annot=False, ax=ax[p], square=True, linewidths=.5,
                             cbar=False)
 
         g.figure.axes[p].set_xticklabels(features_pretty, rotation='vertical', fontsize=13)
@@ -126,7 +126,7 @@ if __name__ == '__main__':
 
         g.figure.axes[p].set_xlabel('Removed feature')
         if p == 0:
-            g.figure.axes[p].set_ylabel('Feature importance')
+            g.figure.axes[p].set_ylabel('Remaining features')
 
         g.figure.axes[p].set_title(predictors_pretty[p])
 
