@@ -27,14 +27,47 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
             cmap(np.linspace(minval, maxval, n)))
     return new_cmap
 
+def convert_to_log(y, yerr):
+    yerr /= (y*np.log(10.))
+    y = np.log10(y)
+    return y, yerr
+
+def runningmedian(x,y,xlolim=-1.e20,ylolim=-1.e20,bins=10,stat='median'):
+    
+    xp = x[(x>xlolim) & (y>ylolim)]
+    yp = y[(x>xlolim) & (y>ylolim)]
+    hist, bin_edges = np.histogram(xp, bins)
+    bin_cent = 0.5*(bin_edges[1:]+bin_edges[:-1])
+
+    ymedian = np.zeros(bins)
+    ymean = np.zeros(bins)
+    ysigma = np.zeros(bins)
+    yper25 = np.zeros(bins)
+    yper75 = np.zeros(bins)
+    ndata = np.zeros(bins)
+    
+    for i in range(bins):
+        
+        mask = (xp > bin_edges[i]) & (xp < bin_edges[i+1])
+        
+        ymedian[i] = np.median(10**yp[mask])
+        ymean[i] = np.mean(10**yp[mask])
+        ysigma[i] = np.std(10**yp[mask])
+        yper25[i] = np.percentile(10**yp[mask], 25.)
+        yper75[i] = np.percentile(10**yp[mask], 75.)
+        ndata[i] = len(yp[mask])
+
+    ymean, ysigma = convert_to_log(ymean, ysigma)
+    yper_lo = ymedian - yper25; yper_hi = yper75 - ymedian
+    ymedian, ypers = convert_to_log(ymedian, [yper_lo, yper_hi])
+    return bin_cent,ymean,ysigma,ymedian, ypers,ndata
+
+
 cmap = plt.get_cmap('plasma')
 cmap = truncate_colormap(cmap, 0.1, 0.9)
 
-cmap_r = plt.get_cmap('plasma_r')
-cmap_r = truncate_colormap(cmap_r, 0.1, 0.9)
-
-sf_cmap = plt.get_cmap('jet_r')
-sf_cmap = truncate_colormap(sf_cmap, 0.1, 0.9)
+greys = plt.get_cmap('Greys')
+greys = truncate_colormap(greys, 0.0, 0.5)
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=15)
@@ -44,6 +77,19 @@ if __name__ == '__main__':
     model = sys.argv[1]
     wind = sys.argv[2]
     snap = sys.argv[3]
+
+    mass_min = 9.75
+    mass_max = 11.5
+    sfr_min = -2.8
+    gwslc_data_file = '/home/rad/gizmo-analysis/caesar/Observations/GSWLC/GSWLC-X2.dat'
+    gwslc_data = {}
+    gwslc_data['mass'], gwslc_data['sigma_mass'], gwslc_data['sfr'], gwslc_data['sigma_sfr'], gwslc_data['flag_sed'], gwslc_data['flag_mgs'] = \
+            np.loadtxt(gwslc_data_file,usecols=(9,10,11,12,19,23),unpack=True)
+    flag_mask = (gwslc_data['flag_sed']==0) & (gwslc_data['flag_mgs']==1) & (gwslc_data['sfr'] > sfr_min)
+    type_mask = (gwslc_data['mass'] > mass_min) & (gwslc_data['mass'] < mass_max)
+    mask = flag_mask * type_mask
+    bin_cent, _, ysigma, ymedian, _, ndata = runningmedian(gwslc_data['mass'][mask],gwslc_data['sfr'][mask],xlolim=-1.e20,ylolim=-1.e20,bins=10,stat='median')
+    plt.errorbar(bin_cent, ymedian, yerr=ysigma, c='#6e6b6a', ls='', marker='s', lw=1, markersize=5, capsize=2, label='GWSLC')
 
     data_dir = f'/home/rad/data/{model}/{wind}/'
     sim = caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5') 
@@ -59,92 +105,36 @@ if __name__ == '__main__':
     ylims = [1.5, 1.75, 2., 2.5, 3.0]
 
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
+    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
+    with h5py.File(sample_file, 'r') as sf:
         gal_sm = sf['mass'][:]
         gal_sfr = sf['sfr'][:]
         gal_ssfr = sf['ssfr'][:] +9.
         gal_fgas = np.log10(sf['fgas'][:] + 1e-3)
         gal_Lbaryon = sf['L_baryon'][:]
-        gal_nsats = sf['nsats'][:]
+        #gal_nsats = sf['nsats'][:]
         gal_Tcgm = sf['Tcgm'][:]
         gal_fcold = sf['fcold'][:]
 
-    z = np.array([0, 0, 1])
-    Lbaryon_norm = gal_Lbaryon / np.linalg.norm(gal_Lbaryon, axis=1)[:, None]
-    alpha = np.degrees(np.arccos([np.dot(z, i) for i in Lbaryon_norm]))
+    gal_sm_sfr_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_sm_sfr.h5'
+    with h5py.File(gal_sm_sfr_file, 'r') as hf:
+        gal_sm_sfr_hist2d = hf['sm_sfr'][:]
+        mass_bins = hf['mass_bins'][:]
+        sfr_bins = hf['sfr_bins'][:]
 
-    # for face-on galaxies at 90 degrees and edge on galaxies at 0 degrees:
-    #inclination = np.abs(alpha - 90)
-    #for i in range(len(inclination)):
-    #        if (inclination[i] > 90) & (inclination[i] < 180):
-    #        inclination[i] = np.abs(inclination[i] - 180)
-
-    # for face-on galaxies at 0 degrees and edge on galaxies at 90 degrees:
-    inclination = alpha.copy()
-    for i in range(len(inclination)):
-        if (alpha[i] > 90) & (alpha[i] < 180):
-            inclination[i] = 180 - alpha[i]
+    delta_m_hist = mass_bins[1] - mass_bins[0]
+    delta_sfr_hist = sfr_bins[1] - sfr_bins[0]
+    aspect = (delta_m_hist / delta_sfr_hist) * 0.9
 
     delta_m = 0.25
     min_m = 10.
     nbins_m = 6
-    mass_bins = np.arange(min_m, min_m+nbins_m*delta_m, delta_m)
 
     sm_line = np.arange(9.5, 12.5, 0.5)
     sf_line = sfms_line(sm_line,b=quench)
     q_line = sfms_line(sm_line, b=quench-1.)
 
-    """
-    plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
-    plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
-    plt.text(11.55, sf_height[snap_index], 'SF')
-    plt.text(11.55, gv_height[snap_index], 'GV')
-    plt.text(11.55, q_height[snap_index], 'Q')
-    for i in range(nbins_m + 1):
-        plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
-    im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=inclination, cmap=cmap, s=5, marker='o')
-    plt.colorbar(im, label=r'$i\ (^\circ)$')
-    plt.clim(90, 0)
-    plt.xlim(9.75,11.75)
-    plt.ylim(-3.5, ylims[snap_index])
-    plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
-    plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
-    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_inclination.png')
-    plt.close()
-
-    plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
-    plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
-    plt.text(11.55, sf_height[snap_index], 'SF')
-    plt.text(11.55, gv_height[snap_index], 'GV')
-    plt.text(11.55, q_height[snap_index], 'Q')
-    for i in range(nbins_m + 1):
-        plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
-    im = plt.scatter(gal_sm, np.log10(gal_sfr + 10**-2.5), c=gal_ssfr, cmap=sf_cmap, s=5, marker='o')
-    plt.colorbar(im, label=r'$\textrm{log} ({\rm sSFR} / {\rm Gyr}^{-1})$')
-    plt.clim(-3.5, 0)
-    plt.xlim(9.75,11.75)
-    plt.ylim(-3., ylims[snap_index])
-    plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
-    plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
-    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_ssfr.png')
-    plt.close()
-
-    plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
-    plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
-    plt.text(11.55, sf_height[snap_index], 'SF')
-    plt.text(11.55, gv_height[snap_index], 'GV')
-    plt.text(11.55, q_height[snap_index], 'Q')
-    for i in range(nbins_m + 1):
-        plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
-    im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=np.log10(gal_nsats + 0.31), cmap=cmap, s=5, marker='o')
-    plt.colorbar(im, label=r'$N_{\rm sats}$')
-    plt.clim(-0.5, 1.75)
-    plt.xlim(9.75,11.75)
-    plt.ylim(-3.5, ylims[snap_index])
-    plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
-    plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
-    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_nsats.png')
-    plt.close()
+    plt.imshow(np.log10(gal_sm_sfr_hist2d), extent=(mass_bins[0], mass_bins[-1], sfr_bins[0], sfr_bins[-1]),aspect=aspect, cmap=greys, label='Simba')
 
     plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
     plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
@@ -153,87 +143,14 @@ if __name__ == '__main__':
     plt.text(11.575, q_height[snap_index], 'Q')
     for i in range(nbins_m + 1):
         plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
-    im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=np.abs(np.cos(alpha)), cmap=cmap, s=5, marker='o', vmin=0, vmax=1)
-    plt.colorbar(im, label=r'$\vert{\rm cos}\ i\vert$')
-    #plt.clim(1, 0)
-    plt.xlim(9.75,11.75)
-    plt.ylim(-3.5, ylims[snap_index])
-    plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
-    plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
-    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_cosi.pdf', format='pdf')
-    plt.close()
-    
-    """
-    plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
-    plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
-    plt.text(11.56, sf_height[snap_index], 'SF')
-    plt.text(11.55, gv_height[snap_index], 'GV')
-    plt.text(11.575, q_height[snap_index], 'Q')
-    for i in range(nbins_m + 1):
-        plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
-    im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=gal_Tcgm, cmap=cmap, s=5, marker='o', vmin=5, vmax=7)
+    im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=gal_Tcgm, cmap=cmap, s=10, marker='o', vmin=5, vmax=7, label='Simba sample')
     plt.colorbar(im, label=r'${\rm log} (T_{\rm CGM} / {\rm K})$')
     plt.xlim(9.75,11.75)
-    plt.ylim(-3.5, ylims[snap_index])
-    plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
-    plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
-    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_Tcgm.pdf', format='pdf')
-    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_Tcgm.png', format='png')
+    plt.ylim(-3.3, 1.9)
+    plt.xlabel(r'$\log\ (M_{\star} / {\rm M}_{\odot})$')
+    plt.ylabel(r'$\textrm{log} ({\rm SFR} / {\rm M}_{\odot}{\rm yr}^{-1})$')
+    plt.legend(loc=2, fontsize=12)
+    plt.tight_layout()
+    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_Tcgm_new.pdf', format='pdf')
+    #plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_Tcgm_new.png', format='png')
     plt.close()
-
-    plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
-    plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
-    plt.text(11.56, sf_height[snap_index], 'SF')
-    plt.text(11.55, gv_height[snap_index], 'GV')
-    plt.text(11.575, q_height[snap_index], 'Q')
-    for i in range(nbins_m + 1):
-        plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
-    im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=gal_fcold, cmap=cmap_r, s=5, marker='o', vmin=-3, vmax=1)
-    plt.colorbar(im, label=r'${\rm log} (M_{\rm cool} / M_{\rm hot})$')
-    plt.xlim(9.75,11.75)
-    plt.ylim(-3.5, ylims[snap_index])
-    plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
-    plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
-    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_fcold.pdf', format='pdf')
-    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_fcold.png', format='png')
-    plt.close()
-    """
-
-    im = plt.scatter(gal_sm, inclination, c=np.log10(gal_sfr + 1e-3), cmap=cmap, s=5, marker='o')
-    plt.colorbar(im, label=r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
-    plt.clim(1.5, -3.5)
-    plt.xlim(9.75,11.75)
-    plt.ylim(0, 90)
-    plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
-    plt.ylabel(r'$i\ (^\circ)$')
-    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_mstar_inclination.png')
-    plt.close()
-
-    im = plt.scatter(gal_sm, np.abs(np.cos(alpha)), c=np.log10(gal_sfr + 1e-3), cmap=cmap, s=5, marker='o')
-    plt.colorbar(im, label=r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
-    plt.clim(1.5, -3.5)
-    plt.xlim(9.75,11.75)
-    plt.ylim(0, 1)
-    plt.xlabel(r'$\log\ (M_{\star} / M_{\odot})$')
-    plt.ylabel(r'$\vert{\rm cos}\ i\vert$')
-    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_mstar_cosi.png')
-    plt.close()
-
-    plt.plot(sm_line, sf_line, ls='--', lw=1.3, c='dimgray')
-    plt.plot(sm_line, q_line, ls='--', lw=1.3, c='dimgray')
-    plt.text(11.55, sf_height[snap_index], 'SF')
-    plt.text(11.55, gv_height[snap_index], 'GV')
-    plt.text(11.55, q_height[snap_index], 'Q')
-    for i in range(nbins_m + 1):
-        plt.axvline(min_m+i*delta_m, ls=':', lw=1.5, c='darkgray')
-    im = plt.scatter(gal_sm, np.log10(gal_sfr + 1e-3), c=gal_fgas, cmap=cmap, s=5, marker='o')
-    plt.colorbar(im, label=r'$\textrm{log} (f_{\textrm{gas}})$')
-    plt.clim(1.0, -3.)
-    plt.xlim(9.75,11.75)
-    plt.ylim(-3.5, ylims[snap_index])
-    plt.xlabel(r'$\log\ (M_{*} / M_{\odot})$')
-    plt.ylabel(r'$\textrm{log} ({\rm SFR} / M_{\odot}{\rm yr}^{-1})$')
-    plt.savefig(f'{sample_dir}{model}_{wind}_{snap}_fgas.png')
-    plt.close()
-
-    """
