@@ -13,6 +13,10 @@ from cosmic_variance import get_cosmic_variance_cddf
 def get_bin_middle(xbins):
     return np.array([xbins[i] + 0.5*(xbins[i+1] - xbins[i]) for i in range(len(xbins)-1)])
 
+def bin_data(x, y, xbins):
+    digitized = np.digitize(x, xbins)
+    return np.array([y[digitized == i] for i in range(1, len(xbins))])
+
 def quench_thresh(z): # in units of yr^-1 
     return -1.8  + 0.3*z -9.
 
@@ -169,6 +173,15 @@ if __name__ == '__main__':
         plot_data[f'cddf_all_poisson'] = np.sqrt(plot_data[f'cddf_all'])
         plot_data[f'cddf_all_poisson'] /= (plot_data[f'cddf_all'] * np.log(10.))
 
+        plot_data[f'cddf_sf_poisson'] = np.sqrt(plot_data[f'cddf_sf'])
+        plot_data[f'cddf_sf_poisson'] /= (plot_data[f'cddf_sf'] * np.log(10.))
+
+        plot_data[f'cddf_gv_poisson'] = np.sqrt(plot_data[f'cddf_gv'])
+        plot_data[f'cddf_gv_poisson'] /= (plot_data[f'cddf_gv'] * np.log(10.))
+
+        plot_data[f'cddf_q_poisson'] = np.sqrt(plot_data[f'cddf_q'])
+        plot_data[f'cddf_q_poisson'] /= (plot_data[f'cddf_q'] * np.log(10.))
+
         plot_data[f'cddf_all'] /= (delta_N * dX_all)
         plot_data[f'cddf_sf'] /= (delta_N * dX_sf)
         plot_data[f'cddf_gv'] /= (delta_N * dX_gv)
@@ -181,6 +194,22 @@ if __name__ == '__main__':
         plot_data[f'cddf_all_cv_mean_{ncells}'], plot_data[f'cddf_all_cv_{ncells}'] = \
                 get_cosmic_variance_cddf(all_N, all_los, boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells, 
                                          redshift=redshift, hubble_parameter=hubble_parameter, hubble_constant=hubble_constant)
+
+        plot_data[f'cddf_sf_cv_mean_{ncells}'], plot_data[f'cddf_sf_cv_{ncells}'] = \
+                get_cosmic_variance_cddf(all_N[sf_mask], all_los[sf_mask], boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells, 
+                                         redshift=redshift, hubble_parameter=hubble_parameter, hubble_constant=hubble_constant)
+
+        plot_data[f'cddf_gv_cv_mean_{ncells}'], plot_data[f'cddf_gv_cv_{ncells}'] = \
+                get_cosmic_variance_cddf(all_N[gv_mask], all_los[gv_mask], boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells,
+                                         redshift=redshift, hubble_parameter=hubble_parameter, hubble_constant=hubble_constant)
+
+        plot_data[f'cddf_q_cv_mean_{ncells}'], plot_data[f'cddf_q_cv_{ncells}'] = \
+                get_cosmic_variance_cddf(all_N[q_mask] , all_los[q_mask], boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells,
+                                         redshift=redshift, hubble_parameter=hubble_parameter, hubble_constant=hubble_constant)
+
+
+        #binned_N = bin_data(all_N, all_N, bins_logN)
+        #plot_data['cddf_all_std'] = np.array([np.nanstd(i) for i in binned_N])
 
         """
         for i in range(len(inner_outer)):

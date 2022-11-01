@@ -162,7 +162,14 @@ if __name__ == '__main__':
                 N_mask = (all_N > bins_logN[k]) & (all_N < bins_logN[k+1])
                 plot_data[f'cddf_{label}'][k] = len(all_N[N_mask*mass_mask])
 
+            plot_data[f'cddf_{label}_poisson'] = np.sqrt(plot_data[f'cddf_{label}'])
+            plot_data[f'cddf_{label}_poisson'] /= (plot_data[f'cddf_{label}'] * np.log(10.))
+
             plot_data[f'cddf_{label}'] /= (delta_N * dX_mass[j])
             plot_data[f'cddf_{label}'] = np.log10(plot_data[f'cddf_{label}'])
 
+            plot_data[f'cddf_{label}_cv_mean_{ncells}'], plot_data[f'cddf_{label}_cv_{ncells}'] = \
+                    get_cosmic_variance_cddf(all_N[mass_mask], all_los[mass_mask], boxsize, line, bins_logN, delta_N, path_lengths, ncells=ncells,
+                                            redshift=redshift, hubble_parameter=hubble_parameter, hubble_constant=hubble_constant)
+    
         write_dict_to_h5(plot_data, cddf_file)

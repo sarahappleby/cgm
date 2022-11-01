@@ -7,7 +7,10 @@ from physics import *
 def variance_jk(samples, mean):
     n = len(samples)
     factor = (n-1.)/n
-    x = np.nansum((np.subtract(samples, mean))**2, axis=0)
+    x = np.zeros(len(mean))
+    for i in range(len(x)):
+        samples_use = samples[:, i]
+        x[i] = np.nansum((np.subtract(samples_use[~np.isinf(samples_use)], mean[i]))**2, axis=0)
     x *= factor
     return x
 
@@ -73,7 +76,10 @@ def get_cosmic_variance_cddf(N, los, boxsize, line, bins_logN, delta_N, path_len
     cddf /= (delta_N * dX)
     cddf = np.log10(cddf)
 
-    cddf_mean = np.nansum(cddf, axis=0) / ncells
+    cddf_mean = np.zeros(cddf.shape[1])
+    for i in range(len(cddf_mean)):
+        cddf_use = cddf[:, i]
+        cddf_mean[i] = np.nansum(cddf_use[~np.isinf(cddf_use)], axis=0) / ncells
     cosmic_std = np.sqrt(variance_jk(cddf, cddf_mean))
 
     return cddf_mean, cosmic_std

@@ -99,16 +99,28 @@ if __name__ == '__main__':
         ax[i+1][j].axhline(0, c='k', lw=0.8, ls='-')
 
         plot_data[f'cddf_all_err'] = np.sqrt(plot_data[f'cddf_all_cv_{ncells}']**2. + plot_data[f'cddf_all_poisson']**2.)
+       
         ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c='dimgrey', yerr=plot_data[f'cddf_all_err'],
                           xerr=xerr, capsize=4, ls='-', lw=1)
         ax[i][j].axvline(plot_data['completeness'], c='k', ls=':', lw=1)
         ax[i+1][j].axvline(plot_data['completeness'], c='k', ls=':', lw=1)
 
         for k in range(len(mass_bin_labels)):
-            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_{mass_bin_labels[k]}'], c=mass_colors[k], ls='-', lw=1)
+            label = mass_bin_labels[k]
+            plot_data[f'cddf_{label}_poisson'][np.isnan(plot_data[f'cddf_{label}_poisson'])] = 0
+            plot_data[f'cddf_{label}_err'] = np.sqrt(plot_data[f'cddf_{label}_cv_{ncells}']**2. + plot_data[f'cddf_{label}_poisson']**2.)
+            plot_data[f'cddf_all_{label}_err'] = np.sqrt(plot_data[f'cddf_all_err']**2 + plot_data[f'cddf_{label}_err']**2) 
 
-            ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_{mass_bin_labels[k]}'] - plot_data[f'cddf_all']),
-                            c=mass_colors[k], ls='-', lw=1)
+            #if (l == 1) & (k == 2):
+            #    plot_data[f'cddf_all_{label}_err'][7] = (plot_data[f'cddf_all_{label}_err'][6] + plot_data[f'cddf_all_{label}_err'][8]) * 0.5
+
+            ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_{label}'], c=mass_colors[k], ls='-', lw=1)
+
+            ax[i+1][j].errorbar(plot_data['plot_logN'], (plot_data[f'cddf_{label}'] - plot_data[f'cddf_all']),
+                                yerr=plot_data[f'cddf_all_{label}_err'], xerr=xerr, capsize=4, c=mass_colors[k], ls='-', lw=1)
+
+            #ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_{label}'] - plot_data[f'cddf_all']),
+            #                c=mass_colors[k], ls='-', lw=1)
  
         ax_top = ax[i][j].secondary_xaxis('top')
         ax_top.set_xticks(np.arange(logN_min, 18), labels=[])

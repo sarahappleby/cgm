@@ -82,7 +82,24 @@ if __name__ == '__main__':
 
         ax[i+1][j].axhline(0, c='k', lw=0.8, ls='-')
 
+        plot_data[f'cddf_all_poisson'][np.isnan(plot_data[f'cddf_all_poisson'])] = 0
+        plot_data[f'cddf_sf_poisson'][np.isnan(plot_data[f'cddf_sf_poisson'])] = 0
+        plot_data[f'cddf_gv_poisson'][np.isnan(plot_data[f'cddf_gv_poisson'])] = 0
+        plot_data[f'cddf_q_poisson'][np.isnan(plot_data[f'cddf_q_poisson'])] = 0
+
         plot_data[f'cddf_all_err'] = np.sqrt(plot_data[f'cddf_all_cv_{ncells}']**2. + plot_data[f'cddf_all_poisson']**2.)
+        plot_data[f'cddf_sf_err'] = np.sqrt(plot_data[f'cddf_sf_cv_{ncells}']**2. + plot_data[f'cddf_sf_poisson']**2.)
+        plot_data[f'cddf_gv_err'] = np.sqrt(plot_data[f'cddf_gv_cv_{ncells}']**2. + plot_data[f'cddf_gv_poisson']**2.)
+        plot_data[f'cddf_q_err'] = np.sqrt(plot_data[f'cddf_q_cv_{ncells}']**2. + plot_data[f'cddf_q_poisson']**2.)
+      
+        plot_data[f'cddf_all_sf_err'] = np.sqrt(plot_data[f'cddf_all_err']**2 + plot_data[f'cddf_sf_err']**2)
+        plot_data[f'cddf_all_gv_err'] = np.sqrt(plot_data[f'cddf_all_err']**2 + plot_data[f'cddf_gv_err']**2)
+        plot_data[f'cddf_all_q_err'] = np.sqrt(plot_data[f'cddf_all_err']**2 + plot_data[f'cddf_q_err']**2)
+
+        #if line == 'MgII2796':
+        #    plot_data[f'cddf_all_q_err'][7] = (plot_data[f'cddf_all_q_err'][6] + plot_data[f'cddf_all_q_err'][8]) * 0.5
+        #    plot_data[f'cddf_all_gv_err'][7] = (plot_data[f'cddf_all_gv_err'][5] + plot_data[f'cddf_all_gv_err'][6]) * 0.5
+
         ax[i][j].errorbar(plot_data['plot_logN'], plot_data[f'cddf_all'], c=ssfr_colors[0], yerr=plot_data[f'cddf_all_err'], 
                           xerr=xerr, capsize=4, ls=rho_ls[0], lw=1)
         ax[i][j].axvline(plot_data['completeness'], c='k', ls=':', lw=1)
@@ -106,13 +123,21 @@ if __name__ == '__main__':
         ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_gv'], c=ssfr_colors[2], ls='-', lw=1)
         ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_q'], c=ssfr_colors[3], ls='-', lw=1)
 
-        ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_sf'] - plot_data[f'cddf_all']),
-                        c=ssfr_colors[1], ls='-', lw=1)
-        ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_gv'] - plot_data[f'cddf_all']),
-                        c=ssfr_colors[2], ls='-', lw=1)
-        ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_q'] - plot_data[f'cddf_all']),
-                        c=ssfr_colors[3], ls='-', lw=1)
- 
+        ax[i+1][j].errorbar(plot_data['plot_logN'], (plot_data[f'cddf_sf'] - plot_data[f'cddf_all']), yerr=plot_data[f'cddf_all_sf_err'],
+                            xerr=xerr, c=ssfr_colors[1], capsize=4, ls='-', lw=1)
+
+        ax[i+1][j].errorbar(plot_data['plot_logN'], (plot_data[f'cddf_gv'] - plot_data[f'cddf_all']), yerr=plot_data[f'cddf_all_gv_err'],
+                            xerr=xerr, c=ssfr_colors[2], capsize=4, ls='-', lw=1)
+
+        ax[i+1][j].errorbar(plot_data['plot_logN'], (plot_data[f'cddf_q'] - plot_data[f'cddf_all']), yerr=plot_data[f'cddf_all_q_err'],
+                            xerr=xerr, c=ssfr_colors[3], capsize=4, ls='-', lw=1)
+
+        #ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_sf'] - plot_data[f'cddf_all']),
+        #                c=ssfr_colors[1], ls='-', lw=1)
+        #ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_gv'] - plot_data[f'cddf_all']),
+        #                c=ssfr_colors[2], ls='-', lw=1)
+        #ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_q'] - plot_data[f'cddf_all']),
+        #                c=ssfr_colors[3], ls='-', lw=1)
 
         ax_top = ax[i][j].secondary_xaxis('top')
         ax_top.set_xticks(np.arange(logN_min, 18), labels=[])
