@@ -97,6 +97,47 @@ class Spectrum(object):
         
         return waves, flux
 
+    def prepare_spectrum(self, vel_range, do_continuum_buffer=True, nbuffer=50, snr_default=30):
+
+        # cut out the portion of the spectrum that we want within some velocity range, making sure the section we cut out 
+        # goes back up to the conintuum level (no dicontinuities)
+
+        print('getting initial window')
+        i_start, i_end, N = self.get_initial_window(vel_range)
+        print(i_start, i_end)
+        i_start, i_end, N = self.extend_to_continuum(i_start, i_end, N)
+        print(i_start, i_end)
+
+        # cope with spectra that go beyond the left hand edge of the box (periodic wrapping)
+        if i_start < 0:
+            i_start += len(self.wavelengths)
+            i_end += len(self.wavelengths)
+
+        # extract the wavelengths and fluxes for fitting
+        self.waves_fit = self.wavelengths.take(range(i_start, i_end), mode='wrap')
+        self.fluxes_fit = self.fluxes.take(range(i_start, i_end), mode='wrap')
+
+        # check if the start and end wavelengths go over the limits of the box
+        i_wrap = len(self.wavelengths) - i_start
+        wave_boxsize = self.wavelengths[-1] - self.wavelengths[0]
+        dl = self.wavelengths[1] - self.wavelengths[0]
+        if i_wrap < N:
+            # spectrum wraps, i_wrap is the first index of the wavelengths that have been moved to the left side of the box
+            self.waves_fit[i_wrap:] += wave_boxsize + dl
+            # then for any fitted lines with position outwith the right-most box limits: subtract dl + wave_boxsize
+
+        # add a buffer of continuum to either side to help the voigt fitter identify where to fit
+        print('Doing continuum buffer')
+        if do_continuum_buffer is True:
+            self.waves_fit, self.fluxes_fit = self.buffer_with_continuum(self.waves_fit, self.fluxes_fit, nbuffer=nbuffer)
+
+        # get the noise level
+        if hasattr(self, 'snr'):
+            snr = self.snr
+        else:
+            snr = snr_default
+        self.noise = np.asarray([1./snr] * len(self.fluxes_fit))
+
 
     def fit_spectrum_old(self, vel_range=600., nbuffer=20):
 
@@ -197,52 +238,22 @@ class Spectrum(object):
 
     def main(self, vel_range, do_continuum_buffer=True, nbuffer=50, 
              snr_default=30., chisq_unacceptable=25, chisq_asym_thresh=-3., 
-             do_regions=False, do_fit=True, write_lines=False, plot_fit=False):
-   
-        # cut out the portion of the spectrum that we want within some velocity range, making sure the section we cut out 
-        # goes back up to the conintuum level (no dicontinuities)
-
-        print('getting initial window')
-        i_start, i_end, N = self.get_initial_window(vel_range) 
-        print(i_start, i_end)
-        i_start, i_end, N = self.extend_to_continuum(i_start, i_end, N)
-        print(i_start, i_end)
-
-        # cope with spectra that go beyond the left hand edge of the box (periodic wrapping)
-        if i_start < 0:
-            i_start += len(self.wavelengths)
-            i_end += len(self.wavelengths)
-
-        # extract the wavelengths and fluxes for fitting
-        waves = self.wavelengths.take(range(i_start, i_end), mode='wrap')
-        flux = self.fluxes.take(range(i_start, i_end), mode='wrap')
-
-        # check if the start and end wavelengths go over the limits of the box
-        i_wrap = len(self.wavelengths) - i_start
-        wave_boxsize = self.wavelengths[-1] - self.wavelengths[0]
-        dl = self.wavelengths[1] - self.wavelengths[0]
-        if i_wrap < N:
-            # spectrum wraps, i_wrap is the first index of the wavelengths that have been moved to the left side of the box
-            waves[i_wrap:] += wave_boxsize + dl
-            # then for any fitted lines with position outwith the right-most box limits: subtract dl + wave_boxsize
-
-        # add a buffer of continuum to either side to help the voigt fitter identify where to fit
-        print('Doing continuum buffer')
-        if do_continuum_buffer is True:
-            waves, flux = self.buffer_with_continuum(waves, flux, nbuffer=nbuffer)
-
-        # get the noise level
-        if hasattr(self, 'snr'):
-            snr = self.snr
-        else:
-            snr = snr_default
-        noise = np.asarray([1./snr] * len(flux))
+             do_prepare=True, do_regions=False, do_fit=True, write_lines=False, plot_fit=False):
+  
+        # prepare the portion of the spectrum to fit
+        # extract from full spectrum, wrap periodically, buffer with a continuum, set the noise level for fitting
+        if do_prepare:
+            self.prepare_spectrum(vel_range, do_continuum_buffer=True, nbuffer=50, snr_default=30.,)
 
         # to identify the region boundaries only:
         if do_regions:
-            self.line_list = {}
-            regions_l, regions_i = pg.analysis.find_regions(waves, flux, noise, min_region_width=2, extend=True)
-            self.line_list['region'] = np.arange(len(regions_l))
+            if do_prepare is not True:
+                print('Spectrum not prepared; set do_prepare=True and retry :)')
+                return
+            else:
+                self.line_list = {}
+                self.regions_l, self.regions_i = pg.analysis.find_regions(self.waves_fit, self.fluxes_fit, self.noise, min_region_width=2, extend=True)
+                self.line_list['region'] = np.arange(len(self.regions_l))
 
         # to perform the voigt fitting:
         if do_fit:
@@ -253,7 +264,7 @@ class Spectrum(object):
                 logN_bounds = [11, 17]
             b_bounds=None
          
-            self.line_list = pg.analysis.fit_profiles(self.ion_name, waves, flux, noise,
+            self.line_list = pg.analysis.fit_profiles(self.ion_name, self.waves_fit, self.fluxes_fit, self.noise,
                                                       chisq_lim=2.5, chisq_unacceptable=chisq_unacceptable, 
                                                       chisq_asym_thresh=chisq_asym_thresh, 
                                                       max_lines=10, logN_bounds=logN_bounds, 
