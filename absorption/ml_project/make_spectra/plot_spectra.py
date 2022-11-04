@@ -10,9 +10,8 @@ from utils import read_h5_into_dict
 from physics import wave_to_vel, tau_to_flux
 from spectrum import Spectrum
 
-#plt.rc('text', usetex=True)
-#plt.rc('font', family='serif', size=13)
-plt.rc('font', size=12)
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif', size=12)
 
 if __name__ == '__main__':
 
@@ -61,7 +60,7 @@ if __name__ == '__main__':
             ax[i][j].axvline(regions_v[k][0], ymin=0.96, ls='-', c='darkgray', lw=1)
             ax[i][j].axvline(regions_v[k][1], ymin=0.96, ls='-', c='darkgray', lw=1)
 
-        ax[i][j].plot(spec.velocities - spec.gal_velocity_pos, spec.fluxes, label='data', c='tab:grey', lw=2, ls='-')
+        ax[i][j].plot(spec.velocities - spec.gal_velocity_pos, spec.fluxes, label='Data', c='tab:grey', lw=2, ls='-')
 
         tau_model = np.zeros(len(spec.wavelengths))
         for k in range(len(spec.line_list['N'])):
@@ -74,7 +73,7 @@ if __name__ == '__main__':
             tau_model += line_tau_model
 
         spec.flux_model = tau_to_flux(tau_model)
-        ax[i][j].plot(spec.velocities - spec.gal_velocity_pos, spec.flux_model, label='model', c='tab:pink', ls='-', lw=2)
+        ax[i][j].plot(spec.velocities - spec.gal_velocity_pos, spec.flux_model, label='Model', c='tab:pink', ls='-', lw=2)
 
         ax[i][j].set_ylim(0, 1.15)
         ax[i][j].set_xlim(-vel_range, vel_range)
@@ -99,9 +98,9 @@ if __name__ == '__main__':
             ax[i][j].legend(loc=4)
 
         if line in ['H1215', 'CII1334', 'CIV1548']:
-            ax[i][j].set_ylabel('Flux')
+            ax[i][j].set_ylabel(r'$F$')
         if line in ['CIV1548', 'OVI1031']:
-            ax[i][j].set_xlabel('Velocity (km/s)')
+            ax[i][j].set_xlabel(r'$v\ ({\rm km\ s}^{-1})$')
 
         if line == 'CIV1548':
             ax[i][j].set_xticks(np.arange(-600, 600, 200))
