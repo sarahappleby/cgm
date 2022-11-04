@@ -12,7 +12,7 @@ from spectrum import Spectrum
 
 #plt.rc('text', usetex=True)
 #plt.rc('font', family='serif', size=13)
-plt.rc('font', size=13)
+plt.rc('font', size=12)
 
 if __name__ == '__main__':
 
@@ -38,10 +38,10 @@ if __name__ == '__main__':
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm HI}\ 1215$', r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$',
                   r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
+    plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
 
-    fig, ax = plt.subplots(3, 2, figsize=(10, 10), sharey='row', sharex='col')
+    fig, ax = plt.subplots(3, 2, figsize=(10, 8), sharey='row', sharex='col')
 
     i = 0
     j = 0
@@ -88,7 +88,7 @@ if __name__ == '__main__':
         chisq_str = f'{plot_lines[lines.index(line)]}'
         for k in range(len(chisq)):
             chisq_str += f'\n{chisq_strings[k]} = {chisq[k]}'
-        ax[i][j].annotate(chisq_str, xy=(0.05, 0.08), xycoords='axes fraction',
+        ax[i][j].annotate(chisq_str, xy=(0.05, 0.10), xycoords='axes fraction',
                           bbox=dict(boxstyle="round, pad=0.5", fc="w", lw=0.75, alpha=0.8, edgecolor='tab:grey'))
         #ax[i][j].annotate(plot_lines[lines.index(line)], xy=(0.05, 0.05), xycoords='axes fraction')
 
@@ -112,7 +112,7 @@ if __name__ == '__main__':
             j = 0
 
     fig.subplots_adjust(hspace=0., wspace=0.)
-    plt.savefig(f'plots/sample_galaxy_{gal_id}_{orient}_{fr200}r200.png')
+    plt.savefig(f'{plot_dir}sample_galaxy_{gal_id}_{orient}_{fr200}r200.pdf', format='pdf')
     plt.close()
 
 
