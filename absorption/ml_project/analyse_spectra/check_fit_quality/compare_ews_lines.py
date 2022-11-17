@@ -112,7 +112,7 @@ if __name__ == '__main__':
         data_y = np.log10(fit_ew_data + 10**-2.).flatten()
         data_c = np.log10(chisq_data).flatten()
         
-        im = ax[i][j].scatter(data_x, data_y, c=data_c, s=1, cmap='magma')
+        im = ax[i][j].scatter(data_x, data_y, c=data_c, s=1, cmap='magma', vmin=-1)
         ax[i][j].plot(np.arange(-4, 4), np.arange(-4, 4), c='k', ls='--', lw=1)
        
         if line in ['H1215', "SiIII1206"]:

@@ -26,9 +26,6 @@ if __name__ == '__main__':
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
-    features = ['N', 'b', 'EW', 'dv', 'r_perp', 'mass', 'ssfr', 'kappa_rot']
-    predictor = 'Z'
-
     sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
     sample_files = [f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5',
                     f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5']
@@ -99,8 +96,13 @@ if __name__ == '__main__':
      
     # Step 3) Scale the data such that means are zero and variance is 1
     split = 0.8
+    np.random.seed(1)
     train = np.random.rand(len(df_full)) < split
     df_full['train_mask'] = train
+    #np.random.seed(17)
+    #trans_train = np.random.rand(len(df_full)) < split
+    #df_full['trans_train_mask'] = trans_train
+
 
     print("train / test:", np.sum(train), np.sum(~train))
     df_full.to_csv(f'data/{model}_{wind}_{snap}_{line}_lines.csv')
