@@ -28,7 +28,7 @@ if __name__ == '__main__':
     snap = sys.argv[3]
     line = sys.argv[4]
 
-    predictors = ['delta_rho', 'T']
+    predictors = ['delta_rho', 'T', 'Z']
     split = 0.8
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
@@ -42,17 +42,9 @@ if __name__ == '__main__':
     limit_dict['Z'] = [[-4, 1], [-1, 1], [-1, 1], [-1, 1], [-1, 1], [-1, 1]]
     nbins = 20
 
-    xlabels = [r'${\rm log}\ \delta_{\rm True}$', 
-               r'${\rm log}\ (T/{\rm K})_{\rm True}$', 
-               r'${\rm log}\ (Z/{\rm Z}_{\odot})_{\rm True}$']
     xlabels = [r'${\rm log}\ \delta$',
-               r'${\rm log}\ (T/{\rm K})$',]
-    ylabels = [r'${\rm log}\ \delta_{\rm Pred}$', 
-               r'${\rm log}\ (T/{\rm K})_{\rm Pred}$', 
-               r'${\rm log}\ (Z/{\rm Z}_{\odot})_{\rm Pred}$']
-    x_dict = {}
-    x_dict['delta_rho'] = [0.18, 0.2, 0.2, 0.18, 0.18, 0.18]
-    x_dict['T'] = [0.18, 0.18, 0.18, 0.18, 0.18, 0.2]
+               r'${\rm log}\ (T/{\rm K})$',
+               r'${\rm log}\ (Z/{\rm Z}_{\odot})$']
 
     snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
@@ -69,7 +61,7 @@ if __name__ == '__main__':
 
     colors = ['#00629B', '#009988', '#CC6677', '#DDCC77']
 
-    fig, ax = plt.subplots(1, 2, figsize=(9, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(9, 5))
 
     for p, pred in enumerate(predictors):
 
@@ -94,62 +86,58 @@ if __name__ == '__main__':
             data[pred] -= np.log10(cosmic_rho)
             data[f'{pred}_pred'] -= np.log10(cosmic_rho)
         
-        hist, bin_edges = np.histogram(data[pred], bins=20)
-        bin_centers = (bin_edges[:-1] + bin_edges[1:])/2
-        popt_true, _ = curve_fit(gauss, bin_centers, hist)
-        sigma_true = popt_true[2]
-        if sigma_true < 0:
-            sigma_true *= -1
+        if pred != 'Z':
 
-        hist, bin_edges = np.histogram(data[f'{pred}_pred'], bins=20)
-        bin_centers = (bin_edges[:-1] + bin_edges[1:])/2
-        popt_pred, _ = curve_fit(gauss, bin_centers, hist)
-        sigma_pred = popt_pred[2]
-        if sigma_pred < 0:
-            sigma_pred *= -1
+            hist, bin_edges = np.histogram(data[pred], bins=20)
+            bin_centers = (bin_edges[:-1] + bin_edges[1:])/2
+            popt_true, _ = curve_fit(gauss, bin_centers, hist)
+            sigma_true = popt_true[2]
+            if sigma_true < 0:
+                sigma_true *= -1
 
-        data[f'sigma_bias_{pred}'] = np.sqrt(sigma_true**2 - sigma_pred**2)
-        new_scatter = np.random.normal(0, data[f'sigma_bias_{pred}'], size=len(data[pred]))
-        
-        delta_pred = np.abs(data[pred].values - data[f'{pred}_pred'].values) / data[pred].values 
-        mask = delta_pred > 0.2
-        #data[f'{pred}_new'] = data[f'{pred}_pred'].copy()
-        #data[f'{pred}_new'][mask] += new_scatter[mask]
-        data[f'{pred}_new'] = data[f'{pred}_pred'].copy() + new_scatter
+            hist, bin_edges = np.histogram(data[f'{pred}_pred'], bins=20)
+            bin_centers = (bin_edges[:-1] + bin_edges[1:])/2
+            popt_pred, _ = curve_fit(gauss, bin_centers, hist)
+            sigma_pred = popt_pred[2]
+            if sigma_pred < 0:
+                sigma_pred *= -1
 
-        diff[pred] = np.array(data[pred]) - np.array(data[f'{pred}_new'])
-        coords = np.transpose(np.array([data[pred], data[f'{pred}_new']]))
-        d_perp = np.cross(points[1] - points[0], points[0] - coords) / np.linalg.norm(points[1]-points[0])
+            data[f'sigma_bias_{pred}'] = np.sqrt(sigma_true**2 - sigma_pred**2)
+            new_scatter = np.random.normal(0, data[f'sigma_bias_{pred}'], size=len(data[pred]))
+            data[f'{pred}_new'] = data[f'{pred}_pred'].copy() + new_scatter
 
-        scores = {}
-        scores['Predictor'] = pred
-        scores['Pearson'] = round(pearsonr(data[pred], data[pred+'_new'])[0], 5)
-        scores['sigma_perp'] = round(np.nanstd(d_perp), 5)
-        for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
-            scores[_scorer.__name__] = float(_scorer(data[pred],
-                                               data[f'{pred}_new'], multioutput='raw_values'))
-        err = err.append(scores, ignore_index=True)
+            diff[pred] = np.array(data[pred]) - np.array(data[f'{pred}_new'])
+            coords = np.transpose(np.array([data[pred], data[f'{pred}_new']]))
+            d_perp = np.cross(points[1] - points[0], points[0] - coords) / np.linalg.norm(points[1]-points[0])
+
+            scores = {}
+            scores['Predictor'] = pred
+            scores['Pearson'] = round(pearsonr(data[pred], data[pred+'_new'])[0], 5)
+            scores['sigma_perp'] = round(np.nanstd(d_perp), 5)
+            for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
+                scores[_scorer.__name__] = float(_scorer(data[pred],
+                                                data[f'{pred}_new'], multioutput='raw_values'))
+            err = err.append(scores, ignore_index=True)
 
         trans_train_mask = np.random.rand(len(data)) < split
         qt = preprocessing.QuantileTransformer(output_distribution="normal", random_state=rng)
         qt.fit(data[[f'{pred}', f'{pred}_pred']][trans_train_mask])
         data[f'{pred}_pred_trans'] = qt.transform(data[[f'{pred}', f'{pred}_pred']])[:, 1]
         data[f'{pred}_pred_trans_inv'] = qt.inverse_transform(data[[f'{pred}_pred_trans', f'{pred}_pred_trans']])[:, 0]
+        data = data.drop(columns=[f'{pred}_pred_trans'])
 
         dx = (limits[1] - limits[0]) / nbins
         bins = np.arange(limits[0], limits[1]+dx, dx)
    
-        mask = (data[pred] > bins[0]) & (data[pred] < bins[-1])
-        diff_within = np.sum(diff[pred] < 0.2) / len(diff[pred])
-
         ax[p].hist(data[pred], bins=bins, stacked=True, density=True, color=colors[0], ls='-', lw=1.25, histtype='step',
                    label='Original Data')
         ax[p].hist(data[f'{pred}_pred'], bins=bins, stacked=True, density=True, color=colors[1], ls='-', lw=1.25, histtype='step',
                    label='Prediction')
         ax[p].hist(data[f'{pred}_pred_trans_inv'], bins=bins, stacked=True, density=True, color=colors[2], ls='-', lw=1.25, histtype='step',
                    label='Transformed prediction')
-        ax[p].hist(data[f'{pred}_new'], bins=bins, stacked=True, density=True, color=colors[3], ls='-', lw=1.25, histtype='step',
-                   label='Prediction+Scatter') 
+        if pred != 'Z':
+            ax[p].hist(data[f'{pred}_new'], bins=bins, stacked=True, density=True, color=colors[3], ls='-', lw=1.25, histtype='step',
+                       label='Prediction+Scatter') 
 
         ax[p].legend(fontsize=13.5, loc=4)
         ax[p].set_xlabel(xlabels[p])
@@ -159,4 +147,4 @@ if __name__ == '__main__':
     plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_scatter_bias_trans.png')
     plt.close()
 
-    #data.to_csv(f'data/{model}_{wind}_{snap}_{line}_lines_scattered.csv')
+    data.to_csv(f'data/{model}_{wind}_{snap}_{line}_lines_trans.csv')
