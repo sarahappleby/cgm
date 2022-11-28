@@ -123,13 +123,13 @@ if __name__ == '__main__':
         ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_gv'], c=ssfr_colors[2], ls='-', lw=1)
         ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_q'], c=ssfr_colors[3], ls='-', lw=1)
 
-        ax[i+1][j].errorbar(plot_data['plot_logN'], (plot_data[f'cddf_sf'] - plot_data[f'cddf_all']), yerr=plot_data[f'cddf_all_sf_err'],
+        ax[i+1][j].errorbar(plot_data['plot_logN'] - 0.05, (plot_data[f'cddf_sf'] - plot_data[f'cddf_all']), yerr=plot_data[f'cddf_all_sf_err'],
                             xerr=xerr, c=ssfr_colors[1], capsize=4, ls='-', lw=1)
 
         ax[i+1][j].errorbar(plot_data['plot_logN'], (plot_data[f'cddf_gv'] - plot_data[f'cddf_all']), yerr=plot_data[f'cddf_all_gv_err'],
                             xerr=xerr, c=ssfr_colors[2], capsize=4, ls='-', lw=1)
 
-        ax[i+1][j].errorbar(plot_data['plot_logN'], (plot_data[f'cddf_q'] - plot_data[f'cddf_all']), yerr=plot_data[f'cddf_all_q_err'],
+        ax[i+1][j].errorbar(plot_data['plot_logN'] + 0.05, (plot_data[f'cddf_q'] - plot_data[f'cddf_all']), yerr=plot_data[f'cddf_all_q_err'],
                             xerr=xerr, c=ssfr_colors[3], capsize=4, ls='-', lw=1)
 
         #ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_sf'] - plot_data[f'cddf_all']),

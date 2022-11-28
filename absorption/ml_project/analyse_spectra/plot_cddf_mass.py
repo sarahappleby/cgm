@@ -48,6 +48,7 @@ if __name__ == '__main__':
     logN_min = 11.
     x = [0.79, 0.74, 0.77, 0.75, 0.755, 0.76]
     ncells = 16
+    offset = [-0.05, 0., 0.05]
 
     delta_m = 0.5
     min_m = 10.
@@ -116,7 +117,7 @@ if __name__ == '__main__':
 
             ax[i][j].plot(plot_data['plot_logN'], plot_data[f'cddf_{label}'], c=mass_colors[k], ls='-', lw=1)
 
-            ax[i+1][j].errorbar(plot_data['plot_logN'], (plot_data[f'cddf_{label}'] - plot_data[f'cddf_all']),
+            ax[i+1][j].errorbar(plot_data['plot_logN'] + offset[k], (plot_data[f'cddf_{label}'] - plot_data[f'cddf_all']),
                                 yerr=plot_data[f'cddf_all_{label}_err'], xerr=xerr, capsize=4, c=mass_colors[k], ls='-', lw=1)
 
             #ax[i+1][j].plot(plot_data['plot_logN'], (plot_data[f'cddf_{label}'] - plot_data[f'cddf_all']),
