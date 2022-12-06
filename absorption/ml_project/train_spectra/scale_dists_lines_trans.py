@@ -8,7 +8,7 @@ import pygad as pg
 import pickle
 import sys
 from scipy.optimize import curve_fit
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, kstest
 from sklearn import preprocessing
 from sklearn.metrics import r2_score, explained_variance_score, mean_squared_log_error, mean_squared_error
 
@@ -140,6 +140,15 @@ if __name__ == '__main__':
         data[f'{pred}_pred_trans'] = qt.transform(data[[f'{pred}', f'{pred}_pred']])[:, 1]
         data[f'{pred}_pred_trans_inv'] = qt.inverse_transform(data[[f'{pred}_pred_trans', f'{pred}_pred_trans']])[:, 0]
         data = data.drop(columns=[f'{pred}_pred_trans'])
+
+        ks_pred = kstest(data[f'{pred}_pred'], data[f'{pred}'])
+        ks_scatter = kstest(data[f'{pred}_new'], data[f'{pred}'])
+        ks_trans = kstest(data[f'{pred}_pred_trans_inv'], data[f'{pred}'])
+        
+        print(pred)
+        print(f'KS predictions vs truth: D={ks_pred.statistic:.4f}, pvalue={ks_pred.pvalue:.4f}')
+        print(f'KS transformed predictions vs truth: D={ks_trans.statistic:.4f}, pvalue={ks_trans.pvalue:.4f}')
+        print(f'KS predictions+scatter vs truth: D={ks_scatter.statistic:.4f}, pvalue={ks_scatter.pvalue:.4f}')
 
         dx = (limits[1] - limits[0]) / nbins
         bins = np.arange(limits[0], limits[1]+dx, dx)
