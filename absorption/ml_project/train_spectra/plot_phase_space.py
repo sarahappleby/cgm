@@ -155,6 +155,18 @@ if __name__ == '__main__':
         grid.ax_joint.annotate(plot_lines[lines.index(line)], xy=(x[lines.index(line)], 0.06), xycoords='axes fraction', 
                                bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
     
+        if mode == 'scatter':
+            sigma_bias_delta_rho = data["sigma_bias_delta_rho"][0]
+            sigma_bias_T = data["sigma_bias_T"][0]
+
+            sigma_annotation = r'$\sigma_\delta =$'\
+                               f' {sigma_bias_delta_rho:.2f}\n'\
+                               r'$\sigma_T =$'\
+                               f' {sigma_bias_T:.2f}'\
+
+            grid.ax_joint.annotate(sigma_annotation, xy=(0.76, 0.06), xycoords='axes fraction',
+                                   bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
+
         plt.tight_layout()
         plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_{lines[l]}_deltaT_pred_{mode}.png', dpi=300)
         plt.close()

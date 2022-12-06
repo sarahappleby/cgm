@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from matplotlib import colors
 import seaborn as sns
 import numpy as np
 import pandas as pd
@@ -21,6 +22,14 @@ plt.rc('font', family='serif', size=16)
 def gauss(x, A, mu, sigma):
     return A * np.exp(-(x - mu)**2/(2.*sigma**2))
 
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100, alpha=1.):
+        cmap_list = cmap(np.linspace(minval, maxval, n))
+        cmap_list[:, -1] = alpha
+        new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+                                                            cmap_list)
+        return new_cmap
+
+
 if __name__ == '__main__':
 
     model = sys.argv[1]
@@ -28,7 +37,7 @@ if __name__ == '__main__':
     snap = sys.argv[3]
     line = sys.argv[4]
 
-    predictors = ['delta_rho', 'T', 'Z']
+    predictors = ['delta_rho', 'T']
     split = 0.8
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
@@ -59,9 +68,15 @@ if __name__ == '__main__':
 
     data = pd.DataFrame()
 
-    colors = ['#00629B', '#009988', '#CC6677', '#DDCC77']
+    color_list = ['#00629B', '#009988', '#CC6677', '#DDCC77']
 
-    fig, ax = plt.subplots(1, 3, figsize=(9, 5))
+    third = 1./3
+    icolor = np.arange(0., 1+third, third)
+    cmap = sns.color_palette("flare_r", as_cmap=True)
+    cmap = truncate_colormap(cmap, 0., 0.95)
+    color_list = [cmap(i) for i in icolor]
+
+    fig, ax = plt.subplots(1, 2, figsize=(9, 4))   
 
     for p, pred in enumerate(predictors):
 
@@ -129,22 +144,26 @@ if __name__ == '__main__':
         dx = (limits[1] - limits[0]) / nbins
         bins = np.arange(limits[0], limits[1]+dx, dx)
    
-        ax[p].hist(data[pred], bins=bins, stacked=True, density=True, color=colors[0], ls='-', lw=1.25, histtype='step',
-                   label='Original Data')
-        ax[p].hist(data[f'{pred}_pred'], bins=bins, stacked=True, density=True, color=colors[1], ls='-', lw=1.25, histtype='step',
-                   label='Prediction')
-        ax[p].hist(data[f'{pred}_pred_trans_inv'], bins=bins, stacked=True, density=True, color=colors[2], ls='-', lw=1.25, histtype='step',
-                   label='Transformed prediction')
         if pred != 'Z':
-            ax[p].hist(data[f'{pred}_new'], bins=bins, stacked=True, density=True, color=colors[3], ls='-', lw=1.25, histtype='step',
+            ax[p].hist(data[f'{pred}_new'], bins=bins, stacked=True, density=True, color=color_list[3], ls='-', lw=1.25, histtype='step',
                        label='Prediction+Scatter') 
+        
+        ax[p].hist(data[f'{pred}_pred_trans_inv'], bins=bins, stacked=True, density=True, color=color_list[2], ls='-', lw=1.25, histtype='step',
+                   label='Transformed')
+        ax[p].hist(data[f'{pred}_pred'], bins=bins, stacked=True, density=True, color=color_list[1], ls='-', lw=1.25, histtype='step',
+                   label='Prediction')
+        ax[p].hist(data[pred], bins=bins, stacked=True, density=True, color=color_list[0], ls='-', lw=1.25, histtype='step',
+                   label='Truth')
 
-        ax[p].legend(fontsize=13.5, loc=4)
+        if p == 0:
+            ax[p].legend(fontsize=13.5, loc=2, framealpha=0.2)
+            ax[p].set_ylim(0, 0.9)
+            ax[0].set_xlim(-0.5, )
         ax[p].set_xlabel(xlabels[p])
         ax[p].set_ylabel('Frequency')
-    
+
     plt.tight_layout()
     plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_scatter_bias_trans.png')
     plt.close()
 
-    data.to_csv(f'data/{model}_{wind}_{snap}_{line}_lines_trans.csv')
+    #data.to_csv(f'data/{model}_{wind}_{snap}_{line}_lines_trans.csv')
