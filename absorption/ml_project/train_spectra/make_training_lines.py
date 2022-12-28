@@ -3,6 +3,7 @@
 import h5py
 import numpy as np
 import pandas as pd
+import pygad as pg
 import pickle
 import sys
 
@@ -20,6 +21,13 @@ if __name__ == '__main__':
     lines_short = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
     chisq_lim = [3.5, 39.8, 15.8, 35.5, 6.3, 4.]
     N_min = [12.7, 11.5, 12.8, 11.7, 12.8, 13.2]
+
+    # Compute the mean cosmic mass density, for converting densities into overdensities
+    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    s = pg.Snapshot(snapfile)
+    redshift = s.redshift
+    rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
+    cosmic_rho = rho_crit * float(s.cosmology.Omega_b)
 
     delta_fr200 = 0.25
     min_fr200 = 0.25
@@ -89,6 +97,8 @@ if __name__ == '__main__':
     dataset['ssfr'] = ssfr[idx]
     dataset['kappa_rot'] = kappa_rot[idx]
 
+    dataset['delta_rho'] = dataset['rho'] - np.log10(cosmic_rho)
+
     # Step 2) treat the data such that unphysical/awkward values are taken care of
     dataset['EW'] = np.log10(dataset['EW'] + 1e-3)
     dataset['b'] = np.log10(dataset['b'] + 1)
@@ -99,10 +109,6 @@ if __name__ == '__main__':
     np.random.seed(1)
     train = np.random.rand(len(df_full)) < split
     df_full['train_mask'] = train
-    #np.random.seed(17)
-    #trans_train = np.random.rand(len(df_full)) < split
-    #df_full['trans_train_mask'] = trans_train
-
 
     print("train / test:", np.sum(train), np.sum(~train))
     df_full.to_csv(f'data/{model}_{wind}_{snap}_{line}_lines.csv')
