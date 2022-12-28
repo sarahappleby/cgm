@@ -1,8 +1,10 @@
 # Plot the EW from directly summing spectra vs the EW from the voigt fitting.
 
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import h5py
 import numpy as np
+import seaborn as sns
 import sys
 sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
 from utils import *
@@ -11,6 +13,10 @@ from physics import *
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=13)
 
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+            cmap(np.linspace(minval, maxval, n)))
+    return new_cmap
 
 if __name__ == '__main__':
 
@@ -37,6 +43,9 @@ if __name__ == '__main__':
     sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
     with h5py.File(sample_file, 'r') as sf:
         gal_ids = sf['gal_ids'][:]
+
+    cmap = sns.color_palette("mako", as_cmap=True)
+    cmap = truncate_colormap(cmap, 0.15, 0.95)
 
     fig, ax = plt.subplots(2, 3, figsize=(10, 7), sharey='row', sharex='col')
     cax = plt.axes([0.15, 0.96, 0.7, 0.03])
@@ -66,8 +75,8 @@ if __name__ == '__main__':
         all_chisq = np.array(all_chisq)
         all_fr200 = np.array(all_fr200)
 
-        im = ax[i][j].scatter(all_Nspec, all_Nfit, c=np.log10(all_chisq + 1e-2), s=1, cmap='magma', vmin=-1)
-        ax[i][j].plot(np.arange(11, 19), np.arange(11, 19), c='k', ls='--', lw=1)
+        im = ax[i][j].scatter(all_Nspec, all_Nfit, c=np.log10(all_chisq + 1e-2), s=1, cmap=cmap, vmin=-1, vmax=2)
+        ax[i][j].plot(np.arange(11, 20), np.arange(11, 20), c='k', ls='--', lw=1)
        
         if line in ['H1215', "SiIII1206"]:
             ax[i][j].set_ylabel(r'${\rm log (N}/{\rm cm}^{-2})_{\rm fit}$')
@@ -76,7 +85,8 @@ if __name__ == '__main__':
 
         ax[i][j].set_xlim(11, 19)
         ax[i][j].set_ylim(11, 19)
-        ax[i][j].annotate(plot_lines[lines.index(line)], xy=(0.05, 0.92), xycoords='axes fraction')
+        ax[i][j].annotate(plot_lines[lines.index(line)], xy=(0.05, 0.91), xycoords='axes fraction',
+                          bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
        
         j += 1
         if line == 'CII1334':
