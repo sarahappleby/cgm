@@ -105,7 +105,7 @@ if __name__ == '__main__':
     q_height = [-3.05]*5
     ylims = [1.5, 1.75, 2., 2.5, 3.0]
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
     with h5py.File(sample_file, 'r') as sf:
         gal_sm = sf['mass'][:]
@@ -118,7 +118,7 @@ if __name__ == '__main__':
         gal_fcold = sf['fcold'][:]
     gal_ssfr[gal_ssfr == -5] +=1
 
-    gal_sm_ssfr_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_sm_ssfr.h5'
+    gal_sm_ssfr_file = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_sm_ssfr.h5'
     with h5py.File(gal_sm_ssfr_file, 'r') as hf:
         gal_sm_ssfr_hist2d = hf['sm_ssfr'][:]
         mass_bins = hf['mass_bins'][:]

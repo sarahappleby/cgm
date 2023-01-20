@@ -25,6 +25,7 @@ if __name__ == '__main__':
     snap = sys.argv[3]
 
     lines = ["CIV1548", "OVI1031"]
+    lines = ['CIV1548']
     plot_lines = [r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
     chisq_lim_dict = {'snap_151': [8.9, 4.5],}
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     mass_colors = [cmap(i) for i in icolor]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -77,7 +78,7 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_hm12_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_hm12_fit_lines_{line}.h5'
 
         fcol = np.zeros((len(mass_plot_titles), len(fr200)))
         ncol = np.zeros((len(mass_plot_titles), len(fr200)))
@@ -136,5 +137,5 @@ if __name__ == '__main__':
     plt.xlabel(r'$r_\perp / r_{200}$')
 
     plt.tight_layout()
-    plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_fcol_hm12.pdf', format='pdf')
-    plt.close()
+    #plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_fcol_hm12.pdf', format='pdf')
+    #plt.close()

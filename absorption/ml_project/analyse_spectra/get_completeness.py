@@ -40,10 +40,11 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
-        #cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_mass.h5'
-        #cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion_extras.h5'
-        #cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_mass_extras.h5'
+        cddf_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
+        #cddf_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_mass_small.h5'
+        #cddf_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_mass.h5'
+        #cddf_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion_extras.h5'
+        #cddf_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_mass_extras.h5'
 
         plot_data = read_h5_into_dict(cddf_file)
 

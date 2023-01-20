@@ -40,7 +40,7 @@ if __name__ == '__main__':
     vertical_position = 0.11
     horizontal_position = 0.9
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
         all_N = []
         all_ew = []
@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        sum_ew_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
+        sum_ew_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
         sum_ew_dict = read_h5_into_dict(sum_ew_file)
         all_sum_ew = np.zeros(( len(fr200), len(sum_ew_dict[f'ew_wave_0.25r200']) * norients))
 
@@ -166,10 +166,10 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        sum_ew_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
+        sum_ew_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
         sum_ew_dict = read_h5_into_dict(sum_ew_file)
         
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
         all_total_ew = []
         all_N_predict = []

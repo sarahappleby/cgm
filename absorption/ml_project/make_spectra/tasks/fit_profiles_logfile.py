@@ -25,14 +25,14 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
 
-    logfile = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/logfile.txt'
+    logfile = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/logfile.txt'
     i = read_last_line(logfile)
     add_i_to_file(logfile, i)
 
     vel_range = 600.
     chisq_asym_thresh = -3.
 
-    spec_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
+    spec_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
     try:
         spec_file = sorted(os.listdir(spec_dir))[1:][i]
     except IndexError:

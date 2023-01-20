@@ -56,13 +56,13 @@ if __name__ == '__main__':
     ngals = 10
     orients = np.array(['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg'])
 
-    spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     plot_dir = f'/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/chisq_plots/{line}_{fr200}r200/'
     if not os.path.exists(plot_dir):
         os.makedirs(plot_dir)
 
-    results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
+    results_dir = f'/disk04/sapple/data/normal/results/'
     chisq_file = f'{results_dir}{model}_{wind}_{snap}_fit_chisq_{line}.h5'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
@@ -71,7 +71,8 @@ if __name__ == '__main__':
     chisq_dict = read_h5_into_dict(chisq_file)
     max_chisq = chisq_dict[f'max_chisq_{fr200}r200'] 
 
-    make_chisq_range_plots(max_chisq, 20, 500, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_min_20/')
+    #make_chisq_range_plots(max_chisq, 20, 500, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_min_20/')
+    make_chisq_range_plots(max_chisq, 30, 50, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_30-50/')
 
     #make_chisq_range_plots(max_chisq, 2.9, 3.1, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_2.9_3.1/')
     #make_chisq_range_plots(max_chisq, 3.9, 4.1, gal_ids, line, fr200, orients, spectra_dir, f'{plot_dir}/chisq_3.9_4.1/')

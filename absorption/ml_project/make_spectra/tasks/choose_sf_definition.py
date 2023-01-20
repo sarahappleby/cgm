@@ -45,7 +45,7 @@ nbins_ssfr = 3
 
 sfr_belfiore = sfms_line(11.0)
 
-sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+sample_dir = f'/disk04/sapple/data/samples/'
 data_dir = f'/home/rad/data/{model}/{wind}/'
 sim =  caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5')
 redshift = sim.simulation.redshift

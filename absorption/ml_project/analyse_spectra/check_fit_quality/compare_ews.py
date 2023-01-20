@@ -62,15 +62,15 @@ if __name__ == '__main__':
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
+    spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
 
     for i, line in enumerate(lines):
 
-        chisq_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_chisq_{line}.h5'
+        chisq_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_chisq_{line}.h5'
         chisq_dict = read_h5_into_dict(chisq_file)
-        fit_ew_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_ew_{line}.h5'
+        fit_ew_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_ew_{line}.h5'
         fit_ew_dict = read_h5_into_dict(fit_ew_file)
-        sum_ew_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
+        sum_ew_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
         sum_ew_dict = read_h5_into_dict(sum_ew_file)
 
         """

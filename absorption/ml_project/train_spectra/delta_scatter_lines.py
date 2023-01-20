@@ -37,6 +37,7 @@ if __name__ == '__main__':
     snap = sys.argv[3]
 
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
+    lines = ['H1215']
     lines_short = ['HI', 'MgII', 'CII', 'SiIII', 'CIV', 'OVI']
     plot_lines = [r'${\rm HI}\ 1215$', r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$',
                   r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     limit_dict['T'] = [[3, 6.5], [3.5, 5], [4, 5], [4, 5], [4, 5.5], [4, 6]]
     limit_dict['Z'] = [[-4, 1], [-1, 1], [-1, 1], [-1, 1], [-1, 1], [-1, 1]]
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))

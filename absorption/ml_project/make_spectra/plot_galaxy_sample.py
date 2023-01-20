@@ -89,7 +89,7 @@ if __name__ == '__main__':
     type_mask = (gwslc_data['mass'] > mass_min) & (gwslc_data['mass'] < mass_max)
     mask = flag_mask * type_mask
     bin_cent, _, ysigma, ymedian, _, ndata = runningmedian(gwslc_data['mass'][mask],gwslc_data['sfr'][mask],xlolim=-1.e20,ylolim=-1.e20,bins=10,stat='median')
-    plt.errorbar(bin_cent, ymedian, yerr=ysigma, c='#6e6b6a', ls='', marker='s', lw=1, markersize=5, capsize=2, label='GWSLC')
+    plt.errorbar(bin_cent, ymedian, yerr=ysigma, c='#6e6b6a', ls='', marker='s', lw=1, markersize=5, capsize=2, label='GSWLC')
 
     data_dir = f'/home/rad/data/{model}/{wind}/'
     sim = caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5') 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     q_height = [-3.05]*5
     ylims = [1.5, 1.75, 2., 2.5, 3.0]
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
     with h5py.File(sample_file, 'r') as sf:
         gal_sm = sf['mass'][:]
@@ -116,7 +116,7 @@ if __name__ == '__main__':
         gal_Tcgm = sf['Tcgm'][:]
         gal_fcold = sf['fcold'][:]
 
-    gal_sm_sfr_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_sm_sfr.h5'
+    gal_sm_sfr_file = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_sm_sfr.h5'
     with h5py.File(gal_sm_sfr_file, 'r') as hf:
         gal_sm_sfr_hist2d = hf['sm_sfr'][:]
         mass_bins = hf['mass_bins'][:]

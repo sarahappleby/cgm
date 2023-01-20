@@ -35,7 +35,7 @@ if __name__ == '__main__':
     log_dfrad = 0.5
     log_frad = np.arange(log_frad_min, log_frad_max+log_dfrad, log_dfrad)
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     snapfile = f'{sample_dir}{model}_{wind}_{snap}.hdf5'
    
     gas_hsml = readsnap(snapfile, 'SmoothingLength', 'gas', suppress=1, units=1)  # in kpc/h, comoving

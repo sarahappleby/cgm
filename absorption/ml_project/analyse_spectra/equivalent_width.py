@@ -28,18 +28,18 @@ if __name__ == '__main__':
     bin_size = 6. # km/s 
     c = 2.98e8 # km/s
    
-    spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/' 
+    spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
+    sample_dir = f'/disk04/sapple/data/samples/' 
     
-    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
-    #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
+    #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
+    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
     with h5py.File(sample_file, 'r') as sf:
         gal_ids = sf['gal_ids'][:]
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
-        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_ew_{line}_extras.h5'
+        #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_ew_{line}_extras.h5'
 
         if os.path.isfile(results_file):
             with h5py.File(results_file, 'r') as f:

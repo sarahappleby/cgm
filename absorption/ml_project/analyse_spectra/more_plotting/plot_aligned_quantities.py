@@ -51,7 +51,7 @@ if __name__ == '__main__':
     zsolar_a = 0.0134
     zsolar_b = [2.38e-3, 2.38e-3, 5.79e-3]
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     norm = colors.BoundaryNorm(np.arange(0.125, 1.625, 0.25), cmap.N)
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     fig, ax = plt.subplots(3, len(line_b), figsize=(10, 10), sharey='row')
 
@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
         for i in range(len(fr200)):
 
-            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}_chisq{chisq_lim}.h5'
+            align_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}_chisq{chisq_lim}.h5'
 
             with h5py.File(align_file, 'r') as hf:
                 all_dv.extend(hf[f'dv_{fr200[i]}'][:])

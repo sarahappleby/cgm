@@ -36,7 +36,7 @@ if __name__ == '__main__':
     #chisq_lim_dict = {'snap_151': [3.5, 28.2, 15.8, 31.6, 5., 4.]} # for the extras sample
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
@@ -66,8 +66,8 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         weighted_D = np.zeros(len(fr200))
         weighted_D_25 = np.zeros(len(fr200))

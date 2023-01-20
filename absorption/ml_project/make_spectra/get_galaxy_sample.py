@@ -47,7 +47,7 @@ mass_bins = np.arange(min_m, min_m+(nbins_m+1)*delta_m, delta_m)
 ngals_each = 12
 nbins_ssfr = 3
 
-sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+sample_dir = f'/disk04/sapple/data/samples/'
 data_dir = f'/home/rad/data/{model}/{wind}/'
 sim =  caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5')
 co = yt.utilities.cosmology.Cosmology(hubble_constant=sim.simulation.hubble_constant,

@@ -58,7 +58,7 @@ if __name__ == '__main__':
     q_height = [-3.05]*5
     ylims = [1.5, 1.75, 2., 2.5, 3.0]
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_sm = sf['mass'][:]
         gal_sfr = sf['sfr'][:]

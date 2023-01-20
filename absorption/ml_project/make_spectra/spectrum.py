@@ -136,7 +136,7 @@ class Spectrum(object):
             snr = self.snr
         else:
             snr = snr_default
-        self.noise = np.asarray([1./snr] * len(self.fluxes_fit))
+        self.noise_fit = np.asarray([1./snr] * len(self.fluxes_fit))
 
 
     def fit_spectrum_old(self, vel_range=600., nbuffer=20):
@@ -252,7 +252,7 @@ class Spectrum(object):
                 return
             else:
                 self.line_list = {}
-                self.regions_l, self.regions_i = pg.analysis.find_regions(self.waves_fit, self.fluxes_fit, self.noise, min_region_width=2, extend=True)
+                self.regions_l, self.regions_i = pg.analysis.find_regions(self.waves_fit, self.fluxes_fit, self.noise_fit, min_region_width=2, extend=True)
                 self.line_list['region'] = np.arange(len(self.regions_l))
 
         # to perform the voigt fitting:
@@ -264,7 +264,7 @@ class Spectrum(object):
                 logN_bounds = [11, 17]
             b_bounds=None
          
-            self.line_list = pg.analysis.fit_profiles(self.ion_name, self.waves_fit, self.fluxes_fit, self.noise,
+            self.line_list = pg.analysis.fit_profiles(self.ion_name, self.waves_fit, self.fluxes_fit, self.noise_fit,
                                                       chisq_lim=2.5, chisq_unacceptable=chisq_unacceptable, 
                                                       chisq_asym_thresh=chisq_asym_thresh, 
                                                       max_lines=10, logN_bounds=logN_bounds, 
@@ -296,7 +296,7 @@ if __name__ == '__main__':
     vel_range = 600.
     chisq_asym_thresh = -3.
     
-    spectrum_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
+    spectrum_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
     spectrum_file = f'{spectrum_dir}sample_galaxy_195_{line}_{orient}_deg_{fr200}r200.h5'
 
     spec = Spectrum(spectrum_file)

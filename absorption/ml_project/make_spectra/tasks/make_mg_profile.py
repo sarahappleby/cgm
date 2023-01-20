@@ -52,8 +52,8 @@ if __name__ == '__main__':
     redshift = sim.simulation.redshift
     quench = quench_thresh(redshift)
 
-    profile_file = f'/disk04/sapple/cgm/absorption/ml_project/data/profiles/{model}_{wind}_{snap}_profile.h5'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    profile_file = f'/disk04/sapple/data/profiles/{model}_{wind}_{snap}_profile.h5'
+    sample_dir = f'/disk04/sapple/data/samples/'
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
 
         gal_ids = sf['gal_ids'][:]

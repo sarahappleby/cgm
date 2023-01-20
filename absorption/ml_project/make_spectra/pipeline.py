@@ -31,12 +31,13 @@ num = int(sys.argv[4])
 line = sys.argv[5]
 lambda_rest = float(re.findall(r'\d+', line)[0])
 
-snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
-#snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_extras.hdf5'
+snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
+#snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_extras.hdf5'
 s = pg.Snapshot(snapfile)
 
-sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-save_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
+sample_dir = f'/disk04/sapple/data/samples/'
+#save_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
+save_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}_hm12/'
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 

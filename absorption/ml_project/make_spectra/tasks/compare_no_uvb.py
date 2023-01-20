@@ -9,8 +9,8 @@ plt.rc('font', family='serif', size=15)
 line = 'H1215'
 #line = 'OVI1031'
 
-spectrum_file_uvb = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/m100n1024_s50_151/sample_galaxy_195_{line}_0_deg_0.25r200.h5'
-spectrum_file_no_uvb = f'/disk04/sapple/cgm/absorption/ml_project/data/no_uvb/m100n1024_s50_151/sample_galaxy_195_{line}_0_deg_0.25r200.h5'
+spectrum_file_uvb = f'/disk04/sapple/data/normal/m100n1024_s50_151/sample_galaxy_195_{line}_0_deg_0.25r200.h5'
+spectrum_file_no_uvb = f'/disk04/sapple/data/no_uvb/m100n1024_s50_151/sample_galaxy_195_{line}_0_deg_0.25r200.h5'
 
 spec_uvb = Spectrum(spectrum_file_uvb)
 spec_no_uvb = Spectrum(spectrum_file_no_uvb)

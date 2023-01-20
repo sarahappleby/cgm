@@ -16,9 +16,9 @@ if __name__ == '__main__':
 
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg'] 
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    #spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-    spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/no_uvb/{model}_{wind}_{snap}/'
+    sample_dir = f'/disk04/sapple/data/samples/'
+    #spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
+    spectra_dir = f'/disk04/sapple/data/collisional/no_uvb/{model}_{wind}_{snap}/'
 
     s = pg.Snapshot(f'{sample_dir}{model}_{wind}_{snap}.hdf5')
     redshift = s.redshift
@@ -28,8 +28,8 @@ if __name__ == '__main__':
 
     all_n = np.zeros((len(gal_ids), len(orients)))
 
-    #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_nlines_{line}.h5'
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_nlines_{line}.h5'
+    #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_nlines_{line}.h5'
+    results_file = f'/disk04/sapple/data/collisional/results/{model}_{wind}_{snap}_no_uvb_nlines_{line}.h5'
 
     if os.path.isfile(results_file):
         with h5py.File(results_file, 'r') as f:

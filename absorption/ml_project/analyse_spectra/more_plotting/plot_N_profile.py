@@ -71,9 +71,9 @@ if __name__ == '__main__':
         mass_bin_labels.append(f'{mass_bins[i]}-{mass_bins[i+1]}')
         mass_plot_titles.append(f'{mass_bins[i]}'+ r'$ < \textrm{log} (M_* / M_{\odot}) < $' + f'{mass_bins[i+1]}')
 
-    results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
+    results_dir = f'/disk04/sapple/data/normal/results/'
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
         gal_sm = sf['mass'][:]

@@ -52,14 +52,14 @@ if __name__ == '__main__':
     for i in range(nbins_m):
         mass_plot_titles.append(f'{mass_bins[i]}'+ r'$ < \textrm{log} (M_* / M_{\odot}) < $' + f'{mass_bins[i+1]}')
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
     cosmic_rho = rho_crit * float(s.cosmology.Omega_b)
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
         N = []
         rho = []

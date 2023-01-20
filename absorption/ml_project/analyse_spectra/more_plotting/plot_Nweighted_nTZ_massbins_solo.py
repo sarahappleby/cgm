@@ -43,7 +43,7 @@ if __name__ == '__main__':
     colors = [cmap(i) for i in icolor]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         fig, ax = plt.subplots(3, 1, figsize=(7, 6.5), sharey='row', sharex='col')
         ax = ax.flatten()
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
         for i in range(len(fr200)):
 

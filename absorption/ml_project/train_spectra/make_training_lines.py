@@ -23,7 +23,7 @@ if __name__ == '__main__':
     N_min = [12.7, 11.5, 12.8, 11.7, 12.8, 13.2]
 
     # Compute the mean cosmic mass density, for converting densities into overdensities
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     sample_files = [f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5',
                     f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5']
 
@@ -55,8 +55,8 @@ if __name__ == '__main__':
     ssfr = np.array(ssfr)
     kappa_rot = np.array(kappa_rot)
 
-    line_files = [f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5',
-                  f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5']
+    line_files = [f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5',
+                  f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5']
 
     dataset = {}
     dataset['rho'] = []

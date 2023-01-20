@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/{model}_{wind}_{snap}_sats_{line}_cddf_chisqion.h5'
+        cddf_file = f'/disk04/sapple/data/satellites/results/{model}_{wind}_{snap}_sats_{line}_cddf_chisqion.h5'
 
         plot_data = read_h5_into_dict(cddf_file)
 

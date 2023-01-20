@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{line}.h5'
 
         ax[i][j].axhline(0.9, c='k', ls=':', lw=1)
 

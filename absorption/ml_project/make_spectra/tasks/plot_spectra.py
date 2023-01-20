@@ -32,8 +32,8 @@ if __name__ == '__main__':
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
+    sample_dir = f'/disk04/sapple/data/samples/'
+    spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]

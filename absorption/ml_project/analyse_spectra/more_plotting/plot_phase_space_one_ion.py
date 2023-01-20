@@ -55,7 +55,7 @@ if __name__ == '__main__':
     chisq_lim = 2.5
     N_min = [12., 11., 12., 11., 12., 12.]
     
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
@@ -67,14 +67,14 @@ if __name__ == '__main__':
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
-    phase_space_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_phase_space.h5'
+    phase_space_file = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_phase_space.h5'
     with h5py.File(phase_space_file, 'r') as hf:
         rho_overdensity_temp_hist2d = hf['rho_delta_temp'][:]
         rho_overdensity_bins = hf['rho_delta_bins'][:]
         temp_bins = hf['temp_bins'][:]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots(2, 4, figsize=(15, 6), sharey='row', sharex='col')
     
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+    results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
     for i in range(len(inner_outer)):
 

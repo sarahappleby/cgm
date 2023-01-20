@@ -14,7 +14,7 @@ if __name__ == '__main__':
     verbose = 2
     minT = 6.0
     
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     snapfile = f'{sample_dir}{model}_{wind}_{snap}.hdf5'
     output_file = f'{sample_dir}{model}_{wind}_{snap}_minT_{minT}.hdf5'
 

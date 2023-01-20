@@ -49,7 +49,7 @@ if __name__ == '__main__':
     x_dict['delta_rho'] = [0.18, 0.2, 0.2, 0.18, 0.18, 0.18]
     x_dict['T'] = [0.18, 0.18, 0.18, 0.18, 0.18, 0.2]
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     #cmap = sns.color_palette("crest", as_cmap=True)
     colors = ['#00629B', '#009988', '#CC6677']
 
-    fig, ax = plt.subplots(1, 2, figsize=(10, 7))
+    fig, ax = plt.subplots(1, 2, figsize=(10, 6))
 
     for p, pred in enumerate(predictors):
 
@@ -174,6 +174,7 @@ if __name__ == '__main__':
         plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_joint_single_{pred}_scatter_bias.png')
         plt.close()
         """
+    plt.tight_layout()
     plt.savefig(f'plots/{model}_{wind}_{snap}_{lines_short[lines.index(line)]}_lines_RF_scatter_bias.png')
     plt.close()
 

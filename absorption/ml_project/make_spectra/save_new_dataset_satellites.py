@@ -66,7 +66,7 @@ if __name__ == '__main__':
     verbose = 2
     ngals_each = 12
 
-    data_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    data_dir = f'/disk04/sapple/data/samples/'
     snapfile = f'{data_dir}{model}_{wind}_{snap}.hdf5'
 
     particle_file = sys.argv[1]

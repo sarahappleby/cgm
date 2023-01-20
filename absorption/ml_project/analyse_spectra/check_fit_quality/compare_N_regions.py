@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
     with h5py.File(sample_file, 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_Nregions_{line}.h5' 
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_Nregions_{line}.h5' 
 
         all_Nspec = []
         all_Nfit = []

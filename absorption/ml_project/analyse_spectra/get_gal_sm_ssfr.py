@@ -12,8 +12,8 @@ if __name__ == '__main__':
     data_dir = f'/home/rad/data/{model}/{wind}/Groups/'
     sim = caesar.load(f'{data_dir}/{model}_{snap}.hdf5')
 
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_sm_sfr.h5'  
-    results_file_ssfr = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_sm_ssfr.h5'
+    results_file = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_sm_sfr.h5'  
+    results_file_ssfr = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_sm_ssfr.h5'
 
     mass_min = 9.75
     mass_max = 11.75

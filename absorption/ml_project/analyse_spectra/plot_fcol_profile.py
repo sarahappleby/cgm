@@ -55,7 +55,7 @@ if __name__ == '__main__':
     mass_colors = [cmap(i) for i in icolor]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
         fcol = np.zeros((len(mass_plot_titles), len(fr200)))
         ncol = np.zeros((len(mass_plot_titles), len(fr200)))

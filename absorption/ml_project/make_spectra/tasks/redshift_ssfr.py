@@ -37,7 +37,7 @@ if __name__ == '__main__':
     q_height = [-0.7, -0.7, -0.5, -0.3, 0.]
 
     datadir = f'/home/rad/data/{model}/{wind}/Groups/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     sim = caesar.load(f'{datadir}{model}_{snap}.hdf5')
 
     delta_m = 0.25

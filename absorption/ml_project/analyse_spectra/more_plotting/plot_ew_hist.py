@@ -33,7 +33,7 @@ if __name__ == '__main__':
     EW_bins = np.arange(EW_min, EW_max+dEW, dEW)
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
+    spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
 
     fig, ax = plt.subplots(2, 3, figsize=(15, 7.1), sharey='row', sharex='col')
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        sum_ew_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
+        sum_ew_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
         sum_ew_dict = read_h5_into_dict(sum_ew_file)
 
         all_sum_data = np.zeros(( len(fr200), len(sum_ew_dict[f'ew_wave_0.25r200']) * norients))

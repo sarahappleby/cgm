@@ -13,6 +13,10 @@ from spectrum import Spectrum
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=12)
 
+def chisq_r(data, model, noise, dof): 
+    dev = (data - model)**2 
+    return np.sum(dev / (noise**2)) / dof
+
 if __name__ == '__main__':
 
     model = 'm100n1024'
@@ -37,7 +41,7 @@ if __name__ == '__main__':
     lines = ["H1215", "MgII2796", "CII1334", "SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm HI}\ 1215$', r'${\rm MgII}\ 2796$', r'${\rm CII}\ 1334$',
                   r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
-    spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
+    spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
 
     fig, ax = plt.subplots(3, 2, figsize=(10, 8), sharey='row', sharex='col')
@@ -51,7 +55,7 @@ if __name__ == '__main__':
         spec = Spectrum(f'{spectra_dir}{spec_name}.h5')
         
         spec.prepare_spectrum(vel_range=vel_range)
-        regions_l, regions_i = pg.analysis.find_regions(spec.waves_fit, spec.fluxes_fit, spec.noise, min_region_width=2, extend=True)
+        regions_l, regions_i = pg.analysis.find_regions(spec.waves_fit, spec.fluxes_fit, spec.noise_fit, min_region_width=2, extend=True)
         regions_v = np.array(wave_to_vel(regions_l, spec.lambda_rest, redshift)) - spec.gal_velocity_pos
 
         for k in range(len(regions_v)):

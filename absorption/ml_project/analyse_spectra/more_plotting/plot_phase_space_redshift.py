@@ -62,7 +62,7 @@ if __name__ == '__main__':
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     # ssfr split, all fr200
     fig, ax = plt.subplots(len(lines), len(snaps), figsize=(9.7, 13), sharey='row', sharex='col')
@@ -75,13 +75,13 @@ if __name__ == '__main__':
             ssfr = sf['ssfr'][:]
 
 
-        snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+        snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
         s = pg.Snapshot(snapfile)
         redshift = s.redshift
         rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
         cosmic_rho = rho_crit * float(s.cosmology.Omega_b)
 
-        phase_space_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_phase_space.h5'
+        phase_space_file = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_phase_space.h5'
         with h5py.File(phase_space_file, 'r') as hf:
             rho_overdensity_temp_hist2d = hf['rho_delta_temp'][:]
             rho_overdensity_bins = hf['rho_delta_bins'][:]
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
         for l, line in enumerate(lines):
 
-            results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+            results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
             all_Z = []
             all_T = []

@@ -55,7 +55,7 @@ if __name__ == '__main__':
                r'${\rm log}\ (T/{\rm K})$',
                r'${\rm log}\ (Z/{\rm Z}_{\odot})$']
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))

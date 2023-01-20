@@ -69,7 +69,7 @@ if __name__ == '__main__':
     gas_delaytime = readsnap(snapfile, 'DelayTime', 'gas', suppress=1)
     wind_particles = np.where(gas_delaytime > 0.)[0]
 
-    output_dir = '/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    output_dir = '/disk04/sapple/data/samples/'
     output_file = output_dir + model+'_'+wind+'_'+snap+'.hdf5'
 
     plist = np.array([])

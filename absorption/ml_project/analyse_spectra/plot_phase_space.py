@@ -49,7 +49,6 @@ if __name__ == '__main__':
     #chisq_lim_dict = {'snap_151': [3.5, 28.2, 15.8]} # for the extras sample
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
-    """
     lines = ["SiIII1206", "CIV1548", "OVI1031"]
     plot_lines = [r'${\rm SiIII}\ 1206$', r'${\rm CIV}\ 1548$', r'${\rm OVI}\ 1031$']
     cbar_labels = [r'${\rm log }(N\ {\rm SiIII} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm CIV} / {\rm cm}^{-2})$', r'${\rm log }(N\ {\rm OVI} / {\rm cm}^{-2})$']
@@ -61,7 +60,6 @@ if __name__ == '__main__':
                       'snap_105': [34.5, 10., 7.1],}
     #chisq_lim_dict = {'snap_151': [31.6, 5., 4.]} # for the extras sample
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
-    """
 
     #width = 0.258
     #height = 0.015
@@ -82,7 +80,7 @@ if __name__ == '__main__':
     rho_labels = ['Inner CGM', 'Outer CGM']
     ssfr_labels = ['All', 'Star forming', 'Green valley', 'Quenched']
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
@@ -94,14 +92,14 @@ if __name__ == '__main__':
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
-    phase_space_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_phase_space.h5'
+    phase_space_file = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_phase_space.h5'
     with h5py.File(phase_space_file, 'r') as hf:
         rho_overdensity_temp_hist2d = hf['rho_delta_temp'][:]
         rho_overdensity_bins = hf['rho_delta_bins'][:]
         temp_bins = hf['temp_bins'][:]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
     #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
 
@@ -115,8 +113,8 @@ if __name__ == '__main__':
     
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         for i in range(len(inner_outer)):
 

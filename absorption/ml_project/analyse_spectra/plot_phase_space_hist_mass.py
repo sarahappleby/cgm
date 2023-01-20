@@ -76,19 +76,19 @@ if __name__ == '__main__':
     cmap = truncate_colormap(cmap, 0.2, .8)
     mass_colors = [cmap(i) for i in icolor]
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
     cosmic_rho = rho_crit * float(s.cosmology.Omega_b)
 
-    phase_space_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_phase_space.h5'
+    phase_space_file = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_phase_space.h5'
     with h5py.File(phase_space_file, 'r') as hf:
         delta_rho_hist = hf['rho_delta_hist'][:]
         temp_hist = hf['temp_hist'][:]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
     sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
 
@@ -121,8 +121,8 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
+        #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         all_delta_rho = np.array([])
         all_ids = np.array([])
@@ -235,8 +235,8 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
+        #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         all_T = np.array([])
         all_ids = np.array([])
@@ -342,8 +342,8 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
+        #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
 
         all_N = np.array([])
         all_ids = np.array([])

@@ -41,8 +41,8 @@ if __name__ == '__main__':
     colors = make_color_list(plt.get_cmap('viridis'), nbins_m)
 
     plot_dir = f'/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    results_dir = f'/disk04/sapple/data/collisional/results/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         mass_long = np.repeat(sf['mass'][:], norients)

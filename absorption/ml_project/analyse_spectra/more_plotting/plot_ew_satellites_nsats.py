@@ -45,11 +45,10 @@ if __name__ == '__main__':
     colors = make_color_list(plt.get_cmap('viridis'), len(log_frad))
 
     plot_dir = f'/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    normal_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
-    normal_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/old_sample/results/'
-    results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/old_sample_files/'
+    normal_dir = f'/disk04/sapple/data/normal/results/'
+    normal_dir = f'/disk04/sapple/data/normal/old_sample/results/'
+    results_dir = f'/disk04/sapple/data/satellites/results/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf: # change this back to current sample
         nsats_long = np.repeat(sf['nsats'][:], norients)

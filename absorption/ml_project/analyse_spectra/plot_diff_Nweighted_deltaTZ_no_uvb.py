@@ -102,7 +102,7 @@ if __name__ == '__main__':
     y = [0.06, 0.3, 0.64, 0.13, 0.24]
     chisq_lim = [4.5, 20., 20., 20., 7.1, 2.8]
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     phys = ['D', 'T', 'Z']
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -146,9 +146,9 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{line}.h5'
         weighted_uvb = plot_nweighted(results_file, line, inner_outer, line_ev[l], zsolar[l], cosmic_rho, N_min[l], chisq_lim[l])
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
         weighted_norm = plot_nweighted(results_file, line, inner_outer, line_ev[l], zsolar[l], cosmic_rho, N_min[l], chisq_lim[l])
 
         for i in range(len(phys)):

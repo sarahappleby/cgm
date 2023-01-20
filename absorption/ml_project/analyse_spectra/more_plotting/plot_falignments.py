@@ -56,14 +56,14 @@ if __name__ == '__main__':
     colors = [cmap(i) for i in icolor]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     fig, ax = plt.subplots(2, 3, figsize=(10, 7), sharey='row', sharex='col')
     ax = ax.flatten()
 
     for l, line in enumerate(line_b):
 
-        line_b_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line_b[l]}.h5'
+        line_b_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line_b[l]}.h5'
 
         for i in range(len(fr200)):
 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
             Ntotal = len(all_ids)
             faligned = np.zeros(len(dv))
             
-            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a[l]}_{line_b[l]}_chisq{chisq_lim}.h5'
+            align_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a[l]}_{line_b[l]}_chisq{chisq_lim}.h5'
 
             with h5py.File(align_file, 'r') as hf:
                 all_dv = hf[f'dv_{fr200[i]}'][:]

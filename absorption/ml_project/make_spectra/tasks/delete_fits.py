@@ -10,8 +10,8 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
 
-    spec_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-    spec_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/{model}_{wind}_{snap}/log_frad_1.0/'
+    spec_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
+    spec_dir = f'/disk04/sapple/data/satellites/{model}_{wind}_{snap}/log_frad_1.0/'
     spec_files = sorted(os.listdir(spec_dir))
 
     for spec_file in spec_files:

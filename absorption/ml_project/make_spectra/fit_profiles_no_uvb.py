@@ -14,7 +14,7 @@ if __name__ == '__main__':
     vel_range = 600.
     chisq_asym_thresh = -3.
 
-    spec_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/no_uvb/{model}_{wind}_{snap}/'
+    spec_dir = f'/disk04/sapple/data/collisional/no_uvb/{model}_{wind}_{snap}/'
     spec_file = sorted(os.listdir(spec_dir))[i]
 
     print(spec_file)

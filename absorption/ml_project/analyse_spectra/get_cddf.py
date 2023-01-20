@@ -45,7 +45,7 @@ if __name__ == '__main__':
     chisq_lim = chisq_lim_dict[f'snap_{snap}']
 
     norients = 8
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     boxsize = float(s.boxsize.in_units_of('ckpc/h_0'))
     redshift = s.redshift
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     path_lengths = read_h5_into_dict(path_length_file)
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
     #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
 
@@ -108,11 +108,11 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-        cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        cddf_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
 
-        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
-        #cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion_extras.h5'
+        #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
+        #cddf_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion_extras.h5'
 
         plot_data = {}
         plot_data['plot_logN'] = plot_logN.copy()

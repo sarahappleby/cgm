@@ -37,7 +37,7 @@ if __name__ == '__main__':
     predictors = ['rho', 'T', 'Z']
 
     # Step 1) read in the training data
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
         mass = sf['mass'][:]
@@ -45,7 +45,7 @@ if __name__ == '__main__':
         kappa_rot = sf['kappa_rot'][:]
     
     model_dir = f'/disk04/sapple/cgm/absorption/ml_project/train_spectra/models/'
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+    results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
     
     dataset = {}
     dataset['rho'] = []

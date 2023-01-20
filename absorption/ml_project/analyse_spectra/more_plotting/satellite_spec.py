@@ -18,12 +18,12 @@ if __name__ == '__main__':
     fr200 = 0.25
     vel_range = 600.
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf: 
         gal_ids = sf['gal_ids'][:]
 
-    norm_spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/' 
-    sat_spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/{model}_{wind}_{snap}/log_frad_{log_frad}/'
+    norm_spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/' 
+    sat_spectra_dir = f'/disk04/sapple/data/satellites/{model}_{wind}_{snap}/log_frad_{log_frad}/'
 
     spec_name = f'sample_galaxy_{gal_id}_{line}_{orient}_{fr200}r200'
     sat_spec = read_h5_into_dict(f'{sat_spectra_dir}{spec_name}.h5')

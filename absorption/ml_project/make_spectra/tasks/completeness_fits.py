@@ -23,8 +23,8 @@ if __name__ == '__main__':
     LSF = 'STIS_E140M'
     fit_contin = True
 
-    completeness_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}_completeness/'
-    spec_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
+    completeness_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}_completeness/'
+    spec_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
     spec_file = sorted(os.listdir(spec_dir))[i]
     items = spec_file.split('_')
     orient = f'{items[4]}_{items[5]}'

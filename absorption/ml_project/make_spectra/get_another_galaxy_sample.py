@@ -47,7 +47,7 @@ mass_bins = np.arange(min_m, min_m+(nbins_m+1)*delta_m, delta_m)
 ngals_each = 12
 nbins_ssfr = 3
 
-sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+sample_dir = f'/disk04/sapple/data/samples/'
 data_dir = f'/home/rad/data/{model}/{wind}/'
 sim =  caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5')
 co = yt.utilities.cosmology.Cosmology(hubble_constant=sim.simulation.hubble_constant,
@@ -122,7 +122,7 @@ gal_ids = gal_ids.astype('int')
 halo_r200 = np.array([sim.galaxies[i].halo.virial_quantities['r200c'].in_units('kpc/h') for i in gal_ids])
 halo_pos = np.array([sim.galaxies[i].halo.pos.in_units('kpc/h') for i in gal_ids])
 
-with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_another_galaxy_sample.h5', 'a') as hf:
+with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5', 'a') as hf:
     hf.create_dataset('gal_ids', data=np.array(gal_ids))
     hf.create_dataset('mass', data=np.array(gal_sm[gal_ids]))
     hf.create_dataset('ssfr', data=np.array(gal_ssfr[gal_ids]))
@@ -140,4 +140,20 @@ with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_another_galaxy_sample.h5', 'a
     hf.attrs['ssfr_units'] = 'log yr^-1'
     hf.attrs['sfr_units'] = 'log Msun/yr'
     hf.attrs['vel_units'] = 'km/s'
+
+
+### replace duplicates
+bad = [2482, 1108, 637, 1092, 1235, 465, 650]
+replace = [2743, 1532, 539, 1521, 1142, 403, 689]
+for i in range(len(bad)):
+    where = np.where(extra_gal_ids == bad[i])[0][0]
+    extra_gal_ids[where] = replace[i]
+
+mass = gal_sm[extra_gal_ids]
+ssfr = gal_ssfr[extra_gal_ids]
+mask = (mass > 11.25) * (ssfr < -10.8) * (ssfr > -14)
+bad = extra_gal_ids[mask]
+for i in range(len(bad)):
+    where = np.where(extra_gal_ids == bad[i])[0][0]
+    extra_gal_ids = np.delete(extra_gal_ids, where)
 

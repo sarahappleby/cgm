@@ -21,7 +21,7 @@ if __name__ == '__main__':
     adjust_x = [0.015, 0.025, 0.02, 0.025, 0.02, 0.02]
     chisq_lim = [4.5, 20., 20., 20., 7.1, 2.8]
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     colors = [cmap(i) for i in icolor]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/{model}_{wind}_{snap}_log_frad_1_fit_lines_{line}.h5' 
+        results_file = f'/disk04/sapple/data/satellites/results/{model}_{wind}_{snap}_log_frad_1_fit_lines_{line}.h5' 
 
         weighted_D = np.zeros(len(fr200))
         weighted_D_25 = np.zeros(len(fr200))

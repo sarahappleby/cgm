@@ -24,7 +24,7 @@ if __name__ == '__main__':
     
     features = ['EW_HI', 'EW_MgII', 'EW_CII', 'EW_SiIII', 'EW_CIV', 'EW_OVI', 'fr200', 'mass', 'ssfr', 'kappa_rot']
     features = ['EW_HI', 'EW_MgII', 'EW_CII', 'EW_SiIII', 'EW_CIV', 'EW_OVI', 'fr200']
-    predictor = 'log_fgas_cool'
+    predictor = 'log_fgas_hot'
     model_dir = f'/disk04/sapple/cgm/absorption/ml_project/train_spectra/models/'
     model_name = f'{model_dir}{model}_{wind}_{snap}_ew_gal_features_RF_{predictor}.model'
     model_name = f'{model_dir}{model}_{wind}_{snap}_ew_RF_{predictor}.model'

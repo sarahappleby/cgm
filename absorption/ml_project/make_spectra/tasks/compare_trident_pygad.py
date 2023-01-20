@@ -38,11 +38,11 @@ lambda_rest = [float(pg.analysis.absorption_spectra.lines[line]['l'].split(' ')[
 
 plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CIV}1334$', r'${\rm SiIII}1206$']
 
-snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/old_sample_files/{model}_{wind}_{snap}.hdf5'
+snapfile = f'/disk04/sapple/data/samples/old_sample_files/{model}_{wind}_{snap}.hdf5'
 s = pg.Snapshot(snapfile)
 ds = yt.load(snapfile)
 
-sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/old_sample_files/'
+sample_dir = f'/disk04/sapple/data/samples/old_sample_files/'
 save_dir = f'/disk04/sapple/cgm/absorption/ml_project/make_spectra/trident_test/'
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)

@@ -62,7 +62,7 @@ if __name__ == '__main__':
     snap = '151'
     verbose = 2
 
-    data_dir = '/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    data_dir = '/disk04/sapple/data/samples/'
     snapfile = f'{data_dir}{model}_{wind}_{snap}.hdf5'
 
     output_file = data_dir + model+'_'+wind+'_'+snap+'_quenched.hdf5'

@@ -56,7 +56,7 @@ if __name__ == '__main__':
     deltath = 2.046913
     Tth = 5.
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
@@ -67,14 +67,14 @@ if __name__ == '__main__':
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
-    phase_space_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_phase_space.h5'
+    phase_space_file = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_phase_space.h5'
     with h5py.File(phase_space_file, 'r') as hf:
         rho_overdensity_temp_hist2d = hf['rho_delta_temp'][:]
         rho_overdensity_bins = hf['rho_delta_bins'][:]
         temp_bins = hf['temp_bins'][:]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     fig, ax = plt.subplots(1, 3, figsize=(15, 5), sharey='row', sharex='col')
     
@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
         if line == 'H1215': continue 
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{line}.h5'
 
         all_T = []
         all_rho = []

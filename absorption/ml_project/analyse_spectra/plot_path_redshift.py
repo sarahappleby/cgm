@@ -59,7 +59,7 @@ if __name__ == '__main__':
                 r'$10^{14} {\rm cm}^{-2} < N < 10^{17} {\rm cm}^{-2}$']
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     path_length_file = f'/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/path_lengths.h5'
     if not os.path.isfile(path_length_file):
@@ -92,7 +92,7 @@ if __name__ == '__main__':
             dz_total = path_lengths[f'dz_{line}'][list(path_lengths['redshifts']).index(z)] * nlos
             
             chisq_lim = chisq_lim_dict[f'snap_{snap}']
-            results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+            results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
             all_N = []
             all_chisq = []

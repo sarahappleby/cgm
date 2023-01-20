@@ -19,9 +19,9 @@ if __name__ == '__main__':
     vel_range = 600. #km/s
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg'] 
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_Nregions_{line}.h5'
+    sample_dir = f'/disk04/sapple/data/samples/'
+    spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
+    results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_Nregions_{line}.h5'
 
     s = pg.Snapshot(f'{sample_dir}{model}_{wind}_{snap}.hdf5')
     redshift = s.redshift

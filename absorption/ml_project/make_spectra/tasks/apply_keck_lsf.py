@@ -16,8 +16,8 @@ if __name__ == '__main__':
 
     minT = 4.0
 
-    spec_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-    spec_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/with_uvb/{model}_{wind}_{snap}_minT_{minT}/'
+    spec_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
+    spec_dir = f'/disk04/sapple/data/collisional/with_uvb/{model}_{wind}_{snap}_minT_{minT}/'
     spec_file = sorted(os.listdir(spec_dir))[i]
 
     print(spec_file)

@@ -45,7 +45,7 @@ if __name__ == '__main__':
     max_chisq = 2
     chisq_bins = np.arange(min_chisq, max_chisq+delta_chisq, delta_chisq)
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
     with h5py.File(sample_file, 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
         all_N = []
         all_ew = []

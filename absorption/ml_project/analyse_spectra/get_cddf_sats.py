@@ -54,7 +54,7 @@ if __name__ == '__main__':
     #chisq_lim = [4.5, 63.1, 20.0, 70.8, 15.8, 4.5] limits with old fitting procedure
     chisq_lim = [4.5, 20., 20., 20., 7.1, 2.8]
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     quench = quench_thresh(redshift)
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     path_lengths = read_h5_into_dict(path_length_file)
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -97,8 +97,8 @@ if __name__ == '__main__':
     
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/{model}_{wind}_{snap}_log_frad_1_fit_lines_{line}.h5'
-        cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/{model}_{wind}_{snap}_sats_{line}_cddf_chisqion.h5'
+        results_file = f'/disk04/sapple/data/satellites/results/{model}_{wind}_{snap}_log_frad_1_fit_lines_{line}.h5'
+        cddf_file = f'/disk04/sapple/data/satellites/results/{model}_{wind}_{snap}_sats_{line}_cddf_chisqion.h5'
 
         if os.path.isfile(cddf_file):
             continue

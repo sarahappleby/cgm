@@ -62,7 +62,7 @@ if __name__ == '__main__':
     chisq_lim_a = chisq_lim[lines.index(line_a)]
     chisq_lim_b = chisq_lim[lines.index(line_b)]
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
  
@@ -70,9 +70,9 @@ if __name__ == '__main__':
     vel_boxsize = 10000.
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg']
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b}_chisq{chisq_lim}.h5'
+    sample_dir = f'/disk04/sapple/data/samples/'
+    spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
+    results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b}_chisq{chisq_lim}.h5'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]

@@ -1,8 +1,10 @@
 # Plot the EW from directly summing spectra vs the EW from the voigt fitting.
 
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import h5py
 import numpy as np
+import seaborn as sns
 import sys
 sys.path.insert(0, '/disk04/sapple/cgm/absorption/ml_project/make_spectra/')
 from utils import *
@@ -11,6 +13,10 @@ from physics import *
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=13)
 
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+            cmap(np.linspace(minval, maxval, n)))
+    return new_cmap
 
 if __name__ == '__main__':
 
@@ -34,24 +40,26 @@ if __name__ == '__main__':
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
     with h5py.File(sample_file, 'r') as sf:
         gal_ids = sf['gal_ids'][:]
 
+    cmap = sns.color_palette("mako", as_cmap=True)
+    cmap = truncate_colormap(cmap, 0.15, 0.95)
 
-    fig, ax = plt.subplots(2, 3, figsize=(10, 7), sharey='row', sharex='col')
-    cax = plt.axes([0.15, 0.96, 0.7, 0.03])
+    fig, ax = plt.subplots(2, 3, figsize=(10, 6), sharey='row', sharex='col')
+    cax = plt.axes([0.15, 0.965, 0.7, 0.025])
 
     i = 0
     j = 0
 
     for line in lines:
 
-        sum_ew_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
+        sum_ew_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_ew_{line}.h5'
         sum_ew_dict = read_h5_into_dict(sum_ew_file)
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5' 
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5' 
 
         all_N = []
         all_ew = []
@@ -112,7 +120,7 @@ if __name__ == '__main__':
         data_y = np.log10(fit_ew_data + 10**-2.).flatten()
         data_c = np.log10(chisq_data).flatten()
         
-        im = ax[i][j].scatter(data_x, data_y, c=data_c, s=1, cmap='magma', vmin=-1)
+        im = ax[i][j].scatter(data_x, data_y, c=data_c, s=1, cmap=cmap, vmin=-1, vmax=2)
         ax[i][j].plot(np.arange(-4, 4), np.arange(-4, 4), c='k', ls='--', lw=1)
        
         if line in ['H1215', "SiIII1206"]:
@@ -122,14 +130,16 @@ if __name__ == '__main__':
 
         ax[i][j].set_xlim(-2.25, 1.25)
         ax[i][j].set_ylim(-2.25, 1.25)
-        ax[i][j].annotate(plot_lines[lines.index(line)], xy=(0.05, 0.92), xycoords='axes fraction')
+        ax[i][j].annotate(plot_lines[lines.index(line)], xy=(0.05, 0.9), xycoords='axes fraction',
+                          bbox=dict(boxstyle="round", fc="w", ec='dimgrey', lw=0.75))
        
         j += 1
         if line == 'CII1334':
             i += 1
             j = 0
 
-    fig.colorbar(im, cax=cax, label=r'${\rm log}\ \chi^2_r$', orientation='horizontal')
+    cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
+    cbar.set_label(label=r'${\rm log}\ \chi^2_r$', fontsize=12)
     fig.subplots_adjust(wspace=0., hspace=0.)
     plt.savefig(f'{plot_dir}{model}_{wind}_{snap}_compare_ew_fit_lines.png')
     plt.clf()

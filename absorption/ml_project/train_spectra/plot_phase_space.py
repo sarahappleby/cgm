@@ -9,6 +9,9 @@ import pandas as pd
 import seaborn as sns
 import sys
 
+from scipy.stats import pearsonr
+from sklearn.metrics import r2_score, explained_variance_score, mean_squared_log_error, mean_squared_error
+
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=16)
 
@@ -38,7 +41,7 @@ if __name__ == '__main__':
     min_T = [3, 3.5, 4, 4, 4, 4]
     max_T = [6, 5, 5, 5, 5.5, 6]
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
@@ -72,9 +75,18 @@ if __name__ == '__main__':
         dT = (max_T[l] - min_T[l]) / nbins
         T_bins = np.arange(min_T[l], max_T[l]+dT, dT)
 
-        data = pd.DataFrame()        
+        data = pd.DataFrame()       
+        diff = {pred: None for pred in predictors}
+        err = pd.DataFrame(columns=['Predictor', 'Pearson', 'r2_score', 'explained_variance_score', 'mean_squared_error'])
 
         for p, pred in enumerate(predictors):
+
+            if pred == 'rho':
+                pred_use = 'delta_rho'
+                points = np.repeat(np.array([min_delta[l], max_delta[l]]), 2).reshape(2, 2)
+            else:
+                pred_use = pred
+                points = np.repeat(np.array([min_T[l], max_T[l]]), 2).reshape(2, 2)
 
             if mode == 'orig':
                 random_forest, features, _, feature_scaler, predictor_scaler, df_full = \
@@ -98,6 +110,24 @@ if __name__ == '__main__':
             elif mode == 'trans':
                 data = pd.read_csv(f'{data_dir}{model}_{wind}_{snap}_{line}_lines_trans.csv')
 
+
+            diff[pred] = np.array(data[pred_use]) - np.array(data[f'{pred_use}{pred_str}'])
+
+            coords = np.transpose(np.array([data[pred_use], data[f'{pred_use}{pred_str}']]))
+            d_perp = np.cross(points[1] - points[0], points[0] - coords) / np.linalg.norm(points[1]-points[0])
+
+            scores = {}
+            scores['Predictor'] = pred_use
+            scores['Pearson'] = round(pearsonr(data[pred_use],data[f'{pred_use}{pred_str}'])[0], 5)
+            scores['sigma_perp'] = round(np.nanstd(d_perp), 5)
+            for _scorer in [r2_score, explained_variance_score, mean_squared_error]:
+                scores[_scorer.__name__] = float(_scorer(data[pred_use],
+                                                   data[f'{pred_use}{pred_str}'], multioutput='raw_values'))
+            err = err.append(scores, ignore_index=True)
+
+        print(line)
+        print(err)
+        print('\n')
 
         data.reset_index(drop=True, inplace=True)
 
@@ -124,7 +154,7 @@ if __name__ == '__main__':
         grid.ax_marg_y.set_xticks([0, 0.1])
 
         contour = sns.kdeplot(data=data, x='delta_rho', y='T', ax=grid.ax_joint, legend=False, cumulative=False, linewidths=1)
-        im = grid.ax_joint.scatter(data[f'delta_rho{pred_str}'], data[f'T{pred_str}'], c=np.log10(data['error']), cmap=cmap, s=2.5, vmin=-2, vmax=1)
+        im = grid.ax_joint.scatter(data[f'delta_rho{pred_str}'], data[f'T{pred_str}'], c=np.log10(data['error']), cmap=cmap, s=4, vmin=-2, vmax=1)
 
         grid.set_axis_labels(xlabel=r'${\rm log }\delta$', 
                              ylabel=r'${\rm log } (T / {\rm K})$')

@@ -27,8 +27,10 @@ if __name__ == '__main__':
     photo_temp = 10.**4.5 # in K
     ism_density = 0.13 # hydrogen number density, cm**-3
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
+    sample_dir = f'/disk04/sapple/data/samples/'
+    #sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5'
+    sample_file = f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample_extras.h5'
+    with h5py.File(sample_file, 'r') as sf:
         gal_ids = sf['gal_ids'][:]
  
     data_dir = f'/home/rad/data/{model}/{wind}/'
@@ -61,7 +63,7 @@ if __name__ == '__main__':
 
     fcold = np.log10(cold_mass / hot_mass + 1e-3)
 
-    with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'a') as sf:
+    with h5py.File(sample_file, 'a') as sf:
         sf.create_dataset('Tcgm', data=np.array(Tcgm))
         sf.create_dataset('mcold', data=np.array(cold_mass))
         sf.create_dataset('mhot', data=np.array(hot_mass))

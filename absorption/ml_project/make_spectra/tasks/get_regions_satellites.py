@@ -18,7 +18,7 @@ if __name__ == '__main__':
     chisq_asym_thresh = -3.
     chisq_unacceptable = 25.
 
-    spec_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/{model}_{wind}_{snap}/log_frad_{log_frad}/'
+    spec_dir = f'/disk04/sapple/data/satellites/{model}_{wind}_{snap}/log_frad_{log_frad}/'
     spec_file = sorted(os.listdir(spec_dir))[i]
 
     print(spec_file)

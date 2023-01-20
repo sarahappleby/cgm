@@ -17,9 +17,9 @@ if __name__ == '__main__':
     wind = sys.argv[2]
     snap = sys.argv[3]
 
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_phase_space.h5'
+    results_file = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_phase_space.h5'
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     snapfiles = [f'{sample_dir}{model}_{wind}_{snap}.hdf5', f'{sample_dir}{model}_{wind}_{snap}_star_forming.hdf5', 
                  f'{sample_dir}{model}_{wind}_{snap}_green_valley.hdf5', f'{sample_dir}{model}_{wind}_{snap}_quenched.hdf5',]
     snapfiles = [f'{sample_dir}{model}_{wind}_{snap}.hdf5']

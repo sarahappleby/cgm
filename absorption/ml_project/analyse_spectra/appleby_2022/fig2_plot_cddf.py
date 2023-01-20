@@ -66,8 +66,8 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-        cddf_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+        cddf_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_{line}_cddf_chisqion.h5'
 
         plot_data = read_h5_into_dict(cddf_file)
         completeness = plot_data['completeness']

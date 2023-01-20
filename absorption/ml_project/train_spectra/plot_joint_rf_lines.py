@@ -45,7 +45,7 @@ if __name__ == '__main__':
     x_dict['T'] = [0.18, 0.18, 0.18, 0.18, 0.18, 0.2]
     x_dict['Z'] = [0.18, 0.23, 0.23, 0.23, 0.23, 0.23]
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))

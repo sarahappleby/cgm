@@ -42,8 +42,8 @@ if __name__ == '__main__':
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
     
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    data_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
+    data_dir = f'/disk04/sapple/data/samples/'
     snapfile = f'{data_dir}{model}_{wind}_{snap}.hdf5'
     
     s = pg.Snapshot(snapfile)

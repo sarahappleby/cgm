@@ -30,7 +30,7 @@ if __name__ == '__main__':
     plot_lines = [r'${\rm HI}1215$', r'${\rm MgII}2796$', r'${\rm CII}1334$',
                   r'${\rm SiIII}1206$', r'${\rm CIV}1548$', r'${\rm OVI}1031$']
 
-    results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
+    results_dir = f'/disk04/sapple/data/normal/results/'
     plot_dir = f'/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
     if not os.path.exists(plot_dir):
         os.makedirs(plot_dir)
@@ -39,8 +39,8 @@ if __name__ == '__main__':
 
     for i in range(len(lines)):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}.h5'
-        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}_extras.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}.h5'
+        #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}_extras.h5'
 
         for j in range(nbins_fr200):
 
@@ -71,8 +71,8 @@ if __name__ == '__main__':
 
     for i in range(len(lines)):
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}.h5'
-        #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}_extras.h5'
+        results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}.h5'
+        #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{lines[i]}_extras.h5'
         
         for j in range(nbins_fr200):
 

@@ -55,20 +55,20 @@ if __name__ == '__main__':
     ssfr_labels = ['All gas', 'Star forming', 'Green valley', 'Quenched']
     ssfr_colors = ['dimgrey', cb_blue, cb_green, cb_red]
     
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
     cosmic_rho = rho_crit * float(s.cosmology.Omega_b)
     quench = quench_thresh(redshift)
 
-    phase_space_file = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}_phase_space.h5'
+    phase_space_file = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}_phase_space.h5'
     with h5py.File(phase_space_file, 'r') as hf:
         delta_rho_hist = hf['rho_delta_hist'][:]
         temp_hist = hf['temp_hist'][:]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
@@ -100,7 +100,7 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{lines[i]}.h5'
+        results_file = f'/disk04/sapple/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{lines[i]}.h5'
 
         #ax[i][j].step(bin_edges, delta_rho_hist, c=ssfr_colors[0], lw=1, ls=rho_ls[0])
         
@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
     for line in lines:
         
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{lines[i]}.h5'
+        results_file = f'/disk04/sapple/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{lines[i]}.h5'
 
         #ax[i][j].step(T_bins[:-1] + T_bins[1] - T_bins[0], temp_hist, c=ssfr_colors[0], lw=1, ls='-')
 
@@ -278,7 +278,7 @@ if __name__ == '__main__':
 
     for line in lines:
 
-        results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{lines[i]}.h5'
+        results_file = f'/disk04/sapple/data/collisional/results/{model}_{wind}_{snap}_no_uvb_fit_lines_{lines[i]}.h5'
 
         all_N = np.array([])
         all_ids = np.array([])

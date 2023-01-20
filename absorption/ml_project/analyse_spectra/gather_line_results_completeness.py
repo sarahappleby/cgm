@@ -46,10 +46,10 @@ if __name__ == '__main__':
     orients = ['0_deg', '180_deg']
 
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-    completeness_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}_completeness/'
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_snr100.h5'
+    sample_dir = f'/disk04/sapple/data/samples/'
+    spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
+    completeness_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}_completeness/'
+    results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_snr100.h5'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]

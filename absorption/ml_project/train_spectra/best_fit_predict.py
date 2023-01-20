@@ -66,7 +66,7 @@ if __name__ == '__main__':
     delta_max = 4
     delta_bins = np.arange(delta_min, delta_max+0.2, 0.2)
 
-    snapfile = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/{model}_{wind}_{snap}.hdf5'
+    snapfile = f'/disk04/sapple/data/samples/{model}_{wind}_{snap}.hdf5'
     s = pg.Snapshot(snapfile)
     redshift = s.redshift
     rho_crit = float(s.cosmology.rho_crit(z=redshift).in_units_of('g/cm**3'))
@@ -74,13 +74,13 @@ if __name__ == '__main__':
     quench = quench_thresh(redshift)
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/train_spectra/plots_app2022_data/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
         all_ssfr = sf['ssfr'][:]
 
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+    results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
 
     N = []
     rho = []

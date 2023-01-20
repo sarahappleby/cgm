@@ -64,10 +64,10 @@ if __name__ == '__main__':
     cmap = truncate_colormap(cmap, 0.2, .8)
     mass_colors = [cmap(i) for i in icolor]
 
-    results_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/satellites/results/'
-    normal_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
+    results_dir = f'/disk04/sapple/data/satellites/results/'
+    normal_dir = f'/disk04/sapple/data/normal/results/'
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         mass_long = np.repeat(sf['mass'][:], norients)
 

@@ -63,8 +63,8 @@ if __name__ == '__main__':
     nbins_fr200 = 5
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    lines_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/'
+    sample_dir = f'/disk04/sapple/data/samples/'
+    lines_dir = f'/disk04/sapple/data/normal/results/'
     data_dir = f'/home/rad/data/{model}/{wind}/'
     sim =  caesar.load(f'{data_dir}Groups/{model}_{snap}.hdf5')
     co = yt.utilities.cosmology.Cosmology(hubble_constant=sim.simulation.hubble_constant,

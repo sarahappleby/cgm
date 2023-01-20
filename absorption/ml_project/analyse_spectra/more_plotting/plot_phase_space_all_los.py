@@ -32,14 +32,14 @@ if __name__ == '__main__':
     fr200 = np.arange(min_fr200, (nbins_fr200+1)*delta_fr200, delta_fr200)
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
     
     """
     fig, ax = plt.subplots(len(lines), len(fr200), figsize=(14, 13), sharey='row', sharex='col')
 
     for l, line in enumerate(lines):
 
-        all_los_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_los_rhoTZ_{line}.h5'
+        all_los_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_los_rhoTZ_{line}.h5'
 
         for i in range(len(fr200)):
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
     for l, line in enumerate(lines):
 
-        all_los_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_los_rhoTZ_{line}.h5'
+        all_los_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_los_rhoTZ_{line}.h5'
 
         for i in range(len(fr200)):
 

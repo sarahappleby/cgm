@@ -61,13 +61,13 @@ if __name__ == '__main__':
     colors = [cmap(i) for i in icolor]
 
     plot_dir = '/disk04/sapple/cgm/absorption/ml_project/analyse_spectra/plots/'
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
+    sample_dir = f'/disk04/sapple/data/samples/'
 
     with h5py.File(f'{sample_dir}{model}_{wind}_{snap}_galaxy_sample.h5', 'r') as sf:
         gal_ids = sf['gal_ids'][:]
         ssfr = sf['ssfr'][:]
 
-    line_a_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line_a}.h5'
+    line_a_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line_a}.h5'
 
     fig, ax = plt.subplots(len(line_b), 4, figsize=(14, 10), sharey='row', sharex='col')
     #fig, ax = plt.subplots(len(line_b), 4, figsize=(14, 6), sharey='row', sharex='col')
@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
     for l, line in enumerate(line_b):
 
-        line_b_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line_b[l]}.h5'
+        line_b_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line_b[l]}.h5'
 
         for i in range(len(fr200)):
 
@@ -99,7 +99,7 @@ if __name__ == '__main__':
             faligned_gv = np.zeros(len(all_dv))
             faligned_q = np.zeros(len(all_dv))
             
-            align_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}_{fr200[i]}r200.h5'
+            align_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_aligned_{line_a}_{line_b[l]}_{fr200[i]}r200.h5'
 
             for j in range(len(all_dv)):
                 with h5py.File(align_file, 'r') as hf:

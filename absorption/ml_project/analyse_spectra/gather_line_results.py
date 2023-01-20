@@ -32,10 +32,12 @@ if __name__ == '__main__':
     orients = ['0_deg', '45_deg', '90_deg', '135_deg', '180_deg', '225_deg', '270_deg', '315_deg'] 
     orients = [0, 45, 90, 135, 180, 225, 270, 315]
 
-    sample_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/samples/'
-    spectra_dir = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/{model}_{wind}_{snap}/'
-    results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
-    #results_file = f'/disk04/sapple/cgm/absorption/ml_project/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
+    sample_dir = f'/disk04/sapple/data/samples/'
+    #spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}/'
+    spectra_dir = f'/disk04/sapple/data/normal/{model}_{wind}_{snap}_hm12/'
+    #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}.h5'
+    #results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_fit_lines_{line}_extras.h5'
+    results_file = f'/disk04/sapple/data/normal/results/{model}_{wind}_{snap}_hm12_fit_lines_{line}.h5'
 
     s = pg.Snapshot(f'{sample_dir}{model}_{wind}_{snap}.hdf5')
     #s = pg.Snapshot(f'{sample_dir}{model}_{wind}_{snap}_extras.hdf5')
